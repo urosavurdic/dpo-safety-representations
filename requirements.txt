@@ -14,3 +14,12 @@ wandb>=0.17
 huggingface_hub>=0.23
 sentence-transformers>=3.0
 pytest>=8.0
+
+PyYAML==6.0.3
+
+
+
+PyYAML==6.0.3
+
+
+pyyaml==6.0.3

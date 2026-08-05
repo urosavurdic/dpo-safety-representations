@@ -1,0 +1,40 @@
+experiment_name: m1_smoke_test
+seed: 42
+
+model:
+  name: Qwen/Qwen2.5-1.5B
+  trust_remote_code: true
+
+dataset:
+  path: data/processed/sft_helpful.jsonl
+  max_samples: 4
+
+output:
+  base_dir: outputs/smoke_test_m1
+  hf_repo: null
+  push_to_hub: false
+
+training:
+  num_train_epochs: 1
+  max_steps: 2
+  learning_rate: 2.0e-4
+  batch_size: 1
+  gradient_accumulation_steps: 1
+  warmup_ratio: 0.0
+  weight_decay: 0.0
+  logging_steps: 1
+  save_steps: 1000000
+  save_total_limit: 1
+  max_seq_length: 128
+  gradient_checkpointing: false
+  bf16: false
+  fp16: false
+
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.05
+
+wandb:
+  project: null
+  run_name: null
