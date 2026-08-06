@@ -2,7 +2,7 @@ experiment_name: m1_smoke_test
 seed: 42
 
 model:
-  name: Qwen/Qwen2.5-1.5B
+  name: Qwen/Qwen2.5-0.5B   # was Qwen2.5-1.5B - local smoke test only, real training config unaffected
   trust_remote_code: true
 
 dataset:

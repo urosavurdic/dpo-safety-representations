@@ -26,10 +26,10 @@ def create_lora_config(cfg):
 
 
 def load_model(cfg):
-    # Explicit fp16, not torch_dtype="auto" - Qwen2.5 checkpoints default to
+    # Explicit fp16, not dtype="auto" - Qwen2.5 checkpoints default to
     # bf16, which T4 (Turing, no native bf16 tensor cores) handles poorly.
     return AutoModelForCausalLM.from_pretrained(
         cfg["model"]["name"],
-        torch_dtype=torch.float16,
+        dtype=torch.float16,
         trust_remote_code=cfg["model"]["trust_remote_code"],
     )

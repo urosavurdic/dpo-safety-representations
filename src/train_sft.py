@@ -1,45 +1,35 @@
 """
 SFT trainer for M1 (SFT-Helpful) and M2 (SFT-Safety) - only the config
-differs between the two runs. Built on src/training/{utils,callbacks,model}.py
-so train_dpo.py (M3) can reuse the same tokenizer/model/LoRA construction.
+differs between the two runs. Built on src/training/{utils,callbacks,model,
+data,formatting}.py so train_dpo.py (M3) can reuse the same tokenizer/model/
+LoRA construction and the same chat-formatting function.
+
+Formatting: uses tokenizer.apply_chat_template (ChatML), not a custom plain
+template - Qwen2.5's tokenizer ships real <|im_start|>/<|im_end|> special
+tokens and a working chat_template even on the base checkpoint, so the SAME
+call can be used on M0 later during activation extraction. See
+PROJECT_CONTEXT.md, design decision #4.
 
 Checkpoint layout:
   {output.base_dir}/checkpoints/   <- resumable training state, auto-pruned
   {output.base_dir}/final/         <- completed adapter, written once at the
-                                       end; never resumed from, never overwritten
-                                       by an intermediate checkpoint.
-
-Reproducibility: every run saves config_used.yaml, git_commit.txt, and
-requirements.txt alongside the final adapter.
+                                       end; never resumed from, never overwritten.
 """
 import argparse
-import json
 import os
 import shutil
 import subprocess
 from pathlib import Path
 
 import yaml
-from datasets import Dataset
 from peft import get_peft_model
 from trl import SFTConfig, SFTTrainer
 
 from src.training.utils import load_config, ensure_dir
 from src.training.callbacks import ResumeCallback, GPUMemoryCallback, latest_checkpoint
 from src.training.model import load_tokenizer, load_model, create_lora_config
-
-PROMPT_TEMPLATE = "### Instruction:\n{prompt}\n\n### Response:\n{response}"
-
-
-def load_sft_dataset(jsonl_path, max_samples=None):
-    rows = []
-    with open(jsonl_path, "r", encoding="utf-8") as f:
-        for line in f:
-            rows.append(json.loads(line))
-    if max_samples:
-        rows = rows[:max_samples]
-    texts = [PROMPT_TEMPLATE.format(prompt=r["prompt"], response=r["response"]) for r in rows]
-    return Dataset.from_dict({"text": texts})
+from src.training.data import load_sft_dataset
+from src.training.formatting import format_chat_example
 
 
 def get_git_commit():
@@ -72,8 +62,10 @@ def main():
     ensure_dir(final_dir)
 
     print(f"[{cfg['experiment_name']}] loading dataset from {cfg['dataset']['path']}")
-    dataset = load_sft_dataset(cfg["dataset"]["path"], max_samples=cfg["dataset"].get("max_samples"))
-    print(f"Loaded {len(dataset)} training examples.")
+    raw_dataset = load_sft_dataset(cfg["dataset"]["path"])
+    if cfg["dataset"].get("max_samples"):
+        raw_dataset = raw_dataset.select(range(cfg["dataset"]["max_samples"]))
+    print(f"Loaded {len(raw_dataset)} training examples.")
 
     tokenizer = load_tokenizer(cfg)
     model = load_model(cfg)
@@ -81,6 +73,10 @@ def main():
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
 
+    dataset = raw_dataset.map(
+        lambda ex: format_chat_example(ex, tokenizer),
+        remove_columns=raw_dataset.column_names,
+    )
     report_to = []
     if cfg.get("wandb", {}).get("project"):
         report_to = ["wandb"]
@@ -98,7 +94,7 @@ def main():
         logging_steps=cfg["training"]["logging_steps"],
         save_steps=cfg["training"]["save_steps"],
         save_total_limit=cfg["training"]["save_total_limit"],
-        max_seq_length=cfg["training"]["max_seq_length"],
+        max_length=cfg["training"]["max_seq_length"],
         gradient_checkpointing=cfg["training"]["gradient_checkpointing"],
         bf16=cfg["training"]["bf16"],
         fp16=cfg["training"]["fp16"],
