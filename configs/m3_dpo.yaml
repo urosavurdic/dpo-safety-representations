@@ -18,12 +18,12 @@ training:
   num_train_epochs: 1
   max_steps: -1
   learning_rate: 5.0e-5
-  batch_size: 4
+  batch_size: 16
   gradient_accumulation_steps: 8
   warmup_ratio: 0.1
   weight_decay: 0.01
   logging_steps: 10
-  save_steps: 50
+  save_steps: 20
   save_total_limit: 3
   max_seq_length: 1024
   gradient_checkpointing: true

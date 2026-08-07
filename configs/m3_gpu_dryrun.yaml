@@ -19,8 +19,8 @@ training:
   num_train_epochs: 1
   max_steps: 5
   learning_rate: 5.0e-5
-  batch_size: 4
-  gradient_accumulation_steps: 8
+  batch_size: 2
+  gradient_accumulation_steps: 16
   warmup_ratio: 0.0
   weight_decay: 0.01
   logging_steps: 1
