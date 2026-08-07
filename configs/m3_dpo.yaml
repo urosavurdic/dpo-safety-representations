@@ -33,7 +33,6 @@ training:
 dpo:
   beta: 0.1
   loss_type: sigmoid
-  max_prompt_length: 512
 
 lora:
   r: 64

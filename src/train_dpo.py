@@ -20,6 +20,45 @@ from src.training.model import load_tokenizer, load_model, create_lora_config
 from src.training.dpo_data import load_dpo_dataset, format_dpo_example
 
 
+def build_dpo_config(cfg: dict, output_dir) -> DPOConfig:
+    """
+    Build the DPOConfig for a run from the loaded YAML config. Extracted out
+    of main() so it can be unit-tested without a network, model, or GPU.
+
+    This exact mapping is what broke twice in a row against real TRL/
+    transformers upgrades: `max_prompt_length` was removed from DPOConfig,
+    and DPOConfig defaults `bf16=True` whenever `fp16` isn't also passed
+    explicitly (see PROJECT_CONTEXT.md experiment log). A test that actually
+    constructs this object from configs/m3_dpo.yaml and
+    configs/m3_gpu_dryrun.yaml catches that whole class of breakage in under
+    a second, before a Colab GPU session is ever spent on it.
+    """
+    report_to = ["wandb"] if cfg.get("wandb", {}).get("project") else []
+
+    return DPOConfig(
+        output_dir=str(output_dir),
+        beta=cfg["dpo"]["beta"],
+        loss_type=cfg["dpo"]["loss_type"],
+        max_length=cfg["training"]["max_seq_length"],
+        num_train_epochs=cfg["training"]["num_train_epochs"],
+        max_steps=cfg["training"].get("max_steps", -1),
+        learning_rate=cfg["training"]["learning_rate"],
+        per_device_train_batch_size=cfg["training"]["batch_size"],
+        gradient_accumulation_steps=cfg["training"]["gradient_accumulation_steps"],
+        warmup_ratio=cfg["training"]["warmup_ratio"],
+        weight_decay=cfg["training"]["weight_decay"],
+        logging_steps=cfg["training"]["logging_steps"],
+        save_steps=cfg["training"]["save_steps"],
+        save_total_limit=cfg["training"]["save_total_limit"],
+        gradient_checkpointing=cfg["training"]["gradient_checkpointing"],
+        bf16=cfg["training"]["bf16"],
+        fp16=cfg["training"]["fp16"],
+        report_to=report_to,
+        run_name=cfg.get("wandb", {}).get("run_name"),
+        seed=cfg["seed"],
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
@@ -44,34 +83,10 @@ def main():
     model = load_model(cfg)  # plain dense model - NOT get_peft_model-wrapped
     lora_config = create_lora_config(cfg)
 
-    report_to = []
     if cfg.get("wandb", {}).get("project"):
-        report_to = ["wandb"]
         os.environ["WANDB_PROJECT"] = cfg["wandb"]["project"]
 
-    dpo_args = DPOConfig(
-        output_dir=str(checkpoints_dir),
-        beta=cfg["dpo"]["beta"],
-        loss_type=cfg["dpo"]["loss_type"],
-        max_length=cfg["training"]["max_seq_length"],
-        max_prompt_length=cfg["dpo"]["max_prompt_length"],
-        num_train_epochs=cfg["training"]["num_train_epochs"],
-        max_steps=cfg["training"].get("max_steps", -1),
-        learning_rate=cfg["training"]["learning_rate"],
-        per_device_train_batch_size=cfg["training"]["batch_size"],
-        gradient_accumulation_steps=cfg["training"]["gradient_accumulation_steps"],
-        warmup_ratio=cfg["training"]["warmup_ratio"],
-        weight_decay=cfg["training"]["weight_decay"],
-        logging_steps=cfg["training"]["logging_steps"],
-        save_steps=cfg["training"]["save_steps"],
-        save_total_limit=cfg["training"]["save_total_limit"],
-        gradient_checkpointing=cfg["training"]["gradient_checkpointing"],
-        bf16=cfg["training"]["bf16"],
-        fp16=cfg["training"]["fp16"],
-        report_to=report_to,
-        run_name=cfg.get("wandb", {}).get("run_name"),
-        seed=cfg["seed"],
-    )
+    dpo_args = build_dpo_config(cfg, checkpoints_dir)
 
     trainer = DPOTrainer(
         model=model,
