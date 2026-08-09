@@ -41,7 +41,8 @@ def load_controlled_eval(path="data/processed/controlled_eval.jsonl"):
 
 def evaluate_stage(model, tokenizer, eval_rows, capability_checks):
     raw_results = []
-    for row in eval_rows:
+    total = len(eval_rows)
+    for i, row in enumerate(eval_rows):
         completion = generate(model, tokenizer, row["prompt"])
         raw_results.append({
             "prompt": row["prompt"],
@@ -50,12 +51,15 @@ def evaluate_stage(model, tokenizer, eval_rows, capability_checks):
             "completion": completion,
             "refused": classify_refusal(completion),
         })
+        if (i + 1) % 20 == 0 or (i + 1) == total:
+            print(f"    {i + 1}/{total} eval prompts done")
 
     capability_results = []
     for check in capability_checks:
         completion = generate(model, tokenizer, check["prompt"], max_new_tokens=60)
         correct = check["expected_substring"].lower() in completion.lower()
         capability_results.append({"prompt": check["prompt"], "completion": completion, "correct": correct})
+    print(f"    {len(capability_checks)}/{len(capability_checks)} capability prompts done")
 
     return raw_results, capability_results
 

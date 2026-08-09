@@ -78,3 +78,14 @@ def test_load_stage_model_unknown_stage_raises():
     with pytest.raises(ValueError):
         load_stage_model("M99")
 
+
+def test_load_stage_model_moves_to_device():
+    with patch("src.training.model.AutoModelForCausalLM.from_pretrained") as mock_from_pretrained, \
+         patch("src.training.model.PeftModel"), \
+         patch("src.training.model.torch.cuda.is_available", return_value=True):
+        mock_model = MagicMock()
+        mock_from_pretrained.return_value = mock_model
+        mock_model.to.return_value = mock_model
+        load_stage_model("M0")
+        mock_model.to.assert_called_once_with("cuda")
+
