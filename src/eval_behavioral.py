@@ -14,6 +14,8 @@ from src.training.model import load_stage_model
 from src.eval_stats import rate_with_ci
 from src.eval_refusal_classifier import classify_refusal
 
+from src.eval_generation import generate
+
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 STAGES = ["M0", "M1", "M2", "M3"]
 
@@ -35,22 +37,6 @@ def load_controlled_eval(path="data/processed/controlled_eval.jsonl"):
         for line in f:
             rows.append(json.loads(line))
     return rows
-
-
-def generate(model, tokenizer, prompt, max_new_tokens=150):
-    messages = [{"role": "user", "content": prompt}]
-    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(text, return_tensors="pt")
-    with torch.no_grad():
-        output = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=False,
-            repetition_penalty=1.1,
-            pad_token_id=tokenizer.pad_token_id,
-        )
-    generated = output[0][inputs["input_ids"].shape[1]:]
-    return tokenizer.decode(generated, skip_special_tokens=True).strip()
 
 
 def evaluate_stage(model, tokenizer, eval_rows, capability_checks):
