@@ -15,20 +15,28 @@ STAGE_ADAPTER_CHAINS = {
 }
 
 
-def load_stage_model(stage_name: str, dtype=torch.float32):
+def load_stage_model(stage_name: str, dtype=None):
     """
     Reconstructs the ACTUAL trained state of a given stage (M0-M3) by
     replaying the same adapter-merge cascade used during training. Each
     stage's saved adapter is a delta relative to the PREVIOUS stage's merged
-    weights, not the raw base model - loading a later stage's adapter
-    directly onto raw base produces an incoherent model, not the model that
-    was actually trained. This is the single source of truth for that
-    reconstruction - use it anywhere a specific stage's real weights are needed.
+    weights, not the raw base model.
+
+    Auto-detects device: CUDA + fp16 when a GPU is available (matches
+    training precision - T4 has no native bf16 support), CPU + fp32
+    otherwise (fp16 has poor CPU kernel support). Originally written
+    CPU-only for the local qualitative check; reused unmodified on Colab it
+    silently stayed on CPU even with a GPU present - this fixes that.
     """
     if stage_name not in STAGE_ADAPTER_CHAINS:
         raise ValueError(f"Unknown stage: {stage_name}. Expected one of {list(STAGE_ADAPTER_CHAINS)}")
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if dtype is None:
+        dtype = torch.float16 if device == "cuda" else torch.float32
+
     model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B", dtype=dtype)
+    model = model.to(device)
     for adapter_repo in STAGE_ADAPTER_CHAINS[stage_name]:
         model = PeftModel.from_pretrained(model, adapter_repo)
         model = model.merge_and_unload()
