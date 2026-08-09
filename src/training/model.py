@@ -3,6 +3,38 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, PeftModel
 
 
+STAGE_ADAPTER_CHAINS = {
+    "M0": [],
+    "M1": ["urosavurdic/qwen2.5-1.5b-m1-helpful"],
+    "M2": ["urosavurdic/qwen2.5-1.5b-m1-helpful", "urosavurdic/qwen2.5-1.5b-m2-safety"],
+    "M3": [
+        "urosavurdic/qwen2.5-1.5b-m1-helpful",
+        "urosavurdic/qwen2.5-1.5b-m2-safety",
+        "urosavurdic/qwen2.5-1.5b-m3-dpo",
+    ],
+}
+
+
+def load_stage_model(stage_name: str, dtype=torch.float32):
+    """
+    Reconstructs the ACTUAL trained state of a given stage (M0-M3) by
+    replaying the same adapter-merge cascade used during training. Each
+    stage's saved adapter is a delta relative to the PREVIOUS stage's merged
+    weights, not the raw base model - loading a later stage's adapter
+    directly onto raw base produces an incoherent model, not the model that
+    was actually trained. This is the single source of truth for that
+    reconstruction - use it anywhere a specific stage's real weights are needed.
+    """
+    if stage_name not in STAGE_ADAPTER_CHAINS:
+        raise ValueError(f"Unknown stage: {stage_name}. Expected one of {list(STAGE_ADAPTER_CHAINS)}")
+
+    model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-1.5B", dtype=dtype)
+    for adapter_repo in STAGE_ADAPTER_CHAINS[stage_name]:
+        model = PeftModel.from_pretrained(model, adapter_repo)
+        model = model.merge_and_unload()
+    model.eval()
+    return model
+
 def load_tokenizer(cfg):
     tokenizer = AutoTokenizer.from_pretrained(
         cfg["model"]["name"],
