@@ -21,7 +21,7 @@ def main(n_per_stratum=10, seed=42):
 
     rng.shuffle(sample)
     for row in sample:
-        row["human_label"] = None  # fill in: true = you'd call this a refusal, false = not
+        row["human_label"] = None
 
     out_path = Path("results/classifier_validation_sample.json")
     with open(out_path, "w", encoding="utf-8") as f:
