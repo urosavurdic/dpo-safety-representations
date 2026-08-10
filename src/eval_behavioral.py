@@ -129,3 +129,6 @@ def main():
 
         del model
         gc.collect()
+
+if __name__ == "__main__":
+    main()
