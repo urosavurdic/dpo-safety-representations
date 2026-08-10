@@ -14,7 +14,7 @@ from src.training.model import load_stage_model
 from src.eval_stats import rate_with_ci
 from src.eval_refusal_classifier import classify_refusal
 
-from src.eval_generation import generate
+from src.eval_generation import generate, generate_batch
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 STAGES = ["M0", "M1", "M2", "M3"]
@@ -81,42 +81,51 @@ def main():
     eval_rows = load_controlled_eval()
     print(f"Loaded {len(eval_rows)} controlled-eval prompts.")
 
-    all_raw, all_capability, all_summary = {}, {}, {}
+    out_dir = Path("results")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = out_dir / "behavioral_eval_raw.json"
+    capability_path = out_dir / "behavioral_eval_capability.json"
 
+    all_raw = json.load(open(raw_path, encoding="utf-8")) if raw_path.exists() else {}
+    all_capability = json.load(open(capability_path, encoding="utf-8")) if capability_path.exists() else {}
+    if all_raw:
+        print(f"Resuming - already completed: {list(all_raw.keys())}")
+
+    BATCH_SIZE = 8
     for stage_name in STAGES:
-        print(f"\n=== {stage_name}: {len(eval_rows)} eval + {len(CAPABILITY_CHECKS)} capability prompts ===")
+        if stage_name in all_raw:
+            print(f"\n=== {stage_name}: already done, skipping ===")
+            continue
+
+        print(f"\n=== {stage_name}: generating (batch size {BATCH_SIZE}) ===")
         model = load_stage_model(stage_name)
-        raw_results, capability_results = evaluate_stage(model, tokenizer, eval_rows, CAPABILITY_CHECKS)
+
+        raw_results = []
+        for i in range(0, len(eval_rows), BATCH_SIZE):
+            batch_rows = eval_rows[i:i + BATCH_SIZE]
+            completions = generate_batch(model, tokenizer, [r["prompt"] for r in batch_rows])
+            for row, completion in zip(batch_rows, completions):
+                raw_results.append({
+                    "prompt": row["prompt"], "quadrant": row["quadrant"], "source": row["source"],
+                    "completion": completion, "refused": classify_refusal(completion),
+                })
+            print(f"    {min(i + BATCH_SIZE, len(eval_rows))}/{len(eval_rows)} eval prompts done")
+
+        capability_results = []
+        for check in CAPABILITY_CHECKS:
+            completion = generate(model, tokenizer, check["prompt"], max_new_tokens=60)
+            capability_results.append({
+                "prompt": check["prompt"], "completion": completion,
+                "correct": check["expected_substring"].lower() in completion.lower(),
+            })
 
         all_raw[stage_name] = raw_results
         all_capability[stage_name] = capability_results
-        all_summary[stage_name] = summarize(raw_results)
 
-        capability_correct = sum(1 for c in capability_results if c["correct"])
-        all_summary[stage_name]["capability"] = rate_with_ci(capability_correct, len(capability_results))
+        # Save immediately after each stage, not at the end - this is the actual resumability fix
+        json.dump(all_raw, open(raw_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        json.dump(all_capability, open(capability_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        print(f"Saved progress after {stage_name}.")
 
         del model
         gc.collect()
-
-    out_dir = Path("results")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    with open(out_dir / "behavioral_eval_raw.json", "w", encoding="utf-8") as f:
-        json.dump(all_raw, f, ensure_ascii=False, indent=2)
-    with open(out_dir / "behavioral_eval_capability.json", "w", encoding="utf-8") as f:
-        json.dump(all_capability, f, ensure_ascii=False, indent=2)
-    with open(out_dir / "behavioral_eval_summary.json", "w", encoding="utf-8") as f:
-        json.dump(all_summary, f, ensure_ascii=False, indent=2)
-
-    print("\n\n=== SUMMARY (refusal rate by quadrant, capability accuracy) ===")
-    print(f"{'Model':<6} {'A':<18} {'B':<18} {'C':<18} {'D':<18} {'Capability':<18}")
-    def fmt(d):
-        return "n/a" if d["rate"] is None else f"{d['rate']*100:.1f}% [{d['ci_low']*100:.1f}-{d['ci_high']*100:.1f}]"
-    for stage_name in STAGES:
-        s = all_summary[stage_name]
-        print(f"{stage_name:<6} {fmt(s['A']):<18} {fmt(s['B']):<18} {fmt(s['C']):<18} {fmt(s['D']):<18} {fmt(s['capability']):<18}")
-
-    print("\nSaved to results/behavioral_eval_{raw,capability,summary}.json")
-
-
-if __name__ == "__main__":
-    main()

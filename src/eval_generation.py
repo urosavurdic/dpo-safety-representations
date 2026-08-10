@@ -8,6 +8,29 @@ def build_generation_prompt(tokenizer, prompt):
     messages = [{"role": "user", "content": prompt}]
     return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
+def generate_batch(model, tokenizer, prompts, max_new_tokens=200):
+    original_padding_side = tokenizer.padding_side
+    tokenizer.padding_side = "left"  # required for correct batch generation with a decoder-only model
+    try:
+        texts = [build_generation_prompt(tokenizer, p) for p in prompts]
+        inputs = tokenizer(texts, return_tensors="pt", padding=True)
+        eos_ids = get_generation_eos_ids(tokenizer)
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                repetition_penalty=1.1,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=eos_ids,
+            )
+        results = []
+        for i in range(len(prompts)):
+            generated = outputs[i][inputs["input_ids"].shape[1]:]
+            results.append(tokenizer.decode(generated, skip_special_tokens=True).strip())
+        return results
+    finally:
+        tokenizer.padding_side = original_padding_side
 
 def get_generation_eos_ids(tokenizer):
     """
