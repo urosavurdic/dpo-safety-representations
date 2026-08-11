@@ -8,3 +8,4 @@ data/raw/
 wandb/
 .env
 .ipynb_checkpoints/
+results/activations/*.npy
