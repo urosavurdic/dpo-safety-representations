@@ -31,7 +31,7 @@ from src.eval_generation import build_generation_prompt
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 BATCH_SIZE = 8
 MAX_NEW_TOKENS = 200  # ASSUMPTION -- must match eval_behavioral.py's setting exactly for a valid comparison. Check and edit if different.
-ABLATE_LAYERS = list(range(14, 29))  # hidden_states indices 14..28 inclusive
+ABLATE_LAYERS = list(range(24, 29))   # was range(14, 29) — narrower, targets the deepest layers  # hidden_states indices 14..28 inclusive
 
 
 def get_decoder_layers(model):
@@ -150,7 +150,7 @@ def main():
           f"(decoder blocks {ABLATE_LAYERS[0]-1}-{ABLATE_LAYERS[-1]-1})")
 
     out_rows = []
-    out_path = Path("results/causal_ablation_raw.json")
+    out_path = Path("results/causal_ablation_raw_narrow.json") #out_path = Path("results/causal_ablation_raw.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not args.skip_baseline:
