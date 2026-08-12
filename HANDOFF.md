@@ -53,13 +53,15 @@ representation gets read out into behavior more than it repositions the
 representation itself.
 
 **C5 — Causal ablation (first attempt, layers 14-28, full projection
-removal).** Quadrant C soft-deflection 80%→0% under ablation — but
-quadrant A's legitimate refusal also collapses 14%→0%, and B's small
-signal disappears too. Real causal effect on refusal-related behavior,
-but NOT selective — can't yet claim this specific direction is uniquely
-responsible for the neutral-wording effect. Verified consistent between
-the printed transcript output and the committed
-`causal_ablation_summary.json`.
+removal).** Quadrant C soft-deflection 80%→0%; quadrant A refusal also
+14%→0%. Not selective. Confirmed with a paired McNemar's exact test (not
+just Wilson CIs): C, 16/16 discordant pairs switched away from
+soft-deflection under ablation, p=0.000031. A, 7/7 discordant pairs
+switched away from refusal, p=0.015625. Both effects are individually
+significant and complete (100% flip, 0% reverse-flip) — the ablation's
+lack of selectivity is now statistically solid, not just visually
+apparent. One narrower-layer attempt (24-28 instead of 14-28) is the last
+open experimental question before Phase 5.
 
 ## Current overall verdict (honest, not a clean binary)
 Post-training doesn't appear to create a new, DPO-specific safety
@@ -81,10 +83,11 @@ Known hygiene debt, not urgent but real: ~56MB of committed smoke-test
 binaries under `outputs/smoke_test_m1/`.
 
 ## Next steps, in order
-1. `git checkout main && git merge phase4-wip && git push` — do this first, unblocks everything else.
-2. Run `src/mcnemar_causal_ablation.py` (local, no Colab, uses data you already have) — paired significance test on the existing ablation result.
-3. One narrower-layer ablation attempt (layers 24-28 instead of 14-28, per Component 4's finding that DPO's effect concentrates deep) — needs one more Colab GPU run. Time-boxed: if it's not selective either, stop and write up the honest negative result — don't keep tuning.
-4. Phase 5: update PROJECT_CONTEXT.md's decision log with C4/C5 findings, reorganize results/ (behavioral/, probes/, refusal_direction/, causal_ablation/, figures/), remove the smoke-test binaries from git, rewrite README as the scientific story, then the actual write-up.
+1. Verify `phase4-wip → main` merge status (`git log main --oneline -5`) — document 4 marked this done-if-completed but unconfirmed.
+2. ~~Paired McNemar's test~~ — done, see C5 above.
+3. **Current step:** confirm whether the narrower ablation (layers 24-28) has actually been run yet — the pasted output matches the original 14-28 result exactly, needs disambiguating (see commands above) before treating it as new evidence either way.
+4. Phase 5: update PROJECT_CONTEXT.md's decision log with C4/C5 findings, reorganize `results/`, remove the smoke-test binaries from git, rewrite README, then the write-up.
+
 
 ## Working conventions (still apply)
 One component at a time, tests before moving on. PowerShell/VS Code local

@@ -18,6 +18,8 @@ from pathlib import Path
 from src.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 from src.eval_stats import rate_with_ci
 
+import argparse
+
 CONDITIONS = ["M3_baseline", "M3_ablated"]
 QUADRANTS = ["A", "B", "C", "D"]
 CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
@@ -40,7 +42,10 @@ def load_rows(path="results/causal_ablation_raw.json"):
 
 
 def main():
-    rows = load_rows()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file", default="results/causal_ablation_raw.json")
+    args = parser.parse_args()
+    rows = load_rows(args.file)
     print(f"Loaded {len(rows)} rows.")
 
     counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
