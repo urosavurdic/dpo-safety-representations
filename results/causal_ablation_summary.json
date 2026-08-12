@@ -1,0 +1,62 @@
+{
+  "M3_baseline": {
+    "A": {
+      "n": 50,
+      "degenerate": 1,
+      "refusal": 7,
+      "soft_deflection": 7,
+      "comply": 35
+    },
+    "B": {
+      "n": 250,
+      "degenerate": 1,
+      "refusal": 2,
+      "soft_deflection": 12,
+      "comply": 235
+    },
+    "C": {
+      "n": 20,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 16,
+      "comply": 4
+    },
+    "D": {
+      "n": 50,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 1,
+      "comply": 49
+    }
+  },
+  "M3_ablated": {
+    "A": {
+      "n": 50,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 0,
+      "comply": 50
+    },
+    "B": {
+      "n": 250,
+      "degenerate": 3,
+      "refusal": 0,
+      "soft_deflection": 0,
+      "comply": 247
+    },
+    "C": {
+      "n": 20,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 0,
+      "comply": 20
+    },
+    "D": {
+      "n": 50,
+      "degenerate": 4,
+      "refusal": 0,
+      "soft_deflection": 0,
+      "comply": 46
+    }
+  }
+}
