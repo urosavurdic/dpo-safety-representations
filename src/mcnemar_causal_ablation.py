@@ -5,6 +5,7 @@ so per-prompt comparison is the correct test, not two independent Wilson
 CIs. Reuses classify_completion() from summarize_causal_ablation.py --
 does not reimplement classification.
 """
+import argparse
 import json
 from collections import defaultdict
 
@@ -41,7 +42,10 @@ def contingency_table(pairs):
 
 
 def main():
-    rows = load_rows()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file", default="results/causal_ablation_raw.json")
+    args = parser.parse_args()
+    rows = load_rows(args.file)
     print(f"Loaded {len(rows)} rows.\n")
     for quadrant, category in QUADRANTS_TO_TEST.items():
         pairs = build_paired_outcomes(rows, quadrant, category)
