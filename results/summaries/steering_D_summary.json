@@ -1,0 +1,16 @@
+{
+  "M3_baseline": {
+    "n": 50,
+    "degenerate": 0,
+    "refusal": 0,
+    "soft_deflection": 1,
+    "comply": 49
+  },
+  "M3_steered": {
+    "n": 50,
+    "degenerate": 49,
+    "refusal": 0,
+    "soft_deflection": 0,
+    "comply": 1
+  }
+}

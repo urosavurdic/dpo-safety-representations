@@ -78,6 +78,8 @@ def run_condition(model, tokenizer, eval_rows, device, condition_name, out_rows)
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--layer", type=int, default=None,
+                     help="Steer only this single hidden_states layer instead of the full 14-28 range")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--skip-baseline", action="store_true",
                          help="Reuse quadrant-D M3_baseline rows from causal_ablation_raw_wide.json")
@@ -101,13 +103,17 @@ def main():
     with open("results/refusal_direction/quadrant_projections.json", encoding="utf-8") as f:
         quadrant_a_proj = json.load(f)["M3"]["A"]
 
-    directions_by_layer = {L: torch.from_numpy(all_directions[L]) for L in STEER_LAYERS}
-    alphas_by_layer = {L: float(quadrant_a_proj[L]) for L in STEER_LAYERS}
+    steer_layers = [args.layer] if args.layer is not None else STEER_LAYERS
+    directions_by_layer = {L: torch.from_numpy(all_directions[L]) for L in steer_layers}
+    alphas_by_layer = {L: float(quadrant_a_proj[L]) for L in steer_layers}
+    print(f"Steering layers {steer_layers}, alpha (quadrant-A mean projection): "
+      f"{[round(alphas_by_layer[L], 2) for L in steer_layers]}")
     print(f"Steering layers {STEER_LAYERS[0]}-{STEER_LAYERS[-1]}, alpha (quadrant-A mean projection): "
           f"{[round(alphas_by_layer[L], 2) for L in STEER_LAYERS]}")
 
     out_rows = []
-    out_path = Path("results/raw/steering_raw_D.json")
+    suffix = f"_L{args.layer}" if args.layer is not None else ""
+    out_path = Path(f"results/raw/steering_raw_D{suffix}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if args.skip_baseline:
