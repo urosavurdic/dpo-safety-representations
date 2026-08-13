@@ -1,0 +1,3 @@
+"""
+Training tests package
+"""

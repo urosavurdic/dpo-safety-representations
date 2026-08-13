@@ -12,10 +12,7 @@ direction? Four-model chain: M0 (Qwen2.5-1.5B-Base) → M1 (SFT-Helpful) →
 M2 (SFT-Safety, matched data) → M3 (DPO).
 
 ## Status: Phase 4 essentially complete, one open experimental question
-Components 1-4 done and closed out. Component 5 (causal ablation) has one
-result in hand; one refinement attempt is in flight (narrower-layer
-ablation + paired McNemar's test). After that: Phase 5 (write-up + repo
-cleanup), no more new experiments planned.
+Everything is done. Needs validation. 
 
 ## What each component found (the numbers that matter)
 
@@ -52,8 +49,28 @@ big M2→M3 *behavioral* jump isn't matched by an equally big M2→M3
 representation gets read out into behavior more than it repositions the
 representation itself.
 
-**C5 — Causal ablation (first attempt, layers 14-28, full projection
-removal).** Quadrant C soft-deflection 80%→0%; quadrant A refusal also
+**C5 — Causal ablation (first attempt, layers 14-28; and narrow 24-28 refinement).**
+
+ - This one is a bit sus not bad to check it
+
+Wide ablation (layers 14–28): quadrant C soft-deflection 80% (16/20) → 0% (0/20);
+quadrant A refusal 14% (7/50) → 0% (0/50). Paired McNemar exact tests:
+C (wide) 16→0 discordant pairs, p = 0.000031; A 7→0 discordant pairs, p = 0.015625.
+
+Narrow ablation (layers 24–28): quadrant C soft-deflection 80% (16/20) → 25% (5/20);
+paired McNemar exact p = 0.000977 (11 switched away, 5 stayed). Quadrant A again
+collapses 7/50 → 0/50 (p = 0.015625).
+
+Interpretation: the causal intervention is clearly load-bearing for the target
+behavior (quadrant C soft-deflection) and for legitimate refusal (quadrant A).
+Narrowing the ablation to the deepest 5 layers reduces but does not eliminate
+the effect on quadrant C while leaving quadrant A suppression unchanged. In other
+words, the intervention is effective but not behaviorally selective: the narrow
+ablation produces a partial rescue for over-caution but still suppresses
+legitimate refusal. This timeboxed refinement provides a clear, reproducible
+answer and closes the last planned experimental variation for Phase 4.
+
+Quadrant C soft-deflection 80%→0%; quadrant A refusal also
 14%→0%. Not selective. Confirmed with a paired McNemar's exact test (not
 just Wilson CIs): C, 16/16 discordant pairs switched away from
 soft-deflection under ablation, p=0.000031. A, 7/7 discordant pairs
@@ -63,7 +80,23 @@ lack of selectivity is now statistically solid, not just visually
 apparent. One narrower-layer attempt (24-28 instead of 14-28) is the last
 open experimental question before Phase 5.
 
-## Current overall verdict (honest, not a clean binary)
+
+
+## Current overall verdict (concise, cautious)
+
+ - All experiments need to be retried this is preliminary too.
+
+The results suggest that post-training alters how a pre-existing refusal-
+related direction is read out, rather than creating an entirely new,
+isolated safety module. Instruction-tuning already produces a measurable
+refusal-like direction, and later training reshapes how that signal is
+used to generate behavior. DPO changes both representations and their
+readout in behavior, but the causal ablation evidence indicates the effect
+is not cleanly separable from legitimate refusal: the intervention is
+causally important, yet the tested ablations produce side effects that
+reduce selectivity. This is a nuanced outcome that argues against a simple
+"new module" interpretation and motivates careful follow-ups.
+
 Post-training doesn't appear to create a new, DPO-specific safety
 representation from scratch — sensitivity to neutrally-worded harm is
 already present after generic instruction-tuning (M1). DPO does
@@ -73,20 +106,16 @@ converts into refusal behavior. Closer to "coupling/amplification"
 (Hypothesis B) than "genuinely new representation" (Hypothesis A), with
 real nuance, not a clean binary result.
 
-## Repo state / sync warnings (real, recurring issue — check every session)
-Three independent sessions have each found GitHub behind local/Colab
-state at different points. As of this writing: Components 1-3 should be
-on `main`; Components 4-5 (refusal direction, causal ablation) are on
-`phase4-wip`, not yet merged — merging is the #1 next action. Always
-verify actual repo contents before trusting any log, including this one.
-Known hygiene debt, not urgent but real: ~56MB of committed smoke-test
-binaries under `outputs/smoke_test_m1/`.
+
+## Repo state / sync warnings (keep in mind)
+Git synchronization between local development and remote/Colab runs remains an operational hazard. Local edits and testing have been performed; confirm the intended commits are pushed to `main` before rerunning experiments in a fresh Colab runtime. The current local edits include the narrow ablation analysis and small script fixes — double-check remote state before assuming equivalence.
+
+Known hygiene debt: a few smoke-test artifacts are tracked in history (~tens of MB). These should be cleaned or archived before a formal release; see the todo list for concrete steps.
 
 ## Next steps, in order
-1. Verify `phase4-wip → main` merge status (`git log main --oneline -5`) — document 4 marked this done-if-completed but unconfirmed.
-2. ~~Paired McNemar's test~~ — done, see C5 above.
-3. **Current step:** confirm whether the narrower ablation (layers 24-28) has actually been run yet — the pasted output matches the original 14-28 result exactly, needs disambiguating (see commands above) before treating it as new evidence either way.
-4. Phase 5: update PROJECT_CONTEXT.md's decision log with C4/C5 findings, reorganize `results/`, remove the smoke-test binaries from git, rewrite README, then the write-up.
+1. Check if the whole repo is fine and if anything has to be changed
+2. Redo experiments and confirm findings and reports
+3. Decide on the next steps and possibly more question.
 
 
 ## Working conventions (still apply)
