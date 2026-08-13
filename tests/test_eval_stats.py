@@ -1,4 +1,4 @@
-from src.eval_stats import rate_with_ci
+from src.utils.eval_stats import rate_with_ci
 
 
 def test_rate_with_ci_basic():

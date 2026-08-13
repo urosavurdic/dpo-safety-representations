@@ -9,3 +9,6 @@ wandb/
 .env
 .ipynb_checkpoints/
 results/activations/*.npy
+# smoke-test outputs (keep local copies but do not track)
+outputs/smoke_test_m1/
+outputs/smoke_test_*/

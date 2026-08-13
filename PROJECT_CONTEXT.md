@@ -19,22 +19,22 @@ cluster (Hypothesis B)?
  
 ---
  
-## Fellowship Strategy (decided)
- 
-- **Primary target: AIAF (AI Alignment Foundation Fellowship).** Good genuine fit —
-  they select for independent execution on ambiguous problems; candidate's Microsoft
-  internship (ablation studies, evaluation framework, ML pipeline work) is directly
-  relevant evidence. Project is being built to optimize for this.
-- **Secondary/stretch target: AIXI Labs Fellowship.** Real stretch — their agenda
-  centers on algorithmic information theory / theoretical foundations, this project
-  is empirical interpretability. Not restructuring the project for this; only adding
-  two low-cost, reused-work additions (below) opportunistically.
-- **Low-cost AIXI-oriented additions (do NOT let these compete with core work):**
-  1. MDL (Minimum Description Length) probing as a secondary metric alongside
-     standard probe accuracy — reuses already-extracted activations.
-  2. Information-theoretic framing paragraph in the final write-up connecting H4
-     to compressibility of the learned safety rule (effective rank, cosine
-     similarity across stages) — a writing addition, not a new experiment.
+## Dissemination & impact
+
+Target audiences and impact: the work is scoped to be maximally useful and
+reproducible for the ML safety and interpretability research communities and
+for practitioner teams integrating safety checks into deployed models. The
+artifacts (activations, raw results JSON, summaries, and scripts) are organized
+so reviewers and downstream researchers can validate and re-run the core
+analyses with minimal friction.
+
+Low-cost followups and framing additions (do not block finalization):
+1. Add a brief information-theoretic framing paragraph in the write-up linking
+   refusal-direction structure to compressibility/representational rank (MDL-lite
+   intuition). This is writing-only and reuses extracted activations.
+2. Document optional probe variants (e.g., MDL-style probe scoring) as future
+   appendices rather than running them now — keep Phase 5 focused on clarity.
+
 ---
  
 ## Core Design Decisions (locked in — do not relitigate without reason)
@@ -91,17 +91,17 @@ cluster (Hypothesis B)?
 ---
  
 ## Current Status
- 
+
 *(update this section every session)*
- 
+
 - [x] Roadmap agreed
 - [x] Phase 0 complete
 - [x] Phase 1 complete
 - [x] Phase 2 complete
 - [x] Phase 3 complete
-- [ ] Phase 4 complete
+- [x] Phase 4 complete
 - [ ] Phase 5 complete
-Last updated: not yet started
+Last updated: 2026-08-12
  
 ---
  
