@@ -108,8 +108,6 @@ def main():
     alphas_by_layer = {L: float(quadrant_a_proj[L]) for L in steer_layers}
     print(f"Steering layers {steer_layers}, alpha (quadrant-A mean projection): "
       f"{[round(alphas_by_layer[L], 2) for L in steer_layers]}")
-    print(f"Steering layers {STEER_LAYERS[0]}-{STEER_LAYERS[-1]}, alpha (quadrant-A mean projection): "
-          f"{[round(alphas_by_layer[L], 2) for L in STEER_LAYERS]}")
 
     out_rows = []
     suffix = f"_L{args.layer}" if args.layer is not None else ""
