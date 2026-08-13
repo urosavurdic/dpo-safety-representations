@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def main(n_per_stratum=10, seed=42):
-    with open("results/behavioral_eval_raw.json", "r", encoding="utf-8") as f:
+    with open("results/behavioral_eval/raw.json", "r", encoding="utf-8") as f:
         all_raw = json.load(f)
 
     rng = random.Random(seed)

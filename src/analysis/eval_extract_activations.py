@@ -14,7 +14,7 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.core.eval_generation import build_generation_prompt
+from src.training.eval_generation import build_generation_prompt
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 STAGES = ["M0", "M1", "M2", "M3"]

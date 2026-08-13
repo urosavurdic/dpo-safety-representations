@@ -1,4 +1,4 @@
-from src.core.build_eval_set import build_quadrant_c, QUADRANT_C_PROMPTS
+from src.data_pipeline.build_eval_set import build_quadrant_c, QUADRANT_C_PROMPTS
 
 
 def test_quadrant_c_shape():

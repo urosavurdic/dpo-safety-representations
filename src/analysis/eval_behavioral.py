@@ -11,10 +11,10 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.utils.eval_stats import rate_with_ci
-from src.diagnostics.eval_refusal_classifier import classify_refusal
+from src.eval_stats import rate_with_ci
+from src.analysis.eval_refusal_classifier import classify_refusal
 
-from src.eval_generation import generate, generate_batch
+from src.training.eval_generation import build_generation_prompt
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 STAGES = ["M0", "M1", "M2", "M3"]

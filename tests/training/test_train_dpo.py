@@ -1,7 +1,6 @@
 import yaml
 
-from src.core.train_dpo import build_dpo_config
-
+from src.training.train_dpo import build_dpo_config
 
 def _load_cfg(path):
     with open(path, "r", encoding="utf-8") as f:

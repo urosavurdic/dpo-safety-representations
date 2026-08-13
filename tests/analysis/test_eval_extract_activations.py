@@ -1,4 +1,4 @@
-from src.diagnostics.eval_extract_activations import compute_pool_window
+from src.analysis.eval_extract_activations import compute_pool_window
 
 
 def test_pool_window_uses_full_length_when_shorter():

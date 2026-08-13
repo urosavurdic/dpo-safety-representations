@@ -1,5 +1,4 @@
-from src.core.build_m1_data import build_m1_dataset, remove_flagged_prompts, update_exclusion_list, load_exclusion_list
-
+from src.data_pipeline.build_m1_data import build_m1_dataset, remove_flagged_prompts, update_exclusion_list, load_exclusion_list
 
 def _fake_row(instruction, output, input_=""):
     return {"instruction": instruction, "input": input_, "output": output}

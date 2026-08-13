@@ -1,5 +1,4 @@
-from src.core.train_sft import save_reproducibility_artifacts, get_git_commit
-
+from src.training.train_sft import save_reproducibility_artifacts, get_git_commit
 
 def test_save_reproducibility_artifacts(tmp_path):
     cfg = {"experiment_name": "test", "seed": 1}

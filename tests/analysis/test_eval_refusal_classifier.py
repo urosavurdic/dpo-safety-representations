@@ -1,4 +1,4 @@
-from src.diagnostics.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
+from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 
 
 def test_classifies_clear_refusal():

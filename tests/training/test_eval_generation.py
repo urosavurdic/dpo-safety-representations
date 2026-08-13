@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer
 
-from src.core.eval_generation import get_generation_eos_ids, build_generation_prompt
+from src.training.eval_generation import get_generation_eos_ids, build_generation_prompt
 
 TOKENIZER = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B")
 

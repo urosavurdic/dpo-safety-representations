@@ -15,8 +15,9 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from src.diagnostics.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
-from src.utils.eval_stats import rate_with_ci
+from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
+from src.eval_stats import rate_with_ci
+
 
 import argparse
 
@@ -26,19 +27,13 @@ CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
 
 
 def classify_completion(text):
-    """ASSUMPTION -- see module docstring."""
-    if classify_completion.is_degenerate(text):
+    if is_degenerate(text):
         return "degenerate"
-    if classify_completion.classify_refusal(text):
+    if classify_refusal(text):
         return "refusal"
-    if classify_completion.is_soft_deflection(text):
+    if is_soft_deflection(text):
         return "soft_deflection"
     return "comply"
-
-
-classify_completion.is_degenerate = is_degenerate
-classify_completion.classify_refusal = classify_refusal
-classify_completion.is_soft_deflection = is_soft_deflection
 
 
 from src.io_utils import load_json
@@ -46,7 +41,7 @@ from src.io_utils import load_json
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="results/causal_ablation_raw.json")
+    parser.add_argument("--file", default="results/raw/causal_ablation_raw_wide.json")
     args = parser.parse_args()
     rows = load_json(args.file)
     print(f"Loaded {len(rows)} rows.")
@@ -117,7 +112,8 @@ def main():
     input_path = Path(args.file)
     out_dir = Path("results/summaries")
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{input_path.stem}_summary.json"
+    stem = Path(args.file).stem.replace("_raw", "")
+    out_path = Path("results/summaries") / f"{stem}_summary.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print(f"\nSaved raw counts to {out_path}")

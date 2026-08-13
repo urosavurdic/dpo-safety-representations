@@ -1,4 +1,4 @@
-from src.core.data_prep import build_matched_pairs
+from src.data_pipeline.data_prep import build_matched_pairs
 
 
 def _fake_row(prompt, r0, r1, safe0, safe1, safer_id):
