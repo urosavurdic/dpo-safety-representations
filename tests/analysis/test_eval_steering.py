@@ -58,3 +58,9 @@ def test_load_existing_baseline_D_filters_correctly(tmp_path):
         json.dump(data, f)
     rows = load_existing_baseline_D(str(path))
     assert len(rows) == 1 and rows[0]["prompt"] == "p1"
+
+def test_output_suffix_distinguishes_single_layer_from_full_range():
+    from pathlib import Path
+    full_range_path = Path("results/raw/steering_raw_D.json")
+    single_layer_path = Path("results/raw/steering_raw_D_L21.json")
+    assert full_range_path != single_layer_path
