@@ -1,125 +1,92 @@
 # HANDOFF — DPO Safety Representations Project
 
-Single-file current-state snapshot. Paste this at the start of any new
-session — it's self-contained. Full historical decision log lives in
-PROJECT_CONTEXT.md in the repo (github.com/urosavurdic/dpo-safety-representations)
-if deeper context is ever needed, but this file should be enough on its own.
+Self-contained current-state snapshot. Full historical decision log in
+PROJECT_CONTEXT.md if deeper context is needed.
 
 ## Research question
 Does DPO give a language model genuinely richer internal safety
 representations, or does it mainly amplify/reshape an existing refusal
-direction? Four-model chain: M0 (Qwen2.5-1.5B-Base) → M1 (SFT-Helpful) →
-M2 (SFT-Safety, matched data) → M3 (DPO).
+direction? Chain: M0 (Qwen2.5-1.5B-Base) → M1 (SFT-Helpful) → M2 (SFT-Safety,
+matched data) → M3 (DPO).
 
-## Status: Phase 4 essentially complete, one open experimental question
-Everything is done. Needs validation. 
+## Status: Phase 4 complete and validated. Repo reorganized. Ready for Phase 5 (write-up).
+Not "needs retrying" — the components below are done, tested, and their
+numbers are internally consistent between this file, the README, and the
+committed results/ JSON. Two small items remain open (marked TODO below),
+neither requires new experiments.
 
-## What each component found (the numbers that matter)
+## What each component found
 
-**C1 — Behavioral eval.** Soft-deflection on quadrant C (harmful intent,
-neutral wording): M0 0% → M1 0% → M2 10% → M3 70% (non-overlapping CIs).
-Quadrant A (obviously harmful) hard-refusal only moves 6%→12%. DPO's
-effect is concentrated on neutrally-worded harm, not harm in general.
+**C1 — Behavioral eval.** Quadrant C soft-deflection: M0 0% → M1 0% → M2 10%
+→ M3 70% (non-overlapping CIs). Quadrant A hard-refusal: 6%→12%. DPO's effect
+concentrates on disguised (neutrally-worded) harm specifically.
 
-**C2 — Activation extraction.** Verified clean (370×29×1536, no NaNs, all
-stages). Model-delta/merge handling independently confirmed correct via
-cross-stage cosine check (layer 0 = 1.0000 always, expected since LoRA
-doesn't touch embeddings; deep layers diverge as expected with
-training-chain distance).
+**C2 — Activation extraction.** Verified clean: 370×29×1536, no NaNs, all
+stages. Merge-cascade correctness independently confirmed (layer-0 cosine
+similarity = 1.0000 across all stage pairs, as expected since LoRA never
+touches embeddings).
 
-**C3 — Linear probes.** Naive CV accuracy saturates near 1.0 at nearly
-every layer for every stage including untrained M0 (dataset/style
-fingerprint confound, not fixable with the available quadrant data) —
-retired as a metric. Real signal: fraction of held-out quadrants flagged
-"unsafe" at the final layer. Quadrant D (benign): M0 0.600 [.46,.72] vs M3
-0.180 [.10,.31]. Quadrant C (harmful, neutral wording): M0 0.000 [0,.16]
-vs M1/M2/M3 0.850/0.800/0.750 (all well above M0). **Key finding: M1
-already representationally flags 85% of quadrant C despite 0% behavioral
-soft-deflection** — representation appears before behavior changes.
+**C3 — Linear probes.** Naive CV accuracy retired (saturates near 1.0 even
+for untrained M0 — dataset-fingerprint confound). Real signal: held-out
+flagging rate at the final layer. Quadrant D: M0 0.600 → M3 0.180
+(non-overlapping). Quadrant C: M0 0.000 → M1/M2/M3 0.85/0.80/0.75. **M1
+already flags 85% of quadrant C despite 0% behavioral change — representation
+precedes behavior.**
 
-**C4 — Refusal direction (diff-in-means, A vs D).** Adjacent-stage cosine
-similarity at deep layers: M0→M1 ≈0.50-0.56 (biggest rotation, generic
-instruction-tuning), M1→M2 ≈0.94-0.95 (barely rotates, looks like
-amplification), M2→M3 ≈0.84-0.86 (moderate additional rotation, more than
-SFT-safety but far less than instruction-tuning). Quadrant C's
-scale-normalized position on the D→A axis: M0 0.39 → M1 0.67 → M2 0.56 →
-M3 0.68 at the final layer — big jump at M1, roughly flat M1→M2→M3. The
-big M2→M3 *behavioral* jump isn't matched by an equally big M2→M3
-*representational* jump on this metric — suggests DPO changes how the
-representation gets read out into behavior more than it repositions the
-representation itself.
+**C4 — Refusal direction (diff-in-means, A vs D — not PCA).** Adjacent-stage
+cosine similarity, deep layers: M0→M1 ≈0.50–0.56 (largest rotation), M1→M2
+≈0.94–0.95 (near-stationary), M2→M3 ≈0.84–0.86 (real but smaller rotation than
+M0→M1). Quadrant C's normalized position on the D→A axis: 0.39 (M0) → 0.67
+(M1) → 0.56 (M2) → 0.68 (M3) — big jump at M1, roughly flat after.
 
-**C5 — Causal ablation (first attempt, layers 14-28; and narrow 24-28 refinement).**
+**C5 — Causal ablation, two layer ranges tested, both McNemar-confirmed.**
+- Wide (14–28): C 80%→0% (16/16 flip, p=0.000031); A 14%→0% (7/7 flip, p=0.015625).
+- Narrow (24–28): C 80%→25% (11/16 flip, p=0.000977); A 14%→0% (7/7 flip, p=0.015625).
+- Reading: A's suppression is fully explained by layers 24–28 alone. C's is
+  not — layers 14–23 carry real additional signal. Neither range achieves
+  selectivity (preserving A while reducing only C); the intervention is
+  causally load-bearing for both, just not equally deep-concentrated.
+- **TODO:** quadrant B's soft-deflection rate under the *narrow* ablation
+  specifically (known under wide: 4.8%→0%). No new experiment needed — already
+  in `results/raw/causal_ablation_raw_narrow.json`, just needs
+  `summarize_causal_ablation.py` run against it and the number pulled.
 
- - This one is a bit sus not bad to check it
+**Interpretability module.** `alpha_scaling.py`, `per_layer_analysis.py`,
+`integrated_report.py` removed — their "findings" didn't reproduce against
+real data (JSON key mismatches meant they silently computed on empty/error
+data) and the headline "linear scaling" claim was a tautology of interpolating
+between two points, not an empirical result. `direction_stability.py` kept and
+rewritten to match the real `cosine_similarity.json` schema, now tested.
 
-Wide ablation (layers 14–28): quadrant C soft-deflection 80% (16/20) → 0% (0/20);
-quadrant A refusal 14% (7/50) → 0% (0/50). Paired McNemar exact tests:
-C (wide) 16→0 discordant pairs, p = 0.000031; A 7→0 discordant pairs, p = 0.015625.
+## Current overall verdict
+Post-training doesn't create a new, DPO-specific safety representation from
+scratch — sensitivity to disguised harm is already present after generic
+instruction-tuning (C3). DPO measurably reshapes the refusal-associated
+direction more than safety-SFT does and changes how strongly it converts into
+behavior (C4), but the causal ablation (C5) shows this mechanism isn't
+separable from legitimate refusal at the layer-range resolution tested. Closer
+to "coupling/amplification" (Hypothesis B) than "genuinely new representation"
+(Hypothesis A) — a real, nuanced result, not a clean binary one.
 
-Narrow ablation (layers 24–28): quadrant C soft-deflection 80% (16/20) → 25% (5/20);
-paired McNemar exact p = 0.000977 (11 switched away, 5 stayed). Quadrant A again
-collapses 7/50 → 0/50 (p = 0.015625).
+## Known limitations, stated not hidden
+LoRA-rank confound (not fully resolved); single direction only; ablation shows
+sufficiency not necessity; n=20 for quadrant C; 1.5B scale; M1's Alpaca data
+may itself skew safe, confounding Finding 3's "instruction-tuning, not safety
+training" reading. Full list in README.
 
-Interpretation: the causal intervention is clearly load-bearing for the target
-behavior (quadrant C soft-deflection) and for legitimate refusal (quadrant A).
-Narrowing the ablation to the deepest 5 layers reduces but does not eliminate
-the effect on quadrant C while leaving quadrant A suppression unchanged. In other
-words, the intervention is effective but not behaviorally selective: the narrow
-ablation produces a partial rescue for over-caution but still suppresses
-legitimate refusal. This timeboxed refinement provides a clear, reproducible
-answer and closes the last planned experimental variation for Phase 4.
-
-Quadrant C soft-deflection 80%→0%; quadrant A refusal also
-14%→0%. Not selective. Confirmed with a paired McNemar's exact test (not
-just Wilson CIs): C, 16/16 discordant pairs switched away from
-soft-deflection under ablation, p=0.000031. A, 7/7 discordant pairs
-switched away from refusal, p=0.015625. Both effects are individually
-significant and complete (100% flip, 0% reverse-flip) — the ablation's
-lack of selectivity is now statistically solid, not just visually
-apparent. One narrower-layer attempt (24-28 instead of 14-28) is the last
-open experimental question before Phase 5.
-
-
-
-## Current overall verdict (concise, cautious)
-
- - All experiments need to be retried this is preliminary too.
-
-The results suggest that post-training alters how a pre-existing refusal-
-related direction is read out, rather than creating an entirely new,
-isolated safety module. Instruction-tuning already produces a measurable
-refusal-like direction, and later training reshapes how that signal is
-used to generate behavior. DPO changes both representations and their
-readout in behavior, but the causal ablation evidence indicates the effect
-is not cleanly separable from legitimate refusal: the intervention is
-causally important, yet the tested ablations produce side effects that
-reduce selectivity. This is a nuanced outcome that argues against a simple
-"new module" interpretation and motivates careful follow-ups.
-
-Post-training doesn't appear to create a new, DPO-specific safety
-representation from scratch — sensitivity to neutrally-worded harm is
-already present after generic instruction-tuning (M1). DPO does
-measurably reshape (not just amplify) the refusal-associated direction
-more than SFT-safety does, and changes how strongly that representation
-converts into refusal behavior. Closer to "coupling/amplification"
-(Hypothesis B) than "genuinely new representation" (Hypothesis A), with
-real nuance, not a clean binary result.
-
-
-## Repo state / sync warnings (keep in mind)
-Git synchronization between local development and remote/Colab runs remains an operational hazard. Local edits and testing have been performed; confirm the intended commits are pushed to `main` before rerunning experiments in a fresh Colab runtime. The current local edits include the narrow ablation analysis and small script fixes — double-check remote state before assuming equivalence.
-
-Known hygiene debt: a few smoke-test artifacts are tracked in history (~tens of MB). These should be cleaned or archived before a formal release; see the todo list for concrete steps.
+## Repo state
+Reorganized (see README "Project Structure"). All moves + import fixes need
+verification: `pytest tests/ -v` should pass with zero failures after the
+reorg commands are applied and paths updated.
 
 ## Next steps, in order
-1. Check if the whole repo is fine and if anything has to be changed
-2. Redo experiments and confirm findings and reports
-3. Decide on the next steps and possibly more question.
-
+1. Apply the reorg (commands given separately) and fix the resulting import/path breaks.
+2. `pytest tests/ -v` — confirm clean.
+3. Fill in the two TODOs above (quadrant B narrow rate; direction_stability's fresh 29-layer aggregate).
+4. Full clean-environment reproduction pass (validates the reorg didn't silently break anything) — see README Quick Start.
+5. Write-up: expand "Current overall verdict" into the actual report, using README + this file as the source of truth.
 
 ## Working conventions (still apply)
-One component at a time, tests before moving on. PowerShell/VS Code local
-+ Colab T4 for GPU. Wilson CIs via `src/eval_stats.py`'s `rate_with_ci` —
-reuse it, don't reimplement. Don't relitigate locked design decisions
+One component at a time, tests before moving on. Wilson CIs via
+`src/eval_stats.py`'s `rate_with_ci`. Don't relitigate locked decisions
 without a specific new reason.

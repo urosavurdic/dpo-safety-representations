@@ -15,7 +15,7 @@ eval_probes.py - no retraining, no GPU.
 """
 import json
 
-from src.utils.eval_stats import rate_with_ci
+from src.eval_stats import rate_with_ci
 
 STAGES = ["M0", "M1", "M2", "M3"]
 FINAL_LAYER = 28

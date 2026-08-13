@@ -10,7 +10,7 @@ from pathlib import Path
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.core.eval_generation import generate
+from src.training.eval_generation import generate
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 STAGES = ["M0", "M1", "M2", "M3"]

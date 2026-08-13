@@ -9,7 +9,7 @@ import json
 
 
 def main():
-    with open("results/behavioral_eval_raw.json", "r", encoding="utf-8") as f:
+    with open("results/behavioral_eval/raw.json", "r", encoding="utf-8") as f:
         all_raw = json.load(f)
 
     for stage_name in ["M1", "M2", "M3"]:

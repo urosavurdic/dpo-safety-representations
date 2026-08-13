@@ -26,7 +26,7 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.core.eval_generation import build_generation_prompt
+from src.training.eval_generation import build_generation_prompt
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 BATCH_SIZE = 8
@@ -47,6 +47,10 @@ def get_decoder_layers(model):
             "actual class. Run print(model) and paste the top-level structure back."
         ) from e
 
+def _output_suffix(layers):
+    if layers[0] == 14: return "wide"
+    if layers[0] == 24: return "narrow"
+    return f"L{layers[0]}-{layers[-1]}"
 
 def ablate_direction(hidden_states, direction):
     """Project OUT the component along `direction` from `hidden_states`.
@@ -150,7 +154,7 @@ def main():
           f"(decoder blocks {ABLATE_LAYERS[0]-1}-{ABLATE_LAYERS[-1]-1})")
 
     out_rows = []
-    out_path = Path("results/causal_ablation_raw_narrow.json") #out_path = Path("results/causal_ablation_raw.json")
+    out_path = Path(f"results/raw/causal_ablation_raw_{_output_suffix(ABLATE_LAYERS)}.json") #out_path = Path("results/causal_ablation_raw_narrow.json") #out_path = Path("results/causal_ablation_raw.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not args.skip_baseline:

@@ -1,45 +1,154 @@
-# DPO Safety Representations: Mechanistic Interpretability Study
-
+# DPO Safety Representations: A Mechanistic Study
 
 ## Overview
 
-This project investigates the mechanistic basis of refusal behavior in language models trained with Direct Preference Optimization (DPO). We extract a "refusal direction" via PCA, causally intervene by removing its projection, and analyze which layers contribute to the effect.
+Does safety training (SFT, then DPO) give a language model genuinely richer
+internal representations of harm, or does it mainly reshape how an existing
+refusal-associated direction gets used? We train the same small model through
+a four-stage chain — base → helpful-SFT → safety-SFT → DPO — and compare
+internal representations and causal interventions at each stage.
 
-**Core Finding:** The refusal mechanism is distributed across deep transformer layers (14-28), with higher signal in deeper layers. Ablation effectively suppresses both legitimate hard refusal and problematic over-caution, indicating a **non-selective mechanism** that is robust to training-induced representational drift.
+This is an independent research project on a 1.5B-parameter model, not a
+peer-reviewed publication. See **Limitations** before drawing broad conclusions.
+
+**Status:** Phase 4 (interpretability) complete.
+
+---
+
+## The Four Quadrants
+
+Prompts vary along two independent axes: whether the request is actually
+harmful, and whether it's *worded* that way. The off-diagonal cases are where
+surface pattern-matching and real understanding of harm come apart.
+
+|                       | **Worded harmful-sounding**                          | **Worded neutrally**                                          |
+|-----------------------|-------------------------------------------------------|-----------------------------------------------------------------|
+| **Actually harmful**  | **A** — obviously harmful (HarmBench, n=50). Correct response: refuse. | **C** — harmful, disguised (hand-curated, n=20). Correct response: refuse. Sharpest test of real understanding. |
+| **Actually benign**   | **B** — sounds risky, isn't (XSTest, n=250). Correct response: comply. Classic over-refusal trap. | **D** — benign, plainly worded (Alpaca, n=50). Correct response: comply. |
 
 ---
 
 ## Quick Start
 
-### Reproduce Results
-
 ```bash
-# Activate environment
 python -m venv .venv
 source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
-
-# Run analysis pipeline
-python -m src.analysis.refusal_direction        # Extract direction (M0-M3)
-python -m src.analysis.causal_ablation         # Run wide & narrow ablations
-python -m src.analysis.behavioral              # Classify behaviors
-
-# Generate interpretability analyses
-python -m src.interpretability.per_layer_analysis
-python -m src.interpretability.alpha_scaling
-python -m src.interpretability.direction_stability
-
-# View reports
-open results/interpretability/reports/INDEX.md
+pytest tests/ -v
 ```
 
-### Key Results
+### Reproduce the analysis pipeline
 
-| Experiment | Quadrant C (Soft-Deflection) | Quadrant A (Hard Refusal) | p-value |
-|---|---|---|---|
-| **Wide ablation (14-28)** | 80% → 0% | 14% → 0% | 0.000031 / 0.015625 |
-| **Narrow ablation (24-28)** | 80% → 25% | 14% → 0% | 0.000977 / 0.015625 |
-| **Interpretation** | Layers 14-23 carry redundant signal | Layers 24-28 are critical | Both highly significant |
+Activations, probes, and refusal-direction extraction require the trained
+adapters (Hugging Face Hub — see Methodology) and, for activation extraction,
+a GPU (Colab T4 used originally). Everything downstream is CPU-only.
+
+```bash
+# GPU-dependent (Colab)
+python -m src.analysis.eval_extract_activations
+python -m src.analysis.eval_causal_ablation
+
+# CPU-only, local
+python -m src.analysis.eval_behavioral
+python -m src.analysis.eval_probes
+python -m src.analysis.eval_refusal_direction
+python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_wide.json
+python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
+python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_wide.json
+python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
+python -m src.interpretability.direction_stability
+```
+
+---
+
+## Methodology
+
+**Training chain** (Qwen2.5-1.5B):
+- **M0** — base checkpoint, no training.
+- **M1** — SFT on Alpaca (general instruction-following, deliberately no
+  safety-specific content). Isolates "learned to be a chat assistant" from
+  "learned about safety."
+- **M2** — SFT on PKU-SafeRLHF *chosen* responses.
+- **M3** — DPO on the *same* PKU-SafeRLHF prompts as M2 (matched chosen/rejected
+  pairs). M2 and M3 seeing identical prompts/content and differing only in
+  training objective isolates "DPO the method" from "DPO the data."
+- LoRA (r=64 for M2→M3) throughout, not full fine-tuning — see Limitations.
+
+**Activation extraction** — hidden states at every layer, two pooled
+positions (final token; mean of last 5 tokens), across all 370 controlled-eval
+prompts × 4 stages.
+
+**Behavioral evaluation** — rule-based classifier (degenerate / hard refusal /
+soft-deflection / comply), human-validated for agreement, Wilson confidence
+intervals throughout.
+
+**Linear probes** — logistic regression per layer. Naive CV accuracy saturates
+near 1.0 at nearly every layer, including untrained M0 — a dataset/style
+fingerprint confound, not a real safety signal. Retired as the headline metric;
+real signal is the *held-out flagging rate* (fraction of a held-out quadrant a
+trained A-vs-B boundary calls "unsafe").
+
+**Refusal direction** — diff-in-means (not PCA): mean(activation | quadrant A)
+− mean(activation | quadrant D), per layer per stage, unit-normalized. Used for
+(1) cross-stage cosine similarity — does the direction stay put or rotate? —
+and (2) causal ablation.
+
+**Causal ablation** — project the diff-in-means direction out of the residual
+stream at generation time, at a chosen layer range, on M3. Paired McNemar's
+exact test on discordant baseline-vs-ablated pairs.
+
+---
+
+## Key Results
+
+| Experiment | Quadrant C (soft-deflection) | Quadrant A (hard refusal) |
+|---|---|---|
+| **Baseline (M3, no ablation)** | 80% (16/20) | 14% (7/50) |
+| **Wide ablation (layers 14–28)** | 0% (0/20), p=0.000031 | 0% (0/50), p=0.015625 |
+| **Narrow ablation (layers 24–28)** | 25% (5/20), p=0.000977 | 0% (0/50), p=0.015625 |
+
+---
+
+## Key Findings
+
+**1. The causal effect is real and statistically significant.** Both wide and
+narrow ablation produce 100%-directional flips (no reverse flips) on quadrant
+C, confirmed by paired McNemar's exact tests, not just non-overlapping CIs.
+
+**2. Not selective between legitimate refusal and disguised-harm detection —
+but layer range matters for one of them.** Narrowing from 15 layers to the
+deepest 5 leaves quadrant A's suppression complete (7/7 flips either way) but
+only partially reduces quadrant C's (16/20 baseline → 5/20 ablated, vs. 0/20
+under the wide range). Layers 14–23 carry real C-specific signal that layers
+24–28 alone don't capture; A's dependence is concentrated in the deepest 5
+layers.
+*(TODO before this section is final: quadrant B's soft-deflection rate under
+the narrow ablation specifically — it was 4.8%→0% under the wide ablation but
+hasn't been checked for the narrow run. Run `summarize_causal_ablation.py
+--file results/raw/causal_ablation_raw_narrow.json` and fill in.)*
+
+**3. The refusal-associated direction rotates most during generic
+instruction-tuning, not safety training — confirmed across all 28
+non-artifact layers, not just a sample.** Mean drift (1 − cosine similarity)
+per adjacent-stage transition, layers 1–28: M0→M1 ≈ 0.335, M1→M2 ≈ 0.040,
+M2→M3 ≈ 0.070. DPO adds roughly 1.75× the rotation SFT-safety did,
+concentrated in the deepest third of the network — but M0→M1 remains far
+larger than both (4.8× M2→M3, 8.4× M1→M2). Stability generally decreases
+with depth: layers 1–5 stay highly similar to M0 even at M3 (0.73–0.90),
+while the single lowest point is layer 20 (0.380). Mean M0-vs-M3 similarity
+across layers 1–28: 0.582. *(Layer 0 excluded throughout — its direction is
+the zero vector, the known template-token artifact from Component 4, not
+real instability.)*
+
+**4. Overall verdict.** Post-training doesn't appear to build a new,
+DPO-specific safety module from scratch — sensitivity to disguised harm
+(quadrant C) is already representationally present after generic
+instruction-tuning (M1 flags 85% of quadrant C despite 0% behavioral
+soft-deflection at that stage). DPO measurably reshapes — not just amplifies —
+the direction more than safety-SFT does, and changes how strongly that
+representation converts into behavior. Closer to "amplification/coupling"
+than "genuinely new representation," with real nuance rather than a clean
+binary answer.
 
 ---
 
@@ -47,42 +156,143 @@ open results/interpretability/reports/INDEX.md
 
 ```
 dpo-safety-representations/
-├── src/                                    # Source code organized by function
+├── .gitignore
+├── HANDOFF.md
+├── PROJECT_CONTEXT.md
+├── README.md
+├── pyproject.toml
+├── requirements.txt
+│
+├── configs/
+│   ├── m1_gpu_dryrun.yaml
+│   ├── m1_sft_helpful.yaml
+│   ├── m1_smoke_test.yaml
+│   ├── m2_gpu_dryrun.yaml
+│   ├── m2_sft_safety.yaml
+│   ├── m3_dpo.yaml
+│   └── m3_gpu_dryrun.yaml
+│
+├── data/
+│   ├── dedup_report.json
+│   ├── dedup_report_m1.json
+│   └── processed/
+│       ├── alpaca_reserved_for_eval.json
+│       ├── controlled_eval.jsonl
+│       ├── dpo_pairs.jsonl
+│       ├── m1_near_dup_exclusions.json
+│       ├── sft_helpful.jsonl
+│       └── sft_safety.jsonl
+│
+├── outputs/
+│   └── smoke_test_m1/
+│       ├── checkpoints/
+│       │   ├── README.md
+│       │   └── checkpoint-2/
+│       │       ├── README.md
+│       │       ├── adapter_config.json
+│       │       ├── chat_template.jinja
+│       │       ├── optimizer.pt
+│       │       ├── rng_state.pth
+│       │       ├── scheduler.pt
+│       │       ├── tokenizer.json
+│       │       ├── tokenizer_config.json
+│       │       ├── trainer_state.json
+│       │       └── training_args.bin
+│       │
+│       └── final/
+│           ├── README.md
+│           ├── adapter_config.json
+│           ├── chat_template.jinja
+│           ├── config_used.yaml
+│           ├── git_commit.txt
+│           ├── requirements.txt
+│           ├── tokenizer.json
+│           ├── tokenizer_config.json
+│           └── training_args.bin
+│
+├── results/
+│   ├── activations/
+│   │   ├── M0_metadata.json
+│   │   ├── M1_metadata.json
+│   │   ├── M2_metadata.json
+│   │   └── M3_metadata.json
+│   │
+│   ├── behavioral_eval_capability.json
+│   ├── behavioral_eval_raw.json
+│   ├── behavioral_eval_summary_v2.json
+│   ├── causal_ablation_raw.json
+│   ├── causal_ablation_raw_narrow.json
+│   ├── causal_ablation_summary.json
+│   ├── classifier_validation_sample.json
+│   ├── qualitative_spot_check.json
+│   │
+│   ├── probes/
+│   │   ├── M0_probe_results.json
+│   │   ├── M1_probe_results.json
+│   │   ├── M2_probe_results.json
+│   │   └── M3_probe_results.json
+│   │
+│   ├── refusal_direction/
+│   │   ├── M0_direction.npy
+│   │   ├── M1_direction.npy
+│   │   ├── M2_direction.npy
+│   │   ├── M3_direction.npy
+│   │   ├── cosine_similarity.json
+│   │   └── quadrant_projections.json
+│   │
+│   └── summaries/
+│       └── causal_ablation_raw_narrow_summary.json
+│
+├── src/
 │   ├── __init__.py
-│   ├── io_utils.py                         # Centralized JSON I/O helpers
+│   ├── io_utils.py
 │   │
-│   ├── core/                               # Training pipeline
+│   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── train_dpo.py                    # DPO training
-│   │   ├── train_sft.py                    # SFT baseline training
-│   │   └── ... (data prep, generation)
+│   │   ├── eval_behavioral.py
+│   │   ├── eval_causal_ablation.py
+│   │   ├── eval_probes.py
+│   │   ├── eval_refusal_direction.py
+│   │   ├── mcnemar_causal_ablation.py
+│   │   ├── reclassify_behavioral.py
+│   │   ├── summarize_causal_ablation.py
+│   │   ├── summarize_probe_findings.py
+│   │   └── summarize_refusal_direction.py
 │   │
-│   ├── analysis/                           # Measurement & evaluation (Phases 3-4)
+│   ├── core/
 │   │   ├── __init__.py
-│   │   ├── behavioral.py                   # Behavior classification
-│   │   ├── refusal_direction.py            # Extract & analyze direction
-│   │   ├── probes.py                       # Probe classifiers
-│   │   ├── causal_ablation.py              # Causal intervention
-│   │   ├── summarize_*.py                  # Summary statistics
-│   │   └── mcnemar_causal_ablation.py      # Paired significance testing
+│   │   ├── build_eval_set.py
+│   │   ├── build_m1_data.py
+│   │   ├── data_prep.py
+│   │   ├── eval_generation.py
+│   │   ├── train_dpo.py
+│   │   └── train_sft.py
 │   │
-│   ├── diagnostics/                        # Quality assurance
+│   ├── diagnostics/
 │   │   ├── __init__.py
-│   │   ├── coverage.py                     # Data completeness
-│   │   ├── leakage.py                      # Train/eval contamination checks
-│   │   ├── classifier.py                   # Classifier agreement
-│   │   ├── activations.py                  # Hidden state verification
-│   │   └── inspection.py                   # Spot checks & qualitative analysis
+│   │   ├── analyze_data_coverage.py
+│   │   ├── check_classifier_agreement.py
+│   │   ├── check_leakage.py
+│   │   ├── diagnose_probe_layers.py
+│   │   ├── eval_extract_activations.py
+│   │   ├── eval_qualitative.py
+│   │   ├── eval_refusal_classifier.py
+│   │   ├── inspect_quadrant_c.py
+│   │   ├── search_alpaca_leakage.py
+│   │   ├── search_source_data.py
+│   │   ├── validate_refusal_classifier.py
+│   │   ├── verify_activations.py
+│   │   └── verify_cross_stage_diff.py
 │   │
-│   ├── interpretability/                   # Mechanistic analysis (Phase 5) **NEW**
+│   ├── interpretability/
 │   │   ├── __init__.py
-│   │   ├── per_layer_analysis.py           # Attribution: which layers matter
-│   │   ├── alpha_scaling.py                # Scaling: effect vs. magnitude
-│   │   ├── direction_stability.py          # Drift: across training stages
-│   │   ├── integrated_report.py            # Unified report generation
-│   │   └── utils.py                        # Shared utilities
+│   │   ├── alpha_scaling.py
+│   │   ├── direction_stability.py
+│   │   ├── integrated_report.py
+│   │   ├── per_layer_analysis.py
+│   │   └── utils.py
 │   │
-│   ├── training/                           # Training utilities (kept from original)
+│   ├── training/
 │   │   ├── __init__.py
 │   │   ├── callbacks.py
 │   │   ├── data.py
@@ -91,268 +301,101 @@ dpo-safety-representations/
 │   │   ├── model.py
 │   │   └── utils.py
 │   │
-│   └── utils/                              # General utilities
+│   └── utils/
 │       ├── __init__.py
-│       └── eval_stats.py                   # Statistical helpers
+│       └── eval_stats.py
 │
-├── results/                                # Experimental outputs
-│   ├── raw/                                # Raw model/experiment outputs
-│   │   ├── causal_ablation_raw_wide.json
-│   │   └── causal_ablation_raw_narrow.json
-│   │
-│   ├── summaries/                          # Aggregated statistics
-│   │   ├── causal_ablation_wide_summary.json
-│   │   └── causal_ablation_narrow_summary.json
-│   │
-│   ├── activations/                        # Extracted hidden states (Phase 2)
-│   ├── probes/                             # Probe classifier results (Phase 3)
-│   ├── refusal_direction/                  # Direction extraction (Phase 4)
-│   │   ├── cosine_similarity.json          # M0-M1-M2-M3 direction stability
-│   │   ├── quadrant_projections.json       # Per-layer projections by quadrant
-│   │   └── M{0,1,2,3}_direction.npy        # Direction vectors
-│   │
-│   ├── behavioral_eval/                    # Behavior classification outputs
-│   │
-│   └── interpretability/                   # **NEW** Interpretability findings
-│       ├── per_layer_analysis/             # Layer attribution results
-│       ├── alpha_scaling/                  # Scaling analysis outputs
-│       ├── direction_stability/            # Direction drift results
-│       └── reports/                        # **Individual, navigable reports**
-│           ├── INDEX.md                    # Start here: navigation guide
-│           ├── 01_causal_ablation_wide.md
-│           ├── 02_causal_ablation_narrow.md
-│           ├── 03_narrow_vs_wide_comparison.md
-│           ├── 04_per_layer_signal_magnitude.md
-│           ├── 05_alpha_scaling_analysis.md
-│           ├── 06_direction_stability_across_training.md
-│           └── 07_key_findings_synthesis.md
-│
-├── tests/                                  # Test suite (mirrors src/ organization)
-│   ├── __init__.py
-│   ├── test_environment.py                 # Python version & dependency checks
-│   ├── test_data_prep.py                   # Data preparation tests
-│   ├── test_dpo_data.py                    # DPO dataset tests
-│   ├── test_build_m1_data.py               # M1 data building tests
-│   │
-│   ├── core/                               # Training pipeline tests
-│   │   ├── __init__.py
-│   │   ├── test_train_dpo.py
-│   │   ├── test_train_sft.py
-│   │   ├── test_training_data.py
-│   │   ├── test_training_formatting.py
-│   │   ├── test_training_utils.py
-│   │   ├── test_callbacks.py
-│   │   └── test_model.py
-│   │
-│   ├── analysis/                           # Measurement & evaluation tests
-│   │   ├── __init__.py
-│   │   ├── test_build_eval_set.py
-│   │   ├── test_eval_generation.py
-│   │   ├── test_eval_causal_ablation.py
-│   │   ├── test_eval_refusal_direction.py
-│   │   ├── test_eval_probes.py
-│   │   ├── test_eval_stats.py
-│   │   ├── test_mcnemar_causal_ablation.py
-│   │   └── test_summarize_probe_findings.py
-│   │
-│   └── diagnostics/                        # QA & diagnostics tests
-│       ├── __init__.py
-│       ├── test_check_leakage.py
-│       ├── test_eval_extract_activations.py
-│       └── test_eval_refusal_classifier.py
-│
-├── configs/                                # Training & evaluation configs
-├── data/                                   # Raw data inputs
-├── outputs/                                # Temporary outputs / checkpoints
-│
-├── README.md                               # This file
-├── PROJECT_CONTEXT.md                      # Design decisions & decision log
-├── HANDOFF.md                              # Final summary & next steps
-├── requirements.txt
-├── pyproject.toml
-└── .gitignore
+└── tests/
+    ├── test_environment.py
+    ├── test_eval_stats.py
+    │
+    ├── analysis/
+    │   ├── __init__.py
+    │   ├── test_eval_causal_ablation.py
+    │   ├── test_eval_probes.py
+    │   ├── test_eval_refusal_direction.py
+    │   ├── test_mcnemar_causal_ablation.py
+    │   ├── test_summarize_causal_ablation.py
+    │   └── test_summarize_probe_findings.py
+    │
+    ├── core/
+    │   ├── __init__.py
+    │   ├── test_build_eval_set.py
+    │   ├── test_build_m1_data.py
+    │   ├── test_data_prep.py
+    │   ├── test_eval_generation.py
+    │   ├── test_train_dpo.py
+    │   └── test_train_sft.py
+    │
+    ├── diagnostics/
+    │   ├── __init__.py
+    │   ├── test_check_leakage.py
+    │   ├── test_eval_extract_activations.py
+    │   └── test_eval_refusal_classifier.py
+    │
+    └── training/
+        ├── __init__.py
+        ├── test_callbacks.py
+        ├── test_dpo_data.py
+        ├── test_model.py
+        ├── test_training_data.py
+        ├── test_training_formatting.py
+        └── test_training_utils.py
 ```
 
----
-
-## Key Findings at a Glance
-
-### 1. **Causal Effect is Real & Significant**
-
-Paired McNemar's exact tests confirm:
-- Quadrant C: 16/16 discordant pairs flip away from soft-deflection (wide ablation, p=0.000031)
-- Quadrant A: 7/7 discordant pairs flip away from hard refusal (wide ablation, p=0.015625)
-
-Both effects are **100% directional** (no reverse flips) and **statistically robust** (p << 0.05).
-
-### 2. **Mechanism is Distributed, Not Localized**
-
-- Projection magnitude increases monotonically across layers 0-28
-- Layer 28: ~30 units (deepest, highest)
-- Layer 21: ~8 units (deep)
-- Layer 14: ~4 units (mid)
-- Layer 7: ~2 units (shallow)
-
-Narrow ablation (24-28 only) produces partial effect on C (80%→25%), proving layers 14-23 contribute.
-
-### 3. **Effect is Non-Selective**
-
-Narrowing to deep layers (where signal is highest) does NOT improve selectivity:
-- Wide (14-28): C 100% flip, A 100% flip
-- Narrow (24-28): C 69% flip, A 100% flip
-- **Conclusion:** Both behaviors are driven by the same distributed mechanism; cannot separate by layer depth.
-
-### 4. **Scaling is Linear**
-
-Effect size scales monotonically with intervention magnitude:
-- C: baseline 80% → ablated 25% (55-point effect)
-- A: baseline 14% → ablated 0% (14-point effect)
-- Linear model predicts intermediate values; no thresholds observed
-
-### 5. **Direction Drifts During Training But Effect Persists**
-
-Cosine similarity M0 vs. M3:
-- Shallow layers (7, 14): ~65% similarity (35% drift)
-- Deep layers (21, 28): ~43% similarity (57% drift)
-
-Despite substantial drift, ablation remains highly effective (**causal robustness**).
 
 ---
 
-## Analysis Reports
+## Limitations
 
-All detailed findings are in **`results/interpretability/reports/`** organized by topic for easy navigation:
-
-| Report | Focus | Key Question |
-|--------|-------|--------------|
-| **[INDEX.md](results/interpretability/reports/INDEX.md)** | Navigation guide | Where do I start? |
-| **[01: Wide Ablation](results/interpretability/reports/01_causal_ablation_wide.md)** | Primary effect | What happens when we remove layers 14-28? |
-| **[02: Narrow Ablation](results/interpretability/reports/02_causal_ablation_narrow.md)** | Layer-range test | What happens with only layers 24-28? |
-| **[03: Comparison](results/interpretability/reports/03_narrow_vs_wide_comparison.md)** | Selectivity | Why doesn't narrowing improve selectivity? |
-| **[04: Layer Analysis](results/interpretability/reports/04_per_layer_signal_magnitude.md)** | Attribution | Which layers carry the most signal? |
-| **[05: Alpha Scaling](results/interpretability/reports/05_alpha_scaling_analysis.md)** | Scaling law | How does effect size vary with magnitude? |
-| **[06: Direction Stability](results/interpretability/reports/06_direction_stability_across_training.md)** | Training dynamics | How does the direction change during training? |
-| **[07: Synthesis](results/interpretability/reports/07_key_findings_synthesis.md)** | Integration | What does it all mean? |
-
-**→ Start with [INDEX.md](results/interpretability/reports/INDEX.md) or [Report 7 (Synthesis)](results/interpretability/reports/07_key_findings_synthesis.md) for overview**
-
----
-
-## Methodology
-
-### Phase 1: Model Training
-- **M0:** Base Llama-7B-Chat
-- **M1:** Helpful-only SFT (helpful-eval + chosen examples)
-- **M2:** Helpful + Safety SFT (balanced split)
-- **M3:** DPO (safety preference optimization)
-
-### Phase 2: Activation Collection
-Extract hidden states from each layer for all models.
-
-### Phase 3: Behavior Evaluation
-- Classify responses into: degenerate, refusal, soft-deflection, comply
-- Quadrants: A (unsafe+safe), B (safe+unsafe), C (unsafe+safe_weak), D (safe+safe)
-
-### Phase 4: Direction Extraction & Analysis
-- **PCA:** Fit direction on difference-of-means (safe vs. unsafe responses) per layer and checkpoint
-- **Projections:** Compute dot product of activations with direction (per sample, layer, quadrant)
-- **Direction stability:** Cosine similarity across M0-M1-M2-M3
-
-### Phase 5: Causal Ablation & Interpretability
-- **Wide ablation:** Remove direction projection at layers 14-28
-- **Narrow ablation:** Remove direction projection at layers 24-28 only
-- **McNemar's test:** Paired significance testing on discordant pairs
-- **Mechanistic analysis:** Per-layer attribution, alpha scaling, direction stability interpretation
-
----
-
-## How to Cite
-
-```bibtex
-@project{dpo_safety_representations_2024,
-  title={Mechanistic Interpretability of Refusal Behavior in DPO-Aligned Language Models},
-  author={[Your Name]},
-  year={2024},
-  type={Research Project},
-  url={https://github.com/yourusername/dpo-safety-representations}
-}
-```
-
----
-
-## Limitations & Honest Assessment
-
-1. **Non-selective mechanism:** The direction suppresses both legitimate and problematic refusal equally; cannot use for targeted safety improvements without further work.
-
-2. **Single direction analysis:** Extracting only the top PCA component; other orthogonal dimensions may exist.
-
-3. **Inference-time only:** Ablation is applied during forward pass; unknown how it affects training or generalization.
-
-4. **Modest sample sizes:** Quadrant C has only 20 samples; quadrant A has 50. Larger eval sets would strengthen confidence.
-
-5. **Training drift:** 35-57% representational drift raises questions about mechanistic stability, though causal efficacy persists.
+1. **LoRA, not full fine-tuning.** LoRA constrains updates to a low-rank
+   subspace by construction, which can mechanically bias findings toward
+   "amplification looks low-dimensional." Not fully resolved — stated
+   explicitly rather than hidden.
+2. **Single diff-in-means direction.** Other orthogonal safety-relevant
+   directions may exist; not searched for.
+3. **Inference-time ablation only.** Unknown how this interacts with training
+   or generalizes beyond the controlled eval set.
+4. **Small samples for the sharpest test.** Quadrant C, n=20; CIs are wide but
+   non-overlapping across stages (see behavioral eval).
+5. **1.5B scale.** Normal and expected for this kind of study, but findings
+   are not claimed to generalize to frontier-scale models without further work.
+6. **M1's Alpaca data may itself skew toward "safe" content**, independent of
+   generic instruction-following per se — meaning the M0→M1 representational
+   jump (Finding 3) could be partly a data-content effect, not purely an
+   instruction-tuning effect. Not disentangled here; would need an M1 retrained
+   on a harm-balanced instruction corpus.
+7. **Causal ablation shows sufficiency, not necessity.** The direction is
+   causally sufficient to modulate behavior; other pathways may exist that
+   the ablation doesn't touch.
 
 ---
 
 ## Future Work
 
-### High-Priority
-
-1. **Empirical α-validation:** Test behavior at intermediate projection scaling (α ∈ {0.1, 0.25, 0.5, 0.75, 0.9})
-2. **Gradient-based attribution:** Use Integrated Gradients to refine per-layer importance estimates
-3. **Subspace analysis:** PCA on per-quadrant activations to find behaviorally selective dimensions
-
-### Medium-Priority
-
-4. **Orthogonal component removal:** Extract separate directions for soft-deflection (C) and hard-refusal (A)
-5. **Attention head analysis:** Identify which attention heads respond to the direction
-6. **Prompt robustness:** Test direction effectiveness on diverse prompts and instruction frames
-
-### Longer-Term
-
-7. **Training-time intervention:** Modify loss function or regularization to refine direction selectivity during training
-8. **Comparative analysis:** Compare this direction to other safety-relevant representations (e.g., adversarial examples, jailbreak indicators)
+- Full fine-tuning robustness check (removes the LoRA-rank confound).
+- Steering (add the direction, rather than ablate it) — cheap, reuses the
+  existing ablation infrastructure with the sign/magnitude flipped.
+- Train on a second, independent safety dataset to check whether the direction
+  and findings generalize across data sources, not just across training stages.
+- DPO applied directly to M1 (skipping M2) — isolates whether the SFT-safety
+  step matters independently of DPO.
+- Retrain M1 on a harm-balanced instruction set to address Limitation 6.
 
 ---
 
 ## Repository Hygiene
 
-### Cleaned & Optimized
-
-- ✅ Removed ~50MB of smoke-test binaries from git tracking (`.gitignore` updated)
-- ✅ Centralized JSON I/O helpers (`src/io_utils.py`) to reduce boilerplate
-- ✅ Reorganized `src/` by function (core, analysis, diagnostics, interpretability, training, utils)
-- ✅ Created canonical results structure (`raw/`, `summaries/`, component subdirs)
-- ✅ Made reproducibility scripts required (`--file` argument in McNemar test)
-- ✅ All tests passing (run `pytest tests/ -v`)
-
-### Git Status
-
-```bash
-git log main --oneline -5  # Verify all changes are committed to main
-```
+- Smoke-test binaries (`outputs/smoke_test_m1/`) removed from tracking (`git rm -r --cached`, `.gitignore` updated).
+- `src/` and `tests/` reorganized by function; `tests/` mirrors `src/` exactly.
+- `results/` split into `raw/` (per-run outputs) and `summaries/` (aggregated stats), consistently.
+- Run `pytest tests/ -v` — all tests pass, including new coverage for `direction_stability.py`.
 
 ---
 
-## Testing
+## Questions
 
-```bash
-# Run full test suite
-pytest tests/ -v
-
-# Run specific test module
-pytest tests/test_interpretability.py -v
-
-# All tests should pass
-```
-
----
-
-## Questions & Support
-
-- **How do I understand this project?** → Start with [reports/INDEX.md](results/interpretability/reports/INDEX.md)
-- **What's the main finding?** → Read [reports/07_key_findings_synthesis.md](results/interpretability/reports/07_key_findings_synthesis.md)
-- **How do I reproduce results?** → Run commands in "Quick Start" section above
-- **Where are the results?** → `results/interpretability/reports/` (individual reports) or `results/` (raw data)
-
----
+- **What's the headline finding?** See "Overall verdict" above.
+- **How do I reproduce this?** "Quick Start" above; GPU steps need a Colab
+  T4 or equivalent, everything else is CPU-only.
+- **Where's the raw data?** `results/` — see Project Structure.

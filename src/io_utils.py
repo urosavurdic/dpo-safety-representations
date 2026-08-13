@@ -28,7 +28,7 @@ def load_json(path: Union[str, Path]) -> Dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"JSON file not found: {path}")
     
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
@@ -46,5 +46,5 @@ def write_json(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) ->
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=indent)
