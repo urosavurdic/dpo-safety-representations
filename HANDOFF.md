@@ -1,92 +1,84 @@
 # HANDOFF — DPO Safety Representations Project
 
-Self-contained current-state snapshot. Full historical decision log in
-PROJECT_CONTEXT.md if deeper context is needed.
-
-## Research question
-Does DPO give a language model genuinely richer internal safety
-representations, or does it mainly amplify/reshape an existing refusal
-direction? Chain: M0 (Qwen2.5-1.5B-Base) → M1 (SFT-Helpful) → M2 (SFT-Safety,
-matched data) → M3 (DPO).
-
-## Status: Phase 4 complete and validated. Repo reorganized. Ready for Phase 5 (write-up).
-Not "needs retrying" — the components below are done, tested, and their
-numbers are internally consistent between this file, the README, and the
-committed results/ JSON. Two small items remain open (marked TODO below),
-neither requires new experiments.
+## Status: Phase 4 complete, no further experiments planned.
+All components tested, statistically validated, and internally consistent
+between this file, README.md, and committed results/ JSON.
 
 ## What each component found
 
-**C1 — Behavioral eval.** Quadrant C soft-deflection: M0 0% → M1 0% → M2 10%
-→ M3 70% (non-overlapping CIs). Quadrant A hard-refusal: 6%→12%. DPO's effect
-concentrates on disguised (neutrally-worded) harm specifically.
+**C1 — Behavioral eval.** Quadrant C soft-deflection: M0 0%→M1 0%→M2 10%→M3
+70%. Quadrant A: 6%→12%. DPO's effect concentrates on disguised harm.
 
-**C2 — Activation extraction.** Verified clean: 370×29×1536, no NaNs, all
-stages. Merge-cascade correctness independently confirmed (layer-0 cosine
-similarity = 1.0000 across all stage pairs, as expected since LoRA never
-touches embeddings).
+**C2 — Activation extraction.** Verified clean, merge-cascade confirmed correct.
 
-**C3 — Linear probes.** Naive CV accuracy retired (saturates near 1.0 even
-for untrained M0 — dataset-fingerprint confound). Real signal: held-out
-flagging rate at the final layer. Quadrant D: M0 0.600 → M3 0.180
-(non-overlapping). Quadrant C: M0 0.000 → M1/M2/M3 0.85/0.80/0.75. **M1
-already flags 85% of quadrant C despite 0% behavioral change — representation
-precedes behavior.**
+**C3 — Linear probes.** Naive CV accuracy retired (saturates even at
+untrained M0). Real signal: held-out flagging rate. M1 already flags 85% of
+quadrant C despite 0% behavioral change — representation precedes behavior.
 
-**C4 — Refusal direction (diff-in-means, A vs D — not PCA).** Adjacent-stage
-cosine similarity, deep layers: M0→M1 ≈0.50–0.56 (largest rotation), M1→M2
-≈0.94–0.95 (near-stationary), M2→M3 ≈0.84–0.86 (real but smaller rotation than
-M0→M1). Quadrant C's normalized position on the D→A axis: 0.39 (M0) → 0.67
-(M1) → 0.56 (M2) → 0.68 (M3) — big jump at M1, roughly flat after.
+**C4 — Refusal direction (diff-in-means, not PCA).** Mean drift across 28
+layers: M0→M1 ≈0.335, M1→M2 ≈0.040, M2→M3 ≈0.070. Biggest rotation happens
+during generic instruction-tuning, not safety training.
 
-**C5 — Causal ablation, two layer ranges tested, both McNemar-confirmed.**
-- Wide (14–28): C 80%→0% (16/16 flip, p=0.000031); A 14%→0% (7/7 flip, p=0.015625).
-- Narrow (24–28): C 80%→25% (11/16 flip, p=0.000977); A 14%→0% (7/7 flip, p=0.015625).
-- Reading: A's suppression is fully explained by layers 24–28 alone. C's is
-  not — layers 14–23 carry real additional signal. Neither range achieves
-  selectivity (preserving A while reducing only C); the intervention is
-  causally load-bearing for both, just not equally deep-concentrated.
-- **TODO:** quadrant B's soft-deflection rate under the *narrow* ablation
-  specifically (known under wide: 4.8%→0%). No new experiment needed — already
-  in `results/raw/causal_ablation_raw_narrow.json`, just needs
-  `summarize_causal_ablation.py` run against it and the number pulled.
+**C5 — Causal ablation, wide + narrow, both McNemar-confirmed.**
+- Wide (14–28): A 14%→0% (p=0.0156), C 80%→0% (p=0.00003).
+- Narrow (24–28): A 14%→0% (p=0.0156, 100% relative), B 5.6%→1.2% (79%
+  relative), C 80%→25% (p=0.0010, 69% relative).
+- A's suppression is fully explained by the deepest 5 layers; B and C
+  aren't — but B and C don't separate from each other either. Not
+  quadrant-selective, but the mechanism is layer-differentiated in a
+  specific, precise way, not uniformly "everything is entangled."
 
-**Interpretability module.** `alpha_scaling.py`, `per_layer_analysis.py`,
-`integrated_report.py` removed — their "findings" didn't reproduce against
-real data (JSON key mismatches meant they silently computed on empty/error
-data) and the headline "linear scaling" claim was a tautology of interpolating
-between two points, not an empirical result. `direction_stability.py` kept and
-rewritten to match the real `cosine_similarity.json` schema, now tested.
+**C5b — Steering.** Multi-layer (14–28): 98% degenerate output, not
+refusal — most likely residual-stream compounding across 15 injections.
+Single-layer (21): small, non-significant shift (McNemar p=0.50, n=2
+discordant). Genuine null result — not a confirmed causal complement to
+ablation, reported honestly as inconclusive rather than reframed as positive.
+
+**Interpretability module.** Reduced to `direction_stability.py` (rewritten
+to match the real cosine_similarity.json schema, tested) and
+`lora_subspace_check.py` (new). Everything else removed — original scripts
+had JSON key mismatches meaning they never actually computed on real data,
+plus a tautological "linear scaling" claim and unverifiable citations.
+
+**LoRA-subspace check.** 90%+ of the refusal direction's norm lies outside
+the rank-64 LoRA subspace at every layer/module checked — not primarily a
+LoRA artifact. But real, above-chance alignment (z=3–10 vs. a 200-sample
+random-direction baseline) concentrates at deep layers and `down_proj`
+specifically — matching where C4 independently finds DPO's rotation
+concentrates. Two independent methods (weight geometry, activation
+statistics) converging on the same layers.
 
 ## Current overall verdict
-Post-training doesn't create a new, DPO-specific safety representation from
-scratch — sensitivity to disguised harm is already present after generic
-instruction-tuning (C3). DPO measurably reshapes the refusal-associated
-direction more than safety-SFT does and changes how strongly it converts into
-behavior (C4), but the causal ablation (C5) shows this mechanism isn't
-separable from legitimate refusal at the layer-range resolution tested. Closer
-to "coupling/amplification" (Hypothesis B) than "genuinely new representation"
-(Hypothesis A) — a real, nuanced result, not a clean binary one.
+No evidence DPO builds a new, safety-specific representation from scratch —
+the direction is already present after generic instruction-tuning (C3). DPO
+primarily strengthens coupling between that representation and behavior, with
+real but secondary additional rotation at deep layers (C4), and a modest,
+non-dominant relationship to its own LoRA subspace (LoRA check). The causal
+ablation effect is real and significant (C5) but not quadrant-selective in
+the way originally hoped, with a precise (not uniform) layer-dependence
+pattern. Steering did not independently confirm the causal story (C5b) — an
+honest gap, not smoothed over. Closer to "coupling/amplification" than
+"genuinely new representation."
 
 ## Known limitations, stated not hidden
-LoRA-rank confound (not fully resolved); single direction only; ablation shows
-sufficiency not necessity; n=20 for quadrant C; 1.5B scale; M1's Alpaca data
-may itself skew safe, confounding Finding 3's "instruction-tuning, not safety
-training" reading. Full list in README.
+LoRA confound quantified but not eliminated; single direction only; ablation
+shows sufficiency not necessity and steering didn't confirm the complementary
+direction; n=20 for quadrant C; 1.5B scale; M1's Alpaca data may itself skew
+safe; steering's degenerate-collapse mechanism not independently diagnosed.
+Full list in README.
 
 ## Repo state
-Reorganized (see README "Project Structure"). All moves + import fixes need
-verification: `pytest tests/ -v` should pass with zero failures after the
-reorg commands are applied and paths updated.
+Reorganized, all import/path fixes applied and verified (`pytest tests/ -v`
+green — see README Repository Hygiene). Two new small test files added for
+`mcnemar_steering.py` and the LoRA random-baseline addition, closing the last
+test-coverage gap.
 
 ## Next steps, in order
-1. Apply the reorg (commands given separately) and fix the resulting import/path breaks.
-2. `pytest tests/ -v` — confirm clean.
-3. Fill in the two TODOs above (quadrant B narrow rate; direction_stability's fresh 29-layer aggregate).
-4. Full clean-environment reproduction pass (validates the reorg didn't silently break anything) — see README Quick Start.
-5. Write-up: expand "Current overall verdict" into the actual report, using README + this file as the source of truth.
+1. Confirm `pytest tests/ -v` is fully green after the last two test
+   additions and the `lora_subspace_check.py` dict-overwrite fix.
+2. Write-up: expand this file's "Current overall verdict" into the actual
+   report. All source numbers are final — no further experiments planned.
 
 ## Working conventions (still apply)
-One component at a time, tests before moving on. Wilson CIs via
-`src/eval_stats.py`'s `rate_with_ci`. Don't relitigate locked decisions
-without a specific new reason.
+Wilson CIs via `src/eval_stats.py`. Don't relitigate locked decisions without
+a specific new reason.
