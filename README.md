@@ -17,10 +17,6 @@ peer-reviewed publication. See **Limitations** before drawing broad conclusions.
 
 ## The Four Quadrants
 
-Prompts vary along two independent axes: whether the request is actually
-harmful, and whether it's *worded* that way. The off-diagonal cases are where
-surface pattern-matching and real understanding of harm come apart.
-
 |                       | **Worded harmful-sounding**                          | **Worded neutrally**                                          |
 |-----------------------|-------------------------------------------------------|-----------------------------------------------------------------|
 | **Actually harmful**  | **A** — obviously harmful (HarmBench, n=50). Correct response: refuse. | **C** — harmful, disguised (hand-curated, n=20). Correct response: refuse. Sharpest test of real understanding. |
@@ -39,14 +35,11 @@ pytest tests/ -v
 
 ### Reproduce the analysis pipeline
 
-Activations, probes, and refusal-direction extraction require the trained
-adapters (Hugging Face Hub — see Methodology) and, for activation extraction,
-a GPU (Colab T4 used originally). Everything downstream is CPU-only.
-
 ```bash
-# GPU-dependent (Colab)
+# GPU-dependent (Colab T4 used originally)
 python -m src.analysis.eval_extract_activations
 python -m src.analysis.eval_causal_ablation
+python -m src.analysis.eval_steering --skip-baseline --layer 21
 
 # CPU-only, local
 python -m src.analysis.eval_behavioral
@@ -56,99 +49,123 @@ python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablat
 python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
 python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_wide.json
 python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
+python -m src.analysis.summarize_steering --file results/raw/steering_raw_D_L21.json
+python -m src.analysis.mcnemar_steering
 python -m src.interpretability.direction_stability
+python -m src.interpretability.lora_subspace_check
 ```
 
 ---
 
 ## Methodology
 
-**Training chain** (Qwen2.5-1.5B):
-- **M0** — base checkpoint, no training.
-- **M1** — SFT on Alpaca (general instruction-following, deliberately no
-  safety-specific content). Isolates "learned to be a chat assistant" from
-  "learned about safety."
-- **M2** — SFT on PKU-SafeRLHF *chosen* responses.
-- **M3** — DPO on the *same* PKU-SafeRLHF prompts as M2 (matched chosen/rejected
-  pairs). M2 and M3 seeing identical prompts/content and differing only in
-  training objective isolates "DPO the method" from "DPO the data."
-- LoRA (r=64 for M2→M3) throughout, not full fine-tuning — see Limitations.
+**Training chain** (Qwen2.5-1.5B): M0 (base) → M1 (SFT on Alpaca, no safety
+content) → M2 (SFT on PKU-SafeRLHF *chosen* responses) → M3 (DPO on the
+*same* PKU-SafeRLHF prompts as M2 — matched chosen/rejected pairs). M2/M3
+sharing identical prompts and differing only in training objective isolates
+"DPO the method" from "DPO the data." LoRA (r=64) throughout — see
+Limitations for a quantified check of what this constrains.
 
-**Activation extraction** — hidden states at every layer, two pooled
-positions (final token; mean of last 5 tokens), across all 370 controlled-eval
-prompts × 4 stages.
+**Refusal direction** — diff-in-means (not PCA): mean(activation | quadrant
+A) − mean(activation | quadrant D), per layer per stage, unit-normalized.
+This is the same core method as Arditi et al. (2024, NeurIPS), applied here
+across a controlled training-stage chain rather than across many pretrained
+models.
 
-**Behavioral evaluation** — rule-based classifier (degenerate / hard refusal /
-soft-deflection / comply), human-validated for agreement, Wilson confidence
-intervals throughout.
+**Causal ablation** — project the direction out of the residual stream at
+generation time, at a chosen layer range, on M3. Paired McNemar's exact test
+on discordant baseline-vs-ablated pairs.
 
-**Linear probes** — logistic regression per layer. Naive CV accuracy saturates
-near 1.0 at nearly every layer, including untrained M0 — a dataset/style
-fingerprint confound, not a real safety signal. Retired as the headline metric;
-real signal is the *held-out flagging rate* (fraction of a held-out quadrant a
-trained A-vs-B boundary calls "unsafe").
+**Steering** — the reverse intervention: add the direction into the residual
+stream, magnitude anchored to that layer's real mean quadrant-A projection.
 
-**Refusal direction** — diff-in-means (not PCA): mean(activation | quadrant A)
-− mean(activation | quadrant D), per layer per stage, unit-normalized. Used for
-(1) cross-stage cosine similarity — does the direction stay put or rotate? —
-and (2) causal ablation.
-
-**Causal ablation** — project the diff-in-means direction out of the residual
-stream at generation time, at a chosen layer range, on M3. Paired McNemar's
-exact test on discordant baseline-vs-ablated pairs.
+**LoRA-subspace check** — for each checked layer, what fraction of the
+refusal direction's norm lies in the column space of that layer's LoRA `B`
+matrix (`o_proj`/`down_proj` only — the two module types that write directly
+into the residual stream), compared against 200 random unit vectors as a
+null baseline.
 
 ---
 
 ## Key Results
 
-| Experiment | Quadrant C (soft-deflection) | Quadrant A (hard refusal) |
-|---|---|---|
-| **Baseline (M3, no ablation)** | 80% (16/20) | 14% (7/50) |
-| **Wide ablation (layers 14–28)** | 0% (0/20), p=0.000031 | 0% (0/50), p=0.015625 |
-| **Narrow ablation (layers 24–28)** | 25% (5/20), p=0.000977 | 0% (0/50), p=0.015625 |
+| Experiment | Quadrant A | Quadrant B | Quadrant C |
+|---|---|---|---|
+| Baseline (M3) | 14% refusal | 5.6% refusal+soft-defl. | 80% soft-deflection |
+| Wide ablation (14–28) | 0% (p=0.0156) | 0% | 0% (p=0.00003) |
+| Narrow ablation (24–28) | 0% (p=0.0156) | 1.2% (79% relative drop) | 25% (p=0.0010, 69% relative drop) |
+
+**Steering (quadrant D, benign):** 15-layer addition → 98% degenerate output
+(not refusal). Single-layer (21) addition → small, non-significant shift
+(McNemar p=0.50, n=2 discordant pairs). Neither is a clean causal complement
+to ablation — reported as a genuine null result, not a positive finding.
+
+**LoRA-subspace:** direction's norm captured by the rank-64 subspace ranges
+6–10% across checked layers/modules — 90%+ lies outside it everywhere. The
+overlap that does exist is real (3–10 standard deviations above a
+random-direction baseline, not noise) and concentrated at the deep layers
+(21, 28) and `down_proj` specifically — matching where the direction-rotation
+analysis independently finds DPO's action concentrates.
 
 ---
 
 ## Key Findings
 
-**1. The causal effect is real and statistically significant.** Both wide and
-narrow ablation produce 100%-directional flips (no reverse flips) on quadrant
-C, confirmed by paired McNemar's exact tests, not just non-overlapping CIs.
+**1. The causal effect is real and statistically significant.** Wide
+ablation: 16/16 quadrant-C pairs flip away from soft-deflection (p=0.000031),
+7/7 quadrant-A pairs flip away from refusal (p=0.015625). 100%-directional,
+no reverse flips, confirmed by paired exact tests, not just non-overlapping CIs.
 
-**2. Not selective between legitimate refusal and disguised-harm detection —
-but layer range matters for one of them.** Narrowing from 15 layers to the
-deepest 5 leaves quadrant A's suppression complete (7/7 flips either way) but
-only partially reduces quadrant C's (16/20 baseline → 5/20 ablated, vs. 0/20
-under the wide range). Layers 14–23 carry real C-specific signal that layers
-24–28 alone don't capture; A's dependence is concentrated in the deepest 5
-layers.
-*(TODO before this section is final: quadrant B's soft-deflection rate under
-the narrow ablation specifically — it was 4.8%→0% under the wide ablation but
-hasn't been checked for the narrow run. Run `summarize_causal_ablation.py
---file results/raw/causal_ablation_raw_narrow.json` and fill in.)*
+**2. Layer-range dependence is real but not quadrant-selective between B and
+C.** Quadrant A's suppression is *fully* explained by layers 24–28 alone
+(100% relative reduction under the narrow range). Quadrants B and C are only
+*partially* explained by that same narrow range (79% and 69% relative
+reduction respectively) — layers 14–23 carry real signal for both, at similar
+magnitude. This revises "non-selective" to something more precise: A has a
+narrowly-concentrated dependency the other two don't share, but B and C don't
+separate cleanly from each other at this resolution.
 
-**3. The refusal-associated direction rotates most during generic
-instruction-tuning, not safety training — confirmed across all 28
-non-artifact layers, not just a sample.** Mean drift (1 − cosine similarity)
-per adjacent-stage transition, layers 1–28: M0→M1 ≈ 0.335, M1→M2 ≈ 0.040,
-M2→M3 ≈ 0.070. DPO adds roughly 1.75× the rotation SFT-safety did,
-concentrated in the deepest third of the network — but M0→M1 remains far
-larger than both (4.8× M2→M3, 8.4× M1→M2). Stability generally decreases
-with depth: layers 1–5 stay highly similar to M0 even at M3 (0.73–0.90),
-while the single lowest point is layer 20 (0.380). Mean M0-vs-M3 similarity
-across layers 1–28: 0.582. *(Layer 0 excluded throughout — its direction is
-the zero vector, the known template-token artifact from Component 4, not
-real instability.)*
+**3. The direction rotates most during generic instruction-tuning, not
+safety training.** Mean drift (1 − cosine similarity) across 28 non-artifact
+layers: M0→M1 ≈ 0.335, M1→M2 ≈ 0.040, M2→M3 ≈ 0.070. DPO adds ~1.75× the
+rotation SFT-safety did, concentrated in the deepest third of the network —
+but M0→M1 remains far larger (4.8× M2→M3, 8.4× M1→M2). Layers 1–5 stay highly
+similar to M0 even at M3 (0.73–0.90); the single lowest point is layer 20
+(0.380). *(Layer 0 excluded — zero-vector template-token artifact.)*
 
-**4. Overall verdict.** Post-training doesn't appear to build a new,
-DPO-specific safety module from scratch — sensitivity to disguised harm
-(quadrant C) is already representationally present after generic
-instruction-tuning (M1 flags 85% of quadrant C despite 0% behavioral
-soft-deflection at that stage). DPO measurably reshapes — not just amplifies —
-the direction more than safety-SFT does, and changes how strongly that
-representation converts into behavior. Closer to "amplification/coupling"
-than "genuinely new representation," with real nuance rather than a clean
-binary answer.
+**4. The direction is not primarily a LoRA artifact, but isn't fully
+independent of it either.** 90%+ of the direction's norm lies outside the
+rank-64 LoRA subspace everywhere checked — ruling out "this is just what
+LoRA happened to be capable of writing" as the main explanation. But the
+alignment that does exist is statistically real (not random-chance overlap)
+and concentrated exactly where the direction rotates most during DPO (deep
+layers, `down_proj`) — a genuine, if secondary, point of convergence between
+two independent analysis methods.
+
+**5. Steering is an honest null result, not a confirmed causal complement.**
+Multi-layer addition collapses output to near-total degenerate text (98%),
+most likely from compounding across 15 residual-stream injections rather than
+a targeted behavioral shift. Single-layer addition at the deepest
+signal-bearing layer produces a small, statistically non-significant change
+(p=0.50). Ablation's causal story stands on its own; steering did not add
+independent confirmation, and further layer/magnitude tuning was
+deliberately not pursued past this point.
+
+**6. Overall verdict.** We find no evidence that DPO builds a new,
+safety-specific representation from scratch. The refusal-associated direction
+is already present after generic instruction-tuning alone (M1 representationally
+flags 85% of quadrant C despite 0% behavioral soft-deflection at that stage —
+representation precedes behavior). DPO primarily strengthens the coupling
+between that pre-existing representation and output behavior, with real but
+smaller additional rotation concentrated in deeper layers, and only a modest,
+not-dominant relationship to the LoRA subspace it was trained through. The
+causal effect of ablating this direction is real and significant for both
+overtly harmful and disguised-harm prompts, but the layer ranges differ: the
+deepest 5 layers fully account for the overt-refusal effect, while a broader
+range is needed to fully account for the disguised-harm and over-refusal
+effects — which don't separate from each other at this resolution. Closer to
+"coupling/amplification" (Hypothesis B) than "genuinely new representation"
+(Hypothesis A).
 
 ---
 
@@ -348,54 +365,61 @@ dpo-safety-representations/
 
 ## Limitations
 
-1. **LoRA, not full fine-tuning.** LoRA constrains updates to a low-rank
-   subspace by construction, which can mechanically bias findings toward
-   "amplification looks low-dimensional." Not fully resolved — stated
-   explicitly rather than hidden.
+1. **LoRA, quantified, not fully resolved.** 90%+ of the refusal direction's
+   norm lies outside the rank-64 LoRA subspace at every checked layer —
+   the direction is not primarily a LoRA artifact. But real, above-chance
+   alignment (3–10σ over a random-direction baseline) exists at deep layers,
+   so a full-fine-tuning robustness check would still add confidence, not
+   just close a theoretical gap.
 2. **Single diff-in-means direction.** Other orthogonal safety-relevant
    directions may exist; not searched for.
-3. **Inference-time ablation only.** Unknown how this interacts with training
-   or generalizes beyond the controlled eval set.
-4. **Small samples for the sharpest test.** Quadrant C, n=20; CIs are wide but
-   non-overlapping across stages (see behavioral eval).
-5. **1.5B scale.** Normal and expected for this kind of study, but findings
-   are not claimed to generalize to frontier-scale models without further work.
-6. **M1's Alpaca data may itself skew toward "safe" content**, independent of
-   generic instruction-following per se — meaning the M0→M1 representational
-   jump (Finding 3) could be partly a data-content effect, not purely an
-   instruction-tuning effect. Not disentangled here; would need an M1 retrained
-   on a harm-balanced instruction corpus.
-7. **Causal ablation shows sufficiency, not necessity.** The direction is
-   causally sufficient to modulate behavior; other pathways may exist that
-   the ablation doesn't touch.
+3. **Ablation shows sufficiency, not necessity.** Steering (the natural test
+   of the complementary direction) was inconclusive (Finding 5), so this
+   isn't independently confirmed from the addition side.
+4. **Small sample for the sharpest test.** Quadrant C, n=20.
+5. **1.5B scale.** Not claimed to generalize to frontier-scale models without
+   further work.
+6. **M1's Alpaca data may itself skew "safe,"** independent of generic
+   instruction-following per se — the M0→M1 jump (Finding 3) could be partly
+   a data-content effect. Not disentangled here.
+7. **Why multi-layer steering collapses to degenerate output isn't fully
+   diagnosed** — hypothesized as compounding across the residual stream, not
+   independently confirmed (e.g., by tracking activation norm growth
+   layer-by-layer during generation).
 
 ---
 
 ## Future Work
 
 - Full fine-tuning robustness check (removes the LoRA-rank confound).
-- Steering (add the direction, rather than ablate it) — cheap, reuses the
-  existing ablation infrastructure with the sign/magnitude flipped.
-- Train on a second, independent safety dataset to check whether the direction
-  and findings generalize across data sources, not just across training stages.
-- DPO applied directly to M1 (skipping M2) — isolates whether the SFT-safety
-  step matters independently of DPO.
+- Diagnose the steering degenerate-collapse mechanism directly (track
+  residual-stream norm growth across layers under multi-layer addition) —
+  would resolve Limitation 7 and could unlock a working steering complement.
+- Train on a second, independent safety dataset to check generalization
+  across data sources, not just training stages.
+- DPO applied directly to M1 (skipping M2) — isolates the SFT-safety step's
+  independent contribution.
 - Retrain M1 on a harm-balanced instruction set to address Limitation 6.
 
 ---
 
 ## Repository Hygiene
 
-- Smoke-test binaries (`outputs/smoke_test_m1/`) removed from tracking (`git rm -r --cached`, `.gitignore` updated).
-- `src/` and `tests/` reorganized by function; `tests/` mirrors `src/` exactly.
-- `results/` split into `raw/` (per-run outputs) and `summaries/` (aggregated stats), consistently.
-- Run `pytest tests/ -v` — all tests pass, including new coverage for `direction_stability.py`.
+- Smoke-test binaries removed from tracking; `.gitignore` updated.
+- `src/`/`tests/` reorganized by function, `tests/` mirrors `src/` exactly.
+- `results/` split into `raw/`/`summaries/`, consistently named.
+- Run `pytest tests/ -v` — all tests pass.
 
 ---
 
-## Questions
+## How to Cite
 
-- **What's the headline finding?** See "Overall verdict" above.
-- **How do I reproduce this?** "Quick Start" above; GPU steps need a Colab
-  T4 or equivalent, everything else is CPU-only.
-- **Where's the raw data?** `results/` — see Project Structure.
+```bibtex
+@misc{dpo_safety_representations,
+  title={DPO Safety Representations: A Mechanistic Study},
+  author={[Your Name]},
+  year={2026},
+  howpublished={\url{https://github.com/urosavurdic/dpo-safety-representations}},
+  note={Independent research project, not peer-reviewed}
+}
+```
