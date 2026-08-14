@@ -63,6 +63,14 @@ def subspace_capture_fraction(direction, lora_B_matrix):
     proj = Q.T @ direction
     return torch.sum(proj ** 2).item()  # direction is unit norm -> this IS the fraction
 
+def random_direction_capture_fraction(lora_B_matrix, hidden_dim, n_samples=200, seed=0):
+    rng = np.random.default_rng(seed)
+    fractions = []
+    for _ in range(n_samples):
+        v = rng.normal(size=hidden_dim)
+        v = torch.from_numpy(v / np.linalg.norm(v)).float()
+        fractions.append(subspace_capture_fraction(v, lora_B_matrix))
+    return float(np.mean(fractions)), float(np.std(fractions))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -86,7 +94,9 @@ def main():
             key = find_lora_B_key(state_dict, decoder_idx, module_name)
             lora_B = state_dict[key].float()
             frac = subspace_capture_fraction(direction, lora_B)
-            per_module[module_name] = frac
+            rand_mean, rand_std = random_direction_capture_fraction(lora_B, lora_B.shape[0])
+            print(f"  (random-direction baseline: {rand_mean:.3f} ± {rand_std:.3f})")
+            per_module[module_name] = {"real_direction": frac, "random_baseline_mean": rand_mean, "random_baseline_std": rand_std}
             print(f"Layer {hs_index}, {module_name}: {frac:.3f} of direction's norm captured "
                   f"by rank-{lora_B.shape[1]} subspace")
         results[hs_index] = per_module
