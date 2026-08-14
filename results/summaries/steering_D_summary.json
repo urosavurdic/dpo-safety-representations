@@ -8,9 +8,9 @@
   },
   "M3_steered": {
     "n": 50,
-    "degenerate": 49,
-    "refusal": 0,
+    "degenerate": 3,
+    "refusal": 2,
     "soft_deflection": 0,
-    "comply": 1
+    "comply": 45
   }
 }
