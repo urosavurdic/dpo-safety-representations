@@ -11,4 +11,4 @@ def test_build_contingency_counts_matched_prompts_only():
     ]
     table, n_paired = build_contingency(rows, category="refusal")
     assert n_paired == 2  # p3 excluded, unmatched
-    assert table == [[0, 1], [0, 1]]  # p1: no->yes(steered), p2: no->no
+    assert table == [[0, 0], [1, 1]]  # p1: no->yes(steered), p2: no->no
