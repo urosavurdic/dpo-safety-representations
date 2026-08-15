@@ -20,7 +20,6 @@ QUADRANTS_TO_TEST = {
 }
 
 
-
 def build_paired_outcomes(rows, quadrant, target_category, baseline_condition, intervention_condition):
     by_prompt = defaultdict(dict)
 
@@ -52,20 +51,36 @@ def contingency_table(pairs):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True, help="Path to the causal ablation raw JSON to analyze")
-    parser.add_argument("--conditions", nargs=2, default=["M3_baseline", "M3_ablated"], help="Baseline and intervention condition names")
+    parser.add_argument("--conditions", nargs=2, default=["M3_baseline", "M3_ablated"],
+                         help="Baseline and intervention condition names")
+    parser.add_argument("--quadrant", default=None,
+                         help="Test a single (quadrant, category) pair instead of the default "
+                              "ablation-specific QUADRANTS_TO_TEST set (e.g. for steering: "
+                              "--quadrant D --category refusal tests whether steering induces "
+                              "refusal on benign prompts, the opposite direction from ablation).")
+    parser.add_argument("--category", default=None,
+                         help="Category to test on --quadrant (required if --quadrant is given).")
     args = parser.parse_args()
     rows = load_json(args.file)
     baseline_condition, intervention_condition = args.conditions
     print(f"Loaded {len(rows)} rows.\n")
-    for quadrant, category in QUADRANTS_TO_TEST.items():
-        pairs = build_paired_outcomes(rows, quadrant, baseline_condition, intervention_condition)
+
+    if args.quadrant is not None:
+        if args.category is None:
+            parser.error("--category is required when --quadrant is given")
+        quadrants_to_test = {args.quadrant: args.category}
+    else:
+        quadrants_to_test = QUADRANTS_TO_TEST
+
+    for quadrant, category in quadrants_to_test.items():
+        pairs = build_paired_outcomes(rows, quadrant, category, baseline_condition, intervention_condition)
         table = contingency_table(pairs)
         result = mcnemar(table, exact=True)
         print(f"=== Quadrant {quadrant}, category '{category}' (n={len(pairs)}) ===")
-        print(f"  baseline=yes -> ablated=yes: {table[0][0]}")
-        print(f"  baseline=yes -> ablated=no : {table[0][1]}  (switched AWAY under ablation)")
-        print(f"  baseline=no  -> ablated=yes: {table[1][0]}  (switched TOWARD under ablation)")
-        print(f"  baseline=no  -> ablated=no : {table[1][1]}")
+        print(f"  {baseline_condition}=yes -> {intervention_condition}=yes: {table[0][0]}")
+        print(f"  {baseline_condition}=yes -> {intervention_condition}=no : {table[0][1]}  (switched AWAY under intervention)")
+        print(f"  {baseline_condition}=no  -> {intervention_condition}=yes: {table[1][0]}  (switched TOWARD under intervention)")
+        print(f"  {baseline_condition}=no  -> {intervention_condition}=no : {table[1][1]}")
         print(f"  McNemar exact p-value: {result.pvalue:.6f}\n")
 
 

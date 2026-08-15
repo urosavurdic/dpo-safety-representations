@@ -1,0 +1,53 @@
+# M3_alt: DPO on the SAME PKU-SafeRLHF matched pairs as M3 - starting
+# adapter is M2_alt instead of M2. Completes the alt-data sequential chain
+# M0 -> M1_alt -> M2_alt -> M3_alt, directly parallel to M0-M3.
+#
+# Everything below is IDENTICAL to m3_dpo.yaml except:
+#   - model.init_from_adapter (M2_alt instead of M2)
+#   - output.base_dir / output.hf_repo
+#   - experiment_name / wandb.run_name
+
+experiment_name: m3_alt_dpo
+seed: 42
+
+model:
+  name: Qwen/Qwen2.5-1.5B
+  trust_remote_code: true
+  init_from_adapter: urosavurdic/qwen2.5-1.5b-m2-alt-safety
+
+dataset:
+  path: data/processed/dpo_pairs.jsonl
+
+output:
+  base_dir: /content/drive/MyDrive/dpo-safety/models/m3_alt
+  hf_repo: urosavurdic/qwen2.5-1.5b-m3-alt-dpo
+  push_to_hub: true
+
+training:
+  num_train_epochs: 1
+  max_steps: -1
+  learning_rate: 5.0e-5
+  batch_size: 2
+  gradient_accumulation_steps: 16
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 20
+  save_total_limit: 3
+  max_seq_length: 1024
+  gradient_checkpointing: true
+  bf16: false
+  fp16: true
+
+dpo:
+  beta: 0.1
+  loss_type: sigmoid
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+
+wandb:
+  project: dpo-safety-representations
+  run_name: m3_alt_dpo

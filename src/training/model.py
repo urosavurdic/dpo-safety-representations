@@ -16,6 +16,24 @@ STAGE_ADAPTER_CHAINS = {
         "urosavurdic/qwen2.5-1.5b-m1-helpful",
         "urosavurdic/qwen2.5-1.5b-m3-direct-dpo",
     ],
+    # Data-dependence branch: M1_alt trained on Dolly-15k instead of Alpaca;
+    # M2_alt/M3_alt/M3_direct_alt all keep training on the SAME PKU-SafeRLHF
+    # data as M2/M3/M3_direct (single-variable design - only M1's source data
+    # differs). See configs/m*_alt_*.yaml and PROJECT_CONTEXT.md M1_alt notes.
+    "M1_alt": ["urosavurdic/qwen2.5-1.5b-m1-alt-helpful"],
+    "M2_alt": [
+        "urosavurdic/qwen2.5-1.5b-m1-alt-helpful",
+        "urosavurdic/qwen2.5-1.5b-m2-alt-safety",
+    ],
+    "M3_alt": [
+        "urosavurdic/qwen2.5-1.5b-m1-alt-helpful",
+        "urosavurdic/qwen2.5-1.5b-m2-alt-safety",
+        "urosavurdic/qwen2.5-1.5b-m3-alt-dpo",
+    ],
+    "M3_direct_alt": [
+        "urosavurdic/qwen2.5-1.5b-m1-alt-helpful",
+        "urosavurdic/qwen2.5-1.5b-m3-direct-alt-dpo",
+    ],
 }
 
 

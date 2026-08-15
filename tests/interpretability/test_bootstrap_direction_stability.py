@@ -1,6 +1,10 @@
 import numpy as np
 
-from src.interpretability.bootstrap_direction_stability import bootstrap_directions, summarize_stability
+from src.interpretability.bootstrap_direction_stability import (
+    bootstrap_directions,
+    summarize_stability,
+    summarize_stability_full,
+)
 from src.analysis.eval_refusal_direction import diff_in_means_direction
 
 
@@ -28,3 +32,23 @@ def test_stable_direction_gives_near_perfect_bootstrap_agreement():
     mean_sim, std_sim = summarize_stability(boots, original, layer=0)
     assert abs(mean_sim - 1.0) < 1e-6
     assert std_sim < 1e-6
+
+
+def test_summarize_stability_full_reports_median_and_percentiles():
+    """PROJECT_CONTEXT.md's bootstrap spec asks for mean/median/std/2.5%/97.5%,
+    not just mean+std."""
+    pooled, quadrants = _toy_data()
+    original = diff_in_means_direction(pooled, quadrants)
+    boots = bootstrap_directions(pooled, quadrants, n_bootstrap=20, seed=2)
+    stats = summarize_stability_full(boots, original, layer=0)
+    assert set(stats.keys()) == {"mean", "median", "std", "ci_low_2.5pct", "ci_high_97.5pct"}
+    assert abs(stats["mean"] - 1.0) < 1e-6
+    assert abs(stats["median"] - 1.0) < 1e-6
+    assert stats["ci_low_2.5pct"] <= stats["mean"] <= stats["ci_high_97.5pct"]
+
+
+def test_bootstrap_deterministic_given_fixed_seed():
+    pooled, quadrants = _toy_data()
+    boots_a = bootstrap_directions(pooled, quadrants, n_bootstrap=15, seed=7)
+    boots_b = bootstrap_directions(pooled, quadrants, n_bootstrap=15, seed=7)
+    assert np.allclose(boots_a, boots_b)

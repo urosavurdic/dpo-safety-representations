@@ -16,9 +16,9 @@ import numpy as np
 
 from src.analysis.eval_refusal_direction import diff_in_means_direction
 
-STAGES = ["M0", "M1", "M2", "M3"]
-N_BOOTSTRAP = 200
-REPORT_LAYERS = [7, 14, 21, 28]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]  # M3_direct = M1 + direct DPO, parallel control branch
+N_BOOTSTRAP = 1000  # per PROJECT_CONTEXT.md M1D/M3_direct spec: B=1000 replicates
+REPORT_LAYERS = None  # None = report all layers (0-28), not a cherry-picked subset
 SEED = 0
 
 
@@ -51,10 +51,28 @@ def bootstrap_directions(pooled, quadrants, n_bootstrap=N_BOOTSTRAP, seed=SEED):
 
 def summarize_stability(bootstrap_dirs, original_direction, layer):
     """Cosine similarity of each bootstrap direction (at `layer`) to the
-    ORIGINAL full-sample direction -- mean and std across replicates."""
+    ORIGINAL full-sample direction -- mean and std across replicates.
+    Kept as-is (backward compatible, already tested) - summarize_stability_full
+    below adds the median/2.5%/97.5% percentiles the original spec also asks for."""
     orig = original_direction[layer]
     sims = [np.dot(bd[layer], orig) for bd in bootstrap_dirs]
     return float(np.mean(sims)), float(np.std(sims))
+
+
+def summarize_stability_full(bootstrap_dirs, original_direction, layer):
+    """Same cosine-similarity-to-original computation as summarize_stability,
+    but reports the full distribution: mean, median, std, 2.5th/97.5th
+    percentile -- the uncertainty summary PROJECT_CONTEXT.md's bootstrap spec
+    asks for, not just mean+std."""
+    orig = original_direction[layer]
+    sims = np.array([np.dot(bd[layer], orig) for bd in bootstrap_dirs])
+    return {
+        "mean": float(np.mean(sims)),
+        "median": float(np.median(sims)),
+        "std": float(np.std(sims)),
+        "ci_low_2.5pct": float(np.percentile(sims, 2.5)),
+        "ci_high_97.5pct": float(np.percentile(sims, 97.5)),
+    }
 
 
 def main():
@@ -64,12 +82,17 @@ def main():
         original_direction = diff_in_means_direction(pooled, quadrants)
         bootstrap_dirs = bootstrap_directions(pooled, quadrants)
 
+        n_layers = original_direction.shape[0]
+        layers = REPORT_LAYERS if REPORT_LAYERS is not None else range(n_layers)
+
         print(f"\n=== {stage} ===")
         out[stage] = {}
-        for layer in REPORT_LAYERS:
-            mean_sim, std_sim = summarize_stability(bootstrap_dirs, original_direction, layer)
-            print(f"  layer {layer}: bootstrap-vs-original cosine sim = {mean_sim:.4f} ± {std_sim:.4f}")
-            out[stage][layer] = {"mean_cosine_sim": mean_sim, "std_cosine_sim": std_sim}
+        for layer in layers:
+            stats = summarize_stability_full(bootstrap_dirs, original_direction, layer)
+            print(f"  layer {layer}: bootstrap-vs-original cosine sim = "
+                  f"{stats['mean']:.4f} (median {stats['median']:.4f}, std {stats['std']:.4f}, "
+                  f"95% CI [{stats['ci_low_2.5pct']:.4f}, {stats['ci_high_97.5pct']:.4f}])")
+            out[stage][layer] = stats
 
     out_path = Path("results/interpretability/bootstrap_direction_stability.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)

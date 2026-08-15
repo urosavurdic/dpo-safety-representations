@@ -81,10 +81,16 @@ def main():
     eval_rows = load_controlled_eval()
     print(f"Loaded {len(eval_rows)} controlled-eval prompts.")
 
-    out_dir = Path("results")
+    out_dir = Path("results/behavioral_eval")
     out_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = out_dir / "behavioral_eval_raw.json"
-    capability_path = out_dir / "behavioral_eval_capability.json"
+    # NOTE: this used to point at results/behavioral_eval_raw.json (flat), but
+    # the actual committed M0-M3 data lives at results/behavioral_eval/raw.json
+    # (nested - same convention reclassify_behavioral.py already reads/writes).
+    # That mismatch meant this script could never find/resume the existing
+    # results and would have started a fresh M0-M3 run into the wrong path.
+    # Fixed to match the real, already-established convention.
+    raw_path = out_dir / "raw.json"
+    capability_path = out_dir / "capability.json"
 
     all_raw = json.load(open(raw_path, encoding="utf-8")) if raw_path.exists() else {}
     all_capability = json.load(open(capability_path, encoding="utf-8")) if capability_path.exists() else {}

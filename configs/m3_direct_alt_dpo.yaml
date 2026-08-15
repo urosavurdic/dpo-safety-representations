@@ -1,0 +1,63 @@
+# M3_direct_alt: DPO trained directly from M1_alt (skipping M2_alt's
+# safety-SFT), on the SAME PKU-SafeRLHF pairs as M3_direct/M3/M3_alt.
+# Mirrors M3_direct's relationship to M1, but on the Dolly-initialized
+# branch. Completes the 2x2 design:
+#
+#              M2-then-DPO grp     direct-DPO group
+#   Alpaca (orig)   M3                M3_direct
+#   Dolly (alt)     M3_alt            M3_direct_alt
+#
+# with M0 shared and PKU-SafeRLHF held constant as the safety-training data
+# in all four cells - isolates whether the "does prior safety-SFT matter"
+# question (M3_direct's original question) itself depends on which dataset
+# produced M1.
+#
+# Everything below is IDENTICAL to m3_direct_dpo.yaml except:
+#   - model.init_from_adapter (M1_alt instead of M1)
+#   - output.base_dir / output.hf_repo
+#   - experiment_name / wandb.run_name
+
+experiment_name: m3_direct_alt_dpo
+seed: 42
+
+model:
+  name: Qwen/Qwen2.5-1.5B
+  trust_remote_code: true
+  init_from_adapter: urosavurdic/qwen2.5-1.5b-m1-alt-helpful
+
+dataset:
+  path: data/processed/dpo_pairs.jsonl
+
+output:
+  base_dir: /content/drive/MyDrive/dpo-safety/models/m3_direct_alt
+  hf_repo: urosavurdic/qwen2.5-1.5b-m3-direct-alt-dpo
+  push_to_hub: true
+
+training:
+  num_train_epochs: 1
+  max_steps: -1
+  learning_rate: 5.0e-5
+  batch_size: 2
+  gradient_accumulation_steps: 16
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 20
+  save_total_limit: 3
+  max_seq_length: 1024
+  gradient_checkpointing: true
+  bf16: false
+  fp16: true
+
+dpo:
+  beta: 0.1
+  loss_type: sigmoid
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+
+wandb:
+  project: dpo-safety-representations
+  run_name: m3_direct_alt_dpo

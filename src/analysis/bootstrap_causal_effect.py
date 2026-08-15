@@ -41,25 +41,47 @@ def build_paired_outcomes(rows, quadrant, category):
 
 
 def bootstrap_effect_ci(pairs, n_bootstrap=N_BOOTSTRAP, seed=SEED, ci=0.95):
-    """pairs: list of (baseline_bool, other_bool). Effect = relative
-    reduction in rate: (baseline_rate - other_rate) / baseline_rate."""
+    """pairs: list of (baseline_bool, other_bool). Reports both the absolute
+    effect (baseline_rate - other_rate) and the relative effect
+    ((baseline_rate - other_rate) / baseline_rate) with 95% bootstrap CIs on
+    each, per PROJECT_CONTEXT.md's bootstrap-causal-effect spec (section 24:
+    "absolute effect, relative effect where meaningful"). Resamples across
+    prompt PAIRS jointly (never independently resamples the two conditions)."""
     rng = np.random.default_rng(seed)
     n = len(pairs)
     pairs_arr = np.array(pairs)
 
-    effects = []
+    abs_effects = []
+    rel_effects = []
     for _ in range(n_bootstrap):
         idx = rng.integers(0, n, size=n)
         sample = pairs_arr[idx]
         baseline_rate = sample[:, 0].mean()
         other_rate = sample[:, 1].mean()
+        abs_effects.append(baseline_rate - other_rate)
         if baseline_rate > 0:
-            effects.append((baseline_rate - other_rate) / baseline_rate)
+            rel_effects.append((baseline_rate - other_rate) / baseline_rate)
+        # else: relative effect undefined for this replicate (0/0), skipped -
+        # only affects rel_effects' effective n, not abs_effects'.
 
-    effects = np.array(effects)
-    lo = np.percentile(effects, (1 - ci) / 2 * 100)
-    hi = np.percentile(effects, (1 + ci) / 2 * 100)
-    return float(np.mean(effects)), float(lo), float(hi)
+    abs_effects = np.array(abs_effects)
+    rel_effects = np.array(rel_effects)
+    lo_pct, hi_pct = (1 - ci) / 2 * 100, (1 + ci) / 2 * 100
+    return {
+        "n_bootstrap_replicates": n_bootstrap,
+        "absolute_effect": {
+            "mean": float(np.mean(abs_effects)),
+            "ci_low": float(np.percentile(abs_effects, lo_pct)),
+            "ci_high": float(np.percentile(abs_effects, hi_pct)),
+        },
+        "relative_effect": {
+            "mean": float(np.mean(rel_effects)) if len(rel_effects) else None,
+            "ci_low": float(np.percentile(rel_effects, lo_pct)) if len(rel_effects) else None,
+            "ci_high": float(np.percentile(rel_effects, hi_pct)) if len(rel_effects) else None,
+            "n_defined_replicates": int(len(rel_effects)),  # < n_bootstrap iff some
+            # resamples had baseline_rate==0 (relative effect undefined, 0/0)
+        },
+    }
 
 
 def main():
@@ -73,13 +95,20 @@ def main():
     pairs = build_paired_outcomes(rows, args.quadrant, args.category)
     print(f"Paired on {len(pairs)} prompts (quadrant {args.quadrant}, category={args.category}).")
 
-    mean_effect, lo, hi = bootstrap_effect_ci(pairs)
-    print(f"Relative reduction: {mean_effect:.1%} [{lo:.1%}, {hi:.1%}] (95% bootstrap CI, {N_BOOTSTRAP} resamples)")
+    result = bootstrap_effect_ci(pairs)
+    abs_e, rel_e = result["absolute_effect"], result["relative_effect"]
+    print(f"Absolute reduction: {abs_e['mean']:.3f} [{abs_e['ci_low']:.3f}, {abs_e['ci_high']:.3f}] "
+          f"(95% bootstrap CI, {N_BOOTSTRAP} resamples)")
+    if rel_e["mean"] is not None:
+        print(f"Relative reduction: {rel_e['mean']:.1%} [{rel_e['ci_low']:.1%}, {rel_e['ci_high']:.1%}] "
+              f"(95% bootstrap CI, {rel_e['n_defined_replicates']}/{N_BOOTSTRAP} resamples with baseline>0)")
+    else:
+        print("Relative reduction: undefined (baseline rate was 0 in every resample)")
 
     out_path = Path(f"results/summaries/bootstrap_ci_{Path(args.file).stem}_{args.quadrant}_{args.category}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump({"n_pairs": len(pairs), "mean_relative_reduction": mean_effect, "ci_low": lo, "ci_high": hi}, f, indent=2)
+        json.dump({"n_pairs": len(pairs), **result}, f, indent=2)
     print(f"Saved to {out_path}")
 
 
