@@ -1,0 +1,52 @@
+# M2_alt: SFT-safety on the SAME PKU-SafeRLHF chosen-response data as M2 -
+# the only thing that changes is the starting adapter (M1_alt instead of
+# M1). This is the deliberate single-variable design: M2_alt/M3_alt/
+# M3_direct_alt all keep the safety-training data constant, so any
+# downstream difference from M2/M3/M3_direct is attributable to M1_alt's
+# data (Dolly vs Alpaca), not a second simultaneously-changed variable.
+#
+# Everything below is IDENTICAL to m2_sft_safety.yaml except:
+#   - model.init_from_adapter (M1_alt instead of M1)
+#   - output.base_dir / output.hf_repo
+#   - experiment_name / wandb.run_name
+
+experiment_name: m2_alt_sft_safety
+seed: 42
+
+model:
+  name: Qwen/Qwen2.5-1.5B
+  trust_remote_code: true
+  init_from_adapter: urosavurdic/qwen2.5-1.5b-m1-alt-helpful
+
+dataset:
+  path: data/processed/sft_safety.jsonl
+
+output:
+  base_dir: /content/drive/MyDrive/dpo-safety/models/m2_alt
+  hf_repo: urosavurdic/qwen2.5-1.5b-m2-alt-safety
+  push_to_hub: true
+
+training:
+  num_train_epochs: 2
+  max_steps: -1
+  learning_rate: 2.0e-4
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  warmup_ratio: 0.03
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 100
+  save_total_limit: 3
+  max_seq_length: 1024
+  gradient_checkpointing: true
+  bf16: false
+  fp16: true
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+
+wandb:
+  project: dpo-safety-representations
+  run_name: m2_alt_sft_safety

@@ -24,7 +24,6 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import AutoTokenizer
-from transformers.convert_slow_tokenizers_checkpoints_to_fast import args
 
 from src.training.model import load_stage_model
 from src.analysis.eval_causal_ablation import get_decoder_layers, generate_batch, load_controlled_eval, BATCH_SIZE
@@ -85,7 +84,7 @@ def main():
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--skip-baseline", action="store_true",
                          help="Reuse quadrant-D M3_baseline rows from causal_ablation_raw_wide.json")
-    parser.add_argument("--stage", default="M3", choices=["M3", "M3-direct"],
+    parser.add_argument("--stage", default="M3", choices=["M3", "M3_direct"],
                         help="Model stage to steer (default: M3)")
     
     args = parser.parse_args()
@@ -109,11 +108,7 @@ def main():
 
     all_directions = np.load(direction_path)
     with open("results/refusal_direction/quadrant_projections.json", encoding="utf-8") as f:
-        quadrant_a_proj = json.load(f)["M3"]["A"]
-
-    with open("results/refusal_direction/quadrant_projections.json", encoding="utf-8",) as f:
         quadrant_projections = json.load(f)
-
     quadrant_a_proj = quadrant_projections[stage_name]["A"]
 
     steer_layers = [args.layer] if args.layer is not None else STEER_LAYERS

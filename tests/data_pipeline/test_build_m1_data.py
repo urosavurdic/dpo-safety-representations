@@ -1,4 +1,10 @@
-from src.data_pipeline.build_m1_data import build_m1_dataset, remove_flagged_prompts, update_exclusion_list, load_exclusion_list
+from src.data_pipeline.build_m1_data import (
+    build_m1_dataset,
+    remove_flagged_prompts,
+    update_exclusion_list,
+    load_exclusion_list,
+    SOURCES,
+)
 
 def _fake_row(instruction, output, input_=""):
     return {"instruction": instruction, "input": input_, "output": output}
@@ -62,3 +68,40 @@ def test_update_exclusion_list_merges_and_dedupes(tmp_path):
 
     reloaded = load_exclusion_list(str(path))
     assert len(reloaded) == 3
+
+
+def test_dolly_normalizer_maps_to_common_shape_reused_by_build_m1_dataset():
+    """M1_alt's source (Dolly: instruction/context/response/category) must
+    normalize to the exact same {instruction, input, output} shape Alpaca
+    rows already have, so build_m1_dataset (selection/exclusion/dedup logic)
+    is reused completely unchanged - not reimplemented per source."""
+    dolly_row = {
+        "instruction": "What is the capital of France?",
+        "context": "",
+        "response": "Paris.",
+        "category": "closed_qa",
+    }
+    normalized = SOURCES["dolly"]["normalize_row"](dolly_row)
+    assert normalized == {"instruction": "What is the capital of France?", "input": "", "output": "Paris."}
+
+    # Multi-turn-equivalent (non-empty context) rows must still be filterable
+    # by build_m1_dataset's existing `row["input"] != ""` single-turn check.
+    dolly_multiturn_row = {
+        "instruction": "Summarize this.",
+        "context": "Some long passage...",
+        "response": "A summary.",
+        "category": "summarization",
+    }
+    result = build_m1_dataset(
+        [SOURCES["dolly"]["normalize_row"](dolly_row), SOURCES["dolly"]["normalize_row"](dolly_multiturn_row)],
+        reserved_prompts=[],
+        n_target=10,
+    )
+    prompts = [r["prompt"] for r in result]
+    assert "What is the capital of France?" in prompts
+    assert "Summarize this." not in prompts  # excluded: non-empty context/input
+
+
+def test_alpaca_normalizer_is_identity_preserving_backward_compatibility():
+    row = {"instruction": "q", "input": "", "output": "a"}
+    assert SOURCES["alpaca"]["normalize_row"](row) == row

@@ -1,0 +1,45 @@
+experiment_name: m3_direct_alt_gpu_dryrun
+seed: 42
+
+model:
+  name: Qwen/Qwen2.5-1.5B
+  trust_remote_code: true
+  init_from_adapter: urosavurdic/qwen2.5-1.5b-m1-alt-helpful
+
+dataset:
+  path: data/processed/dpo_pairs.jsonl
+  max_samples: 20
+
+output:
+  base_dir: /content/drive/MyDrive/dpo-safety/models/m3_direct_alt_dryrun
+  hf_repo: null
+  push_to_hub: false
+
+training:
+  num_train_epochs: 1
+  max_steps: 5
+  learning_rate: 5.0e-5
+  batch_size: 2
+  gradient_accumulation_steps: 16
+  warmup_ratio: 0.0
+  weight_decay: 0.01
+  logging_steps: 1
+  save_steps: 2
+  save_total_limit: 2
+  max_seq_length: 1024
+  gradient_checkpointing: true
+  bf16: false
+  fp16: true
+
+dpo:
+  beta: 0.1
+  loss_type: sigmoid
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+
+wandb:
+  project: dpo-safety-representations
+  run_name: m3_direct_alt_gpu_dryrun

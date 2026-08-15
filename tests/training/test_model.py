@@ -130,3 +130,56 @@ def test_load_stage_model_m3_direct_merges_m1_then_direct_dpo_in_order():
             "urosavurdic/qwen2.5-1.5b-m3-direct-dpo",
         )
         assert result == mock_after_dpo
+
+
+def test_load_stage_model_m3_direct_alt_merges_m1_alt_then_direct_dpo_in_order():
+    """Data-dependence branch: M3_direct_alt must start from M1_alt (Dolly),
+    not M1 (Alpaca) - the whole point of the alt branch is a different M1."""
+    with patch("src.training.model.AutoModelForCausalLM.from_pretrained") as mock_from_pretrained, \
+         patch("src.training.model.PeftModel") as mock_peft_model:
+        mock_base = MagicMock()
+        mock_base.to.return_value = mock_base
+        mock_from_pretrained.return_value = mock_base
+
+        mock_after_m1_alt = MagicMock()
+        mock_after_dpo = MagicMock()
+
+        mock_peft_model.from_pretrained.side_effect = [
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_m1_alt)),
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_dpo)),
+        ]
+
+        result = load_stage_model("M3_direct_alt")
+
+        calls = mock_peft_model.from_pretrained.call_args_list
+        assert calls[0].args == (mock_base, "urosavurdic/qwen2.5-1.5b-m1-alt-helpful")
+        assert calls[1].args == (mock_after_m1_alt, "urosavurdic/qwen2.5-1.5b-m3-direct-alt-dpo")
+        assert result == mock_after_dpo
+
+
+def test_load_stage_model_m3_alt_merges_full_three_stage_chain_in_order():
+    """M3_alt is the sequential (non-direct) alt-branch endpoint: M1_alt ->
+    M2_alt -> M3_alt, mirroring M1->M2->M3 but starting from Dolly."""
+    with patch("src.training.model.AutoModelForCausalLM.from_pretrained") as mock_from_pretrained, \
+         patch("src.training.model.PeftModel") as mock_peft_model:
+        mock_base = MagicMock()
+        mock_base.to.return_value = mock_base
+        mock_from_pretrained.return_value = mock_base
+
+        mock_after_m1_alt = MagicMock()
+        mock_after_m2_alt = MagicMock()
+        mock_after_m3_alt = MagicMock()
+
+        mock_peft_model.from_pretrained.side_effect = [
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_m1_alt)),
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_m2_alt)),
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_m3_alt)),
+        ]
+
+        result = load_stage_model("M3_alt")
+
+        calls = mock_peft_model.from_pretrained.call_args_list
+        assert calls[0].args == (mock_base, "urosavurdic/qwen2.5-1.5b-m1-alt-helpful")
+        assert calls[1].args == (mock_after_m1_alt, "urosavurdic/qwen2.5-1.5b-m2-alt-safety")
+        assert calls[2].args == (mock_after_m2_alt, "urosavurdic/qwen2.5-1.5b-m3-alt-dpo")
+        assert result == mock_after_m3_alt
