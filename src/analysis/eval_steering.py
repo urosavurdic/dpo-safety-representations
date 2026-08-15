@@ -24,6 +24,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import AutoTokenizer
+from transformers.convert_slow_tokenizers_checkpoints_to_fast import args
 
 from src.training.model import load_stage_model
 from src.analysis.eval_causal_ablation import get_decoder_layers, generate_batch, load_controlled_eval, BATCH_SIZE
@@ -76,6 +77,7 @@ def run_condition(model, tokenizer, eval_rows, device, condition_name, out_rows)
         print(f"    [{condition_name}] {min(i + BATCH_SIZE, len(eval_rows))}/{len(eval_rows)} done")
 
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--layer", type=int, default=None,
@@ -83,7 +85,12 @@ def main():
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--skip-baseline", action="store_true",
                          help="Reuse quadrant-D M3_baseline rows from causal_ablation_raw_wide.json")
+    parser.add_argument("--stage", default="M3", choices=["M3", "M3-direct"],
+                        help="Model stage to steer (default: M3)")
+    
     args = parser.parse_args()
+
+    direction_path = Path(f"results/refusal_direction/{args.stage}_direction.npy")
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     if tokenizer.pad_token is None:
@@ -97,11 +104,17 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     print("Loading M3...")
-    model = load_stage_model("M3")
+    stage_name = args.stage
+    model = load_stage_model(stage_name)
 
-    all_directions = np.load("results/refusal_direction/M3_direction.npy")
+    all_directions = np.load(direction_path)
     with open("results/refusal_direction/quadrant_projections.json", encoding="utf-8") as f:
         quadrant_a_proj = json.load(f)["M3"]["A"]
+
+    with open("results/refusal_direction/quadrant_projections.json", encoding="utf-8",) as f:
+        quadrant_projections = json.load(f)
+
+    quadrant_a_proj = quadrant_projections[stage_name]["A"]
 
     steer_layers = [args.layer] if args.layer is not None else STEER_LAYERS
     directions_by_layer = {L: torch.from_numpy(all_directions[L]) for L in steer_layers}
@@ -111,9 +124,13 @@ def main():
 
     out_rows = []
     suffix = f"_L{args.layer}" if args.layer is not None else ""
-    out_path = Path(f"results/raw/steering_raw_D{suffix}.json")
+    if args.stage == "M3" and args.layer is None:
+        out_path = Path("results/raw/steering_raw_D.json")
+    else:
+        suffix = f"_L{args.layer}" if args.layer is not None else ""
+        out_path = Path(f"results/raw/steering_raw_{args.stage}_D{suffix}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     if args.skip_baseline:
         out_rows.extend(load_existing_baseline_D())
         print(f"\n=== Condition 1/2: reused {len(out_rows)} existing baseline rows ===")
@@ -134,6 +151,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out_rows, f, ensure_ascii=False, indent=2)
     print(f"\nDone. {len(out_rows)} rows saved to {out_path}")
+    
 
     del model
     gc.collect()

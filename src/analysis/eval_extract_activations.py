@@ -17,7 +17,7 @@ from src.training.model import load_stage_model
 from src.training.eval_generation import build_generation_prompt
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-STAGES = ["M0", "M1", "M2", "M3"]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
 BATCH_SIZE = 8
 POOL_WINDOW = 5
 

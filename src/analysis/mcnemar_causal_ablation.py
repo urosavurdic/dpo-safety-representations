@@ -20,8 +20,10 @@ QUADRANTS_TO_TEST = {
 }
 
 
-def build_paired_outcomes(rows, quadrant, target_category):
+
+def build_paired_outcomes(rows, quadrant, target_category, baseline_condition, intervention_condition):
     by_prompt = defaultdict(dict)
+
     for row in rows:
         if row["quadrant"] != quadrant:
             continue
@@ -29,8 +31,13 @@ def build_paired_outcomes(rows, quadrant, target_category):
         by_prompt[row["prompt"]][row["stage"]] = (cat == target_category)
     pairs = []
     for prompt, conditions in by_prompt.items():
-        if "M3_baseline" in conditions and "M3_ablated" in conditions:
-            pairs.append((conditions["M3_baseline"], conditions["M3_ablated"]))
+        if (baseline_condition in conditions and intervention_condition in conditions):
+            pairs.append(
+                (
+                    conditions[baseline_condition],
+                    conditions[intervention_condition],
+                )
+            )
     return pairs
 
 
@@ -45,11 +52,13 @@ def contingency_table(pairs):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True, help="Path to the causal ablation raw JSON to analyze")
+    parser.add_argument("--conditions", nargs=2, default=["M3_baseline", "M3_ablated"], help="Baseline and intervention condition names")
     args = parser.parse_args()
     rows = load_json(args.file)
+    baseline_condition, intervention_condition = args.conditions
     print(f"Loaded {len(rows)} rows.\n")
     for quadrant, category in QUADRANTS_TO_TEST.items():
-        pairs = build_paired_outcomes(rows, quadrant, category)
+        pairs = build_paired_outcomes(rows, quadrant, baseline_condition, intervention_condition)
         table = contingency_table(pairs)
         result = mcnemar(table, exact=True)
         print(f"=== Quadrant {quadrant}, category '{category}' (n={len(pairs)}) ===")

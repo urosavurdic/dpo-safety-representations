@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
-STAGES = ["M0", "M1", "M2", "M3"]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
 ACT_DIR = Path("results/activations")
 OUT_DIR = Path("results/refusal_direction")
 POS_QUADRANT = "A"
@@ -90,7 +90,15 @@ def main():
     # 1. Cross-stage cosine similarity, per layer, vs M0 (the untrained baseline)
     cosine_vs_m0 = {}
     for stage in STAGES:
-        cosine_vs_m0[stage] = cosine_similarity_per_layer(directions["M0"], directions[stage]).tolist()
+        cosine_vs_m0[stage] = cosine_similarity_per_layer(
+        directions["M0"], directions[stage]
+    ).tolist()
+
+    cosine_vs_m3 = {}
+    for stage in STAGES:
+        cosine_vs_m3[stage] = cosine_similarity_per_layer(
+            directions["M3"], directions[stage]
+        ).tolist()
 
     # Also the adjacent-stage chain (M0->M1->M2->M3), often more informative than "vs M0"
     cosine_adjacent = {}
@@ -99,7 +107,14 @@ def main():
 
     from src.io_utils import write_json
 
-    write_json(OUT_DIR / "cosine_similarity.json", {"vs_M0": cosine_vs_m0, "adjacent": cosine_adjacent})
+    write_json(
+    {
+        "vs_M0": cosine_vs_m0,
+        "vs_M3": cosine_vs_m3,
+        "adjacent": cosine_adjacent,
+    },
+    OUT_DIR / "cosine_similarity.json",
+    )
 
     # 2. Mean projection per quadrant per stage, per layer (each stage projected onto ITS OWN direction)
     projections = {}
@@ -108,7 +123,7 @@ def main():
             pooled_by_stage[stage], quadrants_by_stage[stage], directions[stage]
         )
 
-    write_json(OUT_DIR / "quadrant_projections.json", projections)
+    write_json(projections, OUT_DIR / "quadrant_projections.json")
 
     print(f"\nSaved directions, cosine_similarity.json, quadrant_projections.json to {OUT_DIR}/")
 

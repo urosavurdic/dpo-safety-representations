@@ -14,10 +14,10 @@ from src.training.model import load_stage_model
 from src.eval_stats import rate_with_ci
 from src.analysis.eval_refusal_classifier import classify_refusal
 
-from src.training.eval_generation import build_generation_prompt
+from src.training.eval_generation import build_generation_prompt, generate, generate_batch
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-STAGES = ["M0", "M1", "M2", "M3"]
+STAGES = ["M0", "M1", "M2", "M3", "M3-direct"]
 
 CAPABILITY_CHECKS = [
     {"prompt": "What is the capital of Japan?", "expected_substring": "tokyo"},
