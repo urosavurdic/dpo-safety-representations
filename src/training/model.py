@@ -12,6 +12,10 @@ STAGE_ADAPTER_CHAINS = {
         "urosavurdic/qwen2.5-1.5b-m2-safety",
         "urosavurdic/qwen2.5-1.5b-m3-dpo",
     ],
+    "M3_direct": [
+        "urosavurdic/qwen2.5-1.5b-m1-helpful",
+        "urosavurdic/qwen2.5-1.5b-m3-direct-dpo",
+    ],
 }
 
 

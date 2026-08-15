@@ -102,3 +102,31 @@ def test_load_stage_model_moves_to_device():
         load_stage_model("M0")
         mock_model.to.assert_called_once_with("cuda")
 
+def test_load_stage_model_m3_direct_merges_m1_then_direct_dpo_in_order():
+    with patch("src.training.model.AutoModelForCausalLM.from_pretrained") as mock_from_pretrained, \
+         patch("src.training.model.PeftModel") as mock_peft_model:
+        mock_base = MagicMock()
+        mock_base.to.return_value = mock_base
+        mock_from_pretrained.return_value = mock_base
+
+        mock_after_m1 = MagicMock()
+        mock_after_dpo = MagicMock()
+
+        mock_peft_model.from_pretrained.side_effect = [
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_m1)),
+            MagicMock(merge_and_unload=MagicMock(return_value=mock_after_dpo)),
+        ]
+
+        result = load_stage_model("M3_direct")
+
+        calls = mock_peft_model.from_pretrained.call_args_list
+
+        assert calls[0].args == (
+            mock_base,
+            "urosavurdic/qwen2.5-1.5b-m1-helpful",
+        )
+        assert calls[1].args == (
+            mock_after_m1,
+            "urosavurdic/qwen2.5-1.5b-m3-direct-dpo",
+        )
+        assert result == mock_after_dpo

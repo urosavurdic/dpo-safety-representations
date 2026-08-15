@@ -24,6 +24,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import AutoTokenizer
+from transformers.convert_slow_tokenizers_checkpoints_to_fast import argparse
 
 from src.training.model import load_stage_model
 from src.training.eval_generation import build_generation_prompt
@@ -110,7 +111,7 @@ def generate_batch(model, tokenizer, prompts, device, max_new_tokens=MAX_NEW_TOK
         tokenizer.padding_side = original_padding_side
 
 
-def run_condition(model, tokenizer, eval_rows, device, condition_name, out_rows):
+def run_condition(model, tokenizer, eval_rows, device, stage_name, out_rows):
     for i in range(0, len(eval_rows), BATCH_SIZE):
         batch_rows = eval_rows[i:i + BATCH_SIZE]
         responses = generate_batch(model, tokenizer, [r["prompt"] for r in batch_rows], device)
@@ -119,10 +120,10 @@ def run_condition(model, tokenizer, eval_rows, device, condition_name, out_rows)
                 "prompt": row["prompt"],
                 "quadrant": row["quadrant"],
                 "source": row["source"],
-                "stage": condition_name,
+                "model_stage": stage_name,
                 "response": response,
             })
-        print(f"    [{condition_name}] {min(i + BATCH_SIZE, len(eval_rows))}/{len(eval_rows)} done")
+        print(f"    [{stage_name}] {min(i + BATCH_SIZE, len(eval_rows))}/{len(eval_rows)} done")
 
 
 def main():
@@ -130,6 +131,12 @@ def main():
     parser.add_argument("--limit", type=int, default=None, help="Limit eval prompts (dry run)")
     parser.add_argument("--skip-baseline", action="store_true",
                          help="Skip regenerating baseline -- use if you're reusing M3 rows from behavioral_eval_raw.json instead")
+    parser.add_argument(
+    "--stage",
+    default="M3",
+    choices=["M3", "M3_direct"],
+    help="Model stage to run causal ablation on (default: M3)",
+)
     args = parser.parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -144,13 +151,13 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
-    print("Loading M3...")
-    model = load_stage_model("M3")
+    print(f"Loading {args.stage}...")
+    model = load_stage_model(args.stage)
 
-    direction_path = Path("results/refusal_direction/M3_direction.npy")
+    direction_path = Path(f"results/refusal_direction/{args.stage}_direction.npy")
     all_directions = np.load(direction_path)  # (29, hidden_dim)
     directions_by_layer = {L: torch.from_numpy(all_directions[L]) for L in ABLATE_LAYERS}
-    print(f"Loaded M3 directions, ablating hidden_states layers {ABLATE_LAYERS[0]}-{ABLATE_LAYERS[-1]} "
+    print(f"Loaded {args.stage} directions, ablating hidden_states layers {ABLATE_LAYERS[0]}-{ABLATE_LAYERS[-1]} "
           f"(decoder blocks {ABLATE_LAYERS[0]-1}-{ABLATE_LAYERS[-1]-1})")
 
     out_rows = []
@@ -159,7 +166,7 @@ def main():
 
     if not args.skip_baseline:
         print("\n=== Condition 1/2: baseline (no ablation) ===")
-        run_condition(model, tokenizer, eval_rows, device, "M3_baseline", out_rows)
+        run_condition(model, tokenizer, eval_rows, device, f"{args.stage}_baseline", out_rows)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(out_rows, f, ensure_ascii=False, indent=2)
         print(f"Baseline saved ({len(out_rows)} rows) -- checkpoint before touching hooks.")
@@ -169,7 +176,7 @@ def main():
     print("\n=== Condition 2/2: ablated (hooks active) ===")
     handles = register_ablation_hooks(model, directions_by_layer)
     try:
-        run_condition(model, tokenizer, eval_rows, device, "M3_ablated", out_rows)
+        run_condition(model, tokenizer, eval_rows, device, f"{args.stage}_ablated", out_rows)
     finally:
         for h in handles:
             h.remove()
@@ -178,7 +185,7 @@ def main():
         json.dump(out_rows, f, ensure_ascii=False, indent=2)
     print(f"\nDone. {len(out_rows)} rows saved to {out_path}")
     print("Next: point eval_refusal_classifier.py / eval_stats.py at this file, "
-          "treating 'M3_baseline' and 'M3_ablated' as two more stages.")
+          f"treating '{args.stage}_baseline' and '{args.stage}_ablated' as two more stages.")
 
     del model
     gc.collect()
