@@ -4,7 +4,14 @@ seed: 42
 model:
   name: Qwen/Qwen2.5-1.5B
   trust_remote_code: true
-  init_from_adapter: urosavurdic/qwen2.5-1.5b-m1-alt-helpful
+  # Points at M1_alt's LOCAL dry-run output, not the real HF repo
+  # (urosavurdic/qwen2.5-1.5b-m1-alt-helpful) - a dry run never pushes to HF
+  # by design (push_to_hub: false), so that repo doesn't exist until M1_alt
+  # is actually really trained. Without this, a full dry-run chain
+  # (M1_alt -> M2_alt -> M3_alt/M3_direct_alt) is impossible to smoke-test
+  # end-to-end from scratch. PEFT's from_pretrained() accepts a local
+  # directory path here exactly the same way it accepts a HF repo id.
+  init_from_adapter: /content/drive/MyDrive/dpo-safety/models/m1_alt_dryrun/final
 
 dataset:
   path: data/processed/sft_safety.jsonl

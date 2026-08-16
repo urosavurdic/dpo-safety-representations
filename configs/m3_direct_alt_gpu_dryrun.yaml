@@ -4,7 +4,8 @@ seed: 42
 model:
   name: Qwen/Qwen2.5-1.5B
   trust_remote_code: true
-  init_from_adapter: urosavurdic/qwen2.5-1.5b-m1-alt-helpful
+  # Local dry-run output, not the real HF repo - see m2_alt_gpu_dryrun.yaml's comment.
+  init_from_adapter: /content/drive/MyDrive/dpo-safety/models/m1_alt_dryrun/final
 
 dataset:
   path: data/processed/dpo_pairs.jsonl
