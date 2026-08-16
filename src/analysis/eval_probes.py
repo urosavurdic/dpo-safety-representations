@@ -20,7 +20,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
-STAGES = ["M0", "M1", "M2", "M3"]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
 ACT_DIR = Path("results/activations")
 B_TRAIN_SIZE = 50
 SEED = 42
@@ -83,10 +83,22 @@ def main():
 
     all_results = {}
     for stage in STAGES:
+        result_path = out_dir / f"{stage}_probe_results.json"
+        if result_path.exists():
+            # Adding a new stage to STAGES must not re-run/overwrite prior
+            # stages' already-finalized probe results (results/probes/*.json
+            # - see HANDOFF.md "Status: Phase 4 complete"). Reload instead.
+            print(f"\n=== {stage}: already computed, loading from disk ===")
+            with open(result_path, encoding="utf-8") as f:
+                layer_results = json.load(f)
+            all_results[stage] = layer_results
+            best = max(layer_results, key=lambda r: r["cv_accuracy_mean"])
+            print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
+            continue
         print(f"\n=== {stage} ===")
         layer_results = run_for_stage(stage)
         all_results[stage] = layer_results
-        with open(out_dir / f"{stage}_probe_results.json", "w", encoding="utf-8") as f:
+        with open(result_path, "w", encoding="utf-8") as f:
             json.dump(layer_results, f, ensure_ascii=False, indent=2)
         best = max(layer_results, key=lambda r: r["cv_accuracy_mean"])
         print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")

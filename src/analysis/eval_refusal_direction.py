@@ -28,6 +28,12 @@ from pathlib import Path
 import numpy as np
 
 STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
+# The TRUE sequential trajectory is only M0->M1->M2->M3 - M3_direct branches
+# from M1 directly (parallel control branch, not a "next stage" after M3).
+# Kept separate from STAGES so the adjacent-chain table never mislabels a
+# M3_direct comparison as if it were part of the sequential narrative -
+# see PROJECT_CONTEXT.md/HANDOFF.md M3_direct notes.
+SEQUENTIAL_STAGES = ["M0", "M1", "M2", "M3"]
 ACT_DIR = Path("results/activations")
 OUT_DIR = Path("results/refusal_direction")
 POS_QUADRANT = "A"
@@ -100,10 +106,28 @@ def main():
             directions["M3"], directions[stage]
         ).tolist()
 
-    # Also the adjacent-stage chain (M0->M1->M2->M3), often more informative than "vs M0"
+    # Also the adjacent-stage chain (M0->M1->M2->M3), often more informative than "vs M0".
+    # SEQUENTIAL_STAGES only -- M3_direct is a parallel branch, not the next
+    # link after M3 (see SEQUENTIAL_STAGES comment above).
     cosine_adjacent = {}
-    for a, b in zip(STAGES[:-1], STAGES[1:]):
+    for a, b in zip(SEQUENTIAL_STAGES[:-1], SEQUENTIAL_STAGES[1:]):
         cosine_adjacent[f"{a}_vs_{b}"] = cosine_similarity_per_layer(directions[a], directions[b]).tolist()
+
+    # M3_direct's own two meaningful comparisons (PROJECT_CONTEXT.md/
+    # HANDOFF.md M3_direct notes): does direct DPO from M1 rotate by a
+    # similar amount to M1->M2's safety-SFT step (M1_vs_M3_direct, not
+    # previously computed anywhere), and do the two DPO endpoints converge
+    # (M3_direct_vs_M3 -- same values as vs_M3["M3_direct"], repeated here
+    # under an explicit, unambiguous label rather than relying on a reader
+    # to find it nested under "M3" as the reference stage).
+    cosine_direct_branch = {}
+    if "M3_direct" in STAGES:
+        cosine_direct_branch["M1_vs_M3_direct"] = cosine_similarity_per_layer(
+            directions["M1"], directions["M3_direct"]
+        ).tolist()
+        cosine_direct_branch["M3_direct_vs_M3"] = cosine_similarity_per_layer(
+            directions["M3_direct"], directions["M3"]
+        ).tolist()
 
     from src.io_utils import write_json
 
@@ -112,6 +136,7 @@ def main():
         "vs_M0": cosine_vs_m0,
         "vs_M3": cosine_vs_m3,
         "adjacent": cosine_adjacent,
+        "direct_branch": cosine_direct_branch,
     },
     OUT_DIR / "cosine_similarity.json",
     )
