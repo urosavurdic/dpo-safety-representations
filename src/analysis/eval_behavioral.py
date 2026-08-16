@@ -17,7 +17,7 @@ from src.analysis.eval_refusal_classifier import classify_refusal
 from src.training.eval_generation import build_generation_prompt, generate, generate_batch
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-STAGES = ["M0", "M1", "M2", "M3", "M3-direct"]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]  # M3_direct = M1 + direct DPO, parallel control branch
 
 CAPABILITY_CHECKS = [
     {"prompt": "What is the capital of Japan?", "expected_substring": "tokyo"},

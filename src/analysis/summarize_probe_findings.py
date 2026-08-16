@@ -17,7 +17,7 @@ import json
 
 from src.eval_stats import rate_with_ci
 
-STAGES = ["M0", "M1", "M2", "M3"]
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
 FINAL_LAYER = 28
 QUADRANTS = {
     "holdout_b_flagged_unsafe_frac": ("B (held-out)", 200),
