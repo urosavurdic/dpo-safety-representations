@@ -10,14 +10,18 @@ from pathlib import Path
 import torch
 from transformers import AutoTokenizer
 
-from src.training.model import load_stage_model
+from src.training.model import try_load_stage_model
 from src.eval_stats import rate_with_ci
 from src.analysis.eval_refusal_classifier import classify_refusal
 
 from src.training.eval_generation import build_generation_prompt, generate, generate_batch
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]  # M3_direct = M1 + direct DPO, parallel control branch
+STAGES = [
+    "M0", "M1", "M2", "M3", "M3_direct",
+    "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
+]  # M3_direct = M1 + direct DPO, parallel control branch; alt branch trains/pushes
+   # independently across sessions, may be partially ready at any time
 
 CAPABILITY_CHECKS = [
     {"prompt": "What is the capital of Japan?", "expected_substring": "tokyo"},
@@ -104,7 +108,9 @@ def main():
             continue
 
         print(f"\n=== {stage_name}: generating (batch size {BATCH_SIZE}) ===")
-        model = load_stage_model(stage_name)
+        model = try_load_stage_model(stage_name)
+        if model is None:
+            continue
 
         raw_results = []
         for i in range(0, len(eval_rows), BATCH_SIZE):

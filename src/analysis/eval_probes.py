@@ -20,7 +20,12 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
-STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
+from src.analysis.eval_refusal_direction import activations_available
+
+STAGES = [
+    "M0", "M1", "M2", "M3", "M3_direct",
+    "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
+]
 ACT_DIR = Path("results/activations")
 B_TRAIN_SIZE = 50
 SEED = 42
@@ -95,6 +100,11 @@ def main():
             best = max(layer_results, key=lambda r: r["cv_accuracy_mean"])
             print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
             continue
+        if not activations_available(stage):
+            # Alt branch trains/pushes independently across sessions - not
+            # every stage in STAGES is necessarily ready yet.
+            print(f"\n=== {stage}: SKIPPED, activations not yet extracted ===")
+            continue
         print(f"\n=== {stage} ===")
         layer_results = run_for_stage(stage)
         all_results[stage] = layer_results
@@ -108,6 +118,8 @@ def main():
 
     print(f"\n{'Model':<6} {'Layer':<7} {'CV acc':<10} {'B(holdout)':<12} {'C':<8} {'D':<8}")
     for stage in STAGES:
+        if stage not in all_results:
+            continue
         best = max(all_results[stage], key=lambda r: r["cv_accuracy_mean"])
         print(f"{stage:<6} {best['layer']:<7} {best['cv_accuracy_mean']:.3f}     "
               f"{best['holdout_b_flagged_unsafe_frac']:.3f}        "

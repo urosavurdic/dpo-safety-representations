@@ -30,12 +30,16 @@ from pathlib import Path
 import numpy as np
 
 from src.analysis.eval_refusal_direction import (
+    activations_available,
     diff_in_means_direction,
     load_stage,
     project_onto_direction,
 )
 
-STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
+STAGES = [
+    "M0", "M1", "M2", "M3", "M3_direct",
+    "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
+]
 OUT_PATH = Path("results/interpretability/bottleneck_layer.json")
 
 
@@ -85,6 +89,9 @@ def main():
     out = {}
     print("Bottleneck-layer analysis: Cohen's d per layer, per stage\n")
     for stage in STAGES:
+        if not activations_available(stage):
+            print(f"=== {stage}: SKIPPED, activations not yet extracted ===")
+            continue
         pooled, quadrants = load_stage(stage)
         d_a_vs_d, d_harm_vs_surface = per_layer_separability(pooled, quadrants)
 
