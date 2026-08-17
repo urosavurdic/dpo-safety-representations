@@ -143,8 +143,6 @@ noise. Second thing on my list below.
 
 ## The honest null results
 
-I'd rather own these clearly than bury them.
-
 **Steering didn't confirm the causal story.** Causal ablation shows the
 direction is *necessary* for refusal — remove it, refusal collapses.
 Steering was supposed to show it's *sufficient* — add it, refusal should
