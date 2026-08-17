@@ -13,11 +13,6 @@ hold up cleanly is *how* that direction gets organized depending on which
 training path got you there — and that turned out to be more interesting
 than I expected going in.
 
-This is an independent research project, not a peer-reviewed paper. I'm a
-master's student, not a lab — read the numbers, not the confidence of the
-prose, and see **Limitations** before taking anything here further than it
-should go.
-
 ---
 
 ## The question
@@ -286,7 +281,7 @@ pytest tests/ -v
 ```bibtex
 @misc{dpo_safety_representations,
   title={Where Does Safety Live? Tracing a Refusal Direction from Base Model to DPO},
-  author={[Your Name]},
+  author={[Uroš Savurdić]},
   year={2026},
   howpublished={\url{https://github.com/urosavurdic/dpo-safety-representations}},
   note={Independent research project, not peer-reviewed}
