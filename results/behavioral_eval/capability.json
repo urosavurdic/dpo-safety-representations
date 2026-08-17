@@ -166,5 +166,215 @@
       "completion": "The boiling point of water is 100 degrees Celsius (212 degrees Fahrenheit). This temperature occurs when water reaches its maximum vapor pressure and turns into steam. At sea level, this happens at 1 atmosphere of pressure. However, the boiling point can vary depending on atmospheric pressure; for",
       "correct": true
     }
+  ],
+  "M3_direct": [
+    {
+      "prompt": "What is the capital of Japan?",
+      "completion": "The capital of Japan is Tokyo. It has been the country's de facto national capital since 1868, when it replaced Kyoto as the seat of government following the end of the Edo period. Tokyo serves as both the nation's largest city and its most populous prefecture. It also",
+      "correct": true
+    },
+    {
+      "prompt": "What is 12 multiplied by 8?",
+      "completion": "The product of 12 and 8 is 96. This can be calculated using the multiplication operation: 12 x 8 = 96. The result is an integer, which means it does not have any fractional part. In this case, the answer is an integer because",
+      "correct": true
+    },
+    {
+      "prompt": "What is the chemical symbol for gold?",
+      "completion": "The chemical symbol for gold is Au. It comes from the Latin word \"aurum,\" which means golden. The element was first discovered in 700 BC and remains one of the most valuable metals today. Gold has been used as currency since ancient times, but it also finds many other applications",
+      "correct": true
+    },
+    {
+      "prompt": "Who wrote Romeo and Juliet?",
+      "completion": "Romeo and Juliet was written by William Shakespeare in the late 16th century. It is one of his most famous plays, and has been adapted into numerous films, stage productions, and musicals over the years. The play tells the tragic story of two young lovers from feuding families",
+      "correct": true
+    },
+    {
+      "prompt": "What is the largest planet in our solar system?",
+      "completion": "The largest planet in our solar system is Jupiter, with a diameter of about 142,984 kilometers (88,846 miles). It is larger than all other planets combined! The next largest planet is Saturn, which has a diameter of about 120,",
+      "correct": true
+    },
+    {
+      "prompt": "If you have 3 apples and buy 5 more, how many do you have?",
+      "completion": "In this case, if you start with 3 apples and then buy 5 more, you would end up with a total of 8 apples. This is because addition is the operation used to combine two quantities together. So, 3 + 5 = 8. Therefore, you will have",
+      "correct": true
+    },
+    {
+      "prompt": "What year did World War II end?",
+      "completion": "World War II ended in 1945. The war officially ended on September 2, 1945 when Japan signed the Instrument of Surrender, which marked the official end of the conflict between the Allies and Japan. The war had lasted approximately six years from 193",
+      "correct": true
+    },
+    {
+      "prompt": "What is the boiling point of water in Celsius?",
+      "completion": "The boiling point of water at sea level and standard atmospheric pressure (1 atmosphere) is 100 degrees Celsius or 212 degrees Fahrenheit. This temperature occurs when water molecules have enough energy to break free from their liquid state and become gaseous, forming steam. The boiling point can",
+      "correct": true
+    }
+  ],
+  "M1_alt": [
+    {
+      "prompt": "What is the capital of Japan?",
+      "completion": "The capital of Japan is Tokyo. Tokyo is also known as Tōkyō in Japanese. Tokyo is one of the largest cities in the world and has over 13 million people living within its boundaries. Tokyo was established in 1869, after the Meiji Restoration that ended the",
+      "correct": true
+    },
+    {
+      "prompt": "What is 12 multiplied by 8?",
+      "completion": "The answer to 12 multiplied by 8 is 96. The multiplication process can be thought of as repeated addition, so you would add the number 12 eight times: 12 + 12 + 12 + 12 + 12 + 1",
+      "correct": true
+    },
+    {
+      "prompt": "What is the chemical symbol for gold?",
+      "completion": "Au is the chemical symbol for gold. Gold is a soft, malleable metal that can be found in nature and used to make jewelry. It has been known since ancient times and was highly valued by many civilizations. Gold is also used in electronics and other industrial applications. The atomic number of gold",
+      "correct": true
+    },
+    {
+      "prompt": "Who wrote Romeo and Juliet?",
+      "completion": "William Shakespeare is the author of Romeo and Juliet. The play was written in 1597, during his period as an actor and playwright. It has been adapted for film numerous times over the years, most recently in 2008 with Leonardo DiCaprio and Claire Danes.",
+      "correct": true
+    },
+    {
+      "prompt": "What is the largest planet in our solar system?",
+      "completion": "The largest planet in our solar system is Jupiter. It has 67 known moons and is made up of mostly hydrogen and helium. The Great Red Spot, which is a massive storm that's been raging for hundreds of years, can be seen from Earth with a telescope. Jupiter also has four large",
+      "correct": true
+    },
+    {
+      "prompt": "If you have 3 apples and buy 5 more, how many do you have?",
+      "completion": "8. You start with 3 apples and then add 5 more to get 8. The answer is 8.��取",
+      "correct": true
+    },
+    {
+      "prompt": "What year did World War II end?",
+      "completion": "World War II ended on September 2, 1945 with the signing of the Japanese surrender document in Tokyo Bay. The war had been raging for over four years and claimed an estimated 60 million lives. It was one of the deadliest conflicts in human history. The United States played",
+      "correct": true
+    },
+    {
+      "prompt": "What is the boiling point of water in Celsius?",
+      "completion": "The boiling point of water at sea level atmospheric pressure (1 atmosphere) is 100 degrees Celsius.  This temperature will change if you move to higher altitudes where there is less air pressure or lower altitudes where there is more air pressure.  The boiling point of water can also be",
+      "correct": true
+    }
+  ],
+  "M2_alt": [
+    {
+      "prompt": "What is the capital of Japan?",
+      "completion": "The capital of Japan is Tokyo. It was established as the nation's central government in 1869 and has since become one of the world's largest cities with over 37 million residents. Tokyo serves as both the country's political center and its economic hub, boasting numerous financial institutions,",
+      "correct": true
+    },
+    {
+      "prompt": "What is 12 multiplied by 8?",
+      "completion": "12 multiplied by 8 equals 96.  You can also say that twelve times eight is ninety-six.  This means if you have 12 groups of something and each group has 8 items in it, then there would be a total of 96 items altogether.",
+      "correct": true
+    },
+    {
+      "prompt": "What is the chemical symbol for gold?",
+      "completion": "The chemical symbol for gold is Au. It's also sometimes called \"aurum\" in Latin and \"carat\" when referring to its purity. Gold has an atomic number of 79, which means it has 79 protons in its nucleus. Its atomic weight is approximately 1",
+      "correct": true
+    },
+    {
+      "prompt": "Who wrote Romeo and Juliet?",
+      "completion": "Romeo and Juliet was written by William Shakespeare. It is one of his most famous plays, and has been adapted into numerous films, stage productions, musicals, and other media over the years. The story follows two young lovers from feuding families who fall in love despite their parents' dis",
+      "correct": true
+    },
+    {
+      "prompt": "What is the largest planet in our solar system?",
+      "completion": "The largest planet in our solar system is Jupiter, with an average diameter of 142,984 kilometers (88,867 miles). It has more than twice the mass of all other planets combined and is also known as the \"King of Planets\". Other notable features",
+      "correct": true
+    },
+    {
+      "prompt": "If you have 3 apples and buy 5 more, how many do you have?",
+      "completion": "8 apples. You started with 3 apples and bought 5 more so now you have 8 apples in total. 3 + 5 = 8. 8 - 0 = 8. So you end up with 8 apples! That's right, it's always better to",
+      "correct": true
+    },
+    {
+      "prompt": "What year did World War II end?",
+      "completion": "World War II ended on September 2, 1945. The official surrender of Japan was signed aboard the USS Missouri in Tokyo Bay. This marked the formal end of hostilities between the Allied and Axis powers during the Second World War. It also brought an end to nearly six years of",
+      "correct": true
+    },
+    {
+      "prompt": "What is the boiling point of water in Celsius?",
+      "completion": "The boiling point of water in Celsius is 100 degrees. This means that at sea level, when pressure is constant, water will boil and turn into steam at this temperature. In other words, it takes 100 degrees of heat to change liquid water into vapor. The specific amount",
+      "correct": true
+    }
+  ],
+  "M3_alt": [
+    {
+      "prompt": "What is the capital of Japan?",
+      "completion": "The capital of Japan is Tokyo. However, Tokyo is not the only major city in Japan; other important cities include Osaka, Nagoya, and Kyoto. Tokyo serves as both the national government's administrative center and the country’s largest metropolis, while Osaka and Nagoya are economic hubs with strong industrial",
+      "correct": true
+    },
+    {
+      "prompt": "What is 12 multiplied by 8?",
+      "completion": "12 multiplied by 8 equals 96.  You can also think of this as adding the number 12, eight times:  12 + 12 + 12 + 12 + 12 + 12 + 12 + 1",
+      "correct": true
+    },
+    {
+      "prompt": "What is the chemical symbol for gold?",
+      "completion": "Au is the chemical symbol for gold. It is also one of the most precious metals and has been used as currency, jewelry, and an investment asset throughout history. Gold is a soft metal that is malleable and ductile; it can be beaten into thin sheets or drawn out into very fine",
+      "correct": true
+    },
+    {
+      "prompt": "Who wrote Romeo and Juliet?",
+      "completion": "Romeo and Juliet was written by William Shakespeare. He is believed to have completed the play between 1594-1596, though some scholars believe it may have been written as early as 1590. It is one of his most popular works and has been",
+      "correct": true
+    },
+    {
+      "prompt": "What is the largest planet in our solar system?",
+      "completion": "The largest planet in our solar system is Jupiter, with a diameter of approximately 142,984 kilometers (88,870 miles). It is followed by Saturn, which has a diameter of about 120,536 kilometers (74,89",
+      "correct": true
+    },
+    {
+      "prompt": "If you have 3 apples and buy 5 more, how many do you have?",
+      "completion": "You would have 8 apples in total. You started with 3 apples and bought 5 more so now you have 3+5 = 8 apples.  However, it is important to note that this scenario assumes no loss or damage during the transaction - if there were any costs associated with",
+      "correct": true
+    },
+    {
+      "prompt": "What year did World War II end?",
+      "completion": "World War II ended on September 2, 1945, with the signing of the Japanese Instrument of Surrender. The war had been raging for approximately four years and claimed the lives of an estimated 60 million people. It was one of the deadliest conflicts in human history, resulting",
+      "correct": true
+    },
+    {
+      "prompt": "What is the boiling point of water in Celsius?",
+      "completion": "The boiling point of water is 100 degrees Celsius. However, this can vary slightly depending on atmospheric pressure. For example, at higher altitudes where the air is thinner, the boiling point of water will be lower than 100 degrees Celsius. Conversely, at sea level it remains",
+      "correct": true
+    }
+  ],
+  "M3_direct_alt": [
+    {
+      "prompt": "What is the capital of Japan?",
+      "completion": "Japan has no single capital city, but instead has three separate cities that each serve as the seat of government for different branches of the Japanese government: Tokyo (the national capital), Osaka (the capital of the Kansai region) and Fukuoka (the capital of Kyushu). Tokyo is",
+      "correct": true
+    },
+    {
+      "prompt": "What is 12 multiplied by 8?",
+      "completion": "The answer to this question is 96. It's important to note that multiplication is repeated addition, so you can think of it as adding the number 12 eight times (or vice versa). In general, when multiplying two numbers together, you multiply each digit in one number with every other",
+      "correct": true
+    },
+    {
+      "prompt": "What is the chemical symbol for gold?",
+      "completion": "The chemical symbol for gold is Au. The atomic number of gold is 79, which means that it has 79 protons in its nucleus. Gold is also a metal and is one of the most malleable metals on Earth. It can be beaten into very thin sheets without breaking",
+      "correct": true
+    },
+    {
+      "prompt": "Who wrote Romeo and Juliet?",
+      "completion": "William Shakespeare is the author of Romeo and Juliet. This play was written in 1597, during his most prolific period as an English playwright. It has been performed countless times since its original publication, and continues to be one of the most popular plays ever written. The story follows two young",
+      "correct": true
+    },
+    {
+      "prompt": "What is the largest planet in our solar system?",
+      "completion": "There isn't one \"largest\" planet, as each of the planets has its own unique characteristics and properties. The largest planet by volume is Jupiter, but it's not necessarily the largest by mass or distance from the Sun. For example, Saturn is slightly larger than Jupiter in terms of mass.",
+      "correct": true
+    },
+    {
+      "prompt": "If you have 3 apples and buy 5 more, how many do you have?",
+      "completion": "This is not a math problem but rather an analogy question. The answer to this question cannot be determined as it does not make sense in the real world. This type of question is often used by teachers to assess whether students understand that analogies may not always translate into mathematical equations. In reality, if",
+      "correct": false
+    },
+    {
+      "prompt": "What year did World War II end?",
+      "completion": "World War II officially ended on September 2, 1945 with the signing of the Japanese surrender document in Tokyo Bay. However, fighting continued for several months after that date as both sides tried to secure their gains and prevent an invasion by the other side. The war was also marked by",
+      "correct": true
+    },
+    {
+      "prompt": "What is the boiling point of water in Celsius?",
+      "completion": "The boiling point of water at sea level is 100 degrees Celsius. However, this can vary depending on altitude and other factors. For example, it may be slightly lower than 100 degrees Celsius at higher altitudes. It's important to note that the boiling point of water changes",
+      "correct": true
+    }
   ]
 }

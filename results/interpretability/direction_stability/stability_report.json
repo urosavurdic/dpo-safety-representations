@@ -180,8 +180,8 @@
     }
   },
   "stability_summary": {
-    "mean_similarity_M0_vs_M3": 0.5616763799354948,
-    "min_similarity": 0.0,
+    "mean_similarity_M0_vs_M3": 0.5817362506474767,
+    "min_similarity": 0.38003677129745483,
     "max_similarity": 0.9009599089622498,
     "layers_high_stability": [
       1,
@@ -359,6 +359,6 @@
     }
   },
   "interpretation": {
-    "summary": "Largest average rotation occurs at M0_vs_M1 (mean drift 0.358); the other adjacent-stage transitions are smaller. Mean M0-vs-M3 similarity across layers is 0.562, ranging 0.000-0.901 across layers."
+    "summary": "Largest average rotation occurs at M0_vs_M1 (mean drift 0.358); the other adjacent-stage transitions are smaller. Mean M0-vs-M3 similarity across layers is 0.582, ranging 0.380-0.901 across layers."
   }
 }

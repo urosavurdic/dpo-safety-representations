@@ -82,6 +82,21 @@ def run_for_stage(stage, kind="final"):
             for i in range(arr.shape[1])]
 
 
+def pick_most_informative_layer(layer_results):
+    """NOT max cv_accuracy_mean - that metric saturates near 1.0 at almost
+    every layer for every stage, including untrained M0 (see HANDOFF.md:
+    "Naive CV accuracy retired (saturates even at untrained M0)"). Using it
+    to pick a "best" layer just returns whichever layer happens to be first
+    among the tied maximum - layer 0 or 1, the shallowest, LEAST
+    informative layer, silently making every stage's "best layer" row look
+    identical and its quadrant-C/D flagging rates look near-zero regardless
+    of real per-layer variation (visible instead in summarize_probe_
+    findings.py's FINAL_LAYER-based report). Pick by the metric that's
+    actually meaningful instead: quadrant C flagging rate.
+    """
+    return max(layer_results, key=lambda r: r["quadrant_c_flagged_unsafe_frac"])
+
+
 def main():
     out_dir = Path("results/probes")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -97,7 +112,7 @@ def main():
             with open(result_path, encoding="utf-8") as f:
                 layer_results = json.load(f)
             all_results[stage] = layer_results
-            best = max(layer_results, key=lambda r: r["cv_accuracy_mean"])
+            best = pick_most_informative_layer(layer_results)
             print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
             continue
         if not activations_available(stage):
@@ -110,7 +125,7 @@ def main():
         all_results[stage] = layer_results
         with open(result_path, "w", encoding="utf-8") as f:
             json.dump(layer_results, f, ensure_ascii=False, indent=2)
-        best = max(layer_results, key=lambda r: r["cv_accuracy_mean"])
+        best = pick_most_informative_layer(layer_results)
         print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
         print(f"    Held-out B -> unsafe: {best['holdout_b_flagged_unsafe_frac']:.3f}")
         print(f"    Quadrant C -> unsafe: {best['quadrant_c_flagged_unsafe_frac']:.3f}")
@@ -120,7 +135,7 @@ def main():
     for stage in STAGES:
         if stage not in all_results:
             continue
-        best = max(all_results[stage], key=lambda r: r["cv_accuracy_mean"])
+        best = pick_most_informative_layer(all_results[stage])
         print(f"{stage:<6} {best['layer']:<7} {best['cv_accuracy_mean']:.3f}     "
               f"{best['holdout_b_flagged_unsafe_frac']:.3f}        "
               f"{best['quadrant_c_flagged_unsafe_frac']:.3f}   {best['quadrant_d_flagged_unsafe_frac']:.3f}")

@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 
 from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
+from src.analysis.eval_probes import pick_most_informative_layer
 from src.eval_stats import rate_with_ci
 
 CROSS_BRANCH_PAIRS = [
@@ -62,10 +63,15 @@ def probe_best_layer_for_stage(stage, probes_dir="results/probes"):
         return None
     with open(path, encoding="utf-8") as f:
         results = json.load(f)
-    return max(results, key=lambda r: r["cv_accuracy_mean"])
+    return pick_most_informative_layer(results)
 
 
 def direction_cross_branch_similarity(orig, alt, cosine_path="results/refusal_direction/cosine_similarity.json"):
+    """Mean excludes layer 0 - it's a zero-vector template-token artifact
+    (see README Finding 3: "Layer 0 excluded - zero-vector template-token
+    artifact"), always exactly 0.0 regardless of stage, so including it
+    mechanically drags the mean down and understates true cross-branch
+    similarity at every real layer."""
     path = Path(cosine_path)
     if not path.exists():
         return None
@@ -74,7 +80,8 @@ def direction_cross_branch_similarity(orig, alt, cosine_path="results/refusal_di
     values = data.get("cross_branch", {}).get(f"{orig}_vs_{alt}")
     if values is None:
         return None
-    return {"per_layer": values, "mean": sum(values) / len(values)}
+    real_layers = values[1:]  # drop layer 0
+    return {"per_layer": values, "mean": sum(real_layers) / len(real_layers)}
 
 
 def build_comparison(orig, alt, raw_rows_by_stage):

@@ -1,414 +1,283 @@
-# DPO Safety Representations: A Mechanistic Study
+# Where Does Safety Live? Tracing a Refusal Direction from Base Model to DPO
 
-## Overview
+*A mechanistic study of SFT and DPO on Qwen2.5-1.5B, replicated across two independent training datasets.*
 
-Does safety training (SFT, then DPO) give a language model genuinely richer
-internal representations of harm, or does it mainly reshape how an existing
-refusal-associated direction gets used? We train the same small model through
-a four-stage chain — base → helpful-SFT → safety-SFT → DPO — and compare
-internal representations and causal interventions at each stage.
+We trained a 1.5B model through four stages — base → generic SFT → safety
+SFT → DPO — and tracked a single internal direction associated with refusal
+at every step. Then we did it again, starting from a different, independent
+instruction-tuning dataset, to see if the story survives. Short version: DPO
+looks like it's mostly turning up the volume on a direction that's already
+there by the time generic instruction-tuning finishes, not building
+something new from scratch. That held up on a second dataset. What didn't
+hold up cleanly is *how* that direction gets organized depending on which
+training path got you there — and that turned out to be more interesting
+than I expected going in.
 
-This is an independent research project on a 1.5B-parameter model, not a
-peer-reviewed publication. See **Limitations** before drawing broad conclusions.
-
-**Status:** Phase 4 (interpretability) complete.
+This is an independent research project, not a peer-reviewed paper. I'm a
+master's student, not a lab — read the numbers, not the confidence of the
+prose, and see **Limitations** before taking anything here further than it
+should go.
 
 ---
 
-## The Four Quadrants
+## The question
+
+Does safety training give a model genuinely richer internal representations
+of harm, or does it mostly reshape how an existing, already-formed direction
+gets hooked up to behavior? Put differently: is there a real difference
+between a model that "understands" harm and one that's just gotten better at
+routing a pre-existing signal to a refusal?
+
+To test this without just asking the model, I built a controlled eval set
+with four quadrants — crossing *actually harmful* against *worded
+harmful-sounding*:
 
 |                       | **Worded harmful-sounding**                          | **Worded neutrally**                                          |
 |-----------------------|-------------------------------------------------------|-----------------------------------------------------------------|
 | **Actually harmful**  | **A** — obviously harmful (HarmBench, n=50). Correct response: refuse. | **C** — harmful, disguised (hand-curated, n=20). Correct response: refuse. Sharpest test of real understanding. |
 | **Actually benign**   | **B** — sounds risky, isn't (XSTest, n=250). Correct response: comply. Classic over-refusal trap. | **D** — benign, plainly worded (Alpaca, n=50). Correct response: comply. |
 
----
-
-## Quick Start
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-pytest tests/ -v
-```
-
-### Reproduce the analysis pipeline
-
-```bash
-# GPU-dependent (Colab T4 used originally)
-python -m src.analysis.eval_extract_activations
-python -m src.analysis.eval_causal_ablation
-python -m src.analysis.eval_steering --skip-baseline --layer 21
-
-# CPU-only, local
-python -m src.analysis.eval_behavioral
-python -m src.analysis.eval_probes
-python -m src.analysis.eval_refusal_direction
-python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_wide.json
-python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
-python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_wide.json
-python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_narrow.json
-python -m src.analysis.summarize_steering --file results/raw/steering_raw_D_L21.json
-python -m src.analysis.mcnemar_steering
-python -m src.interpretability.direction_stability
-python -m src.interpretability.lora_subspace_check
-```
+Quadrant C is the whole point of this design: a model relying on surface
+wording will do fine on A, B, and D but should struggle here. A model that
+actually tracks intent shouldn't.
 
 ---
 
-## Methodology
+## Setup, briefly
 
-**Training chain** (Qwen2.5-1.5B): M0 (base) → M1 (SFT on Alpaca, no safety
-content) → M2 (SFT on PKU-SafeRLHF *chosen* responses) → M3 (DPO on the
-*same* PKU-SafeRLHF prompts as M2 — matched chosen/rejected pairs). M2/M3
-sharing identical prompts and differing only in training objective isolates
-"DPO the method" from "DPO the data." LoRA (r=64) throughout — see
-Limitations for a quantified check of what this constrains.
+**Training chain** (Qwen2.5-1.5B, LoRA r=64 throughout — flagging that
+constraint up front, see Limitations): M0 (base) → M1 (SFT on Alpaca) → M2
+(SFT on PKU-SafeRLHF *chosen* responses) → M3 (DPO on the *same*
+PKU-SafeRLHF prompts, matched chosen/rejected pairs). M2 and M3 sharing
+identical prompts and differing only in objective is what lets me separate
+"DPO as a method" from "DPO's training data." A second path, **M3_direct**,
+applies DPO straight to M1, skipping M2 — isolates whether DPO's effect
+depends on the model already having been through safety-SFT.
 
-**Refusal direction** — diff-in-means (not PCA): mean(activation | quadrant
-A) − mean(activation | quadrant D), per layer per stage, unit-normalized.
-This is the same core method as Arditi et al. (2024, NeurIPS), applied here
-across a controlled training-stage chain rather than across many pretrained
-models.
+**The replication branch**: M1's data is the thing I was least sure about.
+Alpaca is generated by `text-davinci-003` — an already-aligned model — so
+any safety-flavored style in M1 could in principle be inherited from
+Alpaca's generator rather than being a real property of instruction-tuning.
+So I trained a second, parallel chain (`_alt` suffix) identical in every way
+except M1_alt is trained on
+[Dolly-15k](https://huggingface.co/datasets/databricks/databricks-dolly-15k)
+— human-written from scratch, no aligned-LLM generation step. M2_alt/M3_alt/
+M3_direct_alt keep training on the same PKU-SafeRLHF data as the original —
+the only variable that changes is which dataset produced M1.
 
-**Causal ablation** — project the direction out of the residual stream at
-generation time, at a chosen layer range, on M3. Paired McNemar's exact test
-on discordant baseline-vs-ablated pairs.
+**Refusal direction**: diff-in-means, mean(activation | quadrant A) −
+mean(activation | quadrant D), per layer per stage, unit-normalized. Same
+core method as Arditi et al. (2024, NeurIPS).
 
-**Steering** — the reverse intervention: add the direction into the residual
-stream, magnitude anchored to that layer's real mean quadrant-A projection.
-
-**LoRA-subspace check** — for each checked layer, what fraction of the
-refusal direction's norm lies in the column space of that layer's LoRA `B`
-matrix (`o_proj`/`down_proj` only — the two module types that write directly
-into the residual stream), compared against 200 random unit vectors as a
-null baseline.
-
----
-
-## Key Results
-
-| Experiment | Quadrant A | Quadrant B | Quadrant C |
-|---|---|---|---|
-| Baseline (M3) | 14% refusal | 5.6% refusal+soft-defl. | 80% soft-deflection |
-| Wide ablation (14–28) | 0% (p=0.0156) | 0% | 0% (p=0.00003) |
-| Narrow ablation (24–28) | 0% (p=0.0156) | 1.2% (79% relative drop) | 25% (p=0.0010, 69% relative drop) |
-
-**Steering (quadrant D, benign):** 15-layer addition → 98% degenerate output
-(not refusal). Single-layer (21) addition → small, non-significant shift
-(McNemar p=0.50, n=2 discordant pairs). Neither is a clean causal complement
-to ablation — reported as a genuine null result, not a positive finding.
-
-**LoRA-subspace:** direction's norm captured by the rank-64 subspace ranges
-6–10% across checked layers/modules — 90%+ lies outside it everywhere. The
-overlap that does exist is real (3–10 standard deviations above a
-random-direction baseline, not noise) and concentrated at the deep layers
-(21, 28) and `down_proj` specifically — matching where the direction-rotation
-analysis independently finds DPO's action concentrates.
+Full methodology (causal ablation, steering, bootstrap procedures, the
+LoRA-subspace check) is in `CLAUDE.md`, kept out of here to keep this
+readable.
 
 ---
 
-## Key Findings
+## Finding 1: the representation shows up before the behavior does
 
-**1. The causal effect is real and statistically significant.** Wide
-ablation: 16/16 quadrant-C pairs flip away from soft-deflection (p=0.000031),
-7/7 quadrant-A pairs flip away from refusal (p=0.015625). 100%-directional,
-no reverse flips, confirmed by paired exact tests, not just non-overlapping CIs.
+M1 — generic instruction-tuning, *before any safety training at all* —
+already has probes flagging 85% of quadrant C as unsafe internally, despite
+0% behavioral soft-deflection at that stage. The model has something
+resembling the relevant representation well before it does anything
+differently in its outputs.
 
-**2. Layer-range dependence is real but not quadrant-selective between B and
-C.** Quadrant A's suppression is *fully* explained by layers 24–28 alone
-(100% relative reduction under the narrow range). Quadrants B and C are only
-*partially* explained by that same narrow range (79% and 69% relative
-reduction respectively) — layers 14–23 carry real signal for both, at similar
-magnitude. This revises "non-selective" to something more precise: A has a
-narrowly-concentrated dependency the other two don't share, but B and C don't
-separate cleanly from each other at this resolution.
-
-**3. The direction rotates most during generic instruction-tuning, not
-safety training.** Mean drift (1 − cosine similarity) across 28 non-artifact
-layers: M0→M1 ≈ 0.335, M1→M2 ≈ 0.040, M2→M3 ≈ 0.070. DPO adds ~1.75× the
-rotation SFT-safety did, concentrated in the deepest third of the network —
-but M0→M1 remains far larger (4.8× M2→M3, 8.4× M1→M2). Layers 1–5 stay highly
-similar to M0 even at M3 (0.73–0.90); the single lowest point is layer 20
-(0.380). *(Layer 0 excluded — zero-vector template-token artifact.)*
-
-**4. The direction is not primarily a LoRA artifact, but isn't fully
-independent of it either.** 90%+ of the direction's norm lies outside the
-rank-64 LoRA subspace everywhere checked — ruling out "this is just what
-LoRA happened to be capable of writing" as the main explanation. But the
-alignment that does exist is statistically real (not random-chance overlap)
-and concentrated exactly where the direction rotates most during DPO (deep
-layers, `down_proj`) — a genuine, if secondary, point of convergence between
-two independent analysis methods.
-
-**5. Steering is an honest null result, not a confirmed causal complement.**
-Multi-layer addition collapses output to near-total degenerate text (98%),
-most likely from compounding across 15 residual-stream injections rather than
-a targeted behavioral shift. Single-layer addition at the deepest
-signal-bearing layer produces a small, statistically non-significant change
-(p=0.50). Ablation's causal story stands on its own; steering did not add
-independent confirmation, and further layer/magnitude tuning was
-deliberately not pursued past this point.
-
-**6. Overall verdict.** We find no evidence that DPO builds a new,
-safety-specific representation from scratch. The refusal-associated direction
-is already present after generic instruction-tuning alone (M1 representationally
-flags 85% of quadrant C despite 0% behavioral soft-deflection at that stage —
-representation precedes behavior). DPO primarily strengthens the coupling
-between that pre-existing representation and output behavior, with real but
-smaller additional rotation concentrated in deeper layers, and only a modest,
-not-dominant relationship to the LoRA subspace it was trained through. The
-causal effect of ablating this direction is real and significant for both
-overtly harmful and disguised-harm prompts, but the layer ranges differ: the
-deepest 5 layers fully account for the overt-refusal effect, while a broader
-range is needed to fully account for the disguised-harm and over-refusal
-effects — which don't separate from each other at this resolution. Closer to
-"coupling/amplification" (Hypothesis B) than "genuinely new representation"
-(Hypothesis A).
+The direction itself moves most during this same stage. Mean drift (1 −
+cosine similarity) across 28 layers: M0→M1 ≈ 0.335, M1→M2 ≈ 0.040, M2→M3 ≈
+0.070. Whatever DPO is doing, it's adding on top of something mostly already
+built during plain instruction-tuning, not building it from scratch.
 
 ---
 
-## Project Structure
+## Finding 2: this replicates on a second, independent dataset
 
-```
-dpo-safety-representations/
-├── .gitignore
-├── HANDOFF.md
-├── PROJECT_CONTEXT.md
-├── README.md
-├── pyproject.toml
-├── requirements.txt
-│
-├── configs/
-│   ├── m1_gpu_dryrun.yaml
-│   ├── m1_sft_helpful.yaml
-│   ├── m1_smoke_test.yaml
-│   ├── m2_gpu_dryrun.yaml
-│   ├── m2_sft_safety.yaml
-│   ├── m3_dpo.yaml
-│   └── m3_gpu_dryrun.yaml
-│
-├── data/
-│   ├── dedup_report.json
-│   ├── dedup_report_m1.json
-│   └── processed/
-│       ├── alpaca_reserved_for_eval.json
-│       ├── controlled_eval.jsonl
-│       ├── dpo_pairs.jsonl
-│       ├── m1_near_dup_exclusions.json
-│       ├── sft_helpful.jsonl
-│       └── sft_safety.jsonl
-│
-├── outputs/
-│   └── smoke_test_m1/
-│       ├── checkpoints/
-│       │   ├── README.md
-│       │   └── checkpoint-2/
-│       │       ├── README.md
-│       │       ├── adapter_config.json
-│       │       ├── chat_template.jinja
-│       │       ├── optimizer.pt
-│       │       ├── rng_state.pth
-│       │       ├── scheduler.pt
-│       │       ├── tokenizer.json
-│       │       ├── tokenizer_config.json
-│       │       ├── trainer_state.json
-│       │       └── training_args.bin
-│       │
-│       └── final/
-│           ├── README.md
-│           ├── adapter_config.json
-│           ├── chat_template.jinja
-│           ├── config_used.yaml
-│           ├── git_commit.txt
-│           ├── requirements.txt
-│           ├── tokenizer.json
-│           ├── tokenizer_config.json
-│           └── training_args.bin
-│
-├── results/
-│   ├── activations/
-│   │   ├── M0_metadata.json
-│   │   ├── M1_metadata.json
-│   │   ├── M2_metadata.json
-│   │   └── M3_metadata.json
-│   │
-│   ├── behavioral_eval_capability.json
-│   ├── behavioral_eval_raw.json
-│   ├── behavioral_eval_summary_v2.json
-│   ├── causal_ablation_raw.json
-│   ├── causal_ablation_raw_narrow.json
-│   ├── causal_ablation_summary.json
-│   ├── classifier_validation_sample.json
-│   ├── qualitative_spot_check.json
-│   │
-│   ├── probes/
-│   │   ├── M0_probe_results.json
-│   │   ├── M1_probe_results.json
-│   │   ├── M2_probe_results.json
-│   │   └── M3_probe_results.json
-│   │
-│   ├── refusal_direction/
-│   │   ├── M0_direction.npy
-│   │   ├── M1_direction.npy
-│   │   ├── M2_direction.npy
-│   │   ├── M3_direction.npy
-│   │   ├── cosine_similarity.json
-│   │   └── quadrant_projections.json
-│   │
-│   └── summaries/
-│       └── causal_ablation_raw_narrow_summary.json
-│
-├── src/
-│   ├── __init__.py
-│   ├── io_utils.py
-│   │
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── eval_behavioral.py
-│   │   ├── eval_causal_ablation.py
-│   │   ├── eval_probes.py
-│   │   ├── eval_refusal_direction.py
-│   │   ├── mcnemar_causal_ablation.py
-│   │   ├── reclassify_behavioral.py
-│   │   ├── summarize_causal_ablation.py
-│   │   ├── summarize_probe_findings.py
-│   │   └── summarize_refusal_direction.py
-│   │
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── build_eval_set.py
-│   │   ├── build_m1_data.py
-│   │   ├── data_prep.py
-│   │   ├── eval_generation.py
-│   │   ├── train_dpo.py
-│   │   └── train_sft.py
-│   │
-│   ├── diagnostics/
-│   │   ├── __init__.py
-│   │   ├── analyze_data_coverage.py
-│   │   ├── check_classifier_agreement.py
-│   │   ├── check_leakage.py
-│   │   ├── diagnose_probe_layers.py
-│   │   ├── eval_extract_activations.py
-│   │   ├── eval_qualitative.py
-│   │   ├── eval_refusal_classifier.py
-│   │   ├── inspect_quadrant_c.py
-│   │   ├── search_alpaca_leakage.py
-│   │   ├── search_source_data.py
-│   │   ├── validate_refusal_classifier.py
-│   │   ├── verify_activations.py
-│   │   └── verify_cross_stage_diff.py
-│   │
-│   ├── interpretability/
-│   │   ├── __init__.py
-│   │   ├── alpha_scaling.py
-│   │   ├── direction_stability.py
-│   │   ├── integrated_report.py
-│   │   ├── per_layer_analysis.py
-│   │   └── utils.py
-│   │
-│   ├── training/
-│   │   ├── __init__.py
-│   │   ├── callbacks.py
-│   │   ├── data.py
-│   │   ├── dpo_data.py
-│   │   ├── formatting.py
-│   │   ├── model.py
-│   │   └── utils.py
-│   │
-│   └── utils/
-│       ├── __init__.py
-│       └── eval_stats.py
-│
-└── tests/
-    ├── test_environment.py
-    ├── test_eval_stats.py
-    │
-    ├── analysis/
-    │   ├── __init__.py
-    │   ├── test_eval_causal_ablation.py
-    │   ├── test_eval_probes.py
-    │   ├── test_eval_refusal_direction.py
-    │   ├── test_mcnemar_causal_ablation.py
-    │   ├── test_summarize_causal_ablation.py
-    │   └── test_summarize_probe_findings.py
-    │
-    ├── core/
-    │   ├── __init__.py
-    │   ├── test_build_eval_set.py
-    │   ├── test_build_m1_data.py
-    │   ├── test_data_prep.py
-    │   ├── test_eval_generation.py
-    │   ├── test_train_dpo.py
-    │   └── test_train_sft.py
-    │
-    ├── diagnostics/
-    │   ├── __init__.py
-    │   ├── test_check_leakage.py
-    │   ├── test_eval_extract_activations.py
-    │   └── test_eval_refusal_classifier.py
-    │
-    └── training/
-        ├── __init__.py
-        ├── test_callbacks.py
-        ├── test_dpo_data.py
-        ├── test_model.py
-        ├── test_training_data.py
-        ├── test_training_formatting.py
-        └── test_training_utils.py
-```
+<p align="center"><img src="assets/cross_branch_similarity.png" width="620" alt="Cross-branch direction similarity bar chart"></p>
 
+Training M1 on Dolly instead of Alpaca gives a direction that stays highly
+similar to the original at every stage — never below 0.875, mostly in the
+0.90–0.92 range. I want to be precise about what this does and doesn't show:
+it's evidence the direction isn't specific to Alpaca, replicated across the
+two datasets I actually tried. That's meaningfully weaker than "a general
+property of instruction-tuning," which would need more than two datasets to
+back up. But it's real support against the concern that this whole project
+was reporting an artifact of one dataset's quirks.
+
+---
+
+## Finding 3: the training path matters more than I expected
+
+<p align="center"><img src="assets/deep_layer_stability.png" width="700" alt="Deep-layer bootstrap stability comparison"></p>
+
+This is the result I didn't see coming, and it's the strongest new thing in
+this update. Bootstrap resampling (B=1000) shows M3_direct and
+M3_direct_alt — the two direct-DPO branches, on *different* datasets — both
+settle into a tight 0.98–0.995 cosine-similarity band at layers 16–28. Every
+M2-mediated stage, on both datasets, stays looser (roughly 0.94–0.98) and
+generally gets *less* stable with depth, not more.
+
+That's a pattern that showed up independently in two separate training
+runs, which is what a real replication is supposed to look like. One
+precision worth holding onto: "bootstrap-stable" means the *estimate* of the
+direction is less sensitive to which prompts get resampled — it's evidence
+the underlying computation is more concentrated, but it doesn't by itself
+prove a cleaner causal circuit. That would need its own test (see Next
+Steps).
+
+There's a second piece that fits the same shape. Cross-branch similarity
+actually rises slightly from M1 (0.900) to M2 (0.919), stays close at M3
+(0.916), and drops for the direct-DPO branch (M3_direct: 0.875, the lowest
+of the four). Safety-SFT looks like it pulls the two branches' representations
+closer together; skipping it doesn't. I'm calling this a pattern, not a
+finding yet — the gap between 0.900 and 0.919 is two point estimates, and I
+haven't tested whether it's bigger than resampling noise. That's the first
+thing on my list below.
+
+A third, independent signal points the same direction: using each layer's
+effect size for separating *actually harmful* (A+C) from *just surface
+wording* (B+D), M2 and M3 both peak at layer 9 — notably shallow. M2_alt and
+M3_alt both peak at layer 16, a consistent 7-layer gap. M3_direct (13) and
+M3_direct_alt (14) land close together regardless of dataset. So this
+property is dataset-sensitive on the M2-mediated path, and close to
+dataset-robust on the direct path — same shape as the stability result.
+Worth flagging: this is each stage's single best layer, not a layer with a
+confidence interval around it, so some of that 7-layer gap could be argmax
+noise. Second thing on my list below.
+
+---
+
+## The honest null results
+
+I'd rather own these clearly than bury them.
+
+**Steering didn't confirm the causal story.** Causal ablation shows the
+direction is *necessary* for refusal — remove it, refusal collapses.
+Steering was supposed to show it's *sufficient* — add it, refusal should
+appear. It hasn't, cleanly. Adding the direction across 15 layers at once
+collapses output into near-total degenerate text (98%) instead of inducing
+refusal, most likely from the addition compounding across that many
+simultaneous residual-stream injections. A single-layer version produced a
+small, non-significant shift (p=0.50) — but at layer 21, which sits outside
+the 24–28 range ablation actually found sufficient, so that test may have
+been aimed at the wrong layer as much as it tested the mechanism. A
+reworked, configurable version of the experiment exists
+(`eval_steering_v2.py`, defaults to a layer inside the validated range) but
+hasn't been run yet.
+
+**90%+ of the direction's norm lies outside the LoRA subspace it was trained
+through.** Rules out "this is just what a rank-64 adapter happened to be
+capable of writing" as the main story — but the overlap that does exist is
+real (3–10 standard deviations above a random-direction baseline) and
+concentrated exactly where DPO's rotation concentrates. Not primarily a LoRA
+artifact, not fully independent of it either.
+
+**Quadrant C's behavioral gap between branches doesn't clear significance.**
+M3 70% soft-deflection [95% CI 48–86%] vs. M3_alt 55% [34–74%]; M3_direct
+55% [34–74%] vs. M3_direct_alt 30% [15–52%]. Both point the same direction
+(alt branch soft-deflects less on disguised harm), and that consistency
+across two independent paths is worth noting — but with n=20 and
+overlapping CIs in both cases, this is a hypothesis, not a confirmed
+difference. The mirror pattern on quadrant A (n=50, tighter CIs — alt models
+refuse *more* on overtly-worded harm) is more trustworthy given the larger
+sample. Together they suggest something worth checking properly: maybe the
+alt branch leans more on surface wording and less on recognizing disguised
+intent. That's a real possibility, not something the current data confirms.
+
+---
+
+## Open questions / what I'd want feedback on
+
+- Does the deep-layer stability difference (Finding 3) actually survive a
+  formal paired comparison, or is some of it noise from comparing two
+  descriptive ranges? I think it will, given how tight the direct-DPO band
+  is, but I haven't run the test yet.
+- Is "safety-SFT homogenizes cross-dataset representations" a real
+  mechanism, or is there a simpler explanation (e.g. M2 initialization
+  reducing variance generically, independent of anything about
+  homogenization specifically)? Genuinely unsure.
+- If someone ran an SAE on this model, would "refusal" split into several
+  correlated but distinct features (apology, policy-citation, moralizing,
+  topic-flagging)? Ablation would still show the *bundle* is causally
+  load-bearing either way, so I don't think this threatens the causal
+  result — but it might change what "the direction" actually means.
+
+---
+
+## Next steps, in priority order
+
+Cheapest and most load-bearing first — all three below are pure statistics
+on data already collected, no GPU required:
+
+1. **Bootstrap the difference** in cross-branch similarity between the
+   M2-mediated and direct-DPO paths directly, instead of eyeballing two
+   ranges.
+2. **Report a distribution over near-optimal bottleneck layers**, not just
+   the single argmax, to check how much of the 9-vs-16 gap is real vs.
+   argmax noise.
+3. **A formal paired comparison of the deep-layer stability distributions**
+   between direct-DPO and M2-mediated branches — turns "these ranges look
+   different" into an actual tested claim.
+
+Then, roughly by cost:
+
+4. **Run the redone steering experiment** inside the ablation-validated
+   layer range, with a quadrant-A side-effect check included. Closes the
+   sufficiency gap in the causal story.
+5. **Quadrant C, properly powered.** This is the highest-reward, most
+   bounded next experiment, and I'm committing to it, not deprioritizing it:
+   n=20 is the thing standing between "directionally interesting" and "an
+   actual result" for the most important behavioral comparison in this
+   whole project. [StrongREJECT](https://github.com/alexandrasouly/strongreject)
+   (Souly et al., 2024 — 313 human-curated, category-labeled harmful
+   prompts, specifically built to be less templated than AdvBench) is a
+   real, already-vetted seed corpus: the task becomes rewording an
+   already-published harmful request into neutral phrasing, not inventing
+   harmful intent from nothing. Target: 100+ items, multiple harm
+   categories, several paraphrase variants each.
+6. Full fine-tuning robustness check (removes the LoRA-rank confound) —
+   expensive, aspirational.
+7. Diagnose the steering degenerate-collapse mechanism directly by tracking
+   residual-stream norm growth layer-by-layer during generation.
 
 ---
 
 ## Limitations
 
-1. **LoRA, quantified, not fully resolved.** 90%+ of the refusal direction's
-   norm lies outside the rank-64 LoRA subspace at every checked layer —
-   the direction is not primarily a LoRA artifact. But real, above-chance
-   alignment (3–10σ over a random-direction baseline) exists at deep layers,
-   so a full-fine-tuning robustness check would still add confidence, not
-   just close a theoretical gap.
+1. **LoRA, quantified, not fully resolved.** 90%+ of the direction's norm
+   sits outside the rank-64 subspace, but real above-chance alignment exists
+   at deep layers. A full-fine-tuning check would add confidence.
 2. **Single diff-in-means direction.** Other orthogonal safety-relevant
-   directions may exist; not searched for.
-3. **Ablation shows sufficiency, not necessity.** Steering (the natural test
-   of the complementary direction) was inconclusive (Finding 5), so this
-   isn't independently confirmed from the addition side.
-4. **Small sample for the sharpest test.** Quadrant C, n=20.
-5. **1.5B scale.** Not claimed to generalize to frontier-scale models without
-   further work.
-6. **M1's Alpaca data may itself skew "safe,"** independent of generic
-   instruction-following per se — the M0→M1 jump (Finding 3) could be partly
-   a data-content effect. Not disentangled here.
-7. **Why multi-layer steering collapses to degenerate output isn't fully
-   diagnosed** — hypothesized as compounding across the residual stream, not
-   independently confirmed (e.g., by tracking activation norm growth
-   layer-by-layer during generation).
+   directions may exist; not searched for (see Open Questions).
+3. **Ablation shows necessity, not yet sufficiency** — steering hasn't
+   confirmed the complementary direction cleanly (see Next Steps #4).
+4. **Quadrant C, n=20** — the sharpest behavioral test is also the
+   least-powered one (see Next Steps #5).
+5. **1.5B scale.** Not claimed to generalize to frontier models.
+6. **The Alpaca-artifact concern is substantially, not fully, addressed.**
+   Reproducibility across Alpaca and Dolly is real evidence, but it's two
+   datasets, one model family, one LoRA setup.
+7. **The new cross-branch claims need a formal statistical pass** before
+   I'd call them settled — see Next Steps #1–3.
+8. **Why multi-layer steering collapses to degenerate output** isn't
+   independently diagnosed, just hypothesized (residual-stream compounding).
 
 ---
 
-## Future Work
+## Repo map
 
-- Full fine-tuning robustness check (removes the LoRA-rank confound).
-- Diagnose the steering degenerate-collapse mechanism directly (track
-  residual-stream norm growth across layers under multi-layer addition) —
-  would resolve Limitation 7 and could unlock a working steering complement.
-- Train on a second, independent safety dataset to check generalization
-  across data sources, not just training stages.
-- DPO applied directly to M1 (skipping M2) — isolates the SFT-safety step's
-  independent contribution.
-- Retrain M1 on a harm-balanced instruction set to address Limitation 6.
+Training and analysis are orchestrated through
+`colab_unified_training.ipynb` / `colab_unified_analysis.ipynb` and
+`src/training/stage_registry.py` — one notebook per task, not one per
+model. `src/reproduce.py` runs whatever's CPU-feasible locally;
+`src/export_results.py` packages `results/` into a clean, checksummed
+folder for moving between machines. Full command reference, current status,
+and working conventions live in `CLAUDE.md`.
 
----
-
-## Repository Hygiene
-
-- Smoke-test binaries removed from tracking; `.gitignore` updated.
-- `src/`/`tests/` reorganized by function, `tests/` mirrors `src/` exactly.
-- `results/` split into `raw/`/`summaries/`, consistently named.
-- Run `pytest tests/ -v` — all tests pass.
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pytest tests/ -v
+```
 
 ---
 
@@ -416,7 +285,7 @@ dpo-safety-representations/
 
 ```bibtex
 @misc{dpo_safety_representations,
-  title={DPO Safety Representations: A Mechanistic Study},
+  title={Where Does Safety Live? Tracing a Refusal Direction from Base Model to DPO},
   author={[Your Name]},
   year={2026},
   howpublished={\url{https://github.com/urosavurdic/dpo-safety-representations}},
