@@ -14,9 +14,12 @@ from pathlib import Path
 
 import numpy as np
 
-from src.analysis.eval_refusal_direction import diff_in_means_direction
+from src.analysis.eval_refusal_direction import activations_available, diff_in_means_direction
 
-STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]  # M3_direct = M1 + direct DPO, parallel control branch
+STAGES = [
+    "M0", "M1", "M2", "M3", "M3_direct",
+    "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
+]  # M3_direct = M1 + direct DPO, parallel control branch
 N_BOOTSTRAP = 1000  # per PROJECT_CONTEXT.md M1D/M3_direct spec: B=1000 replicates
 REPORT_LAYERS = None  # None = report all layers (0-28), not a cherry-picked subset
 SEED = 0
@@ -78,6 +81,9 @@ def summarize_stability_full(bootstrap_dirs, original_direction, layer):
 def main():
     out = {}
     for stage in STAGES:
+        if not activations_available(stage):
+            print(f"\n=== {stage}: SKIPPED, activations not yet extracted ===")
+            continue
         pooled, quadrants = load_stage(stage)
         original_direction = diff_in_means_direction(pooled, quadrants)
         bootstrap_dirs = bootstrap_directions(pooled, quadrants)

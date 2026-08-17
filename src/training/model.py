@@ -65,6 +65,35 @@ def load_stage_model(stage_name: str, dtype=None):
     model.eval()
     return model
 
+
+def try_load_stage_model(stage_name: str, dtype=None):
+    """
+    Same as load_stage_model, but returns None (with a printed warning)
+    instead of raising if any adapter in the chain hasn't been pushed to HF
+    yet - e.g. urosavurdic/qwen2.5-1.5b-m2-alt-safety doesn't exist until
+    M2_alt has actually been really trained AND pushed.
+
+    Needed once STAGES lists span multiple branches that train and push
+    independently across separate Colab sessions (the alt branch, on a
+    Drive-space-constrained schedule) - a batch loop over 9 stages
+    shouldn't die on stage 6 just because stage 6 isn't ready yet, losing
+    the results already produced for stages 1-5 in the same run.
+
+    Used by eval_behavioral.py / eval_extract_activations.py (the two
+    scripts that create model-derived results from scratch); the CPU-only
+    scripts that consume already-extracted activations (eval_probes.py,
+    eval_refusal_direction.py, etc.) don't need this - they check for the
+    activation FILE's existence instead, which is cheaper and doesn't need
+    a network round-trip.
+    """
+    try:
+        return load_stage_model(stage_name, dtype=dtype)
+    except Exception as e:
+        print(f"  [{stage_name}] SKIPPED - could not load: {type(e).__name__}: {e}")
+        print(f"  [{stage_name}] (this usually means one of {STAGE_ADAPTER_CHAINS.get(stage_name)} "
+              "hasn't been pushed to HF yet - not necessarily an error)")
+        return None
+
 def load_tokenizer(cfg):
     tokenizer = AutoTokenizer.from_pretrained(
         cfg["model"]["name"],

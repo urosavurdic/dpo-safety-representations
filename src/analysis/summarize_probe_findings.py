@@ -14,10 +14,14 @@ already-computed results/probes/{stage}_probe_results.json files from
 eval_probes.py - no retraining, no GPU.
 """
 import json
+from pathlib import Path
 
 from src.eval_stats import rate_with_ci
 
-STAGES = ["M0", "M1", "M2", "M3", "M3_direct"]
+STAGES = [
+    "M0", "M1", "M2", "M3", "M3_direct",
+    "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
+]
 FINAL_LAYER = 28
 QUADRANTS = {
     "holdout_b_flagged_unsafe_frac": ("B (held-out)", 200),
@@ -47,6 +51,12 @@ def main():
     for key, (label, n) in QUADRANTS.items():
         print(f"--- Quadrant {label} (n={n}) ---")
         for stage in STAGES:
+            result_path = Path(f"results/probes/{stage}_probe_results.json")
+            if not result_path.exists():
+                # Alt branch trains/pushes independently across sessions -
+                # not every stage in STAGES necessarily has probe results yet.
+                print(f"  {stage}: SKIPPED, no probe results yet")
+                continue
             row = load_layer(stage)
             ci = frac_to_ci(row[key], n)
             print(f"  {stage}: {ci['rate']:.3f}  [{ci['ci_low']:.3f}, {ci['ci_high']:.3f}]")
