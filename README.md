@@ -116,28 +116,66 @@ runs, which is what a real replication is supposed to look like. One
 precision worth holding onto: "bootstrap-stable" means the *estimate* of the
 direction is less sensitive to which prompts get resampled — it's evidence
 the underlying computation is more concentrated, but it doesn't by itself
-prove a cleaner causal circuit. That would need its own test (see Next
-Steps).
+prove a cleaner causal circuit.
+
+**Update — this now has a formal test behind it.** Pairing each bootstrap
+replicate across stages (same resampled prompt subset, same seed, different
+model's activations — see `paired_deep_layer_stability_test.py`), a
+Wilcoxon signed-rank test on the mean deep-layer (16–28) stability finds
+M3_direct more stable than M3 by +0.015 (0.9917 vs. 0.9767) and
+M3_direct_alt more stable than M3_alt by +0.015 (0.9918 vs. 0.9772), with
+the sign consistent across essentially all 1000 replicates in both branches
+(p ≈ 0 for both, and pooled). One caveat worth being upfront about: that
+p-value describes how sharply two *bootstrap* distributions are separated,
+not a classical p-value from 1000 independent real-world samples — every
+replicate resamples the same fixed 370-prompt set, so its extremity mostly
+reflects the size of the gap relative to each stage's own resampling noise,
+not literal astronomical real-world confidence. The direction and
+reliability of the effect are real; the magnitude of the p-value itself
+shouldn't be over-read.
 
 There's a second piece that fits the same shape. Cross-branch similarity
-actually rises slightly from M1 (0.900) to M2 (0.919), stays close at M3
-(0.916), and drops for the direct-DPO branch (M3_direct: 0.875, the lowest
-of the four). Safety-SFT looks like it pulls the two branches' representations
-closer together; skipping it doesn't. I'm calling this a pattern, not a
-finding yet — the gap between 0.900 and 0.919 is two point estimates, and I
-haven't tested whether it's bigger than resampling noise. That's the first
-thing on my list below.
+actually rises slightly from M1 (0.899) to M2 (0.919), stays close at M3
+(0.916), and drops for the direct-DPO branch (M3_direct: 0.873, the lowest
+of the four). Safety-SFT looks like it pulls the two branches'
+representations closer together; skipping it doesn't. **This is now a
+tested finding, not just a pattern:** bootstrapping the difference between
+the M2-mediated pairs (M2, M3) and the direct-DPO pair (M3_direct) gives
++0.044, 95% CI [+0.037, +0.052] — clear of zero, so this isn't resampling
+noise (`bootstrap_cross_branch_difference.py`).
 
-A third, independent signal points the same direction: using each layer's
-effect size for separating *actually harmful* (A+C) from *just surface
-wording* (B+D), M2 and M3 both peak at layer 9 — notably shallow. M2_alt and
-M3_alt both peak at layer 16, a consistent 7-layer gap. M3_direct (13) and
-M3_direct_alt (14) land close together regardless of dataset. So this
-property is dataset-sensitive on the M2-mediated path, and close to
-dataset-robust on the direct path — same shape as the stability result.
-Worth flagging: this is each stage's single best layer, not a layer with a
-confidence interval around it, so some of that 7-layer gap could be argmax
-noise. Second thing on my list below.
+A third signal turned out to be more ambiguous once actually tested. Using
+each layer's effect size for separating *actually harmful* (A+C) from *just
+surface wording* (B+D), M2 and M3 both peak at layer 9; M2_alt and M3_alt
+both peak at layer 16 — a 7-layer gap that looked dataset-sensitive.
+Bootstrapping the argmax itself (`bottleneck_layer.py`: resample and
+re-find the winning layer, 1000 replicates) mostly explains this away as
+argmax noise rather than a robust dataset effect: M2_alt's bootstrap winner
+is layer 16 only 46% of the time (95% CI spans layers 9–28), and M3_alt's
+*actual* bootstrap-modal winner is layer 9 (50% of resamples) — not the
+reported layer 16 at all. M2 and M3 are more stable (66% and 51% mode
+fraction, both concentrated in the 9–17 range); the direct-DPO branches'
+point estimates (M3_direct: 13, M3_direct_alt: 14) are close together as
+originally noted, and are themselves unevenly concentrated (47% and 86%
+mode fraction respectively) — but the "7-layer, dataset-sensitive gap"
+framing for the M2-mediated pairs doesn't survive resampling well and
+should be walked back.
+
+The A-vs-D bottleneck layer (not previously highlighted, but the bootstrap
+surfaced a cleaner version of the same core Finding-3 shape here) tells a
+tighter story. M3_direct's winning layer is 18 in 86% of resamples (95% CI
+[14, 18]) and M3_direct_alt's is 18 in 99% of resamples (CI essentially a
+point, [18, 18]) — both direct-DPO branches. The M2-mediated stages are
+markedly less concentrated: M3's winner (layer 16) holds in 70% of
+resamples but its CI stretches to layer 28, and M3_alt's full-sample winner
+is layer 18, but that's not even its bootstrap mode — the actual modal
+winner across resamples is layer 28, and only 28% of the time, with a CI
+spanning 16–28 (about as diffuse as a "winner" gets). So the "direct-DPO branches carve a sharper, more
+concentrated representation" pattern from the deep-layer stability and
+cross-branch results above shows up a third time here, on an independent
+metric — but the specific 7-layer, dataset-sensitive claim about the
+harm-vs-surface metric doesn't hold up and is now downgraded to "mostly
+argmax noise" pending a more carefully powered version.
 
 ---
 
@@ -180,10 +218,6 @@ intent. That's a real possibility, not something the current data confirms.
 
 ## Open questions / what I'd want feedback on
 
-- Does the deep-layer stability difference (Finding 3) actually survive a
-  formal paired comparison, or is some of it noise from comparing two
-  descriptive ranges? I think it will, given how tight the direct-DPO band
-  is, but I haven't run the test yet.
 - Is "safety-SFT homogenizes cross-dataset representations" a real
   mechanism, or is there a simpler explanation (e.g. M2 initialization
   reducing variance generically, independent of anything about
@@ -194,29 +228,34 @@ intent. That's a real possibility, not something the current data confirms.
   load-bearing either way, so I don't think this threatens the causal
   result — but it might change what "the direction" actually means.
 
+*(Resolved since the last update: "does the deep-layer stability difference
+survive a formal paired comparison" — yes, see Finding 3. "Is the 7-layer,
+dataset-sensitive bottleneck gap real" — no, mostly argmax noise, also
+Finding 3.)*
+
 ---
 
 ## Next steps, in priority order
 
-Cheapest and most load-bearing first — all three below are pure statistics
-on data already collected, no GPU required:
+Items 1–3 below are done as of the latest update (pure statistics on data
+already collected, no GPU needed) — see Finding 3 for the results:
 
-1. **Bootstrap the difference** in cross-branch similarity between the
-   M2-mediated and direct-DPO paths directly, instead of eyeballing two
-   ranges.
-2. **Report a distribution over near-optimal bottleneck layers**, not just
-   the single argmax, to check how much of the 9-vs-16 gap is real vs.
-   argmax noise.
-3. **A formal paired comparison of the deep-layer stability distributions**
-   between direct-DPO and M2-mediated branches — turns "these ranges look
-   different" into an actual tested claim.
+1. ~~Bootstrap the difference in cross-branch similarity between the
+   M2-mediated and direct-DPO paths.~~ Done: +0.044, 95% CI [+0.037, +0.052].
+2. ~~Report a distribution over near-optimal bottleneck layers, not just
+   the argmax.~~ Done: the A-vs-D metric confirms Finding 3's pattern
+   further; the harm-vs-surface "7-layer gap" mostly didn't survive and is
+   downgraded to argmax noise.
+3. ~~A formal paired comparison of the deep-layer stability distributions
+   between direct-DPO and M2-mediated branches.~~ Done: Wilcoxon signed-rank,
+   p ≈ 0 in both branches and pooled.
 
-Then, roughly by cost:
+Remaining, roughly by cost:
 
-4. **Run the redone steering experiment** inside the ablation-validated
+1. **Run the redone steering experiment** inside the ablation-validated
    layer range, with a quadrant-A side-effect check included. Closes the
    sufficiency gap in the causal story.
-5. **Quadrant C, properly powered.** This is the highest-reward, most
+2. **Quadrant C, properly powered.** This is the highest-reward, most
    bounded next experiment, and I'm committing to it, not deprioritizing it:
    n=20 is the thing standing between "directionally interesting" and "an
    actual result" for the most important behavioral comparison in this
@@ -227,9 +266,9 @@ Then, roughly by cost:
    already-published harmful request into neutral phrasing, not inventing
    harmful intent from nothing. Target: 100+ items, multiple harm
    categories, several paraphrase variants each.
-6. Full fine-tuning robustness check (removes the LoRA-rank confound) —
+3. Full fine-tuning robustness check (removes the LoRA-rank confound) —
    expensive, aspirational.
-7. Diagnose the steering degenerate-collapse mechanism directly by tracking
+4. Diagnose the steering degenerate-collapse mechanism directly by tracking
    residual-stream norm growth layer-by-layer during generation.
 
 ---

@@ -23,6 +23,13 @@ STAGES = [
 N_BOOTSTRAP = 1000  # per PROJECT_CONTEXT.md M1D/M3_direct spec: B=1000 replicates
 REPORT_LAYERS = None  # None = report all layers (0-28), not a cherry-picked subset
 SEED = 0
+# README Finding 3 / CLAUDE.md Next-step #3: the "deep layers" where
+# direct-DPO branches show a tight bootstrap-stability band (0.98-0.995)
+# vs. looser M2-mediated stages (roughly 0.94-0.98). Raw per-replicate sims
+# are persisted for these layers only (not all 29) to keep the output file
+# a reasonable size while still giving paired_deep_layer_stability_test.py
+# everything it needs without rerunning the bootstrap.
+DEEP_LAYERS = list(range(16, 29))
 
 
 def load_stage(stage, act_dir=Path("results/activations")):
@@ -52,13 +59,23 @@ def bootstrap_directions(pooled, quadrants, n_bootstrap=N_BOOTSTRAP, seed=SEED):
     return np.stack(directions)
 
 
+def stability_sims(bootstrap_dirs, original_direction, layer):
+    """Raw (n_bootstrap,) array of cosine similarities between each
+    bootstrap replicate's direction and the ORIGINAL full-sample direction,
+    at `layer`. Shared core computation for summarize_stability,
+    summarize_stability_full, and (for DEEP_LAYERS) the raw arrays persisted
+    for paired_deep_layer_stability_test.py -- factored out so all three
+    stay consistent instead of recomputing this dot product three ways."""
+    orig = original_direction[layer]
+    return np.array([np.dot(bd[layer], orig) for bd in bootstrap_dirs])
+
+
 def summarize_stability(bootstrap_dirs, original_direction, layer):
     """Cosine similarity of each bootstrap direction (at `layer`) to the
     ORIGINAL full-sample direction -- mean and std across replicates.
     Kept as-is (backward compatible, already tested) - summarize_stability_full
     below adds the median/2.5%/97.5% percentiles the original spec also asks for."""
-    orig = original_direction[layer]
-    sims = [np.dot(bd[layer], orig) for bd in bootstrap_dirs]
+    sims = stability_sims(bootstrap_dirs, original_direction, layer)
     return float(np.mean(sims)), float(np.std(sims))
 
 
@@ -67,8 +84,7 @@ def summarize_stability_full(bootstrap_dirs, original_direction, layer):
     but reports the full distribution: mean, median, std, 2.5th/97.5th
     percentile -- the uncertainty summary PROJECT_CONTEXT.md's bootstrap spec
     asks for, not just mean+std."""
-    orig = original_direction[layer]
-    sims = np.array([np.dot(bd[layer], orig) for bd in bootstrap_dirs])
+    sims = stability_sims(bootstrap_dirs, original_direction, layer)
     return {
         "mean": float(np.mean(sims)),
         "median": float(np.median(sims)),
@@ -98,6 +114,12 @@ def main():
             print(f"  layer {layer}: bootstrap-vs-original cosine sim = "
                   f"{stats['mean']:.4f} (median {stats['median']:.4f}, std {stats['std']:.4f}, "
                   f"95% CI [{stats['ci_low_2.5pct']:.4f}, {stats['ci_high_97.5pct']:.4f}])")
+            if layer in DEEP_LAYERS:
+                # Task 3 (CLAUDE.md Next steps): persist the raw per-replicate
+                # array for deep layers so a formal paired test can be run
+                # later without rerunning this (expensive-ish, B=1000 x 9
+                # stages) bootstrap.
+                stats = {**stats, "raw_sims": stability_sims(bootstrap_dirs, original_direction, layer).tolist()}
             out[stage][layer] = stats
 
     out_path = Path("results/interpretability/bootstrap_direction_stability.json")

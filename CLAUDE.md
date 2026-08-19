@@ -221,23 +221,68 @@ Run the full suite in the actual project `.venv` to be sure.
 
 ## Next steps, in priority order (mirrors README, more implementation detail here)
 
+**Status as of the latest session: items 1–3 are DONE — real results, not
+just code.** Run locally against the actual 9-model activations (this repo
+checkout's sandbox never had `results/activations/*.npy` available — no
+GPU, no HF network access — so the scripts were written/tested against toy
+data here, then run for real by the project owner locally). Results are
+committed in `results/interpretability/bootstrap_direction_stability.json`,
+`bottleneck_layer.json`, `bootstrap_cross_branch_difference.json`, and
+`paired_deep_layer_stability_test.json`. Headline numbers are now in
+README's Finding 3 — summary:
+
+- **Cross-branch difference (task 1):** M2-mediated (M2, M3) vs direct-DPO
+  (M3_direct) cross-branch similarity differs by +0.044, 95% CI
+  [+0.037, +0.052] — clearly not resampling noise.
+- **Bottleneck-layer bootstrap (task 2):** mixed result, reported honestly.
+  The A-vs-D metric's bootstrap confirms Finding 3's core pattern further
+  (direct-DPO branches: 86%/99% mode fraction, tight CIs; M2-mediated:
+  28–70% mode fraction, wide CIs). The harm-vs-surface metric's previously
+  claimed "7-layer, dataset-sensitive gap" mostly did NOT survive — M2_alt's
+  bootstrap winner is layer 16 only 46% of the time, and M3_alt's actual
+  bootstrap mode is layer 9, not the reported layer 16. README's Finding 3
+  has been updated to walk this back to "mostly argmax noise."
+- **Paired deep-layer stability test (task 3):** Wilcoxon signed-rank,
+  paired by bootstrap replicate index, M3_direct vs M3 and M3_direct_alt vs
+  M3_alt: diff ≈ +0.015 in both branches, sign consistent across
+  essentially all 1000 replicates, p ≈ 0 for both and pooled. Confirms the
+  deep-layer stability difference is real, not noise from comparing two
+  descriptive ranges (this was Open Question #1 — now resolved, see
+  README).
+
+Implementation details, for reference:
+
 1. **Bootstrap the difference in cross-branch similarity** between
-   M2-mediated and direct-DPO paths. Implementation sketch: resample prompt
-   pairs the same way `bootstrap_causal_effect.py` already does, but on the
-   per-layer cosine similarity arrays in `cosine_similarity.json`'s
-   `cross_branch` section — needs the underlying per-prompt activations,
-   not just the saved direction vectors, so this reuses
-   `eval_refusal_direction.load_stage` + `diff_in_means_direction`, resampled.
+   M2-mediated and direct-DPO paths. Implementation:
+   `src/interpretability/bootstrap_cross_branch_difference.py`. Resamples
+   quadrant-A/D prompt *positions* jointly across both branches of a pair
+   (valid since every branch scores the identical, fixed, identically-ordered
+   370-prompt eval set), groups M2+M3 pairs vs the M3_direct pair, reports a
+   bootstrap CI on the group difference. Tests:
+   `tests/interpretability/test_bootstrap_cross_branch_difference.py` (9
+   cases, toy data).
 2. **Bootstrap CI over near-optimal bottleneck layers**, not just the
-   argmax — extend `bottleneck_layer.py`'s `find_bottleneck_layer` to also
-   report a distribution over which layer wins across bootstrap resamples
-   of the same Cohen's d computation.
+   argmax. Implementation: `bootstrap_bottleneck_layers` +
+   `summarize_bottleneck_bootstrap` in `bottleneck_layer.py`, wired into
+   `main()` (backward compatible — original 7 tests still pass unmodified).
+   Reports mode layer, mode fraction (how sharp the peak is), a percentile
+   CI on the layer index, and the full winning-layer histogram. Tests:
+   5 new cases added to `tests/interpretability/test_bottleneck_layer.py`.
 3. **Formal paired comparison of deep-layer stability distributions**
-   between direct-DPO and M2-mediated branches — the raw per-replicate
-   bootstrap cosine similarities already exist in memory during
-   `bootstrap_direction_stability.py`'s run; persist them (not just
-   mean/median/std) for at least the deep layers so a direct paired test is
-   possible without rerunning the bootstrap.
+   between direct-DPO and M2-mediated branches. `bootstrap_direction_stability.py`
+   now persists raw per-replicate `raw_sims` for layers 16–28 (`DEEP_LAYERS`)
+   alongside the existing summary stats (backward compatible — original 4
+   tests still pass unmodified; shared cosine-sim computation factored into
+   `stability_sims`). New `src/interpretability/paired_deep_layer_stability_test.py`
+   runs the Wilcoxon test, paired by bootstrap replicate index — valid
+   because every stage's bootstrap uses the same `SEED` against the same
+   fixed eval set, so replicate *i* resamples the identical prompt subset
+   across every stage, only the underlying activations differ. Tests:
+   `tests/interpretability/test_paired_deep_layer_stability_test.py` (9
+   cases, toy data).
+
+   All three are wired into `reproduce.py`'s `direction` component
+   (`produces`/`commands` updated).
 4. **Run `eval_steering_v2.py`** — flip `COMPONENTS_TO_RUN["steering"]` to
    `True` in the analysis notebook, or run directly:
    `python -m src.analysis.eval_steering_v2 --stage M3 --layers 24 --quadrants A D`
@@ -254,6 +299,14 @@ Run the full suite in the actual project `.venv` to be sure.
 6. Full fine-tuning robustness check (expensive, aspirational).
 7. Diagnose the steering degenerate-collapse mechanism (track residual-
    stream norm growth layer-by-layer during multi-layer generation).
+
+**Also noticed, not fixed (out of scope for this session):**
+`tests/analysis/test_summarize_cross_branch.py::test_build_comparison_omits_sections_with_missing_data`
+fails against a checkout with real committed results, because
+`direction_cross_branch_similarity` reads `cosine_similarity.json` from disk
+directly instead of the path being mockable/injectable — pre-existing test
+isolation bug, not one of the bugs listed above, not something introduced
+by this session's changes.
 
 ---
 

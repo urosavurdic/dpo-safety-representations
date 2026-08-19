@@ -52,12 +52,16 @@ COMPONENTS = {
             "results/interpretability/direction_stability/stability_report.json",
             "results/interpretability/bootstrap_direction_stability.json",
             "results/interpretability/bottleneck_layer.json",
+            "results/interpretability/bootstrap_cross_branch_difference.json",
+            "results/interpretability/paired_deep_layer_stability_test.json",
         ],
         "commands": [
             "python -m src.analysis.eval_refusal_direction",
             "python -m src.interpretability.direction_stability",
             "python -m src.interpretability.bootstrap_direction_stability",
             "python -m src.interpretability.bottleneck_layer",
+            "python -m src.interpretability.bootstrap_cross_branch_difference",
+            "python -m src.interpretability.paired_deep_layer_stability_test",
         ],
     },
     "causal_stats": {

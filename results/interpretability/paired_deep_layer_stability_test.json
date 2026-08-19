@@ -1,0 +1,38 @@
+{
+  "per_branch": {
+    "M3_direct_vs_M3": {
+      "n_bootstrap_replicates": 1000,
+      "direct_mean": 0.9917081762139615,
+      "mediated_mean": 0.9766993516683579,
+      "wilcoxon_statistic": 0.0,
+      "p_value": 3.325859118934513e-165,
+      "difference_direct_minus_mediated": {
+        "mean": 0.015008824545603533,
+        "median": 0.014286660231076775,
+        "ci_low_2.5pct": 0.008264899826966866,
+        "ci_high_97.5pct": 0.02668237147422932
+      },
+      "frac_replicates_direct_gt_mediated": 1.0
+    },
+    "M3_direct_alt_vs_M3_alt": {
+      "n_bootstrap_replicates": 1000,
+      "direct_mean": 0.9917601654392022,
+      "mediated_mean": 0.9772125449409852,
+      "wilcoxon_statistic": 0.0,
+      "p_value": 3.325859118934513e-165,
+      "difference_direct_minus_mediated": {
+        "mean": 0.014547620498217067,
+        "median": 0.013663532642217757,
+        "ci_low_2.5pct": 0.007918603832905092,
+        "ci_high_97.5pct": 0.02534220619843554
+      },
+      "frac_replicates_direct_gt_mediated": 1.0
+    }
+  },
+  "pooled_across_branches": {
+    "n_values": 2000,
+    "mean_diff": 0.014778222521910302,
+    "wilcoxon_statistic": 0.0,
+    "p_value": 0.0
+  }
+}

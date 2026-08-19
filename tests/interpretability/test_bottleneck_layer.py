@@ -3,9 +3,11 @@ import json
 import numpy as np
 
 from src.interpretability.bottleneck_layer import (
+    bootstrap_bottleneck_layers,
     cohens_d,
     find_bottleneck_layer,
     per_layer_separability,
+    summarize_bottleneck_bootstrap,
 )
 
 
@@ -80,3 +82,47 @@ def test_find_bottleneck_layer_uses_magnitude_not_raw_value():
     idx, val = find_bottleneck_layer(effect_sizes)
     assert idx == 1
     assert val == -3.0
+
+
+def test_bootstrap_bottleneck_layers_shape():
+    pooled, quadrants = _toy_pooled_and_quadrants()
+    a_d, hs = bootstrap_bottleneck_layers(pooled, quadrants, n_bootstrap=25, seed=0)
+    assert a_d.shape == (25,)
+    assert hs.shape == (25,)
+
+
+def test_bootstrap_bottleneck_layers_concentrates_on_the_constructed_layer():
+    # Layer 1 has a huge, obvious effect (see _toy_pooled_and_quadrants) -
+    # near every resample should still pick it as the winner.
+    pooled, quadrants = _toy_pooled_and_quadrants()
+    a_d, hs = bootstrap_bottleneck_layers(pooled, quadrants, n_bootstrap=100, seed=0)
+    assert (a_d == 1).mean() > 0.9
+    assert (hs == 1).mean() > 0.9
+
+
+def test_bootstrap_bottleneck_layers_deterministic_given_fixed_seed():
+    pooled, quadrants = _toy_pooled_and_quadrants()
+    a_d1, hs1 = bootstrap_bottleneck_layers(pooled, quadrants, n_bootstrap=20, seed=3)
+    a_d2, hs2 = bootstrap_bottleneck_layers(pooled, quadrants, n_bootstrap=20, seed=3)
+    np.testing.assert_array_equal(a_d1, a_d2)
+    np.testing.assert_array_equal(hs1, hs2)
+
+
+def test_summarize_bottleneck_bootstrap_sharp_peak():
+    # 95/100 resamples pick layer 2 -> mode should be layer 2 with high mode_frac.
+    layer_samples = np.array([2] * 95 + [1] * 3 + [3] * 2)
+    summary = summarize_bottleneck_bootstrap(layer_samples, n_layers=5)
+    assert summary["mode_layer"] == 2
+    assert summary["mode_frac"] == 0.95
+    assert summary["ci_low_2.5pct"] <= 2 <= summary["ci_high_97.5pct"]
+    assert summary["layer_counts"] == {1: 3, 2: 95, 3: 2}
+
+
+def test_summarize_bottleneck_bootstrap_wide_spread_gives_low_mode_frac():
+    # Argmax noise case: winner is roughly uniform across several layers -
+    # mode_frac should be low, signalling the argmax on the full sample
+    # isn't a reliable peak.
+    rng = np.random.default_rng(0)
+    layer_samples = rng.integers(0, 5, size=1000)
+    summary = summarize_bottleneck_bootstrap(layer_samples, n_layers=5)
+    assert summary["mode_frac"] < 0.3
