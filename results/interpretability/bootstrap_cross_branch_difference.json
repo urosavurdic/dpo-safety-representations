@@ -1,0 +1,52 @@
+{
+  "per_pair": {
+    "M1_vs_M1_alt": {
+      "mean": 0.8990657329559326,
+      "median": 0.8992265462875366,
+      "std": 0.003503144718706608,
+      "ci_low_2.5pct": 0.8925982117652893,
+      "ci_high_97.5pct": 0.905720055103302
+    },
+    "M2_vs_M2_alt": {
+      "mean": 0.9191423654556274,
+      "median": 0.9191293716430664,
+      "std": 0.003642936935648322,
+      "ci_low_2.5pct": 0.9124472737312317,
+      "ci_high_97.5pct": 0.926356315612793
+    },
+    "M3_vs_M3_alt": {
+      "mean": 0.9156220555305481,
+      "median": 0.9156508445739746,
+      "std": 0.004035804886370897,
+      "ci_low_2.5pct": 0.9070061445236206,
+      "ci_high_97.5pct": 0.9232633113861084
+    },
+    "M3_direct_vs_M3_direct_alt": {
+      "mean": 0.8730625510215759,
+      "median": 0.8731433153152466,
+      "std": 0.004018947947770357,
+      "ci_low_2.5pct": 0.8650244474411011,
+      "ci_high_97.5pct": 0.8805630803108215
+    }
+  },
+  "group_comparison": {
+    "mediated_pairs": [
+      "M2_vs_M2_alt",
+      "M3_vs_M3_alt"
+    ],
+    "direct_pairs": [
+      "M3_direct_vs_M3_direct_alt"
+    ],
+    "n_bootstrap_replicates": 1000,
+    "mediated_group_mean": 0.9173821806907654,
+    "direct_group_mean": 0.8730625510215759,
+    "difference_mediated_minus_direct": {
+      "mean": 0.04431966319680214,
+      "median": 0.04425838589668274,
+      "std": 0.0036733457818627357,
+      "ci_low_2.5pct": 0.03719282150268555,
+      "ci_high_97.5pct": 0.05192674696445465
+    },
+    "frac_replicates_mediated_gt_direct": 1.0
+  }
+}

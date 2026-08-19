@@ -85,6 +85,63 @@ def find_bottleneck_layer(effect_sizes):
     return idx, float(effect_sizes[idx])
 
 
+N_BOOTSTRAP = 1000  # matches bootstrap_direction_stability.py's B=1000
+SEED = 0
+
+
+def bootstrap_bottleneck_layers(pooled, quadrants, n_bootstrap=N_BOOTSTRAP, seed=SEED):
+    """Resample all four quadrants independently, with replacement, and
+    recompute BOTH the per-layer direction and the argmax bottleneck layer
+    each replicate -- reports which layer wins across resamples of the same
+    Cohen's d computation, not just the single argmax on the full sample.
+    Answers: is the reported bottleneck layer (e.g. "layer 9") a sharp,
+    reliable peak, or would a slightly different sample of prompts have
+    picked a different layer nearby? Directly informs how much of the
+    9-vs-16 M2-vs-M2_alt gap (README Finding 3) is real vs. argmax noise.
+
+    Returns (a_vs_d_layers, harm_vs_surface_layers): two (n_bootstrap,)
+    int arrays of winning layer indices, one per replicate."""
+    rng = np.random.default_rng(seed)
+    idx_by_quadrant = {q: np.where(quadrants == q)[0] for q in ("A", "B", "C", "D")}
+
+    a_vs_d_layers = np.zeros(n_bootstrap, dtype=int)
+    harm_vs_surface_layers = np.zeros(n_bootstrap, dtype=int)
+    for i in range(n_bootstrap):
+        sample_idx_parts, sample_quadrant_parts = [], []
+        for q, idx in idx_by_quadrant.items():
+            if len(idx) == 0:
+                continue
+            sampled = rng.choice(idx, size=len(idx), replace=True)
+            sample_idx_parts.append(sampled)
+            sample_quadrant_parts.append(np.full(len(sampled), q))
+        sample_idx = np.concatenate(sample_idx_parts)
+        sample_quadrants = np.concatenate(sample_quadrant_parts)
+
+        d_a_vs_d, d_harm_vs_surface = per_layer_separability(pooled[sample_idx], sample_quadrants)
+        a_vs_d_layers[i], _ = find_bottleneck_layer(d_a_vs_d)
+        harm_vs_surface_layers[i], _ = find_bottleneck_layer(d_harm_vs_surface)
+
+    return a_vs_d_layers, harm_vs_surface_layers
+
+
+def summarize_bottleneck_bootstrap(layer_samples, n_layers):
+    """layer_samples: (n_bootstrap,) int array of winning-layer indices.
+    Reports the full frequency histogram (how concentrated the "winner" is
+    across resamples - a sharp single-layer spike vs. a wide, noisy spread
+    across many plausible layers), the mode, and a percentile CI on the
+    layer index as a compact two-number summary."""
+    counts = np.bincount(layer_samples, minlength=n_layers)
+    mode = int(np.argmax(counts))
+    return {
+        "n_bootstrap_replicates": int(len(layer_samples)),
+        "mode_layer": mode,
+        "mode_frac": float(counts[mode] / len(layer_samples)),
+        "ci_low_2.5pct": int(np.percentile(layer_samples, 2.5)),
+        "ci_high_97.5pct": int(np.percentile(layer_samples, 97.5)),
+        "layer_counts": {int(l): int(c) for l, c in enumerate(counts) if c > 0},
+    }
+
+
 def main():
     out = {}
     print("Bottleneck-layer analysis: Cohen's d per layer, per stage\n")
@@ -94,24 +151,37 @@ def main():
             continue
         pooled, quadrants = load_stage(stage)
         d_a_vs_d, d_harm_vs_surface = per_layer_separability(pooled, quadrants)
+        n_layers = len(d_a_vs_d)
 
         layer_a_d, effect_a_d = find_bottleneck_layer(d_a_vs_d)
         layer_hs, effect_hs = find_bottleneck_layer(d_harm_vs_surface)
 
+        boot_a_d, boot_hs = bootstrap_bottleneck_layers(pooled, quadrants)
+        boot_summary_a_d = summarize_bottleneck_bootstrap(boot_a_d, n_layers)
+        boot_summary_hs = summarize_bottleneck_bootstrap(boot_hs, n_layers)
+
         print(f"=== {stage} ===")
-        print(f"  A-vs-D bottleneck layer:            {layer_a_d:>2d}  (Cohen's d = {effect_a_d:+.3f})")
-        print(f"  (A+C)-vs-(B+D) bottleneck layer:     {layer_hs:>2d}  (Cohen's d = {effect_hs:+.3f})")
+        print(f"  A-vs-D bottleneck layer:            {layer_a_d:>2d}  (Cohen's d = {effect_a_d:+.3f})  "
+              f"bootstrap mode {boot_summary_a_d['mode_layer']} "
+              f"({boot_summary_a_d['mode_frac']:.0%} of resamples), "
+              f"95% CI [{boot_summary_a_d['ci_low_2.5pct']}, {boot_summary_a_d['ci_high_97.5pct']}]")
+        print(f"  (A+C)-vs-(B+D) bottleneck layer:     {layer_hs:>2d}  (Cohen's d = {effect_hs:+.3f})  "
+              f"bootstrap mode {boot_summary_hs['mode_layer']} "
+              f"({boot_summary_hs['mode_frac']:.0%} of resamples), "
+              f"95% CI [{boot_summary_hs['ci_low_2.5pct']}, {boot_summary_hs['ci_high_97.5pct']}]")
 
         out[stage] = {
             "a_vs_d": {
                 "per_layer_cohens_d": d_a_vs_d.tolist(),
                 "bottleneck_layer": layer_a_d,
                 "bottleneck_cohens_d": effect_a_d,
+                "bottleneck_bootstrap": boot_summary_a_d,
             },
             "harm_vs_surface_wording": {
                 "per_layer_cohens_d": d_harm_vs_surface.tolist(),
                 "bottleneck_layer": layer_hs,
                 "bottleneck_cohens_d": effect_hs,
+                "bottleneck_bootstrap": boot_summary_hs,
             },
         }
 
