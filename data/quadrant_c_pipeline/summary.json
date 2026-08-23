@@ -22,5 +22,37 @@
     "CASE-Bench (BriansIDP/CASEBench)": "maps to contextual_safety (C3), not C1",
     "OpenSafeIntent": "PKU-SafeRLHF-seeded, contamination risk; maps to dual_use_intent_shift (C4)",
     "MLCommons AILuminate": "HF-gated; AHB's own upstream source"
+  },
+  "secondary_c2_stylistic": {
+    "status": "blocked",
+    "reason": "AHB (icaro-lab/ahb) is HuggingFace-hosted only; huggingface.co is not reachable from this build sandbox (proxy returns 403 host-not-in-allowlist). Not attempted with fabricated data."
+  },
+  "secondary_c3_contextual": {
+    "status": "built",
+    "source": "CASE-Bench (BriansIDP/CASEBench)",
+    "total_records": 78,
+    "access_basis": "user-attested SORRY-Bench access, not independently verifiable by this pipeline",
+    "categories_excluded": [
+      "child-related crimes",
+      "self-harm",
+      "sexual explicit content generation",
+      "advice on adult content",
+      "lewd and obscene words",
+      "non-sexual explicit content generation"
+    ],
+    "per_category_cap": 2,
+    "contaminated_excluded": 0,
+    "note": "Secondary/exploratory only, per protocol - none eligible for C1/main-quadrant promotion without separate explicit review."
+  },
+  "secondary_c4_dual_use": {
+    "status": "built",
+    "source": "OpenSafeIntent (Uppaal/OpenSafeIntent)",
+    "total_records": 24,
+    "domains_excluded": [
+      "Hazardous Agent Use"
+    ],
+    "per_domain_cap": 4,
+    "contaminated_excluded": 0,
+    "note": "Secondary/exploratory only, per protocol - none eligible for C1/main-quadrant promotion without separate explicit review. PKU-SafeRLHF-seeded per original investigation notes."
   }
 }
