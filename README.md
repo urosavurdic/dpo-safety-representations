@@ -372,10 +372,30 @@ Remaining, roughly by cost:
    (`assign_direction_split` — 80/20, direction-estimation vs.
    held-out-behavioral) threaded through direction construction, both
    bootstraps, bottleneck layer, and now causal ablation/steering too. The
-   numbers in Finding 4 are from the pre-split, pre-quadrant-expansion
-   50/50 eval set — genuinely instructive, but not the final result. Rerun
-   once quadrant C (below) is finalized, so this doesn't need running
-   twice.
+   numbers in Finding 4 are STILL from the pre-split, pre-quadrant-expansion
+   50/50 eval set — this has not changed, the run has not happened yet.
+   `controlled_eval.jsonl` itself IS current (654 rows, C=104, split
+   assigned — confirmed directly against the file, not just asserted) but
+   no downstream artifact (activations, direction, steering output) has
+   been regenerated against it. Added `src/analysis/run_full_steering.py`
+   to orchestrate the real run across all 8 stages at once (checks the
+   eval-set/activation/direction preconditions before spending any GPU
+   time, resumable, never overwrites, writes a manifest) and
+   `src/analysis/build_finding4_report.py` to turn that run's output into
+   real Wilson-CI numbers diffed explicitly against what's published above
+   — flags a "MATERIAL CHANGE" rather than silently overwriting, per this
+   item's own requirement. Also found and fixed a live bug while building
+   this: `mcnemar_steering.py` was hardcoded to the literal condition names
+   `"M3_baseline"`/`"M3_steered"` and would have silently matched 0 rows
+   against any real `eval_steering_v2.py` output file (which names
+   conditions `"{tag}_baseline"`/`"{tag}_steered"`) — never actually
+   worked against a real run. Fixed the same way `summarize_steering.py`
+   was previously. **Still needs a GPU machine with model access to
+   actually execute** — see CLAUDE.md's latest session note for the exact
+   command sequence, including one more gotcha: `python -m src.reproduce
+   direction` (as written in earlier handoff notes) will silently no-op
+   post-rebuild, since its outputs already exist from the old activation
+   set — needs `--force`.
 2. ~~Quadrant C, properly documented, at scale.~~ **Done — 104 candidates
    promoted, up from 15.** The earlier staged plan (40–60 first, expand
    later) was superseded, not followed — went straight to a larger batch
@@ -393,7 +413,27 @@ Remaining, roughly by cost:
 3. Full fine-tuning robustness check (removes the LoRA-rank confound) —
    expensive, aspirational.
 4. Diagnose the steering degenerate-collapse mechanism directly by tracking
-   residual-stream norm growth layer-by-layer during generation.
+   residual-stream norm growth layer-by-layer during generation. **Tooling
+   built and unit-tested, not yet run against the real model** (no GPU/HF
+   access in the environment this was built in). Added
+   `src/interpretability/residual_norm_tracking.py` (hook-based per-layer,
+   per-generation-step residual norm tracking; a norm-preserving steering
+   hook variant and a norm-clipping variant, to directly test whether
+   either avoids collapse without removing the steering direction itself),
+   `src/analysis/eval_residual_norm_diagnostic.py` (GPU script: runs
+   baseline / collapsing (layers 14-28) / non-collapsing (layer 24) /
+   optionally collapsing-with-the-fix on a small quadrant-D sample,
+   tracking norms throughout), and `src/analysis/plot_residual_norms.py`
+   (CPU-only — layer × generation-step heatmaps plus a most-anomalous-layer
+   comparison line plot; this one actually ran end-to-end against synthetic
+   data in testing and produces real figures, see its test file). Checked
+   the actual deprecated-run outputs before building this rather than
+   working from the summarized description: the multi-layer collapse isn't
+   token soup, it's a tight loop of refusal-flavored tokens
+   ("unfortunately... unfortunately... WARNING WARNING"), which is
+   consistent with — but doesn't on its own prove — the norm/magnitude
+   story `eval_steering_v2.py`'s docstring already speculates about; the
+   diagnostic is built to actually test that, not assume it.
 
 ---
 
