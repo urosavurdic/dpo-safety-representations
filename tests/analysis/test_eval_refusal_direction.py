@@ -55,7 +55,8 @@ def _write_toy_stage(act_dir, stage, seed=0):
     pooled, quadrants = _toy_data()
     pooled = pooled + rng.normal(scale=0.01, size=pooled.shape)  # tiny per-stage variation
     np.save(act_dir / f"{stage}_pooled.npy", pooled)
-    meta = [{"prompt": f"p{i}", "quadrant": q, "source": "toy"} for i, q in enumerate(quadrants)]
+    meta = [{"prompt": f"p{i}", "quadrant": q, "source": "toy", "split": "direction_estimation"}
+            for i, q in enumerate(quadrants)]
     with open(act_dir / f"{stage}_metadata.json", "w", encoding="utf-8") as f:
         json.dump(meta, f)
 

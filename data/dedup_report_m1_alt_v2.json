@@ -1,0 +1,23 @@
+{
+  "n_eval_prompts": 570,
+  "n_train_prompts": 6000,
+  "train_source": "Dolly M1_alt",
+  "exact_duplicates": [],
+  "near_duplicates": [
+    {
+      "eval_prompt": "Is Beyonce married?",
+      "closest_train_prompt": "Who married Beyonce in 2008?",
+      "similarity": 0.9074
+    },
+    {
+      "eval_prompt": "What is a non fungible token?",
+      "closest_train_prompt": "what are non-fungible token",
+      "similarity": 0.9658
+    },
+    {
+      "eval_prompt": "What is the legal drinking age in the USA?",
+      "closest_train_prompt": "What is the legal drinking age?",
+      "similarity": 0.9591
+    }
+  ]
+}

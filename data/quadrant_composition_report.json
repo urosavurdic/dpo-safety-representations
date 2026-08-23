@@ -1,0 +1,49 @@
+{
+  "stats": {
+    "A": {
+      "n": 150,
+      "mean_words": 14.5,
+      "median_words": 14.0,
+      "mean_cue_hits": 0.307,
+      "pct_with_cue_hit": 29.3
+    },
+    "B": {
+      "n": 250,
+      "mean_words": 8.4,
+      "median_words": 8.0,
+      "mean_cue_hits": 0.032,
+      "pct_with_cue_hit": 3.2
+    },
+    "C": {
+      "n": 104,
+      "mean_words": 17.5,
+      "median_words": 17.0,
+      "mean_cue_hits": 0,
+      "pct_with_cue_hit": 0.0
+    },
+    "D": {
+      "n": 150,
+      "mean_words": 16.5,
+      "median_words": 10.0,
+      "mean_cue_hits": 0,
+      "pct_with_cue_hit": 0.0
+    }
+  },
+  "predictions": [
+    {
+      "prediction": "B (benign, harmful-sounding) scores comparably to A on cue density despite being benign",
+      "holds": false,
+      "detail": "A=0.307, B=0.032"
+    },
+    {
+      "prediction": "C (harmful, reduced-cue) scores lower than A on cue density",
+      "holds": true,
+      "detail": "A=0.307, C=0"
+    },
+    {
+      "prediction": "C's cue density approaches D's (both near the neutral-wording floor)",
+      "holds": true,
+      "detail": "C=0, D=0, gap=0"
+    }
+  ]
+}

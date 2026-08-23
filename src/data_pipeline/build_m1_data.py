@@ -48,7 +48,7 @@ def load_source_rows(source: str):
     return [spec["normalize_row"](row) for row in dataset]
 
 
-def load_reserved_eval_prompts(path="data/processed/alpaca_reserved_for_eval.json"):
+def load_reserved_eval_prompts(path="data/processed/quadrant_d_reserved_for_eval.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 

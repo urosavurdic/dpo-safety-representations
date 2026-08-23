@@ -1,0 +1,26 @@
+{
+  "total_candidates": 20,
+  "counts_by_source": {
+    "StrongREJECT": 20
+  },
+  "counts_by_project_category": {
+    "harassment_bullying": 5,
+    "cybercrime_intrusion": 3,
+    "misinformation_disinformation": 5,
+    "illegal": 7
+  },
+  "counts_by_agent_pre_screen": {
+    "eligible_candidate": 15,
+    "secondary_only": 5,
+    "exclude": 0
+  },
+  "evasion_dominant_count": 5,
+  "needs_review_count": 5,
+  "eligible_c1_count": 15,
+  "sources_investigated_not_fetched": {
+    "AHB (icaro-lab/ahb)": "HF-gated; maps to stylistic_displacement (C2), not C1",
+    "CASE-Bench (BriansIDP/CASEBench)": "maps to contextual_safety (C3), not C1",
+    "OpenSafeIntent": "PKU-SafeRLHF-seeded, contamination risk; maps to dual_use_intent_shift (C4)",
+    "MLCommons AILuminate": "HF-gated; AHB's own upstream source"
+  }
+}

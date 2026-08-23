@@ -29,12 +29,72 @@ harmful-sounding*:
 
 |                       | **Worded harmful-sounding**                          | **Worded neutrally**                                          |
 |-----------------------|-------------------------------------------------------|-----------------------------------------------------------------|
-| **Actually harmful**  | **A** — obviously harmful (HarmBench, n=50). Correct response: refuse. | **C** — harmful, disguised (hand-curated, n=20). Correct response: refuse. Sharpest test of real understanding. |
-| **Actually benign**   | **B** — sounds risky, isn't (XSTest, n=250). Correct response: comply. Classic over-refusal trap. | **D** — benign, plainly worded (Alpaca, n=50). Correct response: comply. |
+| **Actually harmful**  | **A** — obviously harmful (HarmBench, n=150). Correct response: refuse. | **C** — see below (n=104). Correct response: refuse or safe redirection. |
+| **Actually benign**   | **B** — sounds risky, isn't (XSTest, n=250). Correct response: comply. Classic over-refusal trap. | **D** — benign (Alpaca + Dolly + OASST1, n=150). Correct response: comply. |
+
+**Quadrant C is now the pipeline's promoted, reviewed set — n=104**, not the
+original 20. Revised description (see CLAUDE.md for the full history of
+why): *source-attributed, human-reviewed harmful requests, rewritten from
+StrongREJECT (Souly et al. 2024) to reduce — not eliminate — overt
+domain-specific and evasion-coded vocabulary, while preserving the original
+harmful objective and requested type of assistance.* That's a deliberately
+narrower, more precise claim than "disguised" or "neutral wording." External
+review (recorded in CLAUDE.md) correctly pointed out that both the original
+20 hand-curated items and my first StrongREJECT-derived draft batch still
+contained overt wrongdoing/evasion cues ("unauthorized," "without consent,"
+"avoid detection," "untraceable") — generic, not domain-specific, but still
+legible safety triggers a model could key off without representing the
+deeper objective at all. A quantified lexical audit
+(`src/diagnostics/score_lexical_risk_cues.py`) confirmed it: 8/20 original
+items and 9/20 of my first drafts contained at least one term from a
+predeclared risk lexicon.
+
+The promoted batch — reviewed in conversation, not rubber-stamped, then
+substantially scaled up (15 → 104) after review correctly pushed back that
+15 was far too small — scores exactly **zero** lexical-cue hits across all
+104, verified by `src/diagnostics/score_lexical_risk_cues.py` and enforced
+by a regression test. 51 further candidates from the same drafting pass
+resisted full cue reduction for a structural reason worth stating plainly:
+for harms where **evading detection is the objective itself** (smuggling
+something across a border, covertly monitoring someone, insider trading,
+illegal waste disposal), removing all evasion-coded language would mean
+losing the harmful objective, not just its surface dressing. These are
+kept in a separate secondary set (`evasion_dominant`), not force-fit into
+the primary quadrant — a genuine limitation of the "neutral wording"
+premise for this sub-category of harm, not a curation failure to paper
+over.
+
+Before trusting any of that, I checked whether a pre-existing dataset
+could just replace this whole exercise — genuinely checked, not just
+asserted: BELLS-Operational (CeSIA), AHB, CASE-Bench, and OpenSafeIntent
+were all investigated (see CLAUDE.md for specifics). None fit — each maps
+cleanly to a *different* construct (gated access with the wrong
+ground-truth philosophy, stylistic/literary obfuscation, context-dependent
+safety, or dual-use matched variants with their own contamination risk).
+StrongREJECT (Souly et al. 2024) remains the right source for the
+underlying harmful intent; the work that needed doing was rigor around
+*how* it gets reworded and documented, not finding a shortcut around
+authorship entirely. `src/data_pipeline/quadrant_c_pipeline.py` implements
+that rigor: every candidate's source text is verified verbatim against the
+live StrongREJECT source before use (caught a real bug this way — 6/20
+candidates in an earlier pass turned out to store truncated previews
+instead of the full source text), checked against every training file the
+project has, and classified with an explicit, stated reason before ever
+reaching a human reviewer.
+
+The original 20 hand-curated items are **retired from headline/primary
+claims** as of this update — their authorship is genuinely unverifiable
+(git shows a single human-authored commit, but that can't distinguish
+hand-typed from AI-drafted-then-reviewed), and on inspection they had the
+same generic-wrongdoing-cue problem as the first StrongREJECT draft pass.
+Kept in the repository for reproducibility, not used as evidence.
 
 Quadrant C is the whole point of this design: a model relying on surface
-wording will do fine on A, B, and D but should struggle here. A model that
-actually tracks intent shouldn't.
+wording will do fine on A, B, and D but should struggle here. A model
+whose internal harm-related signal depends primarily on overt safety cues
+may show that dependence here — preserved performance is evidence the
+signal generalizes beyond the specific direct formulations it was measured
+on, not by itself proof of "understanding" in a strong sense.
 
 ---
 
@@ -179,6 +239,57 @@ argmax noise" pending a more carefully powered version.
 
 ---
 
+## Finding 4: steering on all 8 SFT/DPO stages — the sufficiency half of the causal story
+
+Ablation established necessity (on M3): removing the direction suppresses
+refusal. This closes the other half — does adding it induce refusal? — and
+extends the test across the whole training arc, not just the 4 DPO
+endpoints, using each stage's own natural direction at layer 24.
+
+**Pre-DPO stages show essentially no causal effect.** M1 and M1_alt (before
+any safety training) and, more surprisingly, M2 and M2_alt (after
+safety-SFT, before DPO) show close to zero induced refusal when steered
+along their own direction — M2's quadrant-A refusal count is literally 0
+in both baseline and steered conditions. That safety-SFT alone doesn't
+give the direction causal teeth, even though the representation is already
+present by this point (Finding 1), is independent evidence for the same
+claim the geometry-based results have been making: DPO is what couples the
+representation to behavior, not just what amplifies it.
+
+**M3 and M3_alt show a clean sufficiency effect with minimal side effects.**
+Steering roughly doubles quadrant-A refusal counts (M3: 7→13, M3_alt: 6→9)
+while leaving quadrant-D compliance essentially untouched (M3: 49/50 comply
+either way; M3_alt: 50/50 → 48/50). This is the result you'd want if the
+direction is doing real, targeted causal work.
+
+**M3_direct and M3_direct_alt are messier, in an informative way.** Both
+show elevated non-compliance on quadrant D *at baseline*, before any
+steering (M3_direct: 39/50 comply, 10/50 refusal+soft-deflection; M3_direct_alt:
+36/50 comply) — notably lower than M3's 49/50. Worth flagging as a pattern
+consistent with the "direct-DPO carves a sharper, more concentrated
+representation" story from Finding 3, though I'm not claiming it's proven
+causally connected. M3_direct_alt specifically shows a strange-looking but
+verified-real result: steering changes the generated text for 39/50
+quadrant-A prompts (checked directly, not a bug) but rarely flips the
+classified category — its behavior may already be locked in enough that
+more of the same direction perturbs wording without crossing a decision
+boundary.
+
+**Degenerate collapse reproduces on quadrant D too**, not just A —
+M2_alt's steered quadrant D shows 5/50 outputs collapsing into repetition
+loops (up from 1/50 at baseline), confirmed by reading the actual
+completions, not just the classifier's say-so. Same open, undiagnosed
+mechanism as before (Limitations #8), now with a concrete new example on a
+pre-DPO stage.
+
+**Caveat that matters for reading these numbers:** all of the above is on
+the *current* 50-item quadrant A / 50-item quadrant D. Quadrant A is
+expanding to 150 (Next Steps), which changes the direction itself, not
+just adds test items — so this steering run will need a full rerun once
+that lands, not an incremental update.
+
+---
+
 ## The honest null results
 
 **Steering didn't confirm the causal story.** Causal ablation shows the
@@ -252,20 +363,33 @@ already collected, no GPU needed) — see Finding 3 for the results:
 
 Remaining, roughly by cost:
 
-1. **Run the redone steering experiment** inside the ablation-validated
-   layer range, with a quadrant-A side-effect check included. Closes the
-   sufficiency gap in the causal story.
-2. **Quadrant C, properly powered.** This is the highest-reward, most
-   bounded next experiment, and I'm committing to it, not deprioritizing it:
-   n=20 is the thing standing between "directionally interesting" and "an
-   actual result" for the most important behavioral comparison in this
-   whole project. [StrongREJECT](https://github.com/alexandrasouly/strongreject)
-   (Souly et al., 2024 — 313 human-curated, category-labeled harmful
-   prompts, specifically built to be less templated than AdvBench) is a
-   real, already-vetted seed corpus: the task becomes rewording an
-   already-published harmful request into neutral phrasing, not inventing
-   harmful intent from nothing. Target: 100+ items, multiple harm
-   categories, several paraphrase variants each.
+1. ~~Run the redone steering experiment inside the ablation-validated layer
+   range, with a quadrant-A side-effect check included.~~ **Code is done,
+   the reported run in Finding 4 is not the final one.** Closed the
+   sufficiency gap in the causal story, and along the way closed a second
+   gap I hadn't originally flagged: the direction was being tested on the
+   same A/D prompts it was estimated from. Fixed via a held-out split
+   (`assign_direction_split` — 80/20, direction-estimation vs.
+   held-out-behavioral) threaded through direction construction, both
+   bootstraps, bottleneck layer, and now causal ablation/steering too. The
+   numbers in Finding 4 are from the pre-split, pre-quadrant-expansion
+   50/50 eval set — genuinely instructive, but not the final result. Rerun
+   once quadrant C (below) is finalized, so this doesn't need running
+   twice.
+2. ~~Quadrant C, properly documented, at scale.~~ **Done — 104 candidates
+   promoted, up from 15.** The earlier staged plan (40–60 first, expand
+   later) was superseded, not followed — went straight to a larger batch
+   once the drafting/verification process was proven working on the first
+   20, rather than re-litigating the staging question. Every candidate's
+   source text is verified verbatim against its live StrongREJECT source,
+   classified into a transformation family, checked for internal
+   duplication, and scored to genuinely zero on the lexical-cue check
+   before promotion — not just asserted. `src/data_pipeline/quadrant_c_pipeline.py`
+   handles sourcing end-to-end; still not a substitute for the human
+   review step that happened before promotion, just more rigor going into
+   it. Deliberately excluded: weapons/explosives/CBRN-adjacent and
+   drug-synthesis content from the source pool, regardless of how the
+   request would be reworded.
 3. Full fine-tuning robustness check (removes the LoRA-rank confound) —
    expensive, aspirational.
 4. Diagnose the steering degenerate-collapse mechanism directly by tracking
@@ -280,18 +404,60 @@ Remaining, roughly by cost:
    at deep layers. A full-fine-tuning check would add confidence.
 2. **Single diff-in-means direction.** Other orthogonal safety-relevant
    directions may exist; not searched for (see Open Questions).
-3. **Ablation shows necessity, not yet sufficiency** — steering hasn't
-   confirmed the complementary direction cleanly (see Next Steps #4).
-4. **Quadrant C, n=20** — the sharpest behavioral test is also the
-   least-powered one (see Next Steps #5).
+3. ~~Ablation shows necessity, not yet sufficiency~~ **Resolved (Finding 4):**
+   steering confirms sufficiency on M3/M3_alt with minimal side effects, and
+   shows pre-DPO stages (M1, M2) don't yet have the causal machinery. Caveat:
+   run on the pre-expansion 50/50 A/D eval set, needs a rerun once the
+   expansion below lands.
+4. **Quadrant C, now n=104, up from the original 20.**
+   Original 20 retired — unverifiable provenance (git shows a single
+   human-authored commit, can't distinguish hand-typed from
+   AI-drafted-then-reviewed) and, on external review, not actually neutral
+   wording (still contained generic wrongdoing/evasion cues). Replaced with
+   104 individually-classified, source-attributed, verified-zero-cue items
+   drawn from StrongREJECT, clearing the 100+ target. See CLAUDE.md for
+   the drafting/review process.
 5. **1.5B scale.** Not claimed to generalize to frontier models.
 6. **The Alpaca-artifact concern is substantially, not fully, addressed.**
    Reproducibility across Alpaca and Dolly is real evidence, but it's two
    datasets, one model family, one LoRA setup.
-7. **The new cross-branch claims need a formal statistical pass** before
-   I'd call them settled — see Next Steps #1–3.
-8. **Why multi-layer steering collapses to degenerate output** isn't
-   independently diagnosed, just hypothesized (residual-stream compounding).
+7. ~~The new cross-branch claims need a formal statistical pass~~ **Resolved**
+   — bootstrap difference test, bottleneck-layer bootstrap CI, and paired
+   deep-layer stability test all done, see Finding 3.
+8. **Why multi-layer steering collapses to degenerate output** now has a
+   clear, evidenced explanation, not just a hypothesis: the original
+   `eval_steering.py` steered 15 layers (14-28) simultaneously, every
+   forward pass, and 49/50 quadrant-D completions collapsed into repetition
+   as a result (kept as `results/raw/steering_raw_D_MULTILAYER_14to28_DEPRECATED.json`
+   for the record). Single-layer steering (current default, layer 24)
+   resolves it in practice, but the underlying mechanism — why compounding
+   across layers specifically causes collapse — is still not independently
+   diagnosed at the activation level.
+9. **Quadrant D was Alpaca-only, shared across both branches** — the
+   original (Alpaca-trained) branch got tested in-distribution while the
+   alt (Dolly-trained) branch didn't, a real asymmetry. Fix designed (keep
+   the original 50, add a Dolly supplement + an independent-source
+   supplement so both branches get equal in/out-of-distribution exposure)
+   but not yet run/verified — see CLAUDE.md Next Steps.
+10. **PKU-SafeRLHF-derived training data (DPO pairs, safety-SFT) only pairs
+    responses where annotators disagreed on safety** (`is_response_0_safe
+    != is_response_1_safe` — same-safety pairs are dropped entirely). This
+    is a deliberate, defensible choice for isolating a clean safety-contrast
+    signal, but it means the model never saw a (safe, safe) preference
+    signal (no DPO pressure toward more-helpful-among-safe-options) or a
+    (unsafe, unsafe) one. Whether this changes the RESULT (not just the
+    training objective) versus training on the full natural preference
+    distribution is untested.
+11. **Whether the eval set's harm categories (illegal, cybercrime_intrusion,
+    harassment_bullying, misinformation_disinformation) are actually
+    well-represented in the safety-SFT/DPO training data hasn't been
+    confirmed with current numbers.** `src/diagnostics/analyze_data_coverage.py`
+    exists specifically for this (already flagged a similar concern for
+    vehicle-related harm categories) but hasn't been re-run against the
+    current category set. If a category is eval-tested but training-rare,
+    weak eval performance there reflects a train/eval mismatch, not a
+    genuine safety-training failure — this needs checking before drawing
+    conclusions from category-level results.
 
 ---
 

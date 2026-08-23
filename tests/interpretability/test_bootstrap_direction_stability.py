@@ -88,7 +88,8 @@ def test_main_persists_raw_sims_only_for_deep_layers(tmp_path, monkeypatch):
     pooled = rng.normal(size=(n_prompts, n_layers, 4))
     quadrants = np.array(["A"] * 4 + ["D"] * 4)
     np.save(act_dir / "M3_pooled.npy", pooled)
-    meta = [{"prompt": f"p{i}", "quadrant": q, "source": "toy"} for i, q in enumerate(quadrants)]
+    meta = [{"prompt": f"p{i}", "quadrant": q, "source": "toy", "split": "direction_estimation"}
+            for i, q in enumerate(quadrants)]
     with open(act_dir / "M3_metadata.json", "w", encoding="utf-8") as f:
         json.dump(meta, f)
 

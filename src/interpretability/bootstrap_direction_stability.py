@@ -14,7 +14,9 @@ from pathlib import Path
 
 import numpy as np
 
-from src.analysis.eval_refusal_direction import activations_available, diff_in_means_direction
+from src.analysis.eval_refusal_direction import (
+    activations_available, diff_in_means_direction, filter_to_direction_estimation_split,
+)
 
 STAGES = [
     "M0", "M1", "M2", "M3", "M3_direct",
@@ -37,7 +39,8 @@ def load_stage(stage, act_dir=Path("results/activations")):
     with open(act_dir / f"{stage}_metadata.json", encoding="utf-8") as f:
         meta = json.load(f)
     quadrants = np.array([row["quadrant"] for row in meta])
-    return pooled, quadrants
+    splits = np.array([row.get("split") or "" for row in meta])
+    return pooled, quadrants, splits
 
 
 def bootstrap_directions(pooled, quadrants, n_bootstrap=N_BOOTSTRAP, seed=SEED):
@@ -100,7 +103,8 @@ def main():
         if not activations_available(stage):
             print(f"\n=== {stage}: SKIPPED, activations not yet extracted ===")
             continue
-        pooled, quadrants = load_stage(stage)
+        pooled, quadrants, splits = load_stage(stage)
+        pooled, quadrants = filter_to_direction_estimation_split(pooled, quadrants, splits)
         original_direction = diff_in_means_direction(pooled, quadrants)
         bootstrap_dirs = bootstrap_directions(pooled, quadrants)
 

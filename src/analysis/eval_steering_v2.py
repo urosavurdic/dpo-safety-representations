@@ -54,7 +54,9 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.analysis.eval_causal_ablation import get_decoder_layers, generate_batch, load_controlled_eval, BATCH_SIZE
+from src.analysis.eval_causal_ablation import (
+    get_decoder_layers, generate_batch, load_controlled_eval, filter_to_held_out_behavioral_split, BATCH_SIZE,
+)
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 MAX_NEW_TOKENS = 200  # must match eval_causal_ablation.py / eval_behavioral.py
@@ -231,9 +233,11 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     eval_rows = [r for r in load_controlled_eval() if r["quadrant"] in args.quadrants]
+    eval_rows = filter_to_held_out_behavioral_split(eval_rows)
     if args.limit:
         eval_rows = eval_rows[:args.limit]
-    print(f"Loaded {len(eval_rows)} prompts across quadrants {args.quadrants}.")
+    print(f"Loaded {len(eval_rows)} prompts across quadrants {args.quadrants} "
+          f"(A/D restricted to held_out_behavioral split).")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")

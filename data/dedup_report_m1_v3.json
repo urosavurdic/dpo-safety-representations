@@ -1,0 +1,7 @@
+{
+  "n_eval_prompts": 570,
+  "n_train_prompts": 6000,
+  "train_source": "Alpaca M1",
+  "exact_duplicates": [],
+  "near_duplicates": []
+}
