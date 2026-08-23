@@ -32,6 +32,7 @@ import numpy as np
 from src.analysis.eval_refusal_direction import (
     activations_available,
     diff_in_means_direction,
+    filter_to_direction_estimation_split,
     load_stage,
     project_onto_direction,
 )
@@ -149,7 +150,13 @@ def main():
         if not activations_available(stage):
             print(f"=== {stage}: SKIPPED, activations not yet extracted ===")
             continue
-        pooled, quadrants = load_stage(stage)
+        pooled, quadrants, splits = load_stage(stage)
+        # Estimation-split only for A/D (full B/C kept) - same rationale as
+        # eval_refusal_direction.py's main(): keeps this consistent with the
+        # direction actually used for causal ablation/steering, and means
+        # THIS metric's own A-vs-D separability doesn't touch the same A/D
+        # prompts steering/ablation later report a causal effect on.
+        pooled, quadrants = filter_to_direction_estimation_split(pooled, quadrants, splits)
         d_a_vs_d, d_harm_vs_surface = per_layer_separability(pooled, quadrants)
         n_layers = len(d_a_vs_d)
 

@@ -64,6 +64,22 @@ def extract_batch(model, tokenizer, prompts, device):
         tokenizer.padding_side = original_padding_side
 
 
+def eval_set_matches_saved_metadata(meta_path, eval_rows):
+    """True only if meta_path's saved (prompt, quadrant, source, split) rows
+    exactly match the CURRENT eval set, same order. Guards the resumability
+    check below: without this, growing/editing controlled_eval.jsonl and
+    re-running would silently skip every stage (files still exist) and
+    leave every downstream script working from stale, undersized
+    activations - no error, no warning, just quietly wrong numbers."""
+    if not meta_path.exists():
+        return False
+    with open(meta_path, encoding="utf-8") as f:
+        saved = json.load(f)
+    current = [{"prompt": r["prompt"], "quadrant": r["quadrant"], "source": r["source"],
+                "split": r.get("split")} for r in eval_rows]
+    return saved == current
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None, help="Limit eval prompts (dry run)")
@@ -89,9 +105,12 @@ def main():
         pooled_path = out_dir / f"{stage_name}_pooled.npy"
         meta_path = out_dir / f"{stage_name}_metadata.json"
 
-        if final_path.exists() and pooled_path.exists() and meta_path.exists():
-            print(f"\n=== {stage_name}: already extracted, skipping ===")
+        files_exist = final_path.exists() and pooled_path.exists() and meta_path.exists()
+        if files_exist and not args.limit and eval_set_matches_saved_metadata(meta_path, eval_rows):
+            print(f"\n=== {stage_name}: already extracted (eval set unchanged), skipping ===")
             continue
+        if files_exist and not eval_set_matches_saved_metadata(meta_path, eval_rows) and not args.limit:
+            print(f"\n=== {stage_name}: eval set has changed since last extraction - re-extracting, not skipping ===")
 
         print(f"\n=== {stage_name}: extracting (batch size {BATCH_SIZE}) ===")
         model = try_load_stage_model(stage_name)
@@ -111,7 +130,8 @@ def main():
         np.save(final_path, final_array)
         np.save(pooled_path, pooled_array)
         with open(meta_path, "w", encoding="utf-8") as f:
-            json.dump([{"prompt": r["prompt"], "quadrant": r["quadrant"], "source": r["source"]} for r in eval_rows], f, ensure_ascii=False, indent=2)
+            json.dump([{"prompt": r["prompt"], "quadrant": r["quadrant"], "source": r["source"],
+                        "split": r.get("split")} for r in eval_rows], f, ensure_ascii=False, indent=2)
 
         print(f"Saved {stage_name}: final {final_array.shape}, pooled {pooled_array.shape}")
         del model

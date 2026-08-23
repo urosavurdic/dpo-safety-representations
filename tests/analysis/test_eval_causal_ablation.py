@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from src.analysis.eval_causal_ablation import (
     ablate_direction,
+    filter_to_held_out_behavioral_split,
     get_decoder_layers,
     register_ablation_hooks,
 )
@@ -69,3 +70,27 @@ def test_hook_modifies_output_and_can_be_removed():
         h.remove()
     out_after_removal = fake_model.model.layers[0](x)
     assert torch.allclose(out_after_removal[0], x, atol=1e-6)
+
+
+def test_filter_to_held_out_behavioral_split_keeps_only_held_out_a_and_d():
+    rows = [
+        {"prompt": "a1", "quadrant": "A", "split": "direction_estimation"},
+        {"prompt": "a2", "quadrant": "A", "split": "held_out_behavioral"},
+        {"prompt": "d1", "quadrant": "D", "split": "direction_estimation"},
+        {"prompt": "d2", "quadrant": "D", "split": "held_out_behavioral"},
+        {"prompt": "b1", "quadrant": "B", "split": None},
+        {"prompt": "c1", "quadrant": "C", "split": None},
+    ]
+    kept = filter_to_held_out_behavioral_split(rows)
+    assert {r["prompt"] for r in kept} == {"a2", "d2", "b1", "c1"}
+
+
+def test_filter_to_held_out_behavioral_split_drops_a_d_rows_missing_split():
+    # Activations/eval rows from before the split existed - drop rather than
+    # silently include, since we can't tell if they'd have been held-out.
+    rows = [
+        {"prompt": "a1", "quadrant": "A"},  # no "split" key at all
+        {"prompt": "b1", "quadrant": "B"},
+    ]
+    kept = filter_to_held_out_behavioral_split(rows)
+    assert {r["prompt"] for r in kept} == {"b1"}

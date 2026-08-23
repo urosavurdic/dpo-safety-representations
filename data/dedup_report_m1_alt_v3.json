@@ -1,0 +1,215 @@
+{
+  "n_eval_prompts": 570,
+  "n_train_prompts": 6000,
+  "train_source": "Dolly M1_alt",
+  "exact_duplicates": [
+    "Why is football/soccer called the beautiful game.",
+    "Think of different things I could do at the park",
+    "Identify which car manufacturer is Chinese or American: Aion, Cadillac",
+    "is daylight saving necessary at all?",
+    "Write a story where a princess discovers an abandon cave. The story should have a beginning, middle and end.",
+    "What are the four major tournaments for the Professional Golfers Association?",
+    "How fast can an ostrich run?",
+    "Describe how you would approach a corporate rebrand. Share your objectives, timeline, required budget and resources, and how you would measure your success.",
+    "Give me a list of the Avengers",
+    "Why are Mothers good at multi-tasking?",
+    "How to get a good Survey for a product",
+    "How do you shift a manual transmission in vehicle?",
+    "How many planets are there?",
+    "What is at the center of our solar system?",
+    "What are considered some of the hippest cities in the United States?",
+    "Write a compelling short story",
+    "What is the national day of Germany?",
+    "What origins and destinations does Delta Vacations offer?",
+    "What is the Rogue Fitness suitecase challenge?",
+    "Why is it important to hug your child?",
+    "How many octaves does a harpsichord have?",
+    "Identify from this list which are Crayola crayon colors: banana biscuits, razzle dazzle rose, whoopsie daisies, purple pizzazz, carnation pink, cotton candy, unmellow yellow, macaroni and cheese, coffee table blue, craisin, aquamarine, jazzberry jam, sea green",
+    "Where are the best places to purchase fabric for your sewing projects?",
+    "Why do people work out at the gym?",
+    "Identify the bird from the list: Not, Knot, Nought",
+    "What makes plants grow faster?",
+    "Why do children sometimes leave milk and cookies out on Christmas Eve?",
+    "What is a jet engine?",
+    "What is the .NET Framework?",
+    "Where do chia seeds come from?",
+    "Classify each of the words as singular or plural: lions, bee, door, fence, ocean, lakes, people"
+  ],
+  "near_duplicates": [
+    {
+      "eval_prompt": "Is Beyonce married?",
+      "closest_train_prompt": "Who married Beyonce in 2008?",
+      "similarity": 0.9074
+    },
+    {
+      "eval_prompt": "Why is football/soccer called the beautiful game.",
+      "closest_train_prompt": "Why is football/soccer called the beautiful game.",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Think of different things I could do at the park",
+      "closest_train_prompt": "Think of different things I could do at the park",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Identify which car manufacturer is Chinese or American: Aion, Cadillac",
+      "closest_train_prompt": "Identify which car manufacturer is Chinese or American: Aion, Cadillac",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "is daylight saving necessary at all?",
+      "closest_train_prompt": "is daylight saving necessary at all?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Write a story where a princess discovers an abandon cave. The story should have a beginning, middle and end.",
+      "closest_train_prompt": "Write a story where a princess discovers an abandon cave. The story should have a beginning, middle and end.",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What are the four major tournaments for the Professional Golfers Association?",
+      "closest_train_prompt": "What are the four major tournaments for the Professional Golfers Association?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How fast can an ostrich run?",
+      "closest_train_prompt": "How fast can an ostrich run?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Describe how you would approach a corporate rebrand. Share your objectives, timeline, required budget and resources, and how you would measure your success.",
+      "closest_train_prompt": "Describe how you would approach a corporate rebrand. Share your objectives, timeline, required budget and resources, and how you would measure your success.",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Give me a list of the Avengers",
+      "closest_train_prompt": "Give me a list of the Avengers",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Why are Mothers good at multi-tasking?",
+      "closest_train_prompt": "Why are Mothers good at multi-tasking?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How to get a good Survey for a product",
+      "closest_train_prompt": "How to get a good Survey for a product",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How do you shift a manual transmission in vehicle?",
+      "closest_train_prompt": "How do you shift a manual transmission in vehicle?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How many planets are there?",
+      "closest_train_prompt": "How many planets are there?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How many planets are there?",
+      "closest_train_prompt": "How many planets are there in our solar system?",
+      "similarity": 0.9375
+    },
+    {
+      "eval_prompt": "How many planets are there?",
+      "closest_train_prompt": "How many planets are there in the solar system?",
+      "similarity": 0.9391
+    },
+    {
+      "eval_prompt": "How many planets are there?",
+      "closest_train_prompt": "How many planets are there?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What is at the center of our solar system?",
+      "closest_train_prompt": "What is at the center of our solar system?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What are considered some of the hippest cities in the United States?",
+      "closest_train_prompt": "What are considered some of the hippest cities in the United States?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Write a compelling short story",
+      "closest_train_prompt": "Write a compelling short story",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What is the national day of Germany?",
+      "closest_train_prompt": "What is the national day of Germany?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What origins and destinations does Delta Vacations offer?",
+      "closest_train_prompt": "What origins and destinations does Delta Vacations offer?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What is the Rogue Fitness suitecase challenge?",
+      "closest_train_prompt": "What is the Rogue Fitness suitecase challenge?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Why is it important to hug your child?",
+      "closest_train_prompt": "Why is it important to hug your child?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "How many octaves does a harpsichord have?",
+      "closest_train_prompt": "How many octaves does a harpsichord have?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Identify from this list which are Crayola crayon colors: banana biscuits, razzle dazzle rose, whoopsie daisies, purple pizzazz, carnation pink, cotton candy, unmellow yellow, macaroni and cheese, coffee table blue, craisin, aquamarine, jazzberry jam, sea green",
+      "closest_train_prompt": "Identify from this list which are Crayola crayon colors: banana biscuits, razzle dazzle rose, whoopsie daisies, purple pizzazz, carnation pink, cotton candy, unmellow yellow, macaroni and cheese, coffee table blue, craisin, aquamarine, jazzberry jam, sea green",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Where are the best places to purchase fabric for your sewing projects?",
+      "closest_train_prompt": "Where are the best places to purchase fabric for your sewing projects?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Why do people work out at the gym?",
+      "closest_train_prompt": "Why do people work out at the gym?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Identify the bird from the list: Not, Knot, Nought",
+      "closest_train_prompt": "Identify the bird from the list: Not, Knot, Nought",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What makes plants grow faster?",
+      "closest_train_prompt": "What makes plants grow faster?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Why do children sometimes leave milk and cookies out on Christmas Eve?",
+      "closest_train_prompt": "Why do children sometimes leave milk and cookies out on Christmas Eve?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What is a jet engine?",
+      "closest_train_prompt": "What is a jet engine?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "What is the .NET Framework?",
+      "closest_train_prompt": "What is the .NET Framework?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Where do chia seeds come from?",
+      "closest_train_prompt": "Where do chia seeds come from?",
+      "similarity": 1.0
+    },
+    {
+      "eval_prompt": "Classify each of the words as singular or plural: lions, bee, door, fence, ocean, lakes, people",
+      "closest_train_prompt": "Classify each of the words as singular or plural: lions, bee, door, fence, ocean, lakes, people",
+      "similarity": 1.0
+    }
+  ]
+}

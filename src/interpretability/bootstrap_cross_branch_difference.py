@@ -38,6 +38,7 @@ from src.analysis.eval_refusal_direction import (
     activations_available,
     cosine_similarity_per_layer,
     diff_in_means_direction,
+    filter_to_direction_estimation_split,
     load_stage,
 )
 
@@ -118,7 +119,11 @@ def main():
 
     def get_stage(stage):
         if stage not in stage_cache:
-            stage_cache[stage] = load_stage(stage)
+            pooled, quadrants, splits = load_stage(stage)
+            # Estimation-split only, same rationale as everywhere else in
+            # the direction component - keeps this bootstrap consistent
+            # with the direction causal ablation/steering actually test.
+            stage_cache[stage] = filter_to_direction_estimation_split(pooled, quadrants, splits)
         return stage_cache[stage]
 
     pair_mean_sims = {}

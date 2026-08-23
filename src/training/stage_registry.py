@@ -94,10 +94,12 @@ DATA_PREP = {
     },
 }
 
-# build_m1_data.py needs alpaca_reserved_for_eval.json (built by
-# build_eval_set.py) to exclude quadrant D's reserved prompts, regardless of
-# which --dataset is selected - this is a prerequisite of BOTH alpaca and
-# dolly, not something either data_prep entry above should duplicate.
+# build_m1_data.py needs quadrant_d_reserved_for_eval.json (built by
+# build_eval_set.py, renamed from alpaca_reserved_for_eval.json now that
+# quadrant D pulls from Alpaca+Dolly+an independent source, not Alpaca alone)
+# to exclude quadrant D's reserved prompts, regardless of which --dataset is
+# selected - this is a prerequisite of BOTH alpaca and dolly, not something
+# either data_prep entry above should duplicate.
 EVAL_SET_PREREQUISITE = {
     "output": "data/processed/controlled_eval.jsonl",
     "command": "python -m src.data_pipeline.build_eval_set",

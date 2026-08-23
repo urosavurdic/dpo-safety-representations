@@ -73,7 +73,22 @@ def load_stage(stage):
     with open(ACT_DIR / f"{stage}_metadata.json", encoding="utf-8") as f:
         meta = json.load(f)
     quadrants = np.array([row["quadrant"] for row in meta])
-    return pooled, quadrants
+    splits = np.array([row.get("split") or "" for row in meta])
+    return pooled, quadrants, splits
+
+
+def filter_to_direction_estimation_split(pooled, quadrants, splits):
+    """Keep all quadrant B/C rows (split is always "" for them - irrelevant
+    to the direction) plus only the "direction_estimation" half of quadrant
+    A/D. Apply this before diff_in_means_direction / per_layer_separability
+    so the direction is never estimated on the same A/D prompts causal
+    ablation/steering later tests its effect on - see
+    build_eval_set.assign_direction_split's docstring for why that matters.
+    Safe no-op on activations extracted before the split existed (splits
+    all ""): those rows keep quadrant B/C, but any A/D row there has no
+    split recorded and would be silently dropped here - re-extract first."""
+    keep = (quadrants != "A") & (quadrants != "D") | (splits == "direction_estimation")
+    return pooled[keep], quadrants[keep]
 
 
 def diff_in_means_direction(pooled, quadrants, pos_quadrant=POS_QUADRANT, neg_quadrant=NEG_QUADRANT):
@@ -123,8 +138,15 @@ def main():
     pooled_by_stage = {}
 
     for stage in available_stages:
-        pooled, quadrants = load_stage(stage)
-        direction = diff_in_means_direction(pooled, quadrants)
+        pooled, quadrants, splits = load_stage(stage)
+        # Direction estimated ONLY on the direction_estimation half of A/D -
+        # keeps causal ablation/steering's later held_out_behavioral test
+        # from being circular (see build_eval_set.assign_direction_split).
+        # Everything else below (quadrant_projections, cross-branch cosine
+        # sim, etc.) uses the FULL pooled/quadrants - only the direction
+        # VECTOR itself needs the estimation-only restriction.
+        pooled_for_direction, quadrants_for_direction = filter_to_direction_estimation_split(pooled, quadrants, splits)
+        direction = diff_in_means_direction(pooled_for_direction, quadrants_for_direction)
         directions[stage] = direction
         quadrants_by_stage[stage] = quadrants
         pooled_by_stage[stage] = pooled

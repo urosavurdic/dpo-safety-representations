@@ -92,6 +92,25 @@ def load_controlled_eval(path="data/processed/controlled_eval.jsonl"):
     return rows
 
 
+def filter_to_held_out_behavioral_split(eval_rows):
+    """Keep all quadrant B/C rows untouched (no split assigned - not used to
+    build the direction, so no circularity risk), plus only the
+    "held_out_behavioral" half of quadrant A/D. This is the causal-testing
+    counterpart of eval_refusal_direction.filter_to_direction_estimation_split
+    - apply this wherever A/D prompts get used for a CAUSAL test (ablation,
+    steering) so the direction's causal effect is never judged on the same
+    A/D prompts it was estimated from. Do NOT apply this in eval_behavioral.py
+    or anywhere characterizing general behavior (not a circularity risk there,
+    and using only 20% of A/D would needlessly throw away statistical power).
+    Rows with quadrant A/D but no "split" key (activations extracted before
+    the split existed) are dropped here rather than silently included -
+    re-extract activations/rebuild the eval set first if you hit this."""
+    return [
+        r for r in eval_rows
+        if r["quadrant"] not in ("A", "D") or r.get("split") == "held_out_behavioral"
+    ]
+
+
 def generate_batch(model, tokenizer, prompts, device, max_new_tokens=MAX_NEW_TOKENS):
     original_padding_side = tokenizer.padding_side
     tokenizer.padding_side = "left"
@@ -144,9 +163,11 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     eval_rows = load_controlled_eval()
+    eval_rows = filter_to_held_out_behavioral_split(eval_rows)
     if args.limit:
         eval_rows = eval_rows[:args.limit]
-    print(f"Loaded {len(eval_rows)} controlled-eval prompts.")
+    print(f"Loaded {len(eval_rows)} controlled-eval prompts (quadrant A/D restricted to the "
+          f"held_out_behavioral split - see filter_to_held_out_behavioral_split).")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
