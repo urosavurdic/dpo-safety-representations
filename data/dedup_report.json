@@ -1,7 +1,7 @@
 {
-  "n_eval_prompts": 370,
+  "n_eval_prompts": 654,
   "n_train_prompts": 4000,
+  "train_source": "PKU-SafeRLHF derived",
   "exact_duplicates": [],
-  "near_duplicates": [],
-  "note": "Covers PKU-SafeRLHF-derived training data (M2/M3) only. Rerun against the M1 Alpaca training subsample once it exists."
+  "near_duplicates": []
 }
