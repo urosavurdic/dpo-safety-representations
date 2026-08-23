@@ -23,7 +23,7 @@
     },
     "D": {
       "n": 150,
-      "mean_words": 16.5,
+      "mean_words": 16.1,
       "median_words": 10.0,
       "mean_cue_hits": 0,
       "pct_with_cue_hit": 0.0

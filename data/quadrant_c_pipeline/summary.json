@@ -24,8 +24,14 @@
     "MLCommons AILuminate": "HF-gated; AHB's own upstream source"
   },
   "secondary_c2_stylistic": {
-    "status": "blocked",
-    "reason": "AHB (icaro-lab/ahb) is HuggingFace-hosted only; huggingface.co is not reachable from this build sandbox (proxy returns 403 host-not-in-allowlist). Not attempted with fabricated data."
+    "status": "built",
+    "source": "AHB (icaro-lab/ahb)",
+    "total_records": 36,
+    "per_style_cap": 6,
+    "hazard_codes_excluded": ["cse", "src"],
+    "excluded_hazard_count": 552,
+    "contaminated_excluded": 0,
+    "note": "Secondary/exploratory only, per protocol - none eligible for C1/main-quadrant promotion without separate explicit review."
   },
   "secondary_c3_contextual": {
     "status": "built",
