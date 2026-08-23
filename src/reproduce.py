@@ -81,7 +81,11 @@ GPU_ONLY_COMPONENTS = {
     "behavioral_generation": "src.analysis.eval_behavioral (colab_unified_analysis.ipynb Component 1)",
     "activation_extraction": "src.analysis.eval_extract_activations (colab_unified_analysis.ipynb Component 2)",
     "causal_ablation_generation": "src.analysis.eval_causal_ablation (colab_unified_analysis.ipynb Component 5)",
-    "steering_generation": "src.analysis.eval_steering_v2 (colab_unified_analysis.ipynb Component 5b)",
+    "steering_generation": "src.analysis.eval_steering_v2 (colab_unified_analysis.ipynb Component 5b) -- "
+                            "or src.analysis.run_full_steering to loop it across all 8 stages at once",
+    "residual_norm_diagnostic": "src.analysis.eval_residual_norm_diagnostic (Next Steps item 4 -- "
+                                 "collapsing vs non-collapsing residual-stream norm tracking; "
+                                 "src.analysis.plot_residual_norms to visualize the output, CPU-only)",
 }
 
 
