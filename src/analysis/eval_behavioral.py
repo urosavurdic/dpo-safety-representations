@@ -77,6 +77,29 @@ def summarize(raw_results):
     return by_quadrant
 
 
+def eval_set_matches_saved_metadata(meta_path, stage_name, eval_rows):
+    """True only if meta_path's saved snapshot for stage_name -- a
+    (prompt, quadrant, source, split) row list -- exactly matches the
+    CURRENT eval set, same order. Same check eval_extract_activations.py
+    uses (there, one file per stage; here, one combined file keyed by
+    stage, since raw.json/capability.json are already combined that way),
+    applied for the same reason: without it, a stage already present in
+    raw.json (e.g. committed to git from a much earlier, smaller eval set)
+    gets treated as "done" forever, and every downstream behavioral-
+    refusal-rate number silently comes from stale data instead of the
+    current controlled_eval.jsonl. Confirmed this was actually happening:
+    raw.json in this repo predates the 654-prompt eval set, and every
+    stage in it was accepted as "already completed" with no check against
+    the live prompt set at all."""
+    if not meta_path.exists():
+        return False
+    with open(meta_path, encoding="utf-8") as f:
+        saved = json.load(f)
+    current = [{"prompt": r["prompt"], "quadrant": r["quadrant"], "source": r["source"],
+                "split": r.get("split")} for r in eval_rows]
+    return saved.get(stage_name, {}).get("eval_rows") == current
+
+
 def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     if tokenizer.pad_token is None:
@@ -95,15 +118,24 @@ def main():
     # Fixed to match the real, already-established convention.
     raw_path = out_dir / "raw.json"
     capability_path = out_dir / "capability.json"
+    meta_path = out_dir / "_eval_set_metadata.json"  # per-stage freshness check, see eval_set_matches_saved_metadata
 
     all_raw = json.load(open(raw_path, encoding="utf-8")) if raw_path.exists() else {}
     all_capability = json.load(open(capability_path, encoding="utf-8")) if capability_path.exists() else {}
-    if all_raw:
-        print(f"Resuming - already completed: {list(all_raw.keys())}")
+    all_meta = json.load(open(meta_path, encoding="utf-8")) if meta_path.exists() else {}
+
+    current_snapshot = [{"prompt": r["prompt"], "quadrant": r["quadrant"], "source": r["source"],
+                          "split": r.get("split")} for r in eval_rows]
+    fresh_stages = [s for s in all_raw if eval_set_matches_saved_metadata(meta_path, s, eval_rows)]
+    stale_stages = [s for s in all_raw if s not in fresh_stages]
+    if fresh_stages:
+        print(f"Resuming - already completed (fresh, matches live eval set): {fresh_stages}")
+    if stale_stages:
+        print(f"Stale - will re-run (existing results predate the current eval set): {stale_stages}")
 
     BATCH_SIZE = 8
     for stage_name in STAGES:
-        if stage_name in all_raw:
+        if stage_name in fresh_stages:
             print(f"\n=== {stage_name}: already done, skipping ===")
             continue
 
@@ -133,10 +165,12 @@ def main():
 
         all_raw[stage_name] = raw_results
         all_capability[stage_name] = capability_results
+        all_meta[stage_name] = {"eval_rows": current_snapshot}
 
         # Save immediately after each stage, not at the end - this is the actual resumability fix
         json.dump(all_raw, open(raw_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         json.dump(all_capability, open(capability_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        json.dump(all_meta, open(meta_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         print(f"Saved progress after {stage_name}.")
 
         del model

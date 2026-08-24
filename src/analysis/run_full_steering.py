@@ -1,13 +1,19 @@
 """
-Orchestrates eval_steering_v2.py across all 8 non-M0 training stages
-(M1, M2, M3, M3_direct, M1_alt, M2_alt, M3_alt, M3_direct_alt), quadrants
-A+D, held-out-behavioral split -- the "8-stage steering notebook" referenced
-in CLAUDE.md/README's Next Steps item 1. No such notebook is tracked in
-git (colab_*.ipynb files are gitignored by convention -- see CLAUDE.md
-"Repo structure"), so this reconstructs the same loop pattern the Colab
-analysis notebook uses for causal ablation (STAGES_FOR_CAUSAL) as a local,
-resumable, GPU-required CLI script instead, matching the existing
-CPU-only src/reproduce.py's manifest/never-overwrite conventions.
+Orchestrates eval_steering_v2.py across the DPO-trained stages, quadrants
+A+D, held-out-behavioral split -- the "8-stage steering notebook"
+referenced in CLAUDE.md/README's Next Steps item 1. That "8-stage" framing
+is now superseded: `notebooks/colab_unified_analysis.ipynb` (tracked in
+git -- an earlier version of this docstring wrongly claimed otherwise,
+should have just run `git ls-files` instead of trusting an out-of-date
+CLAUDE.md prose claim) settled on running causal ablation/steering against
+only the 4 stages that actually have DPO training to test
+(`STAGES_FOR_CAUSAL` in that notebook's Component 5/5b) -- M1/M2/M1_alt/
+M2_alt are SFT-only, there's no DPO effect for steering the refusal
+direction to causally test on them. DEFAULT_STAGES below mirrors that
+notebook's STAGES_FOR_CAUSAL constant by hand (no shared import -- see the
+module-level import-surface note below); `--stages` still accepts any of
+the 8 non-M0 stages if you deliberately want one of the SFT-only ones
+anyway.
 
 Deliberately has NO torch/transformers/peft import at module level (unlike
 eval_steering_v2.py itself) -- this file only shells out to
@@ -37,7 +43,7 @@ expensive GPU steering pass happens once, not twice" concern):
 
 Usage:
     python -m src.analysis.run_full_steering --dry-run          # plan only
-    python -m src.analysis.run_full_steering                    # real run
+    python -m src.analysis.run_full_steering                    # real run, DEFAULT_STAGES
     python -m src.analysis.run_full_steering --stages M3 M3_alt # subset
     python -m src.analysis.run_full_steering --force             # rerun stages whose output already exists
 """
@@ -49,10 +55,17 @@ from pathlib import Path
 
 # Duplicated from src.training.model.STAGE_ADAPTER_CHAINS on purpose (that
 # module imports peft/transformers at load time) -- keep in sync by hand if
-# a stage is ever added/removed there. M0 excluded: it has no DPO/SFT-safety
-# training yet, steering it isn't part of the sufficiency test (Finding 4
-# only ever covered post-M0 stages).
+# a stage is ever added/removed there. M0 excluded from ALL_STAGES: it has
+# no DPO/SFT-safety training, steering it isn't part of the sufficiency
+# test (Finding 4 only ever covered post-M0 stages).
 ALL_STAGES = ["M1", "M2", "M3", "M3_direct", "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt"]
+
+# The 4 stages that actually have DPO training for a steering intervention
+# to causally test -- mirrors notebooks/colab_unified_analysis.ipynb's
+# STAGES_FOR_CAUSAL by hand (that constant lives in a notebook cell, not an
+# importable module). This is what --stages defaults to; ALL_STAGES above
+# is still the full valid choice set if you want an SFT-only stage anyway.
+DEFAULT_STAGES = ["M3", "M3_direct", "M3_alt", "M3_direct_alt"]
 
 DEFAULT_LAYERS = [24]
 DEFAULT_ALPHA_SOURCE = "quadrant_a_projection"
@@ -256,8 +269,10 @@ def write_manifest(results, args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--stages", nargs="+", default=ALL_STAGES, choices=ALL_STAGES,
-                         help=f"Subset of stages to run (default: all 8 -- {ALL_STAGES})")
+    parser.add_argument("--stages", nargs="+", default=DEFAULT_STAGES, choices=ALL_STAGES,
+                         help=f"Stages to run (default: the 4 DPO-trained stages -- {DEFAULT_STAGES}. "
+                              f"Any of the 8 non-M0 stages ({ALL_STAGES}) is a valid choice if you "
+                              "deliberately want an SFT-only stage anyway.)")
     parser.add_argument("--layers", type=int, nargs="+", default=DEFAULT_LAYERS)
     parser.add_argument("--alpha-source", default=DEFAULT_ALPHA_SOURCE,
                          choices=["quadrant_a_projection", "fixed"])

@@ -67,14 +67,23 @@ over.
 Before trusting any of that, I checked whether a pre-existing dataset
 could just replace this whole exercise — genuinely checked, not just
 asserted: BELLS-Operational (CeSIA), AHB, CASE-Bench, and OpenSafeIntent
-were all investigated (see CLAUDE.md for specifics). None fit — each maps
-cleanly to a *different* construct (gated access with the wrong
-ground-truth philosophy, stylistic/literary obfuscation, context-dependent
-safety, or dual-use matched variants with their own contamination risk).
-StrongREJECT (Souly et al. 2024) remains the right source for the
-underlying harmful intent; the work that needed doing was rigor around
-*how* it gets reworded and documented, not finding a shortcut around
-authorship entirely. `src/data_pipeline/quadrant_c_pipeline.py` implements
+were all investigated (see CLAUDE.md for specifics). None fit as a
+*replacement* for C1 — each maps cleanly to a *different* construct
+(gated access with the wrong ground-truth philosophy, stylistic/literary
+obfuscation, context-dependent safety, or dual-use matched variants with
+their own contamination risk). StrongREJECT (Souly et al. 2024) remains
+the right source for the underlying harmful intent; the work that needed
+doing was rigor around *how* it gets reworded and documented, not finding
+a shortcut around authorship entirely.
+
+That said, AHB, CASE-Bench, and OpenSafeIntent's *own* constructs turned
+out to be worth having as secondary, exploratory data once real access
+was available — `secondary_c2_stylistic.jsonl` (36 records),
+`secondary_c3_contextual.jsonl` (78 records), and
+`secondary_c4_dual_use.jsonl` (24 records) respectively, all contamination-
+checked against the same training files as C1, none eligible for
+promotion into C1 itself. See CLAUDE.md's "Quadrant C secondary sets"
+entry for the full build/exclusion/contamination detail. `src/data_pipeline/quadrant_c_pipeline.py` implements
 that rigor: every candidate's source text is verified verbatim against the
 live StrongREJECT source before use (caught a real bug this way — 6/20
 candidates in an earlier pass turned out to store truncated previews

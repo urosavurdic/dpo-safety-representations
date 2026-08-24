@@ -97,6 +97,33 @@ def pick_most_informative_layer(layer_results):
     return max(layer_results, key=lambda r: r["quadrant_c_flagged_unsafe_frac"])
 
 
+def probe_metadata_is_fresh(stage, out_dir):
+    """True only if results/probes/{stage}_metadata.json (a snapshot of the
+    activation metadata this probe was actually trained on, saved alongside
+    the probe results) matches the CURRENT results/activations/{stage}_
+    metadata.json exactly -- same bug class as eval_behavioral.py and
+    eval_extract_activations.py: `if result_path.exists(): skip` alone
+    treats a probe trained on an old, smaller eval set as "done" forever,
+    even after controlled_eval.jsonl grows. The comment this replaced
+    ("adding a new stage must not re-run prior stages") was solving a real,
+    different problem (don't waste GPU-adjacent CV-training time just
+    because STAGES grew) but didn't account for the eval SET itself
+    changing size/content, which invalidates every stage's probe, not just
+    new ones. eval_extract_activations.py's own metadata is already
+    freshness-guaranteed by its own fix, so it's used here as the ground
+    truth to snapshot/compare against, rather than re-deriving anything
+    from controlled_eval.jsonl directly."""
+    meta_snapshot_path = out_dir / f"{stage}_metadata.json"
+    live_metadata_path = ACT_DIR / f"{stage}_metadata.json"
+    if not meta_snapshot_path.exists() or not live_metadata_path.exists():
+        return False
+    with open(meta_snapshot_path, encoding="utf-8") as f:
+        saved = json.load(f)
+    with open(live_metadata_path, encoding="utf-8") as f:
+        live = json.load(f)
+    return saved == live
+
+
 def main():
     out_dir = Path("results/probes")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -104,17 +131,21 @@ def main():
     all_results = {}
     for stage in STAGES:
         result_path = out_dir / f"{stage}_probe_results.json"
-        if result_path.exists():
+        if result_path.exists() and probe_metadata_is_fresh(stage, out_dir):
             # Adding a new stage to STAGES must not re-run/overwrite prior
             # stages' already-finalized probe results (results/probes/*.json
-            # - see HANDOFF.md "Status: Phase 4 complete"). Reload instead.
-            print(f"\n=== {stage}: already computed, loading from disk ===")
+            # - see HANDOFF.md "Status: Phase 4 complete"). Reload instead --
+            # but only once we've confirmed it was trained on the CURRENT
+            # eval set, not silently reused from a stale one.
+            print(f"\n=== {stage}: already computed, fresh, loading from disk ===")
             with open(result_path, encoding="utf-8") as f:
                 layer_results = json.load(f)
             all_results[stage] = layer_results
             best = pick_most_informative_layer(layer_results)
             print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
             continue
+        if result_path.exists():
+            print(f"\n=== {stage}: existing probe result is STALE (predates the current eval set) -- re-running ===")
         if not activations_available(stage):
             # Alt branch trains/pushes independently across sessions - not
             # every stage in STAGES is necessarily ready yet.
@@ -125,6 +156,12 @@ def main():
         all_results[stage] = layer_results
         with open(result_path, "w", encoding="utf-8") as f:
             json.dump(layer_results, f, ensure_ascii=False, indent=2)
+        # Snapshot the activation metadata this probe was JUST trained on,
+        # so a future run can tell whether the eval set has changed since.
+        with open(ACT_DIR / f"{stage}_metadata.json", encoding="utf-8") as f:
+            live_metadata = json.load(f)
+        with open(out_dir / f"{stage}_metadata.json", "w", encoding="utf-8") as f:
+            json.dump(live_metadata, f, ensure_ascii=False, indent=2)
         best = pick_most_informative_layer(layer_results)
         print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
         print(f"    Held-out B -> unsafe: {best['holdout_b_flagged_unsafe_frac']:.3f}")
