@@ -4,6 +4,7 @@ import pytest
 
 from src.analysis.run_full_steering import (
     ALL_STAGES,
+    DEFAULT_STAGES,
     activation_metadata_matches,
     build_command,
     check_split_assigned,
@@ -239,3 +240,11 @@ def test_run_plan_invokes_subprocess_only_for_run_items(monkeypatch):
 def test_all_stages_excludes_m0():
     assert "M0" not in ALL_STAGES
     assert len(ALL_STAGES) == 8
+
+
+def test_default_stages_matches_the_4_dpo_endpoints_notebook_uses():
+    # Mirrors notebooks/colab_unified_analysis.ipynb's STAGES_FOR_CAUSAL by
+    # hand -- pin it so the two don't silently drift apart again.
+    assert DEFAULT_STAGES == ["M3", "M3_direct", "M3_alt", "M3_direct_alt"]
+    assert set(DEFAULT_STAGES).issubset(set(ALL_STAGES))
+    assert "M1" not in DEFAULT_STAGES and "M2" not in DEFAULT_STAGES  # SFT-only, excluded on purpose

@@ -17,11 +17,11 @@
   "evasion_dominant_count": 5,
   "needs_review_count": 5,
   "eligible_c1_count": 15,
-  "sources_investigated_not_fetched": {
-    "AHB (icaro-lab/ahb)": "HF-gated; maps to stylistic_displacement (C2), not C1",
-    "CASE-Bench (BriansIDP/CASEBench)": "maps to contextual_safety (C3), not C1",
-    "OpenSafeIntent": "PKU-SafeRLHF-seeded, contamination risk; maps to dual_use_intent_shift (C4)",
-    "MLCommons AILuminate": "HF-gated; AHB's own upstream source"
+  "sources_investigated_for_c1_and_rejected": {
+    "AHB (icaro-lab/ahb)": "maps to stylistic_displacement (C2), not C1 - now built, see secondary_c2_stylistic below",
+    "CASE-Bench (BriansIDP/CASEBench)": "maps to contextual_safety (C3), not C1 - now built, see secondary_c3_contextual below",
+    "OpenSafeIntent": "PKU-SafeRLHF-seeded, contamination risk; maps to dual_use_intent_shift (C4) not C1 - now built, see secondary_c4_dual_use below",
+    "MLCommons AILuminate": "HF-gated; AHB's own upstream source - not directly fetched or used as its own source anywhere in this project"
   },
   "secondary_c2_stylistic": {
     "status": "built",

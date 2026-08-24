@@ -560,9 +560,11 @@ rigor around it, not the source itself.
 protocol's schema: `candidate_records.jsonl`, `primary_c1_candidates.jsonl`,
 `secondary_c5_evasion.jsonl`, `review_queue.jsonl`, `summary.json` are
 populated (from StrongREJECT, the only fetchable source); `secondary_c2/c3/c4`
-and `restricted_or_unusable` are created empty with the reason noted in
-`summary.json`, since populating them needs HF access to AHB/CASE-Bench/
-OpenSafeIntent this environment doesn't have.
+and `restricted_or_unusable` were created empty at the time, with the reason
+noted in `summary.json`, since populating them needed HF access to
+AHB/CASE-Bench/OpenSafeIntent this environment didn't have then. **Update:
+all three are now built - see "Quadrant C secondary sets: C2/C3/C4 built"
+below.**
 
 Candidate text carries forward the 20 already-verified rewordings from the
 earlier `QUADRANT_C_DRAFT_CANDIDATES` batch (checked against
@@ -594,17 +596,79 @@ pipeline's `surface_cue_level` classifier - it wasn't dead code, just
 needed a better home.
 
 **Still needed, in order**: (1) run `build_eval_set.py` again with the
-Dolly fix, re-verify leakage is 0/0. (2) Run `quadrant_c_pipeline.py`
-locally (needs sentence-transformers/torch, which this environment
-couldn't sustain alongside everything else - disk space, not a code
-issue) to get real contamination-check numbers instead of the "unknown"
-placeholders used here. (3) Human review of `review_queue.jsonl` and
-`primary_c1_candidates.jsonl` - promote approved items into
-`QUADRANT_C_PROMPTS`, record who/when. (4) Only then expand toward 100+
-by drafting more candidates through the same pipeline, or by pursuing
-AHB/CASE-Bench access for the secondary C2-C4 sets if that's judged worth
-the review protocol says AHB/CASE-Bench aren't needed for the paper's core
-claim.
+Dolly fix, re-verify leakage is 0/0. (2) ~~Run `quadrant_c_pipeline.py`
+locally... to get real contamination-check numbers instead of the "unknown"
+placeholders used here.~~ **Done for C2/C3/C4 - see below.** (3) Human
+review of `review_queue.jsonl` and `primary_c1_candidates.jsonl` - promote
+approved items into `QUADRANT_C_PROMPTS`, record who/when. This is still
+outstanding and separate from the C2/C3/C4 review below - it's about C1's
+own 5 evasion-dominant/unclear StrongREJECT candidates, untouched by this
+update. (4) ~~Only then expand toward 100+... or by pursuing AHB/CASE-Bench
+access for the secondary C2-C4 sets~~ **Access pursued and used - see
+below. C1 itself is separately already at 104 (see the scaling session
+elsewhere in this file) and is not affected by any of this.**
+
+### Quadrant C secondary sets: C2/C3/C4 built (HF access obtained)
+
+With real HuggingFace access (`icaro-lab/ahb` locally; CASE-Bench and
+OpenSafeIntent are GitHub-hosted and needed no HF access at all - only
+CASE-Bench needed the SORRY-Bench-derived access gate, attested by the
+project owner, not independently verifiable by this pipeline), all three
+secondary sets described as empty above are now populated:
+
+- **`secondary_c2_stylistic.jsonl`** (AHB, `stylistic_displacement`): 36
+  records, 6 per reformulation method (`adversarial_hermeneutic`,
+  `adversarial_poetry`, `adversarial_scholasticism`,
+  `adversarial_semiosphere`, `adversarial_stream`, `adversarial_tale`).
+  AHB's schema turned out to use a field called `method`, not `style` as
+  first assumed - the build script auto-detects fields from the live
+  schema and prints them, so this was caught immediately rather than
+  silently mismatched. **Hard exclusion applied regardless of source
+  legitimacy**: AILuminate hazard codes `cse` and `src` (552 rows
+  excluded) - this is a categorical exclusion, not a scoring threshold,
+  and isn't something to revisit by loosening the filter.
+- **`secondary_c3_contextual.jsonl`** (CASE-Bench, `contextual_safety`):
+  78 records, up to 2 matched safe/unsafe-context pairs per category
+  across 39 of 45 categories. 6 categories excluded entirely (child-related
+  crimes, self-harm, and four sexual/explicit-content categories),
+  independent of the SORRY-Bench access question.
+- **`secondary_c4_dual_use.jsonl`** (OpenSafeIntent, `dual_use_intent_shift`):
+  24 records, up to 4 benign/dual-use/malicious triplets per domain across
+  6 of 7 domains. `Hazardous Agent Use` excluded entirely after a sampled
+  row described a specific infrastructure-contamination attack scenario.
+
+**Contamination checking, in two passes** (the build environment couldn't
+reach HuggingFace, so the embedding-based check had to be deferred):
+1. Exact-match check (pure string comparison, no model needed) ran
+   immediately against `sft_helpful.jsonl`, `sft_helpful_alt.jsonl`,
+   `sft_safety.jsonl`, `dpo_pairs.jsonl` at build time - zero hits.
+2. Near-duplicate check (`sentence-transformers/all-MiniLM-L6-v2`,
+   cosine >= 0.9) run afterward, locally, via
+   `src/diagnostics/complete_neardup_check.py` - zero hits across all
+   138 C2+C3+C4 records against all four training files.
+
+**A real performance bug was caught and fixed mid-session**: the first
+version of `complete_neardup_check.py` re-embedded the entire ~20,000-row
+training corpus from scratch for every single eval record (144 full
+passes for C2's 36 records alone, instead of 4). Looked like a hang after
+20 minutes; wasn't one, just quadratically wasteful. Fixed by embedding
+each training file exactly once up front and reusing those embeddings for
+every record - runtime dropped to ~11 seconds total for all three files
+combined, with visible per-record progress added so a slow run is never
+ambiguous with a stuck one again.
+
+Per protocol, none of C2/C3/C4 are eligible for promotion into C1 or the
+main `QUADRANT_C_RECORDS` set - they're documented, citable, real
+secondary data for stylistic/contextual/dual-use analysis, not a backdoor
+into the primary quadrant. Their `agent_pre_screen` field is always either
+`secondary_only` or `exclude`, never `eligible_candidate` - there's no
+promotion path encoded in these files at all.
+
+**Still needed for C2/C3/C4 specifically**: human review of the actual
+record content (the project owner's own plan, not yet done as of this
+entry) - the category/domain/hazard exclusions above were applied
+programmatically and are a floor, not a substitute for reading the
+records.
 
 **Update - real run of the fix above**: Dolly leakage went 31 exact/35
 near -> 0 exact/2 near, confirming the exclude-the-actual-training-file
