@@ -1,0 +1,132 @@
+{
+  "base_commit": "e0e2317a52e89b0d614b99152a9ca71758baf489",
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "eval_set": {
+    "path": "data/processed/controlled_eval.jsonl",
+    "sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+    "byte_size": 126961,
+    "line_count": 654,
+    "schema": [
+      "prompt",
+      "quadrant",
+      "source",
+      "category",
+      "split"
+    ],
+    "counts_by_quadrant": {
+      "A": 150,
+      "B": 250,
+      "C": 104,
+      "D": 150
+    },
+    "counts_by_source": {
+      "HarmBench": 150,
+      "XSTest": 250,
+      "Alpaca": 50,
+      "Dolly-15k": 50,
+      "OASST1": 50,
+      "StrongREJECT (Souly et al. 2024), reduced-cue rewrite via quadrant_c_pipeline.py": 104
+    },
+    "split_counts": {
+      "direction_estimation": 240,
+      "held_out_behavioral": 60,
+      "null": 354
+    },
+    "c_construction_field_present": false,
+    "record_id_field_present": false,
+    "pair_id_field_present": false,
+    "source_prompt_field_present": false
+  },
+  "c_paired_provenance": {
+    "status": "PARTIALLY_RECONSTRUCTED",
+    "live_c_rows": 104,
+    "c_rows_in_old_candidate_records_jsonl": 15,
+    "c_rows_in_candidates_python_list_only": 89,
+    "candidates_list_total": 155,
+    "eligible_not_evasion": 112,
+    "evasion_dominant_secondary_only": 43,
+    "candidate_records_v2_path": "data/quadrant_c_pipeline/candidate_records_v2.jsonl",
+    "candidate_records_v2_sha256": "bb2e0a579b9b3f6c17098415dd07cb03e5c3011e58cb1dd658800bba53e5c527",
+    "review_evidence_status": "missing_or_list_level_only",
+    "per_record_review_status": "not_present",
+    "list_level_review_note": "Reviewer: project owner (via conversation). Date: 2026-08-23.",
+    "all_104_exact_live_candidate_match": true,
+    "source_sha256_available": false,
+    "source_sha256_reason": "StrongREJECT CSV fetched at build time; not stored locally"
+  },
+  "activation_artifacts": {
+    "metadata_files_found": 9,
+    "npy_files_found": 0,
+    "all_metadata_row_count": 370,
+    "current_eval_row_count": 654,
+    "freshness_status": "STALE",
+    "eval_hash_in_metadata": false,
+    "note": "All 9 metadata files are identical (370-row era). No .npy files present. GPU rerun required."
+  },
+  "behavioral_results": {
+    "path": "results/behavioral_eval/raw.json",
+    "stages": [
+      "M0",
+      "M1",
+      "M2",
+      "M3",
+      "M3_direct"
+    ],
+    "rows_per_stage": 370,
+    "freshness_status": "STALE_370_ROW_ERA",
+    "eval_hash_recorded": false
+  },
+  "refusal_direction_artifacts": {
+    "cosine_similarity_json": "results/refusal_direction/cosine_similarity.json",
+    "quadrant_projections_json": "results/refusal_direction/quadrant_projections.json",
+    "direction_npy_files": 0,
+    "eval_hash_recorded": false,
+    "freshness_status": "UNVERIFIABLE"
+  },
+  "schema_issues": {
+    "model_stage_vs_stage_mismatch": "narrow ablation uses model_stage; wide uses stage",
+    "c_construction_missing_from_eval": true,
+    "record_id_missing_from_eval": true,
+    "no_eval_hash_in_any_artifact": true
+  },
+  "audit_results_clean": {
+    "A_exact_dupes": 0,
+    "A_norm_dupes": 0,
+    "A_training_contamination": 0,
+    "B_exact_dupes": 0,
+    "B_norm_dupes": 0,
+    "B_training_contamination": 0,
+    "D_exact_dupes": 0,
+    "D_norm_dupes": 0,
+    "D_training_contamination": 0
+  },
+  "fightin_words_summary": {
+    "vocab_size": 2199,
+    "H_tokens": 4334,
+    "D_tokens": 2421,
+    "live_c_zero_hits_on_risk_lexicon": "104/104",
+    "live_c_Q10_count": 11,
+    "live_c_Q25_count": 28,
+    "live_c_Q40_count": 43,
+    "positive_paired_diff": "34/104",
+    "note": "Fightin' Words H vs D score. H = A\u222aB (operational ref). Positive paired_diff = candidate less H-like than source. Operational screening metric only \u2014 not semantic truth."
+  },
+  "artifacts_created_this_session": {
+    "logs/benchmark_gate_config.json": "1ac73585f08a4d685996c96eecafdbfcc74478ab07f7f762a4a9de2b2568b743",
+    "logs/direction_split_manifest.json": "ce139fe00382a7ab8a29fd75a421c8459b02821648be38166752c894a4910388",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl": "bb2e0a579b9b3f6c17098415dd07cb03e5c3011e58cb1dd658800bba53e5c527",
+    "data/review/c_review_queue.csv": "9e0f82592bb6e87953b05bcb65177a6a7651152e087edef43c2429b5cbe1ef01",
+    "data/review/d_spot_check.csv": "55c5dd6cfa1373f754ad9147aafcb09d719251e6b551cd549bf2b325e08e5e18"
+  },
+  "c_source_authored_arm": {
+    "status": "NOT_BUILT",
+    "reason": "HarmBench/JailbreakBench CSV files not locally available; network-only access. Arm declared unavailable for this session. Mechanistic and C-paired work may proceed; C-source-authored conclusions not reportable."
+  },
+  "blockers": [
+    "Researcher must review data/review/c_review_queue.csv (104 rows, all pending)",
+    "All activation metadata stale (370-row era); GPU rerun required before mechanistic analysis",
+    "No .npy activation arrays present in results/activations/",
+    "C-source-authored arm not built (HarmBench CSV unavailable in sandbox)",
+    "model_stage vs stage schema mismatch in causal ablation raw files \u2014 needs fix in summarization code"
+  ]
+}

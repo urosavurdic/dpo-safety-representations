@@ -1,0 +1,194 @@
+{
+  "eval_set": "data/processed/controlled_eval.jsonl",
+  "eval_set_sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+  "total_rows": 654,
+  "quadrant_counts": {
+    "A": 150,
+    "B": 250,
+    "C": 104,
+    "D": 150
+  },
+  "training_files_checked": {
+    "sft_helpful": "found",
+    "sft_helpful_alt": "found",
+    "sft_safety": "found",
+    "dpo_pairs": "found"
+  },
+  "quadrant_audits": {
+    "A": {
+      "quadrant": "A",
+      "total_rows": 150,
+      "unique_prompts": 150,
+      "unique_normalized_prompts": 150,
+      "exact_duplicates": 0,
+      "normalized_duplicates": 0,
+      "near_duplicate_check": "not_run_model_unavailable",
+      "sources": {
+        "HarmBench": 150
+      },
+      "categories": {
+        "harassment_bullying": 19,
+        "illegal": 57,
+        "cybercrime_intrusion": 40,
+        "misinformation_disinformation": 34
+      },
+      "splits": {
+        "direction_estimation": 120,
+        "held_out_behavioral": 30
+      },
+      "word_length": {
+        "min": 3,
+        "max": 27,
+        "mean": 14.53
+      },
+      "char_length": {
+        "min": 23,
+        "max": 180,
+        "mean": 90.98
+      }
+    },
+    "B": {
+      "quadrant": "B",
+      "total_rows": 250,
+      "unique_prompts": 250,
+      "unique_normalized_prompts": 250,
+      "exact_duplicates": 0,
+      "normalized_duplicates": 0,
+      "near_duplicate_check": "not_run_model_unavailable",
+      "sources": {
+        "XSTest": 250
+      },
+      "categories": {
+        "homonyms": 25,
+        "figurative_language": 25,
+        "safe_targets": 25,
+        "safe_contexts": 25,
+        "definitions": 25,
+        "nons_group_real_discr": 25,
+        "real_group_nons_discr": 25,
+        "historical_events": 25,
+        "privacy_public": 25,
+        "privacy_fictional": 25
+      },
+      "splits": {
+        "null": 250
+      },
+      "word_length": {
+        "min": 3,
+        "max": 16,
+        "mean": 8.37
+      },
+      "char_length": {
+        "min": 12,
+        "max": 79,
+        "mean": 44.35
+      }
+    },
+    "D": {
+      "quadrant": "D",
+      "total_rows": 150,
+      "unique_prompts": 150,
+      "unique_normalized_prompts": 150,
+      "exact_duplicates": 0,
+      "normalized_duplicates": 0,
+      "near_duplicate_check": "not_run_model_unavailable",
+      "sources": {
+        "Alpaca": 50,
+        "Dolly-15k": 50,
+        "OASST1": 50
+      },
+      "categories": {
+        "null": 150
+      },
+      "splits": {
+        "held_out_behavioral": 30,
+        "direction_estimation": 120
+      },
+      "word_length": {
+        "min": 3,
+        "max": 98,
+        "mean": 16.06
+      },
+      "char_length": {
+        "min": 14,
+        "max": 560,
+        "mean": 91.24
+      }
+    }
+  },
+  "contamination": {
+    "A": {
+      "sft_helpful": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_helpful_alt": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_safety": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "dpo_pairs": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      }
+    },
+    "B": {
+      "sft_helpful": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_helpful_alt": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_safety": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "dpo_pairs": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      }
+    },
+    "D": {
+      "sft_helpful": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_helpful_alt": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "sft_safety": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      },
+      "dpo_pairs": {
+        "status": "checked",
+        "hits": 0,
+        "hit_prompts": []
+      }
+    }
+  },
+  "d_spot_check": {
+    "path": "data/review/d_spot_check.csv",
+    "sha256": "55c5dd6cfa1373f754ad9147aafcb09d719251e6b551cd549bf2b325e08e5e18",
+    "rows": 50,
+    "seed": 271828,
+    "description": "Manual spot-check only. Not proof that D is benign."
+  }
+}

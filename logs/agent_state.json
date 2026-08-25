@@ -1,0 +1,77 @@
+{
+  "task": "c-quadrant-end-to-end",
+  "base_commit": "e0e2317a52e89b0d614b99152a9ca71758baf489",
+  "code_commit": "e0e2317a52e89b0d614b99152a9ca71758baf489",
+  "handoff_commit": null,
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "status": "needs_human_review",
+  "files_changed": [
+    "src/corpus_discrimination.py",
+    "src/audit_existing_quadrants.py",
+    "src/finalize_benchmark.py",
+    "src/validate_benchmark_v2.py",
+    "rerun_mechanistic_v2.sh",
+    "logs/benchmark_gate_config.json",
+    "logs/direction_split_manifest.json",
+    "logs/queue_scoring_summary.json",
+    "logs/audit_quadrants_report.json",
+    "logs/reconciliation_report.json",
+    "logs/reconciliation_report.md",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl",
+    "data/review/c_review_queue.csv",
+    "data/review/d_spot_check.csv"
+  ],
+  "commands_run": [
+    "python -m src.audit_existing_quadrants --eval-set data/processed/controlled_eval.jsonl --out-dir logs",
+    "# (inline) scored all 155 candidates with Fightin' Words",
+    "# (inline) generated c_review_queue.csv",
+    "# (inline) generated direction_split_manifest.json",
+    "# (inline) generated candidate_records_v2.jsonl"
+  ],
+  "tests_run": [],
+  "tests_passed": [],
+  "tests_failed": [],
+  "gpu_work_run": false,
+  "datasets_downloaded": [],
+  "sources_omitted": [
+    "HarmBench CSV (network unavailable in sandbox \u2014 C-source-authored arm not built)",
+    "JailbreakBench (not attempted)"
+  ],
+  "artifacts_created": [
+    "logs/benchmark_gate_config.json",
+    "logs/direction_split_manifest.json",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl",
+    "data/review/c_review_queue.csv",
+    "data/review/d_spot_check.csv",
+    "src/corpus_discrimination.py",
+    "src/audit_existing_quadrants.py",
+    "src/finalize_benchmark.py",
+    "src/validate_benchmark_v2.py",
+    "rerun_mechanistic_v2.sh"
+  ],
+  "artifact_hashes": {
+    "logs/benchmark_gate_config.json": "1ac73585f08a4d685996c96eecafdbfcc74478ab07f7f762a4a9de2b2568b743",
+    "logs/direction_split_manifest.json": "ce139fe00382a7ab8a29fd75a421c8459b02821648be38166752c894a4910388",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl": "bb2e0a579b9b3f6c17098415dd07cb03e5c3011e58cb1dd658800bba53e5c527",
+    "data/review/c_review_queue.csv": "9e0f82592bb6e87953b05bcb65177a6a7651152e087edef43c2429b5cbe1ef01",
+    "data/review/d_spot_check.csv": "55c5dd6cfa1373f754ad9147aafcb09d719251e6b551cd549bf2b325e08e5e18"
+  },
+  "benchmark_path": null,
+  "benchmark_sha256": null,
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "ce139fe00382a7ab8a29fd75a421c8459b02821648be38166752c894a4910388",
+  "human_actions_required": [
+    "1. REVIEW data/review/c_review_queue.csv: set review_status to 'accept' or 'reject', fill review_notes and preservation fields. Do NOT edit any prompt text.",
+    "2. After review, run: python -m src.finalize_benchmark --review-csv data/review/c_review_queue.csv --gate-config logs/benchmark_gate_config.json",
+    "3. Run: python -m src.validate_benchmark_v2 --benchmark <frozen-path> --review-csv data/review/c_review_queue.csv --gate-config logs/benchmark_gate_config.json --split-manifest logs/direction_split_manifest.json",
+    "4. Commit reviewed CSV + frozen benchmark to this branch, then run GPU experiments in Colab."
+  ],
+  "unresolved_issues": [
+    "C-source-authored arm: not built (HarmBench/JailbreakBench CSV unavailable in sandbox). Declare unavailable or acquire locally.",
+    "Activation artifacts: all stale (370-row era). GPU rerun required.",
+    "model_stage vs stage mismatch in causal ablation raw files.",
+    "StrongREJECT source CSV SHA-256 not recorded (network-fetched at build time).",
+    "Near-duplicate check: not run (embedding model unavailable in sandbox). Status: unknown."
+  ],
+  "next_action": "Researcher reviews data/review/c_review_queue.csv (104 rows), then resumes from logs/RESUME_PROMPT.md"
+}
