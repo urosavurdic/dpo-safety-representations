@@ -1,0 +1,65 @@
+{
+  "technical_benchmark_status": "FAIL",
+  "reduced_cue_evidence_status": "INCONCLUSIVE",
+  "wording_only_claim_status": "INCONCLUSIVE",
+  "benchmark_path": "data\\frozen_v2\\benchmark_v2_20260825T223843Z.jsonl",
+  "benchmark_sha256": "6ce608e5205d1afcb770b3f157f900fb7eb47282c84a9d39d2611346b6cc33fd",
+  "counts": {
+    "A": 150,
+    "B": 250,
+    "D": 150,
+    "C": 104
+  },
+  "c_counts_by_construction": {
+    "c_paired": 104
+  },
+  "schema_integrity_pass": true,
+  "prompt_integrity_pass": true,
+  "c_review_pass": true,
+  "benchmark_hash_pass": true,
+  "artifact_freshness_pass": false,
+  "surface_separation_pass": false,
+  "length_confound_pass": false,
+  "category_confound_pass": null,
+  "prompt_function_confound_pass": null,
+  "source_confound_pass": false,
+  "stale_activation_files": [
+    "M0_metadata.json: 370 rows (benchmark has 654)",
+    "M1_alt_metadata.json: 370 rows (benchmark has 654)",
+    "M1_metadata.json: 370 rows (benchmark has 654)",
+    "M2_alt_metadata.json: 370 rows (benchmark has 654)",
+    "M2_metadata.json: 370 rows (benchmark has 654)",
+    "M3_alt_metadata.json: 370 rows (benchmark has 654)",
+    "M3_direct_alt_metadata.json: 370 rows (benchmark has 654)",
+    "M3_direct_metadata.json: 370 rows (benchmark has 654)",
+    "M3_metadata.json: 370 rows (benchmark has 654)"
+  ],
+  "paired_diagnostics": {
+    "n_pairs": 104,
+    "n_positive_diff": 34,
+    "mean_diff": -9.3965,
+    "ci_95_lo": -12.8489,
+    "ci_95_hi": -5.842,
+    "standardized_mean_diff": -0.518,
+    "resampling_unit": "matched_pair",
+    "n_bootstrap_replicates": 1000,
+    "note": "Positive diff = candidate has lower Fightin' Words score than source. Not a causal effect of wording alone (source-confounded)."
+  },
+  "precision_band": "desirable_target",
+  "warnings": [
+    "Stale activation metadata (9 files). GPU rerun required before mechanistic analysis.",
+    "Length confound: |d|=0.704 between A and C-paired word counts. Source-confounded comparison \u2014 label accordingly.",
+    "source_cue_effect_status=not_identified: A and C-paired come from entirely different datasets (HarmBench vs StrongREJECT). Source and label are nearly perfectly aligned. A-versus-C differences cannot be attributed to wording alone."
+  ],
+  "inputs": {
+    "benchmark": "data\\frozen_v2\\benchmark_v2_20260825T223843Z.jsonl",
+    "benchmark_sha256": "6ce608e5205d1afcb770b3f157f900fb7eb47282c84a9d39d2611346b6cc33fd",
+    "review_csv": "data\\review\\c_review_queue.csv",
+    "review_csv_sha256": "541a8ecbbd6eec2aed6147867972f86d8912d712349173fffb090d1e2329bdf1",
+    "gate_config": "logs\\benchmark_gate_config.json",
+    "gate_config_sha256": "b6a1cb471653478a09f9d7c3816b471d4e1d6cd96fc0d484cfdd552e310ad7a2",
+    "split_manifest": "logs\\direction_split_manifest.json",
+    "split_manifest_sha256": "67942e49449b7ae71e493cc17498fdfc7541da9bab44653c55393e9575a71eaf"
+  },
+  "generated_at_utc": "2026-08-25T22:50:59.694421+00:00"
+}

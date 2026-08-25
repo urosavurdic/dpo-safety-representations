@@ -58,7 +58,7 @@ def main():
     gate_path = Path(args.gate_config)
     if not gate_path.exists():
         abort(f"Gate config not found: {gate_path}")
-    gate = json.loads(gate_path.read_text())
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
     gate_sha = sha256file(str(gate_path))
 
     # ── Load review CSV ────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ def main():
     # ── Cross-check scored_prompt vs provenance ────────────────────────────────
     prov_path = Path(args.provenance)
     if prov_path.exists():
-        with open(prov_path) as f:
+        with open(prov_path, encoding="utf-8") as f:
             prov_recs = {rec["candidate_id"]: rec for rec in (json.loads(l) for l in f)}
         mismatch = []
         for r in accepted:
@@ -122,7 +122,7 @@ def main():
         abort(f"Eval set not found: {eval_path}")
     eval_sha = sha256file(str(eval_path))
 
-    with open(eval_path) as f:
+    with open(eval_path, encoding="utf-8") as f:
         eval_rows = [json.loads(l) for l in f if l.strip()]
 
     abd_rows = [r for r in eval_rows if r.get("quadrant") in ("A", "B", "D")]
@@ -212,7 +212,7 @@ def main():
     if bench_path.exists():
         abort(f"Benchmark file already exists: {bench_path} (race guard)")
 
-    with open(bench_path, "w") as f:
+    with open(bench_path, "w", encoding="utf-8") as f:
         for row in bench_rows:
             f.write(json.dumps(row) + "\n")
 
@@ -268,12 +268,12 @@ def main():
     }
 
     manifest_path = out_dir / f"benchmark_v2_{ts}.manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2))
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
     # Stable latest pointer
     latest = {"benchmark_path": str(bench_path), "benchmark_sha256": bench_sha}
     latest_path = out_dir / "LATEST_BENCHMARK.json"
-    latest_path.write_text(json.dumps(latest, indent=2))
+    latest_path.write_text(json.dumps(latest, indent=2), encoding="utf-8")
 
     print(f"Manifest: {manifest_path}")
     print(f"Latest pointer: {latest_path}")

@@ -1,0 +1,57 @@
+{
+  "benchmark_path": "data\\frozen_v2\\benchmark_v2_20260825T223843Z.jsonl",
+  "benchmark_sha256": "6ce608e5205d1afcb770b3f157f900fb7eb47282c84a9d39d2611346b6cc33fd",
+  "creation_timestamp_utc": "20260825T223843Z",
+  "git_commit": "c40620b12a5f4f77a96482f0bcef6e0262d7cee4",
+  "counts": {
+    "A": 150,
+    "B": 250,
+    "D": 150,
+    "C": 104
+  },
+  "c_counts_by_construction": {
+    "c_paired": 104
+  },
+  "source_distribution": {
+    "HarmBench": 150,
+    "XSTest": 250,
+    "Alpaca": 50,
+    "Dolly-15k": 50,
+    "OASST1": 50,
+    "StrongREJECT": 104
+  },
+  "category_distribution": {
+    "harassment_bullying": 60,
+    "illegal": 63,
+    "cybercrime_intrusion": 60,
+    "misinformation_disinformation": 71,
+    "homonyms": 25,
+    "figurative_language": 25,
+    "safe_targets": 25,
+    "safe_contexts": 25,
+    "definitions": 25,
+    "nons_group_real_discr": 25,
+    "real_group_nons_discr": 25,
+    "historical_events": 25,
+    "privacy_public": 25,
+    "privacy_fictional": 25,
+    "null": 150
+  },
+  "inputs": {
+    "eval_set": "data\\processed\\controlled_eval.jsonl",
+    "eval_set_sha256": "2430e3185dd800237e1f60eaf8d3015dbaa8d8ee47a191329f34888ae20739e5",
+    "review_csv": "data\\review\\c_review_queue.csv",
+    "review_csv_sha256": "541a8ecbbd6eec2aed6147867972f86d8912d712349173fffb090d1e2329bdf1",
+    "gate_config": "logs\\benchmark_gate_config.json",
+    "gate_config_sha256": "b6a1cb471653478a09f9d7c3816b471d4e1d6cd96fc0d484cfdd552e310ad7a2",
+    "provenance": "data\\quadrant_c_pipeline\\candidate_records_v2.jsonl"
+  },
+  "review_summary": {
+    "total": 104,
+    "accepted": 104,
+    "rejected": 0,
+    "pending": 0
+  },
+  "contamination_status": "checked_exact_zero_near_unknown",
+  "direction_split_status": "existing_fields_preserved"
+}
