@@ -1,0 +1,20 @@
+{
+  "queue_path": "data/review/c_review_queue.csv",
+  "queue_sha256": "9e0f82592bb6e87953b05bcb65177a6a7651152e087edef43c2429b5cbe1ef01",
+  "queue_rows": 104,
+  "fw_vocab_size": 2199,
+  "fw_prior_strength": 0.01,
+  "fw_corpus_h_sha256": "42510627856418066fb0a069e917bd27c869c177e2cc659c92ad15beaf5c5d89",
+  "fw_corpus_d_sha256": "6623cdcab46fb89914b8017bed911ca176e9417f7b17bbd5fead07814d59a2af",
+  "tokenizer_version": "word_tokenize_v1_lower_alphanum_apostrophe",
+  "min_token_recognition_fraction": 0.5,
+  "strata_counts": {
+    "Q10": 11,
+    "Q25": 28,
+    "Q40": 43,
+    "low_coverage": 0
+  },
+  "positive_paired_diff_count": 34,
+  "all_pending": true,
+  "note": "review_status is pending for all rows. Researcher must set to accept/reject."
+}

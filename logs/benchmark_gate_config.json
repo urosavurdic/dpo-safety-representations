@@ -1,0 +1,33 @@
+{
+  "direction_split_seed": 45,
+  "direction_train_fraction": 0.8,
+  "d_review_seed": 271828,
+  "min_token_recognition_fraction": 0.5,
+  "screening_strata": {
+    "Q10": 0.1,
+    "Q25": 0.25,
+    "Q40": 0.4
+  },
+  "default_source_authored_review_stratum": "Q25",
+  "source_authored_review_limit": 150,
+  "max_metric_rank_disagreement": 0.25,
+  "source_confound_policy": "warn_unless_identified",
+  "category_confound_policy": "warn_if_unavailable",
+  "prompt_function_confound_policy": "warn_if_unavailable",
+  "required_gate_fields": [
+    "schema_integrity_pass",
+    "prompt_integrity_pass",
+    "c_review_pass",
+    "benchmark_hash_pass",
+    "artifact_freshness_pass"
+  ],
+  "warning_only_gate_fields": [
+    "source_confound_pass",
+    "category_confound_pass",
+    "prompt_function_confound_pass",
+    "length_confound_pass",
+    "surface_separation_pass",
+    "wording_only_claim_pass"
+  ],
+  "_note": "Created before examining any final validation results. Do not modify after creation."
+}
