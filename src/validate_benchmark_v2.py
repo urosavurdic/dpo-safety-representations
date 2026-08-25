@@ -90,13 +90,13 @@ def main():
     gate_sha   = sha256file(str(gate_path))
     split_sha  = sha256file(str(split_path))
 
-    split_manifest = json.loads(split_path.read_text())
+    split_manifest = json.loads(split_path.read_text(encoding="utf-8"))
 
     # Cross-check benchmark hash against split manifest
     split_bench_sha = split_manifest.get("eval_set_sha256")   # refers to source eval, not frozen bench
 
     # ── Load benchmark ────────────────────────────────────────────────────────
-    with open(bench_path) as f:
+    with open(bench_path, encoding="utf-8") as f:
         bench_rows = [json.loads(l) for l in f if l.strip()]
     print(f"Benchmark rows: {len(bench_rows)}")
 
@@ -154,7 +154,7 @@ def main():
     activation_meta = list(Path("results/activations").glob("*_metadata.json"))
     stale_activations = []
     for am in activation_meta:
-        data = json.loads(am.read_text())
+        data = json.loads(am.read_text(encoding="utf-8"))
         row_count = len(data) if isinstance(data, list) else data.get("row_count", 0)
         if row_count != len(bench_rows):
             stale_activations.append(f"{am.name}: {row_count} rows (benchmark has {len(bench_rows)})")
@@ -175,8 +175,9 @@ def main():
     if c_wc and a_wc:
         length_confound_pass = (d_c is not None and d_c < 0.5)
         if not length_confound_pass:
+            d_c_str = f"{d_c:.3f}" if d_c is not None else "NA"
             warnings.append(
-                f"Length confound: |d|={d_c:.3f if d_c else 'NA'} between A and C-paired word counts. "
+                f"Length confound: |d|={d_c_str} between A and C-paired word counts. "
                 f"Source-confounded comparison — label accordingly."
             )
 
@@ -291,7 +292,7 @@ def main():
     }
 
     status_path = out_dir / "benchmark_validation_status.json"
-    status_path.write_text(json.dumps(status, indent=2))
+    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
     print(f"\nValidation status: {status_path}")
     print(f"technical_benchmark_status: {status['technical_benchmark_status']}")
     print(f"reduced_cue_evidence_status: {status['reduced_cue_evidence_status']}")
@@ -365,7 +366,7 @@ def main():
         md_lines.append(f"- {w}")
 
     md_path = out_dir / "benchmark_validation_report.md"
-    md_path.write_text("\n".join(md_lines) + "\n")
+    md_path.write_text("\n".join(md_lines) + "\n", encoding="utf-8")
     print(f"Markdown report: {md_path}")
 
 
