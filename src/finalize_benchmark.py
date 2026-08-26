@@ -46,6 +46,19 @@ def as_int(value, fallback: int) -> int:
         return fallback
 
 
+def first_value(*candidates):
+    """First meaningfully-present value, treating "" and None alike.
+
+    csv.DictReader yields "" for an absent cell while the provenance JSONL
+    yields None. A benchmark field should be null in both cases rather than
+    an empty string, which a later reader would mistake for a real value.
+    """
+    for value in candidates:
+        if value not in (None, ""):
+            return value
+    return None
+
+
 def git_commit() -> str:
     try:
         return subprocess.check_output(

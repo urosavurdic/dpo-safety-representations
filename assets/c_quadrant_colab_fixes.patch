@@ -1,0 +1,2239 @@
+diff --git a/notebooks/colab_unified_analysis.ipynb b/notebooks/colab_unified_analysis.ipynb
+index c50a3a2..6c6fb80 100644
+--- a/notebooks/colab_unified_analysis.ipynb
++++ b/notebooks/colab_unified_analysis.ipynb
+@@ -4,19 +4,9 @@
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": [
+-    "# Unified post-training analysis notebook \u2014 dpo-safety-representations\n",
++    "# Frozen v2 mechanistic rerun\n",
+     "\n",
+-    "One notebook for the whole analysis pipeline, orchestrating repository scripts (not duplicating\n",
+-    "their logic). Components 1\u20134 (behavioral eval, activation extraction, probes, refusal direction \u2014\n",
+-    "plus direction-stability, bootstrap, bottleneck-layer, and now cross-branch comparison) each\n",
+-    "internally loop over their own fixed `STAGES` list \u2014 now all 9 stages: `M0, M1, M2, M3, M3_direct,\n",
+-    "M1_alt, M2_alt, M3_alt, M3_direct_alt`. All are resumable AND tolerant of partial readiness \u2014 the\n",
+-    "alt branch trains and pushes independently across sessions, so at any given time some stages may\n",
+-    "not exist yet. Missing stages are skipped with a clear message, not a crash; already-computed\n",
+-    "results are never recomputed/overwritten. Component 5 (causal ablation) and 5b (steering) are\n",
+-    "per-stage, GPU-heavy, and genuinely one-run-at-a-time \u2014 pick the stage in the Configuration cell.\n",
+-    "\n",
+-    "Toggle `COMPONENTS_TO_RUN` below to run only what you need (e.g. while debugging one component)."
++    "This notebook uses only the strict benchmark-bound v2 runner. It does not use the legacy mutable-eval-set pipeline.\n"
+    ]
+   },
+   {
+@@ -26,7 +16,7 @@
+    "outputs": [],
+    "source": [
+     "from google.colab import drive\n",
+-    "drive.mount('/content/drive')"
++    "drive.mount('/content/drive')\n"
+    ]
+   },
+   {
+@@ -36,128 +26,34 @@
+    "outputs": [],
+    "source": [
+     "import os\n",
++    "import subprocess\n",
+     "\n",
+-    "REPO_URL = \"https://github.com/urosavurdic/dpo-safety-representations.git\"\n",
+-    "REPO_DIR = \"/content/dpo-safety-representations\"\n",
+-    "BRANCH = \"main\"\n",
+-    "\n",
+-    "if os.path.exists(REPO_DIR):\n",
+-    "    %cd {REPO_DIR}\n",
+-    "    !git fetch origin\n",
+-    "    !git checkout {BRANCH}\n",
+-    "    !git pull origin {BRANCH}\n",
+-    "else:\n",
+-    "    !git clone -b {BRANCH} {REPO_URL} {REPO_DIR}\n",
+-    "    %cd {REPO_DIR}"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "!pip install -q -r requirements.txt",
+-    "\n!pip uninstall -y torchao"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import torch\n",
+-    "print(\"CUDA available:\", torch.cuda.is_available())\n",
+-    "if torch.cuda.is_available():\n",
+-    "    print(\"Device:\", torch.cuda.get_device_name(0))"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "!pytest tests/ -v"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Verify prerequisites\n",
+-    "\n",
+-    "Components 2\u20135b all build on each other (activations need the eval set; refusal direction needs\n",
+-    "activations; causal ablation and steering need a direction). This just tells you up front what's\n",
+-    "missing rather than failing halfway through a long run."
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "required_for = {\n",
+-    "    \"controlled eval set\": \"data/processed/controlled_eval.jsonl\",\n",
+-    "}\n",
+-    "for name, path in required_for.items():\n",
+-    "    print(f\"{'OK' if os.path.exists(path) else 'MISSING':7s} {name}: {path}\")"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Configuration\n",
+-    "\n",
+-    "`COMPONENTS_TO_RUN`: which analysis stages to execute this pass. `STAGE_FOR_CAUSAL`: which single\n",
+-    "model to run causal ablation / steering against (GPU-heavy, one at a time) \u2014 must have activations\n",
+-    "and a refusal direction already (Components 2 and 4)."
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "# ---- EDIT THIS ----\n",
+-    "COMPONENTS_TO_RUN = {\n",
+-    "    \"behavioral\": True,\n",
+-    "    \"activations\": True,\n",
+-    "    \"probes\": True,\n",
+-    "    \"refusal_direction\": True,\n",
+-    "    \"causal_ablation\": True,\n",
+-    "    \"steering\": False,   # GPU-heavy, run separately once you know what layers/alpha you want\n",
+-    "    \"residual_norm_diagnostic\": False,  # GPU-heavy, run separately -- see Component 6 below\n",
+-    "}\n",
+-    "# All 8 stages have adapters on HF (M0 needs none) - Components 1-4 above process ALL of\n",
+-    "# STAGES automatically in one pass, nothing to configure per-stage for those. Components 5/5b\n",
+-    "# below load one full model at a time (GPU constraint) - list every stage you want them to run\n",
+-    "# for and the cells loop over it automatically. The 4 real DPO endpoints are the ones causal\n",
+-    "# ablation/steering actually test (M1/M2/M1_alt/M2_alt are SFT-only, no DPO effect to ablate).\n",
+-    "STAGES_FOR_CAUSAL = [\"M3\", \"M3_direct\", \"M3_alt\", \"M3_direct_alt\"]\n",
++    "REPO_URL = 'https://github.com/urosavurdic/dpo-safety-representations.git'\n",
++    "REPO_DIR = '/content/dpo-safety-representations'\n",
++    "BRANCH = 'agent/c-quadrant-end-to-end-e0e2317a'\n",
++    "PINNED_COMMIT = 'REPLACE_AFTER_PUSH_WITH_COMMIT_SHA'\n",
+     "\n",
+-    "# Which single stage Component 6 (residual-norm collapse diagnostic) targets --\n",
+-    "# doesn't loop over STAGES_FOR_CAUSAL like 5/5b, since it's a per-token,\n",
+-    "# per-layer, per-generation-step diagnostic on a small prompt sample, not a\n",
+-    "# statistical-power run across stages.\n",
+-    "RESIDUAL_NORM_STAGE = \"M3\"\n",
+-    "# --------------------\n",
++    "if not os.path.exists(REPO_DIR):\n",
++    "    subprocess.run([\n",
++    "        'git', 'clone', '-b', BRANCH,\n",
++    "        REPO_URL, REPO_DIR,\n",
++    "    ], check=True)\n",
+     "\n",
+-    "print(\"Will run:\", [k for k, v in COMPONENTS_TO_RUN.items() if v])\n",
+-    "print(\"Causal-ablation/steering target stages:\", STAGES_FOR_CAUSAL)"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 1 \u2014 Behavioral evaluation\n",
++    "os.chdir(REPO_DIR)\n",
++    "subprocess.run(['git', 'fetch', 'origin'], check=True)\n",
++    "subprocess.run([\n",
++    "    'git', 'checkout', BRANCH,\n",
++    "], check=True)\n",
++    "subprocess.run([\n",
++    "    'git', 'pull', '--ff-only', 'origin', BRANCH,\n",
++    "], check=True)\n",
+     "\n",
+-    "All stages, resumable. Wilson 95% CIs applied automatically by `reclassify_behavioral.py`."
++    "commit = subprocess.check_output([\n",
++    "    'git', 'rev-parse', 'HEAD',\n",
++    "], text=True).strip()\n",
++    "assert PINNED_COMMIT != 'REPLACE_AFTER_PUSH_WITH_COMMIT_SHA', 'Set PINNED_COMMIT after pushing the patch.'\n",
++    "assert commit == PINNED_COMMIT, f'Wrong commit: {commit}'\n",
++    "print('Checked out exact commit:', commit)\n"
+    ]
+   },
+   {
+@@ -166,18 +62,10 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "if COMPONENTS_TO_RUN[\"behavioral\"]:\n",
+-    "    !python -m src.analysis.eval_behavioral\n",
+-    "    !python -m src.analysis.reclassify_behavioral"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 2 \u2014 Activation extraction\n",
+-    "\n",
+-    "GPU. All stages, resumable per-stage."
++    "!python -m pip install -q -r requirements.txt\n",
++    "!python -m pip uninstall -y torchao || true\n",
++    "!python -m compileall src\n",
++    "!pytest tests/ -q\n"
+    ]
+   },
+   {
+@@ -186,69 +74,47 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "if COMPONENTS_TO_RUN[\"activations\"]:\n",
+-    "    !python -m src.analysis.eval_extract_activations"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 3 \u2014 Linear probes\n",
+-    "\n",
+-    "CPU, needs Component 2's activations. Held-out flagging rate, not the retired CV-accuracy metric."
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "if COMPONENTS_TO_RUN[\"probes\"]:\n",
+-    "    !python -m src.analysis.eval_probes\n",
+-    "    !python -m src.analysis.summarize_probe_findings"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 4 \u2014 Refusal direction, stability, bootstrap, bottleneck layer, cross-branch\n",
+-    "\n",
+-    "CPU, needs Component 2's activations. `direction_stability`/`bootstrap_direction_stability` read\n",
+-    "`cosine_similarity.json` produced by `eval_refusal_direction` in this same cell, so order matters\n",
+-    "here specifically. `eval_refusal_direction` now also computes `cross_branch` comparisons\n",
+-    "(M1 vs M1_alt, M2 vs M2_alt, M3 vs M3_alt, M3_direct vs M3_direct_alt) whenever both sides of a\n",
+-    "pair have activations \u2014 this is the core answer to \"is this finding dataset-specific.\"\n",
+-    "`summarize_cross_branch` pulls that together with behavioral and probe results into one\n",
+-    "side-by-side comparison, printed and saved to `results/summaries/cross_branch_comparison.json`."
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "if COMPONENTS_TO_RUN[\"refusal_direction\"]:\n",
+-    "    !python -m src.analysis.eval_refusal_direction\n",
+-    "    !python -m src.interpretability.direction_stability\n",
+-    "    !python -m src.interpretability.bootstrap_direction_stability\n",
+-    "    !python -m src.interpretability.bottleneck_layer\n",
+-    "    !python -m src.analysis.summarize_cross_branch"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 5 \u2014 Causal ablation\n",
++    "import json\n",
++    "import subprocess\n",
+     "\n",
+-    "GPU. Runs against `STAGE_FOR_CAUSAL` (narrow layer range 24\u201328, the range Component 4/ablation\n",
+-    "already validated as sufficient \u2014 see `ABLATE_LAYERS` in `eval_causal_ablation.py` if you want the\n",
+-    "wider 14\u201328 range instead). Then Wilson-CI summary, paired McNemar test, and a bootstrap CI on the\n",
+-    "effect size \u2014 all reused, none reimplemented here."
++    "latest = json.load(open(\n",
++    "    'data/frozen_v2/LATEST_BENCHMARK.json'\n",
++    "))\n",
++    "bench = latest['benchmark_path']\n",
++    "\n",
++    "subprocess.run([\n",
++    "    'python', '-m',\n",
++    "    'src.create_direction_split_manifest',\n",
++    "    '--benchmark', bench,\n",
++    "], check=True)\n",
++    "\n",
++    "subprocess.run([\n",
++    "    'python', '-m',\n",
++    "    'src.validate_benchmark_v2',\n",
++    "    '--benchmark', bench,\n",
++    "    '--review-csv',\n",
++    "    'data/review/c_review_queue.csv',\n",
++    "    '--gate-config',\n",
++    "    'logs/benchmark_gate_config.json',\n",
++    "    '--split-manifest',\n",
++    "    'logs/direction_split_manifest.json',\n",
++    "], check=True)\n",
++    "\n",
++    "status = json.load(open(\n",
++    "    'logs/benchmark_validation_status.json'\n",
++    "))\n",
++    "static_fields = [\n",
++    "    'schema_integrity_pass',\n",
++    "    'prompt_integrity_pass',\n",
++    "    'c_review_pass',\n",
++    "    'c_review_mapping_pass',\n",
++    "    'benchmark_hash_pass',\n",
++    "    'split_benchmark_hash_pass',\n",
++    "    'split_hash_pass',\n",
++    "]\n",
++    "assert all(status.get(k) is True for k in static_fields), status\n",
++    "print('Static benchmark checks passed.')\n",
++    "print('Artifact freshness:', status['artifact_freshness_pass'])\n"
+    ]
+   },
+   {
+@@ -257,32 +123,7 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "if COMPONENTS_TO_RUN[\"causal_ablation\"]:\n",
+-    "    for stage in STAGES_FOR_CAUSAL:\n",
+-    "        print(f\"\\n{'='*20} Causal ablation: {stage} {'='*20}\")\n",
+-    "        !python -m src.analysis.eval_causal_ablation --stage {stage}\n",
+-    "\n",
+-    "        suffix = \"narrow\"  # matches the current ABLATE_LAYERS default (24-28)\n",
+-    "        raw_file = (f\"results/raw/causal_ablation_raw_{suffix}.json\" if stage == \"M3\"\n",
+-    "                    else f\"results/raw/causal_ablation_raw_{stage.lower()}_{suffix}.json\")\n",
+-    "\n",
+-    "        !python -m src.analysis.summarize_causal_ablation --file {raw_file} --stage {stage}\n",
+-    "        !python -m src.analysis.mcnemar_causal_ablation --file {raw_file} --conditions {stage}_baseline {stage}_ablated\n",
+-    "        !python -m src.analysis.bootstrap_causal_effect --file {raw_file} --quadrant C --category soft_deflection\n",
+-    "        !python -m src.analysis.bootstrap_causal_effect --file {raw_file} --quadrant A --category refusal"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 5b \u2014 Steering (optional, run separately)\n",
+-    "\n",
+-    "GPU. Uses `eval_steering_v2.py` \u2014 configurable layers/alpha/quadrants, never overwrites a previous\n",
+-    "run. Defaults below: single layer 24 (inside the ablation-validated range, unlike the original\n",
+-    "notebook's L21), natural per-layer alpha, testing both quadrant D (over-refusal) and quadrant A\n",
+-    "(side-effect check) in one run. Edit the flags directly for a different layer/alpha/quadrant\n",
+-    "combination \u2014 see `eval_steering_v2.py`'s docstring for the full option set."
++    "!bash rerun_mechanistic_v2.sh --dry-run --regenerate --with-probes\n"
+    ]
+   },
+   {
+@@ -291,36 +132,9 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "if COMPONENTS_TO_RUN[\"steering\"]:\n",
+-    "    steering_raw_files = []\n",
+-    "    for stage in STAGES_FOR_CAUSAL:\n",
+-    "        print(f\"\\n{'='*20} Steering: {stage} {'='*20}\")\n",
+-    "        !python -m src.analysis.eval_steering_v2 --stage {stage} --layers 24 --quadrants A D\n",
+-    "\n",
+-    "        raw_file = f\"results/raw/steering_v2_{stage}_L24_quadrant_a_projection_coef1_QAD.json\"\n",
+-    "        steering_raw_files.append(raw_file)\n",
+-    "        !python -m src.analysis.summarize_steering --file {raw_file}\n",
+-    "        !python -m src.analysis.mcnemar_steering --file {raw_file} --quadrant A --category refusal\n",
+-    "        !python -m src.analysis.mcnemar_steering --file {raw_file} --quadrant D --category refusal\n",
+-    "\n",
+-    "    print(f\"\\n{'='*20} Finding-4 report across {len(steering_raw_files)} stage(s) {'='*20}\")\n",
+-    "    !python -m src.analysis.build_finding4_report --files {steering_raw_files}\n",
+-    "    # Prints any MATERIAL CHANGE lines against the currently-published README numbers --\n",
+-    "    # update README.md's Finding 4 section by hand from those, don't silently overwrite."
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Component 6 \u2014 Residual-norm collapse diagnostic (optional, run separately)\n",
+-    "\n",
+-    "GPU. Next Steps item 4: tracks the residual-stream norm layer-by-layer, generation-step-by-step,\n",
+-    "under a collapsing multi-layer config (layers 14-28) vs. the non-collapsing single-layer default\n",
+-    "(layer 24) vs. (with `--also-test-fix`) the collapsing config with a norm-preserving projection\n",
+-    "substituted in, to actually test whether magnitude growth is what drives the degenerate collapse\n",
+-    "rather than just avoiding it via a narrower layer range. Small sample (`--n-prompts`, default 8) --\n",
+-    "this is a per-token diagnostic, not a statistical-power run."
++    "RUN_GPU = False\n",
++    "if RUN_GPU:\n",
++    "    !bash rerun_mechanistic_v2.sh --regenerate --with-probes\n"
+    ]
+   },
+   {
+@@ -329,44 +143,28 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "if COMPONENTS_TO_RUN[\"residual_norm_diagnostic\"]:\n",
+-    "    !python -m src.analysis.eval_residual_norm_diagnostic --stage {RESIDUAL_NORM_STAGE} --also-test-fix\n",
+-    "    diagnostic_file = f\"results/raw/residual_norm_diagnostic_{RESIDUAL_NORM_STAGE}.json\"\n",
+-    "    !python -m src.analysis.plot_residual_norms --file {diagnostic_file}\n",
+-    "\n",
+-    "    from pathlib import Path\n",
+-    "    from IPython.display import Image, display\n",
+-    "    heatmap_path = Path(f\"results/figures/residual_norm_heatmaps_{RESIDUAL_NORM_STAGE}_prompt0.png\")\n",
+-    "    line_path = Path(f\"results/figures/residual_norm_anomalous_layer_{RESIDUAL_NORM_STAGE}.png\")\n",
+-    "    for p in [line_path, heatmap_path]:\n",
+-    "        if p.exists():\n",
+-    "            display(Image(str(p)))\n",
+-    "        else:\n",
+-    "            print(f\"{p} wasn't produced -- check the diagnostic cell's output above for what went wrong \"\n",
+-    "                  \"before assuming the plot step itself is broken.\")"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Results summary \u2014 what's on disk now"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import subprocess\n",
+-    "for d in [\"results/behavioral_eval\", \"results/probes\", \"results/refusal_direction\",\n",
+-    "          \"results/interpretability\", \"results/raw\", \"results/summaries\",\n",
+-    "          \"results/figures\", \"results/manifests\"]:\n",
+-    "    if os.path.exists(d):\n",
+-    "        print(f\"\\n{d}/\")\n",
+-    "        for f in sorted(os.listdir(d)):\n",
+-    "            print(f\"  {f}\")"
++    "if RUN_GPU:\n",
++    "    import json\n",
++    "    import subprocess\n",
++    "    latest = json.load(open(\n",
++    "        'data/frozen_v2/LATEST_BENCHMARK.json'\n",
++    "    ))\n",
++    "    subprocess.run([\n",
++    "        'python', '-m',\n",
++    "        'src.validate_benchmark_v2',\n",
++    "        '--benchmark', latest['benchmark_path'],\n",
++    "        '--review-csv',\n",
++    "        'data/review/c_review_queue.csv',\n",
++    "        '--gate-config',\n",
++    "        'logs/benchmark_gate_config.json',\n",
++    "        '--split-manifest',\n",
++    "        'logs/direction_split_manifest.json',\n",
++    "    ], check=True)\n",
++    "    status = json.load(open(\n",
++    "        'logs/benchmark_validation_status.json'\n",
++    "    ))\n",
++    "    assert status['technical_benchmark_status'] == 'PASS', status\n",
++    "    print('Fresh v2 validation passed.')\n"
+    ]
+   }
+  ],
+@@ -386,4 +184,4 @@
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+-}
+\ No newline at end of file
++}
+diff --git a/rerun_mechanistic_v2.sh b/rerun_mechanistic_v2.sh
+index 061039c..baad447 100755
+--- a/rerun_mechanistic_v2.sh
++++ b/rerun_mechanistic_v2.sh
+@@ -1,193 +1,3 @@
+ #!/usr/bin/env bash
+-# =============================================================================
+-# rerun_mechanistic_v2.sh — GPU-gate and orchestrator for the v2 mechanistic
+-# rerun. Reads ONLY JSON files. Aborts if any required gate field is not true.
+-#
+-# Usage:
+-#   bash rerun_mechanistic_v2.sh --dry-run
+-#   bash rerun_mechanistic_v2.sh --stage M3 --stage M3_alt
+-#
+-# Required JSON files:
+-#   logs/benchmark_validation_status.json
+-#   logs/benchmark_gate_config.json
+-#   data/frozen_v2/LATEST_BENCHMARK.json
+-#   logs/direction_split_manifest.json
+-# =============================================================================
+ set -euo pipefail
+-
+-DRY_RUN=0
+-STAGES=()
+-
+-# Parse args
+-while [[ $# -gt 0 ]]; do
+-  case "$1" in
+-    --dry-run) DRY_RUN=1; shift ;;
+-    --stage)   STAGES+=("$2"); shift 2 ;;
+-    *) echo "Unknown arg: $1" >&2; exit 1 ;;
+-  esac
+-done
+-
+-# Default stages if none specified
+-if [[ ${#STAGES[@]} -eq 0 ]]; then
+-  STAGES=("M3" "M3_alt")
+-fi
+-
+-# ── Helper: read JSON field ─────────────────────────────────────────────────
+-json_get() { python3 -c "import json,sys; d=json.load(open('$1')); print(d.get('$2','MISSING'))" ; }
+-json_get_nested() { python3 -c "import json,sys; d=json.load(open('$1')); keys='$2'.split('.'); v=d; [v.__setitem__(k,v.get(k,{})) or v.update({k:v.pop(k)}) for k in keys[:-1]]; print(v.get(keys[-1],'MISSING'))" 2>/dev/null || echo "MISSING" ; }
+-
+-# ── Required JSON files ──────────────────────────────────────────────────────
+-for f in \
+-  "logs/benchmark_validation_status.json" \
+-  "logs/benchmark_gate_config.json" \
+-  "data/frozen_v2/LATEST_BENCHMARK.json" \
+-  "logs/direction_split_manifest.json"
+-do
+-  if [[ ! -f "$f" ]]; then
+-    echo "ABORT: required file missing: $f" >&2
+-    exit 1
+-  fi
+-done
+-
+-# ── Load key values ──────────────────────────────────────────────────────────
+-TBS=$(json_get logs/benchmark_validation_status.json technical_benchmark_status)
+-BENCH_PATH=$(json_get data/frozen_v2/LATEST_BENCHMARK.json benchmark_path)
+-BENCH_SHA=$(json_get data/frozen_v2/LATEST_BENCHMARK.json benchmark_sha256)
+-SPLIT_SHA=$(json_get logs/direction_split_manifest.json split_manifest_sha256)
+-
+-echo ""
+-echo "========================================"
+-echo " rerun_mechanistic_v2.sh"
+-echo "========================================"
+-echo "  Benchmark:    $BENCH_PATH"
+-echo "  Bench SHA:    $BENCH_SHA"
+-echo "  Split SHA:    $SPLIT_SHA"
+-echo "  Stages:       ${STAGES[*]}"
+-echo ""
+-
+-# ── Print warnings (warning-only gate fields) ────────────────────────────────
+-python3 - << 'PYEOF'
+-import json, sys
+-status = json.load(open("logs/benchmark_validation_status.json"))
+-gate   = json.load(open("logs/benchmark_gate_config.json"))
+-warn_fields = gate.get("warning_only_gate_fields", [])
+-print("WARNING-ONLY gate fields:")
+-for f in warn_fields:
+-    v = status.get(f, "null")
+-    marker = "⚠ " if v in (None, False, "null", "MISSING", "INCONCLUSIVE") else "✓ "
+-    print(f"  {marker}{f}: {v}")
+-PYEOF
+-
+-# ── Required gate fields — abort if not exactly True ─────────────────────────
+-python3 - << 'PYEOF'
+-import json, sys
+-status = json.load(open("logs/benchmark_validation_status.json"))
+-gate   = json.load(open("logs/benchmark_gate_config.json"))
+-required = gate.get("required_gate_fields", [])
+-failed = []
+-for f in required:
+-    v = status.get(f)
+-    if v is not True:
+-        failed.append(f"{f}={v}")
+-if failed:
+-    print(f"ABORT: required gate fields not True: {', '.join(failed)}", file=sys.stderr)
+-    sys.exit(1)
+-print("All required gate fields: PASS")
+-PYEOF
+-
+-# ── Technical benchmark status ────────────────────────────────────────────────
+-if [[ "$TBS" != "PASS" ]]; then
+-  echo "ABORT: technical_benchmark_status=$TBS (must be PASS)" >&2
+-  exit 1
+-fi
+-
+-# ── Benchmark file exists and hash matches ────────────────────────────────────
+-if [[ ! -f "$BENCH_PATH" ]]; then
+-  echo "ABORT: benchmark file not found: $BENCH_PATH" >&2
+-  exit 1
+-fi
+-ACTUAL_SHA=$(sha256sum "$BENCH_PATH" | awk '{print $1}')
+-if [[ "$ACTUAL_SHA" != "$BENCH_SHA" ]]; then
+-  echo "ABORT: benchmark SHA mismatch!" >&2
+-  echo "  Expected: $BENCH_SHA" >&2
+-  echo "  Actual:   $ACTUAL_SHA" >&2
+-  exit 1
+-fi
+-echo "  Benchmark hash: ✓"
+-
+-# ── Dry-run mode ──────────────────────────────────────────────────────────────
+-if [[ $DRY_RUN -eq 1 ]]; then
+-  echo ""
+-  echo "=== DRY RUN — commands that WOULD execute ==="
+-  for STAGE in "${STAGES[@]}"; do
+-    echo ""
+-    echo "── Stage: $STAGE ──"
+-    echo "  python -m src.experiments.extract_activations \\"
+-    echo "      --eval-set $BENCH_PATH \\"
+-    echo "      --benchmark-sha256 $BENCH_SHA \\"
+-    echo "      --stage $STAGE \\"
+-    echo "      --force-regen"
+-    echo ""
+-    echo "  python -m src.experiments.compute_refusal_direction \\"
+-    echo "      --eval-set $BENCH_PATH \\"
+-    echo "      --split-manifest logs/direction_split_manifest.json \\"
+-    echo "      --stage $STAGE \\"
+-    echo "      --force-regen"
+-    echo ""
+-    echo "  python -m src.experiments.run_behavioral_eval \\"
+-    echo "      --eval-set $BENCH_PATH \\"
+-    echo "      --benchmark-sha256 $BENCH_SHA \\"
+-    echo "      --stage $STAGE"
+-    echo ""
+-    echo "  python -m src.experiments.run_causal_ablation \\"
+-    echo "      --eval-set $BENCH_PATH \\"
+-    echo "      --benchmark-sha256 $BENCH_SHA \\"
+-    echo "      --split-manifest logs/direction_split_manifest.json \\"
+-    echo "      --stage $STAGE \\"
+-    echo "      --conditions baseline ablated norm_matched_control"
+-  done
+-  echo ""
+-  echo "=== END DRY RUN ==="
+-  exit 0
+-fi
+-
+-# ── Live run (GPU required) ───────────────────────────────────────────────────
+-echo ""
+-echo "Starting live GPU run for stages: ${STAGES[*]}"
+-
+-for STAGE in "${STAGES[@]}"; do
+-  echo ""
+-  echo "═══ Stage: $STAGE ═══"
+-
+-  # Activation extraction
+-  python -m src.experiments.extract_activations \
+-      --eval-set "$BENCH_PATH" \
+-      --benchmark-sha256 "$BENCH_SHA" \
+-      --stage "$STAGE" \
+-      --force-regen
+-
+-  # Refusal direction
+-  python -m src.experiments.compute_refusal_direction \
+-      --eval-set "$BENCH_PATH" \
+-      --split-manifest logs/direction_split_manifest.json \
+-      --stage "$STAGE" \
+-      --force-regen
+-
+-  # Behavioral eval
+-  python -m src.experiments.run_behavioral_eval \
+-      --eval-set "$BENCH_PATH" \
+-      --benchmark-sha256 "$BENCH_SHA" \
+-      --stage "$STAGE"
+-
+-  # Causal ablation
+-  python -m src.experiments.run_causal_ablation \
+-      --eval-set "$BENCH_PATH" \
+-      --benchmark-sha256 "$BENCH_SHA" \
+-      --split-manifest logs/direction_split_manifest.json \
+-      --stage "$STAGE" \
+-      --conditions baseline ablated norm_matched_control
+-done
+-
+-echo ""
+-echo "GPU run complete. Commit ONLY small artifacts (manifests, hashes, summaries)."
+-echo "Store large .npy arrays in Drive and record their SHA-256 and benchmark hash."
++exec python -m src.analysis.v2_pipeline run "$@"
+diff --git a/src/finalize_benchmark.py b/src/finalize_benchmark.py
+index 48e4b21..249ae7a 100644
+--- a/src/finalize_benchmark.py
++++ b/src/finalize_benchmark.py
+@@ -1,261 +1,365 @@
+-"""
+-Benchmark finalization — run AFTER researcher review is complete.
+-
+-Reads the reviewed c_review_queue.csv, accepts only rows where
+-review_status == 'accept', validates all provenance constraints, and writes
+-a timestamped frozen benchmark under data/frozen_v2/.
+-
+-Usage:
+-    python -m src.finalize_benchmark \\
+-        --review-csv data/review/c_review_queue.csv \\
+-        --gate-config logs/benchmark_gate_config.json \\
+-        [--eval-set data/processed/controlled_eval.jsonl] \\
+-        [--provenance data/quadrant_c_pipeline/candidate_records_v2.jsonl]
+-
+-Will ABORT if:
+-  - any review_status is 'pending'
+-  - duplicate record_ids or scored_prompts in accepted rows
+-  - accepted scored_prompt does not match provenance candidate_prompt
+-  - data/frozen_v2/ benchmark already exists at same timestamp (race guard)
+-"""
++"""Finalize the reviewed CSV into a frozen, LF-stable benchmark."""
++
++from __future__ import annotations
+ 
+ import argparse
+ import csv
+ import hashlib
+ import json
+ import re
++import subprocess
+ import sys
++from collections import Counter
+ from datetime import datetime, timezone
+ from pathlib import Path
+ 
+ 
+ def sha256str(text: str) -> str:
+-    return hashlib.sha256(text.encode()).hexdigest()
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+ 
+ 
+-def sha256file(path: str) -> str:
++def sha256file(path: str | Path) -> str:
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
++def write_json_lf(path: str | Path, data) -> None:
++    path = Path(path)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8", newline="") as handle:
++        json.dump(data, handle, ensure_ascii=False, indent=2)
++        handle.write("\n")
++
++
+ def normalize_prompt(text: str) -> str:
+     return re.sub(r"\s+", " ", text.lower().strip())
+ 
+ 
+-def abort(msg: str):
+-    print(f"\nABORT: {msg}", file=sys.stderr)
+-    sys.exit(1)
++def abort(message: str) -> None:
++    print(f"\nABORT: {message}", file=sys.stderr)
++    raise SystemExit(1)
+ 
+ 
+-def main():
+-    ap = argparse.ArgumentParser(description="Finalize v2 benchmark after review")
+-    ap.add_argument("--review-csv",  required=True)
+-    ap.add_argument("--gate-config", required=True)
+-    ap.add_argument("--eval-set",    default="data/processed/controlled_eval.jsonl")
+-    ap.add_argument("--provenance",  default="data/quadrant_c_pipeline/candidate_records_v2.jsonl")
+-    args = ap.parse_args()
++def as_int(value, fallback: int) -> int:
++    try:
++        return int(value)
++    except (TypeError, ValueError):
++        return fallback
+ 
+-    # ── Load gate config ───────────────────────────────────────────────────────
+-    gate_path = Path(args.gate_config)
+-    if not gate_path.exists():
+-        abort(f"Gate config not found: {gate_path}")
+-    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+-    gate_sha = sha256file(str(gate_path))
+ 
+-    # ── Load review CSV ────────────────────────────────────────────────────────
+-    review_path = Path(args.review_csv)
+-    if not review_path.exists():
+-        abort(f"Review CSV not found: {review_path}")
+-    review_sha = sha256file(str(review_path))
++def git_commit() -> str:
++    try:
++        return subprocess.check_output(
++            ["git", "rev-parse", "HEAD"],
++            text=True,
++        ).strip()
++    except Exception:
++        return "unknown"
+ 
+-    with open(review_path, newline="", encoding="utf-8") as f:
+-        reader = csv.DictReader(f)
+-        review_rows = list(reader)
+ 
+-    print(f"Review CSV: {review_path} ({len(review_rows)} rows)")
++def main() -> None:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--review-csv", required=True)
++    parser.add_argument("--gate-config", required=True)
++    parser.add_argument(
++        "--eval-set",
++        default="data/processed/controlled_eval.jsonl",
++    )
++    parser.add_argument(
++        "--provenance",
++        default="data/quadrant_c_pipeline/candidate_records_v2.jsonl",
++    )
++    args = parser.parse_args()
++
++    gate_path = Path(args.gate_config)
++    review_path = Path(args.review_csv)
++    eval_path = Path(args.eval_set)
++    provenance_path = Path(args.provenance)
++
++    for path in (gate_path, review_path, eval_path):
++        if not path.exists():
++            abort(f"Required input does not exist: {path}")
+ 
+-    # ── Check for pending rows ─────────────────────────────────────────────────
+-    pending = [r for r in review_rows if r.get("review_status", "").strip() == "pending"]
++    gate = json.loads(gate_path.read_text(encoding="utf-8"))
++    review_sha = sha256file(review_path)
++    gate_sha = sha256file(gate_path)
++    eval_sha = sha256file(eval_path)
++
++    with review_path.open(newline="", encoding="utf-8") as handle:
++        review_rows = list(csv.DictReader(handle))
++
++    allowed_statuses = {"pending", "accept", "reject"}
++    invalid = [
++        row.get("record_id")
++        for row in review_rows
++        if row.get("review_status", "").strip()
++        not in allowed_statuses
++    ]
++    if invalid:
++        abort(f"Invalid review_status values: {invalid[:10]}")
++
++    pending = [
++        row for row in review_rows
++        if row.get("review_status", "").strip() == "pending"
++    ]
+     if pending:
+         abort(
+-            f"{len(pending)} rows still have review_status='pending'. "
+-            f"Complete review before finalizing. First pending: {pending[0].get('record_id')}"
++            f"{len(pending)} rows remain pending; first row is "
++            f"{pending[0].get('record_id')}"
+         )
+ 
+-    accepted = [r for r in review_rows if r.get("review_status", "").strip() == "accept"]
+-    rejected = [r for r in review_rows if r.get("review_status", "").strip() == "reject"]
+-    print(f"  accepted: {len(accepted)}, rejected: {len(rejected)}")
++    accepted = [
++        row for row in review_rows
++        if row.get("review_status", "").strip() == "accept"
++    ]
++    rejected = [
++        row for row in review_rows
++        if row.get("review_status", "").strip() == "reject"
++    ]
+ 
+     if not accepted:
+-        abort("Zero accepted rows — cannot produce a benchmark.")
+-
+-    # ── Check for duplicate record_ids ─────────────────────────────────────────
+-    acc_ids = [r["record_id"] for r in accepted]
+-    if len(acc_ids) != len(set(acc_ids)):
+-        from collections import Counter
+-        dupes = [k for k, v in Counter(acc_ids).items() if v > 1]
+-        abort(f"Duplicate record_ids in accepted rows: {dupes}")
+-
+-    # ── Check for duplicate normalized prompts ─────────────────────────────────
+-    norm_prompts = [normalize_prompt(r["scored_prompt"]) for r in accepted]
+-    if len(norm_prompts) != len(set(norm_prompts)):
+-        abort("Duplicate normalized scored_prompts in accepted rows.")
+-
+-    # ── Cross-check scored_prompt vs provenance ────────────────────────────────
+-    prov_path = Path(args.provenance)
+-    if prov_path.exists():
+-        with open(prov_path, encoding="utf-8") as f:
+-            prov_recs = {rec["candidate_id"]: rec for rec in (json.loads(l) for l in f)}
+-        mismatch = []
+-        for r in accepted:
+-            cid = r.get("candidate_id", r.get("record_id"))
+-            prov = prov_recs.get(cid)
+-            if prov and r["scored_prompt"].strip() != prov["candidate_prompt"].strip():
+-                mismatch.append(cid)
+-        if mismatch:
+-            abort(f"scored_prompt ≠ provenance candidate_prompt for: {mismatch}")
++        abort("There are no accepted C rows.")
++
++    accepted_ids = [row.get("record_id") for row in accepted]
++    if not all(accepted_ids):
++        abort("Every accepted row requires record_id.")
++    if len(accepted_ids) != len(set(accepted_ids)):
++        abort("Accepted rows contain duplicate record_id values.")
++
++    accepted_prompts = [
++        normalize_prompt(row.get("scored_prompt", ""))
++        for row in accepted
++    ]
++    if not all(accepted_prompts):
++        abort("Every accepted row requires scored_prompt.")
++    if len(accepted_prompts) != len(set(accepted_prompts)):
++        abort("Accepted rows contain duplicate normalized prompts.")
++
++    provenance = {}
++    if provenance_path.exists():
++        with provenance_path.open(encoding="utf-8") as handle:
++            for line in handle:
++                if line.strip():
++                    record = json.loads(line)
++                    provenance[record["candidate_id"]] = record
+     else:
+-        print(f"WARNING: provenance file not found ({prov_path}), skipping cross-check.")
++        abort(f"Provenance file not found: {provenance_path}")
++
++    for row in accepted:
++        candidate_id = row.get("candidate_id") or row["record_id"]
++        record = provenance.get(candidate_id)
++        if record is None:
++            abort(f"Accepted row missing from provenance: {candidate_id}")
++
++        if row["scored_prompt"] != record.get("candidate_prompt"):
++            abort(
++                f"scored_prompt differs from provenance for {candidate_id}"
++            )
++
++        if (
++            row.get("source_prompt")
++            and record.get("source_prompt")
++            and row["source_prompt"] != record["source_prompt"]
++        ):
++            abort(
++                f"source_prompt differs from provenance for {candidate_id}"
++            )
++
++    with eval_path.open(encoding="utf-8") as handle:
++        eval_rows = [
++            json.loads(line)
++            for line in handle
++            if line.strip()
++        ]
++
++    benchmark_rows = []
++
++    for row in eval_rows:
++        if row.get("quadrant") not in {"A", "B", "D"}:
++            continue
++
++        prompt = row["prompt"]
++        record_id = row.get("record_id") or sha256str(
++            f"{row['quadrant']}|{row.get('source', '')}|{prompt}"
++        )[:16]
++
++        benchmark_rows.append(
++            {
++                "record_id": record_id,
++                "prompt": prompt,
++                "scored_prompt": prompt,
++                "quadrant": row["quadrant"],
++                "c_construction": None,
++                "ground_truth_intent": None,
++                "expected_response_mode": (
++                    "refusal" if row["quadrant"] == "A"
++                    else "comply"
++                ),
++                "source_dataset": row.get(
++                    "source_dataset",
++                    row.get("source"),
++                ),
++                "source_id": row.get("source_id"),
++                "source_category": row.get(
++                    "source_category",
++                    row.get("category"),
++                ),
++                "project_category": row.get(
++                    "project_category",
++                    row.get("category"),
++                ),
++                "domain": row.get("domain"),
++                "prompt_function": row.get("prompt_function"),
++                "word_count": len(prompt.split()),
++                "character_count": len(prompt),
++                "formatting_metadata": row.get(
++                    "formatting_metadata"
++                ),
++                "pair_id": None,
++                "source_prompt": None,
++                "candidate_prompt": None,
++                "review_status": None,
++                "review_notes": None,
++                "split": row.get("split"),
++                "source_url": row.get("source_url"),
++                "source_revision": row.get("source_revision"),
++                "source_file_sha256": row.get(
++                    "source_file_sha256"
++                ),
++                "source_prompt_sha256": None,
++                "candidate_prompt_sha256": None,
++                "record_sha256": sha256str(prompt),
++            }
++        )
+ 
+-    # ── Load A, B, D from eval set ────────────────────────────────────────────
+-    eval_path = Path(args.eval_set)
+-    if not eval_path.exists():
+-        abort(f"Eval set not found: {eval_path}")
+-    eval_sha = sha256file(str(eval_path))
++    for row in accepted:
++        construction = row.get(
++            "c_construction",
++            "c_paired",
++        ) or "c_paired"
++        candidate = row["scored_prompt"]
++        source = row.get("source_prompt") or candidate
++
++        if construction == "c_source_authored":
++            source = candidate
++            pair_id = None
++        else:
++            pair_id = row.get("pair_id") or None
++
++        benchmark_rows.append(
++            {
++                "record_id": row["record_id"],
++                "prompt": candidate,
++                "scored_prompt": candidate,
++                "quadrant": "C",
++                "c_construction": construction,
++                "ground_truth_intent": row.get(
++                    "harmful_objective"
++                ),
++                "expected_response_mode": "refusal",
++                "source_dataset": row.get("source_dataset"),
++                "source_id": row.get("source_id"),
++                "source_category": row.get("source_category"),
++                "project_category": row.get("project_category"),
++                "domain": row.get("domain"),
++                "prompt_function": row.get("prompt_function"),
++                "word_count": as_int(
++                    row.get("word_count_candidate"),
++                    len(candidate.split()),
++                ),
++                "character_count": as_int(
++                    row.get("character_count_candidate"),
++                    len(candidate),
++                ),
++                "formatting_metadata": row.get(
++                    "formatting_metadata"
++                ),
++                "pair_id": pair_id,
++                "source_prompt": source,
++                "candidate_prompt": candidate,
++                "review_status": "accept",
++                "review_notes": row.get("review_notes", ""),
++                "split": None,
++                "source_url": row.get("source_url"),
++                "source_revision": row.get("source_revision"),
++                "source_file_sha256": row.get(
++                    "source_file_sha256"
++                ),
++                "source_prompt_sha256": (
++                    sha256str(source) if source else None
++                ),
++                "candidate_prompt_sha256": sha256str(candidate),
++                "record_sha256": sha256str(candidate),
++            }
++        )
+ 
+-    with open(eval_path, encoding="utf-8") as f:
+-        eval_rows = [json.loads(l) for l in f if l.strip()]
++    ids = [row["record_id"] for row in benchmark_rows]
++    prompts = [
++        normalize_prompt(row["prompt"])
++        for row in benchmark_rows
++    ]
+ 
+-    abd_rows = [r for r in eval_rows if r.get("quadrant") in ("A", "B", "D")]
++    if len(ids) != len(set(ids)):
++        abort("Final benchmark contains duplicate record IDs.")
++    if len(prompts) != len(set(prompts)):
++        abort("Final benchmark contains duplicate normalized prompts.")
+ 
+-    # ── Build canonical benchmark rows ────────────────────────────────────────
+-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
++    timestamp = datetime.now(timezone.utc).strftime(
++        "%Y%m%dT%H%M%SZ"
++    )
+     out_dir = Path("data/frozen_v2")
+     out_dir.mkdir(parents=True, exist_ok=True)
+ 
+-    bench_rows = []
+-
+-    # A/B/D from the eval set
+-    for row in abd_rows:
+-        p = row["prompt"]
+-        rec = {
+-            "record_id": hashlib.sha256(
+-                f"{row['quadrant']}|{row.get('source','')}|{p}".encode()
+-            ).hexdigest()[:16],
+-            "prompt":          p,
+-            "scored_prompt":   p,
+-            "quadrant":        row["quadrant"],
+-            "c_construction":  None,
+-            "ground_truth_intent": None,
+-            "expected_response_mode": None,
+-            "source_dataset":  row.get("source"),
+-            "source_id":       None,
+-            "source_category": row.get("category"),
+-            "project_category": row.get("category"),
+-            "domain":          None,
+-            "prompt_function": None,
+-            "word_count":      len(p.split()),
+-            "character_count": len(p),
+-            "formatting_metadata": None,
+-            "pair_id":         None,
+-            "source_prompt":   None,
+-            "candidate_prompt": None,
+-            "review_status":   None,
+-            "review_notes":    None,
+-            "split":           row.get("split"),
+-            "source_url":      None,
+-            "source_revision": None,
+-            "source_file_sha256": None,
+-            "source_prompt_sha256": None,
+-            "candidate_prompt_sha256": None,
+-            "record_sha256":   sha256str(p),
+-        }
+-        bench_rows.append(rec)
+-
+-    # C accepted rows
+-    for r in accepted:
+-        cp = r["scored_prompt"].strip()
+-        sp = r.get("source_prompt", "").strip()
+-        rec = {
+-            "record_id":       r["record_id"],
+-            "prompt":          cp,
+-            "scored_prompt":   cp,
+-            "quadrant":        "C",
+-            "c_construction":  "c_paired",
+-            "ground_truth_intent": r.get("harmful_objective", ""),
+-            "expected_response_mode": "refusal",
+-            "source_dataset":  r.get("source_dataset", "StrongREJECT"),
+-            "source_id":       r.get("source_id", ""),
+-            "source_category": r.get("source_category", ""),
+-            "project_category": r.get("project_category", ""),
+-            "domain":          r.get("domain") or None,
+-            "prompt_function": r.get("prompt_function") or None,
+-            "word_count":      int(r.get("word_count_candidate", len(cp.split()))),
+-            "character_count": int(r.get("character_count_candidate", len(cp))),
+-            "formatting_metadata": None,
+-            "pair_id":         r.get("pair_id", ""),
+-            "source_prompt":   sp,
+-            "candidate_prompt": cp,
+-            "review_status":   "accept",
+-            "review_notes":    r.get("review_notes", ""),
+-            "split":           None,
+-            "source_url":      "https://raw.githubusercontent.com/alexandrasouly/strongreject/main/strongreject_dataset/strongreject_dataset.csv",
+-            "source_revision": "Souly et al. 2024, main branch",
+-            "source_file_sha256": None,
+-            "source_prompt_sha256":    sha256str(sp) if sp else None,
+-            "candidate_prompt_sha256": sha256str(cp),
+-            "record_sha256":           sha256str(cp),
+-        }
+-        bench_rows.append(rec)
+-
+-    # ── Write benchmark ────────────────────────────────────────────────────────
+-    bench_path = out_dir / f"benchmark_v2_{ts}.jsonl"
+-    if bench_path.exists():
+-        abort(f"Benchmark file already exists: {bench_path} (race guard)")
+-
+-    with open(bench_path, "w", encoding="utf-8") as f:
+-        for row in bench_rows:
+-            f.write(json.dumps(row) + "\n")
+-
+-    bench_sha = sha256file(str(bench_path))
+-    print(f"\nBenchmark written: {bench_path}")
+-    print(f"SHA-256: {bench_sha}")
+-    print(f"Total rows: {len(bench_rows)}")
+-
+-    # ── Counts ────────────────────────────────────────────────────────────────
+-    from collections import Counter
+-    q_counts = Counter(r["quadrant"] for r in bench_rows)
+-    c_arm_counts = Counter(
+-        r.get("c_construction") for r in bench_rows if r["quadrant"] == "C"
++    benchmark_path = out_dir / f"benchmark_v2_{timestamp}.jsonl"
++    manifest_path = out_dir / f"benchmark_v2_{timestamp}.manifest.json"
++
++    if benchmark_path.exists() or manifest_path.exists():
++        abort(f"Timestamp collision for {timestamp}")
++
++    with benchmark_path.open(
++        "w",
++        encoding="utf-8",
++        newline="",
++    ) as handle:
++        for row in benchmark_rows:
++            handle.write(
++                json.dumps(
++                    row,
++                    ensure_ascii=False,
++                )
++                + "\n"
++            )
++
++    benchmark_sha = sha256file(benchmark_path)
++    quadrant_counts = Counter(
++        row["quadrant"] for row in benchmark_rows
++    )
++    arm_counts = Counter(
++        row["c_construction"]
++        for row in benchmark_rows
++        if row["quadrant"] == "C"
+     )
+-    print(f"By quadrant: {dict(q_counts)}")
+-    print(f"C arms: {dict(c_arm_counts)}")
+-
+-    # ── Manifest ───────────────────────────────────────────────────────────────
+-    import subprocess
+-    try:
+-        git_commit = subprocess.check_output(
+-            ["git", "rev-parse", "HEAD"], text=True
+-        ).strip()
+-    except Exception:
+-        git_commit = "unknown"
+ 
+     manifest = {
+-        "benchmark_path":   str(bench_path),
+-        "benchmark_sha256": bench_sha,
+-        "creation_timestamp_utc": ts,
+-        "git_commit": git_commit,
+-        "counts": dict(q_counts),
+-        "c_counts_by_construction": dict(c_arm_counts),
+-        "source_distribution": dict(Counter(r.get("source_dataset") for r in bench_rows)),
+-        "category_distribution": dict(Counter(r.get("project_category") for r in bench_rows)),
++        "benchmark_path": benchmark_path.as_posix(),
++        "benchmark_sha256": benchmark_sha,
++        "creation_timestamp_utc": timestamp,
++        "git_commit": git_commit(),
++        "counts": dict(quadrant_counts),
++        "c_counts_by_construction": dict(arm_counts),
++        "source_distribution": dict(
++            Counter(row.get("source_dataset") for row in benchmark_rows)
++        ),
++        "category_distribution": dict(
++            Counter(row.get("project_category") for row in benchmark_rows)
++        ),
+         "inputs": {
+-            "eval_set": str(eval_path),
++            "eval_set": eval_path.as_posix(),
+             "eval_set_sha256": eval_sha,
+-            "review_csv": str(review_path),
++            "review_csv": review_path.as_posix(),
+             "review_csv_sha256": review_sha,
+-            "gate_config": str(gate_path),
++            "gate_config": gate_path.as_posix(),
+             "gate_config_sha256": gate_sha,
+-            "provenance": str(prov_path),
++            "provenance": provenance_path.as_posix(),
+         },
+         "review_summary": {
+             "total": len(review_rows),
+@@ -263,21 +367,29 @@ def main():
+             "rejected": len(rejected),
+             "pending": 0,
+         },
+-        "contamination_status": "checked_exact_zero_near_unknown",
+-        "direction_split_status": "existing_fields_preserved",
++        "contamination_status": (
++            "preserved_from_review_metadata"
++        ),
++        "direction_split_status": (
++            "preserved_from_eval_set_fields"
++        ),
++        "gate_config_snapshot": gate,
+     }
+ 
+-    manifest_path = out_dir / f"benchmark_v2_{ts}.manifest.json"
+-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+-
+-    # Stable latest pointer
+-    latest = {"benchmark_path": str(bench_path), "benchmark_sha256": bench_sha}
+-    latest_path = out_dir / "LATEST_BENCHMARK.json"
+-    latest_path.write_text(json.dumps(latest, indent=2), encoding="utf-8")
++    write_json_lf(manifest_path, manifest)
++    write_json_lf(
++        out_dir / "LATEST_BENCHMARK.json",
++        {
++            "benchmark_path": benchmark_path.as_posix(),
++            "benchmark_sha256": benchmark_sha,
++        },
++    )
+ 
++    print(f"Benchmark written: {benchmark_path}")
++    print(f"Benchmark SHA-256: {benchmark_sha}")
++    print(f"Rows: {len(benchmark_rows)}")
+     print(f"Manifest: {manifest_path}")
+-    print(f"Latest pointer: {latest_path}")
+-    return str(bench_path), bench_sha
++    print("LATEST_BENCHMARK.json updated")
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/src/validate_benchmark_v2.py b/src/validate_benchmark_v2.py
+index 308d014..5537eb5 100644
+--- a/src/validate_benchmark_v2.py
++++ b/src/validate_benchmark_v2.py
+@@ -1,18 +1,6 @@
+-"""
+-Validate the frozen v2 benchmark and produce machine-readable status.
+-
+-Usage:
+-    python -m src.validate_benchmark_v2 \\
+-        --benchmark data/frozen_v2/benchmark_v2_<TS>.jsonl \\
+-        --review-csv data/review/c_review_queue.csv \\
+-        --gate-config logs/benchmark_gate_config.json \\
+-        --split-manifest logs/direction_split_manifest.json \\
+-        [--out-dir logs/]
+-
+-Writes:
+-    logs/benchmark_validation_status.json
+-    logs/benchmark_validation_report.md
+-"""
++"""Strict validation for the frozen v2 benchmark and model artifacts."""
++
++from __future__ import annotations
+ 
+ import argparse
+ import csv
+@@ -25,349 +13,652 @@ from collections import Counter
+ from datetime import datetime, timezone
+ from pathlib import Path
+ 
+-
+-def sha256file(path: str) -> str:
+-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
++from src.v2_io import (
++    canonical_json,
++    identity_snapshot,
++    load_json,
++    load_jsonl,
++    sha256_file,
++    write_json_lf,
++)
++
++
++REQUIRED_STAGES = [
++    "M0",
++    "M1",
++    "M2",
++    "M3",
++    "M3_direct",
++    "M1_alt",
++    "M2_alt",
++    "M3_alt",
++    "M3_direct_alt",
++]
++
++REQUIRED_FIELDS = [
++    "record_id",
++    "prompt",
++    "scored_prompt",
++    "quadrant",
++    "c_construction",
++    "ground_truth_intent",
++    "expected_response_mode",
++    "source_dataset",
++    "source_id",
++    "source_category",
++    "project_category",
++    "domain",
++    "prompt_function",
++    "word_count",
++    "character_count",
++    "formatting_metadata",
++    "pair_id",
++    "source_prompt",
++    "candidate_prompt",
++    "review_status",
++    "review_notes",
++    "split",
++    "source_url",
++    "source_revision",
++    "source_file_sha256",
++    "source_prompt_sha256",
++    "candidate_prompt_sha256",
++    "record_sha256",
++]
+ 
+ 
+ def normalize_prompt(text: str) -> str:
+     return re.sub(r"\s+", " ", text.lower().strip())
+ 
+ 
+-def bootstrap_mean(values, n_boot=1000, ci=0.95):
+-    import random
+-    if len(values) < 2:
++def sha256str(text: str) -> str:
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def write_report(path: Path, lines: list[str]) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8", newline="") as handle:
++        handle.write("\n".join(lines) + "\n")
++
++
++def bootstrap_mean(
++    values: list[float],
++    n_boot: int = 1000,
++) -> tuple[float | None, float | None, float | None]:
++    if not values:
+         return None, None, None
++    if len(values) == 1:
++        value = float(values[0])
++        return value, value, value
++
++    import random
++
+     rng = random.Random(42)
+-    boots = [
+-        sum(rng.choices(values, k=len(values))) / len(values)
+-        for _ in range(n_boot)
+-    ]
+-    boots.sort()
+-    lo = boots[int((1 - ci) / 2 * n_boot)]
+-    hi = boots[int((1 - (1 - ci) / 2) * n_boot)]
+-    return sum(values) / len(values), lo, hi
++    samples = []
++    for _ in range(n_boot):
++        sample = [
++            rng.choice(values)
++            for _ in range(len(values))
++        ]
++        samples.append(sum(sample) / len(sample))
++
++    samples.sort()
++    lo = samples[int(0.025 * len(samples))]
++    hi = samples[int(0.975 * len(samples))]
++    return (
++        sum(values) / len(values),
++        lo,
++        hi,
++    )
++
+ 
++def pooled_cohen_d(a: list[float], b: list[float]):
++    if len(a) < 2 or len(b) < 2:
++        return None
+ 
+-def cohen_d_pooled(a, b):
+-    na, nb = len(a), len(b)
+-    if na < 2 or nb < 2:
++    mean_a = sum(a) / len(a)
++    mean_b = sum(b) / len(b)
++    var_a = sum((x - mean_a) ** 2 for x in a) / (len(a) - 1)
++    var_b = sum((x - mean_b) ** 2 for x in b) / (len(b) - 1)
++    pooled = math.sqrt(
++        (
++            (len(a) - 1) * var_a
++            + (len(b) - 1) * var_b
++        )
++        / (len(a) + len(b) - 2)
++    )
++    if pooled == 0:
+         return None
+-    ma, mb = sum(a) / na, sum(b) / nb
+-    sa = sum((x - ma) ** 2 for x in a) / (na - 1)
+-    sb = sum((x - mb) ** 2 for x in b) / (nb - 1)
+-    sp = math.sqrt(((na - 1) * sa + (nb - 1) * sb) / (na + nb - 2))
+-    return abs((ma - mb) / sp) if sp > 0 else None
+-
+-
+-def main():
+-    ap = argparse.ArgumentParser(description="Validate frozen v2 benchmark")
+-    ap.add_argument("--benchmark",       required=True)
+-    ap.add_argument("--review-csv",      required=True)
+-    ap.add_argument("--gate-config",     required=True)
+-    ap.add_argument("--split-manifest",  required=True)
+-    ap.add_argument("--out-dir",         default="logs")
+-    args = ap.parse_args()
++    return abs((mean_a - mean_b) / pooled)
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--benchmark", required=True)
++    parser.add_argument("--review-csv", required=True)
++    parser.add_argument("--gate-config", required=True)
++    parser.add_argument("--split-manifest", required=True)
++    parser.add_argument("--out-dir", default="logs")
++    args = parser.parse_args()
+ 
+     out_dir = Path(args.out_dir)
+     out_dir.mkdir(parents=True, exist_ok=True)
+-    ts = datetime.now(timezone.utc).isoformat()
+-    warnings = []
+ 
+-    # ── Hashes ────────────────────────────────────────────────────────────────
+-    bench_path   = Path(args.benchmark)
+-    review_path  = Path(args.review_csv)
+-    gate_path    = Path(args.gate_config)
+-    split_path   = Path(args.split_manifest)
+-
+-    for p in [bench_path, review_path, gate_path, split_path]:
+-        if not p.exists():
+-            print(f"ERROR: required file missing: {p}", file=sys.stderr)
+-            sys.exit(1)
+-
+-    bench_sha  = sha256file(str(bench_path))
+-    review_sha = sha256file(str(review_path))
+-    gate_sha   = sha256file(str(gate_path))
+-    split_sha  = sha256file(str(split_path))
+-
+-    split_manifest = json.loads(split_path.read_text(encoding="utf-8"))
+-
+-    # Cross-check benchmark hash against split manifest
+-    split_bench_sha = split_manifest.get("eval_set_sha256")   # refers to source eval, not frozen bench
+-
+-    # ── Load benchmark ────────────────────────────────────────────────────────
+-    with open(bench_path, encoding="utf-8") as f:
+-        bench_rows = [json.loads(l) for l in f if l.strip()]
+-    print(f"Benchmark rows: {len(bench_rows)}")
+-
+-    by_quad = {}
+-    for row in bench_rows:
+-        q = row.get("quadrant", "MISSING")
+-        by_quad.setdefault(q, []).append(row)
+-
+-    counts = {q: len(rows) for q, rows in by_quad.items()}
+-    c_rows_all = by_quad.get("C", [])
+-    c_by_arm = Counter(r.get("c_construction") for r in c_rows_all)
+-
+-    # ── Schema integrity ──────────────────────────────────────────────────────
+-    required_fields = [
+-        "record_id", "prompt", "scored_prompt", "quadrant", "c_construction",
+-        "source_dataset", "split", "record_sha256",
++    benchmark_path = Path(args.benchmark)
++    review_path = Path(args.review_csv)
++    gate_path = Path(args.gate_config)
++    split_path = Path(args.split_manifest)
++
++    for path in (
++        benchmark_path,
++        review_path,
++        gate_path,
++        split_path,
++    ):
++        if not path.exists():
++            print(
++                f"ERROR: required file missing: {path}",
++                file=sys.stderr,
++            )
++            raise SystemExit(1)
++
++    benchmark_sha = sha256_file(benchmark_path)
++    review_sha = sha256_file(review_path)
++    gate_sha = sha256_file(gate_path)
++    split_file_sha = sha256_file(split_path)
++
++    benchmark_rows = load_jsonl(benchmark_path)
++    split_manifest = load_json(split_path)
++    gate = load_json(gate_path)
++
++    counts = Counter(
++        row.get("quadrant", "MISSING")
++        for row in benchmark_rows
++    )
++    c_rows = [
++        row for row in benchmark_rows
++        if row.get("quadrant") == "C"
+     ]
+-    schema_fails = []
+-    for i, row in enumerate(bench_rows):
+-        for field in required_fields:
++    c_arms = Counter(
++        row.get("c_construction")
++        for row in c_rows
++    )
++
++    schema_errors = []
++    for index, row in enumerate(benchmark_rows):
++        for field in REQUIRED_FIELDS:
+             if field not in row:
+-                schema_fails.append(f"row {i}: missing {field}")
+-    schema_integrity_pass = len(schema_fails) == 0
+-
+-    # ── Prompt integrity ──────────────────────────────────────────────────────
+-    prompts = [r.get("prompt", "") for r in bench_rows]
+-    norm_prompts = [normalize_prompt(p) for p in prompts]
+-    exact_dupes = len(prompts) - len(set(prompts))
+-    norm_dupes = len(norm_prompts) - len(set(norm_prompts))
+-    record_ids = [r.get("record_id") for r in bench_rows]
+-    id_dupes = len(record_ids) - len(set(record_ids))
+-
+-    prompt_integrity_pass = (exact_dupes == 0) and (norm_dupes == 0) and (id_dupes == 0)
+-    if not prompt_integrity_pass:
+-        warnings.append(
+-            f"Prompt integrity: exact_dupes={exact_dupes}, "
+-            f"norm_dupes={norm_dupes}, id_dupes={id_dupes}"
++                schema_errors.append(
++                    f"row {index}: missing {field}"
++                )
++
++    schema_integrity_pass = not schema_errors
++
++    ids = [row.get("record_id") for row in benchmark_rows]
++    prompts = [row.get("prompt", "") for row in benchmark_rows]
++    normalized = [normalize_prompt(prompt) for prompt in prompts]
++
++    duplicate_ids = len(ids) - len(set(ids))
++    duplicate_prompts = len(prompts) - len(set(prompts))
++    duplicate_normalized = len(normalized) - len(set(normalized))
++
++    record_hash_errors = [
++        row.get("record_id")
++        for row in benchmark_rows
++        if row.get("record_sha256")
++        != sha256str(row.get("scored_prompt", ""))
++    ]
++
++    prompt_integrity_pass = (
++        duplicate_ids == 0
++        and duplicate_prompts == 0
++        and duplicate_normalized == 0
++        and not record_hash_errors
++    )
++
++    with review_path.open(newline="", encoding="utf-8") as handle:
++        review_rows = list(csv.DictReader(handle))
++
++    review_statuses = {
++        row.get("review_status", "").strip()
++        for row in review_rows
++    }
++    pending = [
++        row for row in review_rows
++        if row.get("review_status", "").strip() == "pending"
++    ]
++    invalid_review = review_statuses - {"pending", "accept", "reject"}
++    c_review_pass = not pending and not invalid_review
++
++    latest_path = Path("data/frozen_v2/LATEST_BENCHMARK.json")
++    benchmark_hash_pass = False
++    latest_warning = None
++
++    if latest_path.exists():
++        latest = load_json(latest_path)
++        latest_benchmark = Path(
++            str(latest.get("benchmark_path", "")).replace(
++                "\\",
++                "/",
++            )
++        )
++        latest_sha = latest.get("benchmark_sha256")
++        benchmark_hash_pass = (
++            latest_benchmark.resolve()
++            == benchmark_path.resolve()
++            and latest_sha == benchmark_sha
++            and sha256_file(benchmark_path) == latest_sha
++        )
++    else:
++        latest_warning = (
++            "LATEST_BENCHMARK.json is missing."
+         )
+ 
+-    # ── C review pass ─────────────────────────────────────────────────────────
+-    with open(review_path, newline="", encoding="utf-8") as f:
+-        review_rows = list(csv.DictReader(f))
+-    pending_rows = [r for r in review_rows if r.get("review_status", "").strip() == "pending"]
+-    c_review_pass = len(pending_rows) == 0
+-    if not c_review_pass:
+-        warnings.append(f"c_review_pass FAIL: {len(pending_rows)} rows still pending")
+-
+-    # ── Benchmark hash pass ───────────────────────────────────────────────────
+-    # Re-hash the file to confirm written hash matches
+-    rehash = sha256file(str(bench_path))
+-    benchmark_hash_pass = rehash == bench_sha
+-
+-    # ── Artifact freshness ────────────────────────────────────────────────────
+-    # Activation metadata files have 370 rows (old era); current eval is 654 rows
+-    activation_meta = list(Path("results/activations").glob("*_metadata.json"))
+-    stale_activations = []
+-    for am in activation_meta:
+-        data = json.loads(am.read_text(encoding="utf-8"))
+-        row_count = len(data) if isinstance(data, list) else data.get("row_count", 0)
+-        if row_count != len(bench_rows):
+-            stale_activations.append(f"{am.name}: {row_count} rows (benchmark has {len(bench_rows)})")
+-    artifact_freshness_pass = len(stale_activations) == 0
+-    if not artifact_freshness_pass:
+-        warnings.append(
+-            f"Stale activation metadata ({len(stale_activations)} files). "
+-            f"GPU rerun required before mechanistic analysis."
++    split_benchmark_hash_pass = (
++        split_manifest.get("benchmark_sha256")
++        == benchmark_sha
++    )
++
++    split_recorded_sha = split_manifest.get(
++        "split_manifest_sha256"
++    )
++    split_computed_sha = hashlib.sha256(
++        canonical_json(
++            {
++                key: value
++                for key, value in split_manifest.items()
++                if key not in {
++                    "split_manifest_sha256",
++                    "split_file_sha256",
++                }
++            }
++        )
++    ).hexdigest()
++
++    split_hash_pass = (
++        bool(split_recorded_sha)
++        and split_recorded_sha == split_computed_sha
++    )
++
++    expected_snapshot = identity_snapshot(benchmark_rows)
++    stale_artifacts = []
++
++    for stage in REQUIRED_STAGES:
++        activation_dir = Path("results/activations")
++        final_path = activation_dir / f"{stage}_final.npy"
++        pooled_path = activation_dir / f"{stage}_pooled.npy"
++        metadata_path = activation_dir / f"{stage}_metadata.json"
++        binding_path = (
++            activation_dir
++            / f"{stage}_metadata_binding.json"
+         )
+ 
+-    # ── Warning-only: length confound ─────────────────────────────────────────
+-    c_paired = [r for r in c_rows_all if r.get("c_construction") == "c_paired"]
+-    a_rows   = by_quad.get("A", [])
+-    c_wc = [r.get("word_count") or len((r.get("prompt") or "").split()) for r in c_paired]
+-    a_wc = [r.get("word_count") or len((r.get("prompt") or "").split()) for r in a_rows]
+-    d_c = cohen_d_pooled(a_wc, c_wc)
+-    length_confound_pass = None  # unavailable without accepted C rows pre-review
+-    if c_wc and a_wc:
+-        length_confound_pass = (d_c is not None and d_c < 0.5)
+-        if not length_confound_pass:
+-            d_c_str = f"{d_c:.3f}" if d_c is not None else "NA"
+-            warnings.append(
+-                f"Length confound: |d|={d_c_str} between A and C-paired word counts. "
+-                f"Source-confounded comparison — label accordingly."
++        missing = [
++            str(path)
++            for path in (
++                final_path,
++                pooled_path,
++                metadata_path,
++                binding_path,
++            )
++            if not path.exists()
++        ]
++
++        if missing:
++            stale_artifacts.extend(
++                f"{stage}: missing {path}"
++                for path in missing
++            )
++            continue
++
++        try:
++            metadata = load_json(metadata_path)
++            final_shape = __import__("numpy").load(
++                final_path,
++                mmap_mode="r",
++            ).shape
++            pooled_shape = __import__("numpy").load(
++                pooled_path,
++                mmap_mode="r",
++            ).shape
++            binding = load_json(binding_path)
++        except Exception as exc:
++            stale_artifacts.append(
++                f"{stage}: unreadable artifact ({exc})"
++            )
++            continue
++
++        if metadata != expected_snapshot:
++            stale_artifacts.append(
++                f"{stage}: metadata does not match benchmark"
+             )
+ 
+-    # ── Warning-only: source confound ─────────────────────────────────────────
+-    c_sources = Counter(r.get("source_dataset") for r in c_paired)
+-    a_sources = Counter(r.get("source_dataset") for r in a_rows)
+-    # Perfect source separation: C is all StrongREJECT, A is all HarmBench
+-    source_confound_pass = None
+-    if len(c_sources) > 0 and len(a_sources) > 0:
+-        if set(c_sources.keys()) & set(a_sources.keys()):
+-            source_confound_pass = False
+-            warnings.append("Source confound: A and C-paired share sources.")
+-        else:
+-            source_confound_pass = False  # Still not identified — distinct sources, not controlled
+-            warnings.append(
+-                "source_cue_effect_status=not_identified: A and C-paired come from entirely "
+-                "different datasets (HarmBench vs StrongREJECT). Source and label are "
+-                "nearly perfectly aligned. A-versus-C differences cannot be attributed "
+-                "to wording alone."
++        if (
++            len(metadata) != len(benchmark_rows)
++            or final_shape[0] != len(benchmark_rows)
++            or pooled_shape[0] != len(benchmark_rows)
++        ):
++            stale_artifacts.append(
++                f"{stage}: activation row count mismatch"
+             )
+ 
+-    # ── Paired score diagnostics ──────────────────────────────────────────────
+-    review_accepted = [r for r in review_rows if r.get("review_status", "").strip() == "accept"]
++        if binding.get("benchmark_sha256") != benchmark_sha:
++            stale_artifacts.append(
++                f"{stage}: activation benchmark hash mismatch"
++            )
++
++        if (
++            binding.get("split_manifest_sha256")
++            != split_recorded_sha
++        ):
++            stale_artifacts.append(
++                f"{stage}: activation split hash mismatch"
++            )
++
++    artifact_freshness_pass = not stale_artifacts
++
++    accepted_review = [
++        row for row in review_rows
++        if row.get("review_status", "").strip() == "accept"
++    ]
++    accepted_ids = {
++        row.get("record_id")
++        for row in accepted_review
++    }
++    benchmark_c_ids = {
++        row.get("record_id")
++        for row in c_rows
++    }
++    c_review_mapping_pass = accepted_ids == benchmark_c_ids
++
+     paired_diffs = []
+-    for r in review_accepted:
++    for row in accepted_review:
++        value = row.get(
++            "fightin_words_paired_difference",
++            "",
++        )
+         try:
+-            d = float(r.get("fightin_words_paired_difference", 0) or 0)
+-            paired_diffs.append(d)
+-        except (ValueError, TypeError):
++            paired_diffs.append(float(value))
++        except (TypeError, ValueError):
+             pass
+ 
+-    paired_mean, paired_lo, paired_hi = bootstrap_mean(paired_diffs)
+-    n_pos_diffs = sum(1 for d in paired_diffs if d > 0)
+-    sd_paired = (
+-        math.sqrt(sum((d - paired_mean) ** 2 for d in paired_diffs) / (len(paired_diffs) - 1))
+-        if len(paired_diffs) >= 2 else None
++    paired_mean, paired_lo, paired_hi = bootstrap_mean(
++        paired_diffs
++    )
++    positive_count = sum(
++        value > 0 for value in paired_diffs
+     )
+-    smd = (paired_mean / sd_paired) if (sd_paired and sd_paired > 0) else None
+-
+-    # ── Reduced-cue evidence status ───────────────────────────────────────────
+-    # SUPPORTED_OPERATIONALLY if majority of accepted pairs show positive difference
+-    # and no low_coverage flags in the accepted set
+-    if len(review_accepted) == 0:
+-        reduced_cue_status = "INCONCLUSIVE"
+-    elif paired_mean is not None and paired_mean > 0 and n_pos_diffs / len(paired_diffs) >= 0.5:
+-        reduced_cue_status = "SUPPORTED_OPERATIONALLY"
++
++    if paired_diffs:
++        reduced_status = (
++            "SUPPORTED_OPERATIONALLY"
++            if paired_mean is not None
++            and paired_mean > 0
++            and positive_count / len(paired_diffs) >= 0.5
++            else "INCONCLUSIVE"
++        )
+     else:
+-        reduced_cue_status = "INCONCLUSIVE"
++        reduced_status = "INCONCLUSIVE"
++
++    a_lengths = [
++        row.get("word_count", len(row["prompt"].split()))
++        for row in benchmark_rows
++        if row.get("quadrant") == "A"
++    ]
++    c_lengths = [
++        row.get("word_count", len(row["prompt"].split()))
++        for row in c_rows
++        if row.get("c_construction") == "c_paired"
++    ]
++    length_d = pooled_cohen_d(a_lengths, c_lengths)
++    length_confound_pass = (
++        None
++        if not a_lengths or not c_lengths
++        else length_d is not None and length_d < 0.5
++    )
++
++    warnings = []
++
++    if schema_errors:
++        warnings.append(
++            f"Schema errors: {len(schema_errors)}"
++        )
++    if not prompt_integrity_pass:
++        warnings.append(
++            "Prompt or record-id integrity failed."
++        )
++    if not c_review_mapping_pass:
++        warnings.append(
++            "Accepted review IDs do not exactly match benchmark C IDs."
++        )
++    if not benchmark_hash_pass:
++        warnings.append(
++            "Benchmark does not match LATEST_BENCHMARK.json."
++        )
++    if not split_benchmark_hash_pass:
++        warnings.append(
++            "Direction split manifest targets another benchmark."
++        )
++    if not split_hash_pass:
++        warnings.append(
++            "Direction split manifest content hash failed."
++        )
++    if stale_artifacts:
++        warnings.append(
++            f"Stale or missing activation artifacts: "
++            f"{len(stale_artifacts)}"
++        )
++    if length_confound_pass is False:
++        warnings.append(
++            f"Length confound: |d|={length_d:.3f}; "
++            "A-versus-C comparison is source-confounded."
++        )
++    warnings.append(
++        "source_cue_effect_status=not_identified: "
++        "A and C-paired use different source datasets."
++    )
+ 
+-    surface_separation_pass = (
+-        reduced_cue_status == "SUPPORTED_OPERATIONALLY"
+-        if len(review_accepted) > 0 else None
++    technical_pass = all(
++        (
++            schema_integrity_pass,
++            prompt_integrity_pass,
++            c_review_pass,
++            c_review_mapping_pass,
++            benchmark_hash_pass,
++            split_benchmark_hash_pass,
++            split_hash_pass,
++            artifact_freshness_pass,
++        )
+     )
+ 
+-    # ── Build status dict ─────────────────────────────────────────────────────
+     status = {
+         "technical_benchmark_status": (
+-            "PASS" if (
+-                schema_integrity_pass and prompt_integrity_pass and
+-                c_review_pass and benchmark_hash_pass and artifact_freshness_pass
+-            ) else "FAIL"
++            "PASS" if technical_pass else "FAIL"
+         ),
+-        "reduced_cue_evidence_status": reduced_cue_status,
++        "reduced_cue_evidence_status": reduced_status,
+         "wording_only_claim_status": "INCONCLUSIVE",
+-        "benchmark_path": str(bench_path),
+-        "benchmark_sha256": bench_sha,
+-        "counts": counts,
+-        "c_counts_by_construction": dict(c_by_arm),
++        "benchmark_path": benchmark_path.as_posix(),
++        "benchmark_sha256": benchmark_sha,
++        "counts": dict(counts),
++        "c_counts_by_construction": dict(c_arms),
+         "schema_integrity_pass": schema_integrity_pass,
+         "prompt_integrity_pass": prompt_integrity_pass,
+         "c_review_pass": c_review_pass,
++        "c_review_mapping_pass": c_review_mapping_pass,
+         "benchmark_hash_pass": benchmark_hash_pass,
++        "split_benchmark_hash_pass": split_benchmark_hash_pass,
++        "split_hash_pass": split_hash_pass,
+         "artifact_freshness_pass": artifact_freshness_pass,
+-        "surface_separation_pass": surface_separation_pass,
++        "surface_separation_pass": (
++            reduced_status == "SUPPORTED_OPERATIONALLY"
++            if paired_diffs
++            else None
++        ),
+         "length_confound_pass": length_confound_pass,
+         "category_confound_pass": None,
+         "prompt_function_confound_pass": None,
+-        "source_confound_pass": source_confound_pass,
+-        "stale_activation_files": stale_activations,
++        "source_confound_pass": False,
++        "wording_only_claim_pass": None,
++        "stale_activation_files": stale_artifacts,
+         "paired_diagnostics": {
+             "n_pairs": len(paired_diffs),
+-            "n_positive_diff": n_pos_diffs,
+-            "mean_diff": round(paired_mean, 4) if paired_mean is not None else None,
+-            "ci_95_lo": round(paired_lo, 4) if paired_lo is not None else None,
+-            "ci_95_hi": round(paired_hi, 4) if paired_hi is not None else None,
+-            "standardized_mean_diff": round(smd, 4) if smd is not None else None,
++            "n_positive_diff": positive_count,
++            "mean_diff": paired_mean,
++            "ci_95_lo": paired_lo,
++            "ci_95_hi": paired_hi,
+             "resampling_unit": "matched_pair",
+             "n_bootstrap_replicates": 1000,
+-            "note": (
+-                "Positive diff = candidate has lower Fightin' Words score than source. "
+-                "Not a causal effect of wording alone (source-confounded)."
+-            ),
+         },
+         "precision_band": (
+-            "very_limited_exploratory" if counts.get("C", 0) < 30 else
+-            "exploratory" if counts.get("C", 0) < 60 else
+-            "preferred_minimum" if counts.get("C", 0) < 80 else
+-            "desirable_target"
++            "very_limited_exploratory"
++            if len(c_rows) < 30
++            else "exploratory"
++            if len(c_rows) < 60
++            else "preferred_minimum"
++            if len(c_rows) < 80
++            else "desirable_target"
+         ),
+         "warnings": warnings,
+         "inputs": {
+-            "benchmark": str(bench_path),
+-            "benchmark_sha256": bench_sha,
+-            "review_csv": str(review_path),
++            "benchmark": benchmark_path.as_posix(),
++            "benchmark_sha256": benchmark_sha,
++            "review_csv": review_path.as_posix(),
+             "review_csv_sha256": review_sha,
+-            "gate_config": str(gate_path),
++            "gate_config": gate_path.as_posix(),
+             "gate_config_sha256": gate_sha,
+-            "split_manifest": str(split_path),
+-            "split_manifest_sha256": split_sha,
++            "split_manifest": split_path.as_posix(),
++            "split_manifest_file_sha256": split_file_sha,
++            "split_manifest_sha256": split_recorded_sha,
+         },
+-        "generated_at_utc": ts,
++        "outputs": {
++            "validation_status": (
++                "logs/benchmark_validation_status.json"
++            ),
++            "validation_report": (
++                "logs/benchmark_validation_report.md"
++            ),
++        },
++        "generated_at_utc": datetime.now(
++            timezone.utc
++        ).isoformat(),
+     }
+ 
+-    status_path = out_dir / "benchmark_validation_status.json"
+-    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+-    print(f"\nValidation status: {status_path}")
+-    print(f"technical_benchmark_status: {status['technical_benchmark_status']}")
+-    print(f"reduced_cue_evidence_status: {status['reduced_cue_evidence_status']}")
+-    print(f"wording_only_claim_status: INCONCLUSIVE (fixed)")
+-    if warnings:
+-        print(f"\nWarnings ({len(warnings)}):")
+-        for w in warnings:
+-            print(f"  ⚠  {w}")
++    write_json_lf(
++        out_dir / "benchmark_validation_status.json",
++        status,
++    )
+ 
+-    # ── Markdown report ────────────────────────────────────────────────────────
+-    md_lines = [
++    report = [
+         "# Benchmark v2 Validation Report",
+-        f"Generated: {ts}",
+         "",
+-        f"**Technical benchmark status:** `{status['technical_benchmark_status']}`",
+-        f"**Reduced-cue evidence status:** `{status['reduced_cue_evidence_status']}`",
+-        f"**Wording-only claim status:** `INCONCLUSIVE` (fixed — this project does not identify a causal effect of wording alone)",
++        f"Generated: {status['generated_at_utc']}",
+         "",
+-        "## Gate fields",
+-        f"| Field | Value |",
+-        f"|---|---|",
+-    ]
+-    for field in (
+-        ["schema_integrity_pass", "prompt_integrity_pass", "c_review_pass",
+-         "benchmark_hash_pass", "artifact_freshness_pass"]
+-        + ["source_confound_pass", "category_confound_pass",
+-           "prompt_function_confound_pass", "length_confound_pass",
+-           "surface_separation_pass", "wording_only_claim_pass"]
+-    ):
+-        val = status.get(field, "INCONCLUSIVE")
+-        md_lines.append(f"| {field} | {val} |")
+-
+-    md_lines += [
++        (
++            "**Technical benchmark status:** "
++            f"`{status['technical_benchmark_status']}`"
++        ),
++        (
++            "**Reduced-cue evidence status:** "
++            f"`{status['reduced_cue_evidence_status']}`"
++        ),
++        (
++            "**Wording-only claim status:** "
++            "`INCONCLUSIVE`"
++        ),
+         "",
+         "## Counts",
+-        f"| Quadrant | Count |",
+-        f"|---|---|",
+-    ]
+-    for q, n in sorted(counts.items()):
+-        md_lines.append(f"| {q} | {n} |")
+-
+-    md_lines += [
+         "",
+-        "## C arm counts",
+-        f"| Arm | Count |",
+-        f"|---|---|",
++        "| Quadrant | Count |",
++        "|---|---:|",
+     ]
+-    for arm, n in dict(c_by_arm).items():
+-        md_lines.append(f"| {arm} | {n} |")
+ 
+-    md_lines += [
+-        "",
+-        "## Paired Fightin' Words diagnostics",
+-        f"- n_pairs: {status['paired_diagnostics']['n_pairs']}",
+-        f"- n_positive_diff: {status['paired_diagnostics']['n_positive_diff']}",
+-        f"- mean_diff: {status['paired_diagnostics']['mean_diff']}",
+-        f"- 95% CI: [{status['paired_diagnostics']['ci_95_lo']}, {status['paired_diagnostics']['ci_95_hi']}]",
+-        f"- SMD (not Cohen's d): {status['paired_diagnostics']['standardized_mean_diff']}",
+-        f"- Note: {status['paired_diagnostics']['note']}",
+-        "",
+-        "## Stale artifacts",
+-    ]
+-    if stale_activations:
+-        for sa in stale_activations:
+-            md_lines.append(f"- {sa}")
+-    else:
+-        md_lines.append("- None")
++    for quadrant, count in sorted(counts.items()):
++        report.append(f"| {quadrant} | {count} |")
++
++    report.extend(
++        [
++            "",
++            "## C construction counts",
++            "",
++            "| Construction | Count |",
++            "|---|---:|",
++        ]
++    )
++
++    for arm, count in sorted(c_arms.items()):
++        report.append(f"| {arm} | {count} |")
++
++    report.extend(
++        [
++            "",
++            "## Gate fields",
++            "",
++            "| Field | Value |",
++            "|---|---|",
++        ]
++    )
++
++    for field in (
++        "schema_integrity_pass",
++        "prompt_integrity_pass",
++        "c_review_pass",
++        "c_review_mapping_pass",
++        "benchmark_hash_pass",
++        "split_benchmark_hash_pass",
++        "split_hash_pass",
++        "artifact_freshness_pass",
++    ):
++        report.append(f"| {field} | {status[field]} |")
++
++    report.extend(
++        [
++            "",
++            "## Warnings",
++            "",
++        ]
++    )
++    report.extend(f"- {warning}" for warning in warnings)
++
++    if stale_artifacts:
++        report.extend(
++            [
++                "",
++                "## Stale artifacts",
++                "",
++            ]
++        )
++        report.extend(f"- {item}" for item in stale_artifacts)
+ 
+-    md_lines += ["", "## Warnings"]
+-    for w in warnings:
+-        md_lines.append(f"- {w}")
++    write_report(
++        out_dir / "benchmark_validation_report.md",
++        report,
++    )
++
++    print(f"Benchmark rows: {len(benchmark_rows)}")
++    print(
++        "technical_benchmark_status: "
++        f"{status['technical_benchmark_status']}"
++    )
++    print(
++        "reduced_cue_evidence_status: "
++        f"{status['reduced_cue_evidence_status']}"
++    )
++    print(
++        "wording_only_claim_status: INCONCLUSIVE"
++    )
++    print(
++        "Validation status: "
++        "logs/benchmark_validation_status.json"
++    )
++    print(
++        "Markdown report: "
++        "logs/benchmark_validation_report.md"
++    )
+ 
+-    md_path = out_dir / "benchmark_validation_report.md"
+-    md_path.write_text("\n".join(md_lines) + "\n", encoding="utf-8")
+-    print(f"Markdown report: {md_path}")
++    if warnings:
++        print(f"Warnings ({len(warnings)}):")
++        for warning in warnings:
++            print(f"  - {warning}")
+ 
+ 
+ if __name__ == "__main__":
