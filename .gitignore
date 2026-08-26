@@ -10,6 +10,10 @@ wandb/
 .env
 .ipynb_checkpoints/
 results/activations/*.npy
+# pre-v2 activations, kept locally after the results/ -> results_pre_v2/
+# rename; same rule as above so the rename cannot pull 1.2 GB into git
+results_pre_v2/activations/*.npy
+results/companions/*/activations/*.npy
 # smoke-test outputs (keep local copies but do not track)
 outputs/smoke_test_m1/
 outputs/smoke_test_*/
