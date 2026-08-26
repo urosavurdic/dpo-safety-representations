@@ -1,0 +1,90 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "creation_timestamp_utc": "20260826T212909Z",
+  "git_commit": "cb31787b17fbde6aea49f03490a9053e1f606693",
+  "counts": {
+    "A": 150,
+    "B": 250,
+    "D": 150,
+    "C": 104
+  },
+  "c_counts_by_construction": {
+    "c_paired": 104
+  },
+  "source_distribution": {
+    "HarmBench": 150,
+    "XSTest": 250,
+    "Alpaca": 50,
+    "Dolly-15k": 50,
+    "OASST1": 50,
+    "StrongREJECT": 104
+  },
+  "category_distribution": {
+    "harassment_bullying": 60,
+    "illegal": 63,
+    "cybercrime_intrusion": 60,
+    "misinformation_disinformation": 71,
+    "homonyms": 25,
+    "figurative_language": 25,
+    "safe_targets": 25,
+    "safe_contexts": 25,
+    "definitions": 25,
+    "nons_group_real_discr": 25,
+    "real_group_nons_discr": 25,
+    "historical_events": 25,
+    "privacy_public": 25,
+    "privacy_fictional": 25,
+    "null": 150
+  },
+  "inputs": {
+    "eval_set": "data/processed/controlled_eval.jsonl",
+    "eval_set_sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+    "review_csv": "data/review/c_review_queue.csv",
+    "review_csv_sha256": "8f6dfba182e5d3595d9ac6292d13956dd1a027b18770da01f4ef510f236787bb",
+    "gate_config": "logs/benchmark_gate_config.json",
+    "gate_config_sha256": "1ac73585f08a4d685996c96eecafdbfcc74478ab07f7f762a4a9de2b2568b743",
+    "provenance": "data/quadrant_c_pipeline/candidate_records_v2.jsonl"
+  },
+  "review_summary": {
+    "total": 104,
+    "accepted": 104,
+    "rejected": 0,
+    "pending": 0
+  },
+  "contamination_status": "preserved_from_review_metadata",
+  "direction_split_status": "preserved_from_eval_set_fields",
+  "gate_config_snapshot": {
+    "direction_split_seed": 45,
+    "direction_train_fraction": 0.8,
+    "d_review_seed": 271828,
+    "min_token_recognition_fraction": 0.5,
+    "screening_strata": {
+      "Q10": 0.1,
+      "Q25": 0.25,
+      "Q40": 0.4
+    },
+    "default_source_authored_review_stratum": "Q25",
+    "source_authored_review_limit": 150,
+    "max_metric_rank_disagreement": 0.25,
+    "source_confound_policy": "warn_unless_identified",
+    "category_confound_policy": "warn_if_unavailable",
+    "prompt_function_confound_policy": "warn_if_unavailable",
+    "required_gate_fields": [
+      "schema_integrity_pass",
+      "prompt_integrity_pass",
+      "c_review_pass",
+      "benchmark_hash_pass",
+      "artifact_freshness_pass"
+    ],
+    "warning_only_gate_fields": [
+      "source_confound_pass",
+      "category_confound_pass",
+      "prompt_function_confound_pass",
+      "length_confound_pass",
+      "surface_separation_pass",
+      "wording_only_claim_pass"
+    ],
+    "_note": "Created before examining any final validation results. Do not modify after creation."
+  }
+}
