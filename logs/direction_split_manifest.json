@@ -1,26 +1,9 @@
 {
-  "eval_set": "data/processed/controlled_eval.jsonl",
-  "eval_set_sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
   "direction_split_seed": 45,
   "direction_train_fraction": 0.8,
-  "split_algorithm": "existing_field_from_controlled_eval_jsonl",
-  "note": "Split was applied at eval-set construction time and is recorded in the split field of controlled_eval.jsonl. Record IDs are sha256(quadrant|source|prompt)[:16] \u2014 deterministic, position-independent.",
-  "counts": {
-    "direction_estimation": 240,
-    "held_out_behavioral": 60
-  },
-  "sources_in_direction_estimation": {
-    "Alpaca": 43,
-    "Dolly-15k": 37,
-    "HarmBench": 120,
-    "OASST1": 40
-  },
-  "sources_in_held_out_behavioral": {
-    "Alpaca": 7,
-    "Dolly-15k": 13,
-    "HarmBench": 30,
-    "OASST1": 10
-  },
+  "split_algorithm": "preserved_split_fields_from_frozen_benchmark",
   "record_ids_direction_estimation": [
     "4424b0d87fd26b18",
     "5cc97d42dd2a76b6",
@@ -325,5 +308,24 @@
     "fc8ecfe55b749e00",
     "1ceba08116bd73e8"
   ],
-  "split_manifest_sha256": "7d7871dd8c1cc78a6499bb5483063b83297d928a66182806e572e649ff7dd045"
+  "counts": {
+    "direction_estimation": 240,
+    "held_out_behavioral": 60
+  },
+  "sources": {
+    "direction_estimation": {
+      "HarmBench": 120,
+      "Alpaca": 43,
+      "Dolly-15k": 37,
+      "OASST1": 40
+    },
+    "held_out_behavioral": {
+      "HarmBench": 30,
+      "Alpaca": 7,
+      "Dolly-15k": 13,
+      "OASST1": 10
+    }
+  },
+  "split_hash_algorithm": "sha256_canonical_json_without_hash_fields",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1"
 }
