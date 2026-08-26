@@ -126,6 +126,54 @@ def test_completed_shards_ignores_a_missing_file(tmp_path):
     assert store.unit_complete("u") is False
 
 
+# ---- multi-unit isolation -----------------------------------------------
+#
+# run_paired_conditions puts a baseline condition and a treated condition
+# for the same stage into one ShardStore (see v2_pipeline.py). Completing
+# or merging one must never touch the other's shard files or progress.
+
+
+def test_units_in_the_same_store_do_not_share_progress_or_shard_files(
+    tmp_path,
+):
+    store = store_at(tmp_path)
+    baseline = ShardStore.unit_key("M3", "baseline")
+    ablated = ShardStore.unit_key("M3", "ablated")
+
+    store.declare_unit(baseline, n_shards=2, n_rows=2)
+    store.declare_unit(ablated, n_shards=2, n_rows=2)
+
+    store.write_shard(baseline, 0, [{"record_id": "r000"}])
+    store.write_shard(baseline, 1, [{"record_id": "r001"}])
+
+    # Finishing baseline must not mark ablated complete or create its files.
+    assert store.unit_complete(baseline) is True
+    assert store.unit_complete(ablated) is False
+    assert store.completed_shards(ablated) == set()
+    assert store.shard_path(baseline, 0) != store.shard_path(ablated, 0)
+    assert store.shard_path(ablated, 0).exists() is False
+
+    baseline_merged = store.merge_unit(baseline)
+    assert [r["record_id"] for r in baseline_merged] == ["r000", "r001"]
+
+    store.write_shard(ablated, 0, [{"record_id": "a000"}])
+    store.write_shard(ablated, 1, [{"record_id": "a001"}])
+    ablated_merged = store.merge_unit(ablated)
+
+    # No cross-contamination between the two conditions' rows.
+    assert [r["record_id"] for r in ablated_merged] == ["a000", "a001"]
+    assert set(r["record_id"] for r in baseline_merged).isdisjoint(
+        r["record_id"] for r in ablated_merged
+    )
+
+    # Isolation survives a fresh process picking the store back up.
+    reopened = store_at(tmp_path)
+    assert reopened.unit_complete(baseline) is True
+    assert reopened.unit_complete(ablated) is True
+    assert reopened.completed_shards(baseline) == {0, 1}
+    assert reopened.completed_shards(ablated) == {0, 1}
+
+
 # ---- merge --------------------------------------------------------------
 
 
