@@ -131,7 +131,12 @@ def test_direction_exists_true_and_false(tmp_path, monkeypatch):
 
 
 def test_output_path_for_uses_raw_dir_and_tag():
-    assert str(output_path_for("M3_L24_x_coef1_QAD")) == "results/raw/steering_v2_M3_L24_x_coef1_QAD.json"
+    # as_posix(), not str(): str() renders with the host OS separator, so
+    # this assertion fails on Windows against a forward-slash literal.
+    assert (
+        output_path_for("M3_L24_x_coef1_QAD").as_posix()
+        == "results/raw/steering_v2_M3_L24_x_coef1_QAD.json"
+    )
 
 
 def test_build_command_includes_overwrite_only_when_forced():
