@@ -1733,14 +1733,9 @@ def main_run(args) -> None:
             print(f"\n=== {stage}: already complete, skipping ===")
             continue
 
-        estimate = (
-            max(ctx.stage_seconds) if ctx.stage_seconds else 0.0
-        )
-        if ctx.deadline.expired():
-            print(
-                f"\nSession budget spent before {stage}; "
-                f"{ctx.deadline.describe()}"
-            )
+        blocked, reason = stage_start_blocked(ctx, stage)
+        if blocked:
+            print(f"\n{reason}")
             incomplete.append(stage)
             break
 
@@ -1821,6 +1816,40 @@ def main_run(args) -> None:
         )
     else:
         print("\nv2 GPU pipeline completed for the planned stages.")
+
+
+def stage_start_blocked(ctx, stage: str) -> tuple[bool, str]:
+    """Whether the session budget rules out starting `stage` next.
+
+    Two independent checks:
+
+    1. The budget is already spent (``deadline.expired()``): the ordinary
+       end-of-session stop.
+    2. The slowest stage extraction measured so far in *this* run, used as
+       a calibration estimate for the next one, would not fit in the time
+       left (``deadline.would_exceed``). Extraction is atomic rather than
+       sharded (see module docstring), so starting one that cannot finish
+       risks losing all of it to a session kill instead of stopping
+       cleanly beforehand and picking it up fresh next session.
+
+    Returns ``(blocked, reason)``; `reason` is a complete, ready-to-print
+    log line and is empty when not blocked.
+    """
+    if ctx.deadline.expired():
+        return True, (
+            f"Session budget spent before {stage}; "
+            f"{ctx.deadline.describe()}"
+        )
+
+    estimate = max(ctx.stage_seconds) if ctx.stage_seconds else 0.0
+    if ctx.deadline.would_exceed(estimate):
+        return True, (
+            f"Session budget insufficient to safely start {stage} "
+            f"(slowest stage extraction so far took "
+            f"{estimate / 60.0:.1f} min); {ctx.deadline.describe()}"
+        )
+
+    return False, ""
 
 
 def stage_is_complete(ctx, item) -> bool:
