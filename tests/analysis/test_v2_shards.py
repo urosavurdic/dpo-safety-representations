@@ -12,7 +12,9 @@ from src.analysis.v2_shards import (
     Deadline,
     ShardStore,
     plan_shards,
+    probe_batch_capacity,
     run_sharded,
+    run_with_oom_backoff,
 )
 
 
@@ -386,3 +388,165 @@ def test_deadline_check_raises_only_when_over():
 
     with pytest.raises(Exception):
         Deadline(minutes=-1).check()
+
+
+# ---- run_with_oom_backoff ------------------------------------------------
+
+
+def _oom(message="CUDA out of memory. Tried to allocate 2.00 GiB"):
+    return RuntimeError(message)
+
+
+def test_oom_backoff_returns_call_result_when_no_oom():
+    calls = []
+
+    def call(rows):
+        calls.append(list(rows))
+        return [r * 2 for r in rows]
+
+    result = run_with_oom_backoff([1, 2, 3], call, combine=lambda a, b: a + b)
+    assert result == [2, 4, 6]
+    assert calls == [[1, 2, 3]]  # never split when the first try succeeds
+
+
+def test_oom_backoff_halves_the_batch_and_recombines():
+    calls = []
+
+    def call(rows):
+        calls.append(len(rows))
+        if len(rows) > 2:
+            raise _oom()
+        return list(rows)
+
+    result = run_with_oom_backoff(
+        [1, 2, 3, 4, 5], call, combine=lambda a, b: a + b
+    )
+    # Halves recombine to the original rows, in original order.
+    assert result == [1, 2, 3, 4, 5]
+    # First attempt at full size, then more (possibly still-failing) calls
+    # at smaller sizes until every piece succeeds.
+    assert calls[0] == 5
+    assert len(calls) > 1
+
+
+def test_oom_backoff_reraises_non_oom_errors_without_splitting():
+    calls = []
+
+    def call(rows):
+        calls.append(rows)
+        raise RuntimeError("some other failure")
+
+    with pytest.raises(RuntimeError, match="some other failure"):
+        run_with_oom_backoff([1, 2, 3], call, combine=lambda a, b: a + b)
+
+    # Never retried/split for a non-OOM error.
+    assert len(calls) == 1
+
+
+def test_oom_backoff_reraises_when_min_batch_size_still_ooms():
+    def call(rows):
+        raise _oom()
+
+    with pytest.raises(RuntimeError, match="out of memory"):
+        run_with_oom_backoff(
+            [1, 2], call, combine=lambda a, b: a + b, min_batch_size=1
+        )
+
+
+def test_oom_backoff_calls_on_retry_once_per_halving():
+    retries = []
+
+    def call(rows):
+        if len(rows) > 1:
+            raise _oom()
+        return list(rows)
+
+    run_with_oom_backoff(
+        [1, 2, 3, 4],
+        call,
+        combine=lambda a, b: a + b,
+        on_retry=lambda: retries.append(1),
+    )
+    # 4 -> 2+2 (1 retry), each 2 -> 1+1 (1 retry each) = 3 halvings total.
+    assert len(retries) == 3
+
+
+def test_oom_backoff_preserves_record_identity_through_activation_style_combine():
+    # Mirrors stage_extract's usage: combine concatenates two (final,
+    # pooled) array-pairs rather than lists.
+    import numpy as np
+
+    rows = [{"record_id": f"r{i}"} for i in range(5)]
+
+    def call(sub_rows):
+        if len(sub_rows) > 2:
+            raise _oom()
+        n = len(sub_rows)
+        final = np.arange(n).reshape(n, 1, 1).astype(np.float32)
+        pooled = final * 10
+        return final, pooled
+
+    final, pooled = run_with_oom_backoff(
+        rows,
+        call,
+        combine=lambda left, right: (
+            np.concatenate([left[0], right[0]], axis=0),
+            np.concatenate([left[1], right[1]], axis=0),
+        ),
+    )
+    assert final.shape[0] == len(rows) == pooled.shape[0]
+
+
+# ---- probe_batch_capacity -------------------------------------------------
+
+
+def test_probe_batch_capacity_finds_the_largest_working_size():
+    def run_batch(size):
+        if size > 8:
+            raise _oom()
+
+    assert probe_batch_capacity(run_batch, start=1, cap=64) == 8
+
+
+def test_probe_batch_capacity_returns_zero_when_even_start_ooms():
+    def run_batch(size):
+        raise _oom()
+
+    assert probe_batch_capacity(run_batch, start=1, cap=64) == 0
+
+
+def test_probe_batch_capacity_stops_at_cap_without_erroring():
+    calls = []
+
+    def run_batch(size):
+        calls.append(size)
+
+    assert probe_batch_capacity(run_batch, start=1, cap=16) == 16
+    assert max(calls) == 16
+    assert all(size <= 16 for size in calls)
+
+
+def test_probe_batch_capacity_reraises_non_oom_errors():
+    def run_batch(size):
+        raise RuntimeError("not an OOM")
+
+    with pytest.raises(RuntimeError, match="not an OOM"):
+        probe_batch_capacity(run_batch, start=1, cap=64)
+
+
+def test_probe_batch_capacity_rejects_bad_start():
+    with pytest.raises(ValueError):
+        probe_batch_capacity(lambda size: None, start=0)
+
+
+def test_probe_batch_capacity_calls_on_retry_once():
+    retries = []
+
+    def run_batch(size):
+        if size > 4:
+            raise _oom()
+
+    probe_batch_capacity(
+        run_batch, start=1, cap=64, on_retry=lambda: retries.append(1)
+    )
+    assert len(retries) == 1
