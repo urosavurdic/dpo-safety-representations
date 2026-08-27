@@ -1,6 +1,6 @@
 # Benchmark v2 Validation Report
 
-Generated: 2026-08-26T22:24:30.738682+00:00
+Generated: 2026-08-27T03:55:37.916847+00:00
 
 **Technical benchmark status:** `FAIL`
 **Reduced-cue evidence status:** `INCONCLUSIVE`
