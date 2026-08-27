@@ -17,6 +17,24 @@ Three invariants hold every checkpoint honest:
    never a truncated one.
 3. Merged output is restored to benchmark row order by record_id, so
    length-sorted batching cannot leak into the ordering of results.
+
+This module also carries the two OOM-related utilities used to keep a T4
+session's chosen batch size honest:
+
+* `run_with_oom_backoff` halves a shard in place when a forward/generate
+  call raises a CUDA out-of-memory error, retries each half, and stitches
+  the pieces back together with a caller-supplied `combine`. This changes
+  how many model calls one shard costs; it never changes which rows the
+  shard contains or their order, so it composes with `plan_shards` and
+  `ShardStore` without affecting determinism.
+* `probe_batch_capacity` measures the largest batch size that a given unit
+  of work survives before OOM, so a batch size can be selected from
+  measured GPU capacity rather than guessed.
+
+Both take the actual retry/measurement callable as a parameter rather than
+importing torch, so this module stays test-light: the recursion and
+doubling logic is exercised with plain Python fakes, and only the real T4
+run supplies a callable that touches the GPU.
 """
 
 from __future__ import annotations
@@ -390,3 +408,95 @@ def run_sharded(
         )
 
     return True
+
+
+# --------------------------------------------------------------------------
+# OOM backoff and capacity probing
+# --------------------------------------------------------------------------
+
+
+def _looks_like_oom(exc: BaseException) -> bool:
+    """Heuristic CUDA-OOM detection that does not require importing torch.
+
+    torch.cuda.OutOfMemoryError is itself a RuntimeError subclass, and both
+    it and the plain RuntimeError older torch versions raise for the same
+    condition carry "out of memory" in the message. Matching on the
+    message keeps this module import-light (no torch dependency) and works
+    across whichever torch version a given Colab session has installed.
+    """
+    return isinstance(exc, RuntimeError) and "out of memory" in str(exc).lower()
+
+
+def run_with_oom_backoff(
+    rows: Sequence[Any],
+    call: Callable[[Sequence[Any]], Any],
+    combine: Callable[[Any, Any], Any],
+    min_batch_size: int = 1,
+    on_retry: Callable[[], None] | None = None,
+) -> Any:
+    """Run `call(rows)`, halving the batch and retrying on CUDA OOM.
+
+    `combine(left_result, right_result)` merges the two halves' results
+    back into the shape `call` would have produced for the whole batch - a
+    list concatenation for generated rows, an array concatenation for
+    stacked activations. `on_retry` is called once per halving (typically
+    `torch.cuda.empty_cache`) before the smaller calls are attempted.
+
+    This only changes how many forward/generate calls one shard costs; the
+    shard's rows, their order, and record_id identity are untouched, so it
+    composes with `plan_shards`/`ShardStore` without affecting determinism
+    or checkpoint granularity - a shard is still committed whole or not at
+    all.
+
+    Halving stops at `min_batch_size` (default 1): an OOM on a single row
+    is a genuine failure and is re-raised rather than looping forever.
+    """
+    try:
+        return call(rows)
+    except RuntimeError as exc:
+        if not _looks_like_oom(exc) or len(rows) <= min_batch_size:
+            raise
+        if on_retry is not None:
+            on_retry()
+        mid = max(min_batch_size, len(rows) // 2)
+        left = run_with_oom_backoff(
+            rows[:mid], call, combine, min_batch_size, on_retry
+        )
+        right = run_with_oom_backoff(
+            rows[mid:], call, combine, min_batch_size, on_retry
+        )
+        return combine(left, right)
+
+
+def probe_batch_capacity(
+    run_batch: Callable[[int], None],
+    start: int = 1,
+    cap: int = 64,
+    on_retry: Callable[[], None] | None = None,
+) -> int:
+    """Largest batch size for which `run_batch(size)` completes without OOM.
+
+    Doubles from `start` (1, 2, 4, 8, ...) until a size OOMs or `cap` is
+    reached, and returns the last size that succeeded - 0 if even `start`
+    OOMs. This is a calibration-time measurement only: the real run always
+    uses whatever act_batch/gen_batch was selected (measured or supplied),
+    it does not re-probe per shard.
+    """
+    if start < 1:
+        raise ValueError("start must be >= 1")
+
+    working = 0
+    size = start
+    while size <= cap:
+        try:
+            run_batch(size)
+            working = size
+            size *= 2
+        except RuntimeError as exc:
+            if not _looks_like_oom(exc):
+                raise
+            if on_retry is not None:
+                on_retry()
+            break
+
+    return working

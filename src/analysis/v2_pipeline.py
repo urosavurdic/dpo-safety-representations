@@ -42,7 +42,9 @@ from src.analysis.v2_shards import (
     Deadline,
     ShardStore,
     plan_shards,
+    probe_batch_capacity,
     run_sharded,
+    run_with_oom_backoff,
 )
 from src.v2_io import (
     assert_binding,
@@ -103,6 +105,12 @@ MODEL_NAME = "Qwen/Qwen2.5-1.5B"
 
 # 5:30 session minus a margin for setup, install, and the final merge/commit.
 DEFAULT_DEADLINE_MINUTES = 300
+
+# Bounds for the optional capacity probe in `calibrate --probe-capacity`.
+DEFAULT_CAPACITY_START = 1
+DEFAULT_CAPACITY_CAP = 64
+
+CALIBRATION_PATH = Path("logs/t4_calibration.json")
 
 POOL_WINDOW = 5
 
@@ -219,6 +227,45 @@ class RunContext:
         )
 
 
+def batch_size_arg(value: str) -> int | str:
+    """argparse type for --act-batch/--gen-batch: an int, or the string "auto"."""
+    if value == "auto":
+        return "auto"
+    return int(value)
+
+
+def resolve_batch_size(
+    value: int | str,
+    calibration_key: str,
+    calibration_path: Path = CALIBRATION_PATH,
+) -> int:
+    """Resolve a --act-batch/--gen-batch value, honouring "auto".
+
+    "auto" looks up `calibration_key` ("recommended_act_batch" or
+    "recommended_gen_batch") in logs/t4_calibration.json, written by
+    `calibrate --probe-capacity` - i.e. the batch size is *selected from
+    measured capacity* rather than guessed. Any other value passes
+    through unchanged; this function never invents a batch size itself.
+    """
+    if value != "auto":
+        return int(value)
+
+    if not calibration_path.exists():
+        raise RuntimeError(
+            "--act-batch/--gen-batch auto requires "
+            f"{calibration_path}; run `calibrate --probe-capacity` first."
+        )
+
+    calibration = load_json(calibration_path)
+    recommended = calibration.get(calibration_key)
+    if not recommended:
+        raise RuntimeError(
+            f"{calibration_path} has no {calibration_key} (probe may not "
+            "have run); rerun `calibrate --probe-capacity`."
+        )
+    return int(recommended)
+
+
 def build_context(args) -> RunContext:
     benchmark_path, benchmark_sha, split_path, split_sha = load_run_inputs(
         getattr(args, "eval_set", None),
@@ -256,8 +303,14 @@ def build_context(args) -> RunContext:
             getattr(args, "namespace", None)
         ),
         deadline=Deadline(deadline_minutes),
-        act_batch=getattr(args, "act_batch", DEFAULT_ACT_BATCH),
-        gen_batch=getattr(args, "gen_batch", DEFAULT_GEN_BATCH),
+        act_batch=resolve_batch_size(
+            getattr(args, "act_batch", DEFAULT_ACT_BATCH),
+            "recommended_act_batch",
+        ),
+        gen_batch=resolve_batch_size(
+            getattr(args, "gen_batch", DEFAULT_GEN_BATCH),
+            "recommended_gen_batch",
+        ),
         max_new_tokens=getattr(args, "max_new_tokens", MAX_NEW_TOKENS),
         force=bool(getattr(args, "force", False)),
     )
@@ -466,19 +519,47 @@ def result_row(row, ctx, stage, condition, model_stage, response):
     }
 
 
+def clear_cuda_cache() -> None:
+    """Best-effort torch.cuda.empty_cache().
+
+    Safe to call with no GPU present (torch.cuda.is_available() is False)
+    or with torch missing entirely (e.g. a unit test exercising the OOM
+    retry path without the real ML stack installed) - either way there is
+    no CUDA cache to clear, so this is a silent no-op rather than an error.
+    """
+    try:
+        import torch
+    except ImportError:
+        return
+
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 def make_generator(ctx, model, tokenizer, device, stage, condition):
     def process(shard):
-        responses = generation_batch(
-            model,
-            tokenizer,
-            [row["prompt"] for row in shard],
-            device,
-            ctx.max_new_tokens,
+        def call(sub_shard):
+            responses = generation_batch(
+                model,
+                tokenizer,
+                [row["prompt"] for row in sub_shard],
+                device,
+                ctx.max_new_tokens,
+            )
+            return [
+                result_row(row, ctx, stage, condition, stage, response)
+                for row, response in zip(sub_shard, responses)
+            ]
+
+        # A shard that OOMs at ctx.gen_batch is retried at half the size
+        # (then a quarter, ...) rather than failing the whole session; the
+        # shard's rows, order and record_id identity are unaffected.
+        return run_with_oom_backoff(
+            shard,
+            call,
+            combine=lambda left, right: left + right,
+            on_retry=clear_cuda_cache,
         )
-        return [
-            result_row(row, ctx, stage, condition, stage, response)
-            for row, response in zip(shard, responses)
-        ]
 
     return process
 
@@ -613,11 +694,26 @@ def stage_extract(ctx, stage, model, tokenizer, device) -> bool:
 
     started = time.monotonic()
     for index, shard in enumerate(shards):
-        final, pooled = activation_batch(
-            model,
-            tokenizer,
-            [row["prompt"] for row in shard],
-            device,
+        def call(sub_shard):
+            return activation_batch(
+                model,
+                tokenizer,
+                [row["prompt"] for row in sub_shard],
+                device,
+            )
+
+        # Mirrors make_generator's backoff: a shard that OOMs at
+        # ctx.act_batch is retried at half the size instead of failing the
+        # stage outright. combine concatenates the two (final, pooled)
+        # array pairs along the row axis.
+        final, pooled = run_with_oom_backoff(
+            shard,
+            call,
+            combine=lambda left, right: (
+                np.concatenate([left[0], right[0]], axis=0),
+                np.concatenate([left[1], right[1]], axis=0),
+            ),
+            on_retry=clear_cuda_cache,
         )
         for offset, row in enumerate(shard):
             final_rows[row["record_id"]] = final[offset]
@@ -1985,12 +2081,42 @@ def cmd_status(args) -> None:
     print_status(ctx)
 
 
+def _capacity_probe_prompts(rows, measure, size):
+    """`size` prompts biased toward the longest, for worst-case OOM probing.
+
+    Length-sorted batching clusters the longest prompts together, so the
+    shard most likely to OOM at a given batch size is a full shard of the
+    longest prompts in the benchmark - that is what capacity is measured
+    against, not a random or median-length sample.
+    """
+    longest_first = sorted(
+        rows, key=lambda row: measure(row["prompt"]), reverse=True
+    )
+    if not longest_first:
+        raise RuntimeError("No rows to probe capacity on.")
+
+    prompts = [row["prompt"] for row in longest_first]
+    if len(prompts) >= size:
+        return prompts[:size]
+
+    # Benchmark has fewer rows than the probed batch size: cycle through
+    # the longest prompts rather than refusing to probe that size at all.
+    reps = -(-size // len(prompts))
+    return (prompts * reps)[:size]
+
+
 def cmd_calibrate(args) -> None:
     """Measure real throughput, then project the session count.
 
     Timings on a free-tier T4 vary enough between sessions that a
     hard-coded estimate is worse than useless. Everything scheduling-
     related reads the numbers this writes.
+
+    With --probe-capacity, also measures the largest forward and
+    generation batch size this GPU survives without OOM (worst case: a
+    shard of the longest prompts in the benchmark) and records a
+    recommended batch size that `--act-batch auto`/`--gen-batch auto`
+    can read back on a later invocation.
     """
     ctx = build_context(args)
     stage = args.stage
@@ -2001,6 +2127,16 @@ def cmd_calibrate(args) -> None:
 
     model, tokenizer, device = load_stage(stage)
     measure = token_measure(tokenizer)
+
+    capacity_probe = {
+        "ran": False,
+        "forward_max_batch": None,
+        "generation_max_batch": None,
+        "start": args.capacity_start,
+        "cap": args.capacity_cap,
+    }
+    recommended_act_batch = None
+    recommended_gen_batch = None
 
     try:
         started = time.monotonic()
@@ -2021,6 +2157,46 @@ def cmd_calibrate(args) -> None:
             ctx.max_new_tokens,
         )
         generate_seconds = time.monotonic() - started
+
+        if args.probe_capacity:
+            def try_forward(size):
+                activation_batch(
+                    model,
+                    tokenizer,
+                    _capacity_probe_prompts(ctx.rows, measure, size),
+                    device,
+                )
+
+            def try_generate(size):
+                generation_batch(
+                    model,
+                    tokenizer,
+                    _capacity_probe_prompts(ctx.rows, measure, size),
+                    device,
+                    ctx.max_new_tokens,
+                )
+
+            forward_capacity = probe_batch_capacity(
+                try_forward,
+                start=args.capacity_start,
+                cap=args.capacity_cap,
+                on_retry=clear_cuda_cache,
+            )
+            generate_capacity = probe_batch_capacity(
+                try_generate,
+                start=args.capacity_start,
+                cap=args.capacity_cap,
+                on_retry=clear_cuda_cache,
+            )
+            capacity_probe = {
+                "ran": True,
+                "forward_max_batch": forward_capacity,
+                "generation_max_batch": generate_capacity,
+                "start": args.capacity_start,
+                "cap": args.capacity_cap,
+            }
+            recommended_act_batch = forward_capacity or None
+            recommended_gen_batch = generate_capacity or None
     finally:
         free_model(model)
 
@@ -2071,6 +2247,9 @@ def cmd_calibrate(args) -> None:
         },
         "session_budget_minutes": budget,
         "projected_sessions": round(total_minutes / budget, 2),
+        "capacity_probe": capacity_probe,
+        "recommended_act_batch": recommended_act_batch,
+        "recommended_gen_batch": recommended_gen_batch,
         "note": (
             "Excludes per-stage model load/merge and the norm diagnostic. "
             "Model load is paid once per stage per session under the "
@@ -2079,7 +2258,7 @@ def cmd_calibrate(args) -> None:
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     }
 
-    write_json_lf(Path("logs/t4_calibration.json"), payload)
+    write_json_lf(CALIBRATION_PATH, payload)
 
     print("\n=== Calibration ===")
     print(f"forward shard  : {forward_seconds:.2f}s")
@@ -2090,7 +2269,20 @@ def cmd_calibrate(args) -> None:
         f"\nProjected sessions at {budget} min: "
         f"{payload['projected_sessions']}"
     )
-    print("Wrote logs/t4_calibration.json")
+    if capacity_probe["ran"]:
+        print(
+            f"\nMax forward batch (no OOM)   : "
+            f"{capacity_probe['forward_max_batch']}"
+        )
+        print(
+            f"Max generation batch (no OOM): "
+            f"{capacity_probe['generation_max_batch']}"
+        )
+        print(
+            "Use --act-batch auto / --gen-batch auto on a later run to "
+            "pick these up."
+        )
+    print(f"Wrote {CALIBRATION_PATH}")
 
 
 # --------------------------------------------------------------------------
@@ -2224,10 +2416,24 @@ def add_common(parser) -> None:
         help="Stop cleanly at a shard boundary after this many minutes.",
     )
     parser.add_argument(
-        "--act-batch", type=int, default=DEFAULT_ACT_BATCH
+        "--act-batch",
+        type=batch_size_arg,
+        default=DEFAULT_ACT_BATCH,
+        help=(
+            "Batch size for forward-only extraction, or 'auto' to use "
+            "recommended_act_batch from logs/t4_calibration.json "
+            "(see `calibrate --probe-capacity`)."
+        ),
     )
     parser.add_argument(
-        "--gen-batch", type=int, default=DEFAULT_GEN_BATCH
+        "--gen-batch",
+        type=batch_size_arg,
+        default=DEFAULT_GEN_BATCH,
+        help=(
+            "Batch size for generation, or 'auto' to use "
+            "recommended_gen_batch from logs/t4_calibration.json "
+            "(see `calibrate --probe-capacity`)."
+        ),
     )
     parser.add_argument(
         "--max-new-tokens", type=int, default=MAX_NEW_TOKENS
@@ -2303,6 +2509,23 @@ def build_parser() -> argparse.ArgumentParser:
     add_common(calibrate)
     calibrate.add_argument("--stage", default="M3", choices=ALL_STAGES)
     calibrate.add_argument("--n-prompts", type=int, default=32)
+    calibrate.add_argument(
+        "--probe-capacity",
+        action="store_true",
+        help=(
+            "Also measure the largest forward/generation batch size this "
+            "GPU survives without OOM, and record a recommended batch "
+            "size that --act-batch auto / --gen-batch auto can read back. "
+            "Off by default since it costs several extra forward/generate "
+            "calls at increasing batch sizes."
+        ),
+    )
+    calibrate.add_argument(
+        "--capacity-start", type=int, default=DEFAULT_CAPACITY_START
+    )
+    calibrate.add_argument(
+        "--capacity-cap", type=int, default=DEFAULT_CAPACITY_CAP
+    )
 
     run = subparsers.add_parser("run")
     add_common(run)
