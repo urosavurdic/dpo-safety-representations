@@ -1,0 +1,331 @@
+{
+  "milestone": "3A1A",
+  "generated_utc": "2026-08-27T03:20:19Z",
+  "repository": "https://github.com/urosavurdic/dpo-safety-representations",
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "head_commit": "a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5",
+  "working_tree_status": "clean",
+  "prior_milestone_verification": {
+    "claimed_branch_and_head_match_actual": true,
+    "claimed_git_log_15_matches_actual": true,
+    "logs/3a0_source_plan.json_present_in_repo": false,
+    "logs/3a0_source_plan.md_present_in_repo": false,
+    "finding": "The 3A0 report and its underlying JSON were supplied to this session as uploaded files, but neither logs/3a0_source_plan.json nor logs/3a0_source_plan.md exists anywhere in the repository - not on agent/c-quadrant-end-to-end-e0e2317a, not on main, and not as an uncommitted working-tree file (git status --short is empty on a fresh clone). The 3A0 work product was never committed. Per instruction, this was not trusted at face value: every specific factual claim in the 3A0 report that this milestone depended on (gate config values, c_paired=104, Quadrant A = 100% HarmBench, candidate_records_v2.jsonl containing all 155 StrongREJECT rows, secondary_c5_evasion.jsonl being undocumented in summary.json) was independently re-verified this session against the real repository state and confirmed accurate. The report's content appears reliable; its absence from version control is a process gap, not an accuracy problem."
+  },
+  "sources": [
+    {
+      "source_name": "StrongREJECT",
+      "official_url": "https://github.com/alexandrasouly/strongreject",
+      "repository": "alexandrasouly/strongreject",
+      "file_fetched": "strongreject_dataset/strongreject_dataset.csv",
+      "revision": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "revision_note": "main branch HEAD at fetch time (git ls-remote); commit date 2024-11-03T12:39:45+00:00 (git log)",
+      "download_timestamp_utc": "2026-08-27T03:13:08Z",
+      "local_path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "gitignored": true,
+      "byte_size": 56359,
+      "sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "format": "csv",
+      "schema": [
+        "category",
+        "source",
+        "forbidden_prompt"
+      ],
+      "row_count": 313,
+      "id_fields": {
+        "persistent_upstream_id": null,
+        "note": "No unique per-row ID column exists in the upstream CSV. This project's own candidate_records_v2.jsonl assigns internal source_id values (e.g. SR_cyber_01) by category+sequence; those are NOT upstream IDs. Row identity for this audit's overlap check was established via sha256 of the stripped forbidden_prompt text."
+      },
+      "text_fields": [
+        "forbidden_prompt"
+      ],
+      "category_field": "category",
+      "upstream_provenance_field": "source (per-row: DAN, custom, AdvBench, HarmfulQ, MaliciousInstruct, OpenAI System Card, MasterKey, Jailbreaking via Prompt Engineering)",
+      "license": "MIT (repo LICENSE, Copyright (c) 2024 Center for Human-Compatible AI)",
+      "access_notes": "Public, unauthenticated raw fetch via raw.githubusercontent.com. No access gate.",
+      "role_this_session": "primary candidate source (StrongREJECT recommendation from 3A0 re-confirmed by fresh acquisition + hash-level cross-check)",
+      "classification": {
+        "field_classified": "forbidden_prompt",
+        "n": 313,
+        "counts": {
+          "complete_user_facing_prompt": 265,
+          "behavior_description": 48
+        },
+        "confidence_breakdown": {
+          "complete_user_facing_prompt (first-person or question framing)": 245,
+          "complete_user_facing_prompt (imperative, low-confidence fallback)": 20,
+          "behavior_description (imperative task-directive opening verb)": 48
+        }
+      }
+    },
+    {
+      "source_name": "HarmBench",
+      "official_url": "https://github.com/centerforaisafety/HarmBench",
+      "repository": "centerforaisafety/HarmBench",
+      "file_fetched": "data/behavior_datasets/harmbench_behaviors_text_all.csv",
+      "revision": "8e1604d1171fe8a48d8febecd22f600e462bdcdd",
+      "revision_note": "main branch HEAD at fetch time; commit date 2024-08-05T20:25:38Z",
+      "download_timestamp_utc": "2026-08-27T03:13:44Z",
+      "local_path": "data/raw/3a1a_source_cache/harmbench/harmbench_behaviors_text_all.csv",
+      "gitignored": true,
+      "byte_size": 198850,
+      "sha256": "8d81accedd38eaaf8b760618622bb888417d1fd0c86eba65c427a16f1cbb4afc",
+      "format": "csv",
+      "schema": [
+        "Behavior",
+        "FunctionalCategory",
+        "SemanticCategory",
+        "Tags",
+        "ContextString",
+        "BehaviorID"
+      ],
+      "row_count": 400,
+      "row_count_by_functional_category": {
+        "standard": 200,
+        "copyright": 100,
+        "contextual": 100
+      },
+      "id_fields": {
+        "persistent_upstream_id": "BehaviorID",
+        "note": "present and unique per row"
+      },
+      "text_fields": [
+        "Behavior",
+        "ContextString (contextual subset only)"
+      ],
+      "category_field": "SemanticCategory",
+      "license": "MIT (repo LICENSE, Copyright (c) 2024 centerforaisafety)",
+      "access_notes": "Public, unauthenticated raw fetch via raw.githubusercontent.com. No access gate.",
+      "role_this_session": "overlap-audit only, per frozen protocol decision #1. NOT placed in any primary candidate file (no candidate file was created this session at all).",
+      "classification": {
+        "field_classified": "Behavior",
+        "scope": "FunctionalCategory == 'standard' only (n=200); 'copyright' and 'contextual' subsets not classified, out of scope for source-authored request auditing",
+        "n": 200,
+        "counts": {
+          "behavior_description": 186,
+          "complete_user_facing_prompt": 11,
+          "category_label": 2,
+          "incomplete_or_context_dependent": 1
+        },
+        "confidence_breakdown": {
+          "complete_user_facing_prompt (imperative, low-confidence fallback)": 11
+        }
+      }
+    },
+    {
+      "source_name": "AdvBench",
+      "official_url": "https://github.com/llm-attacks/llm-attacks",
+      "repository": "llm-attacks/llm-attacks",
+      "file_fetched": "data/advbench/harmful_behaviors.csv",
+      "revision": "098262edf85f807224e70ecd87b9d83716bf6b73",
+      "revision_note": "main branch HEAD at fetch time; commit date 2024-08-02T06:02:18Z",
+      "download_timestamp_utc": "2026-08-27T03:14:15Z",
+      "local_path": "data/raw/3a1a_source_cache/advbench/harmful_behaviors.csv",
+      "gitignored": true,
+      "byte_size": 82125,
+      "sha256": "6cd1a5c63c07610d7eb67307772ee5606017ee950b5770ab288a2c487489d3e1",
+      "format": "csv",
+      "schema": [
+        "goal",
+        "target"
+      ],
+      "row_count": 520,
+      "id_fields": {
+        "persistent_upstream_id": null,
+        "note": "no ID column; goal text used as identity"
+      },
+      "text_fields": [
+        "goal"
+      ],
+      "non_prompt_fields": {
+        "target": "GCG-style optimization affirmative-response prefix (e.g. 'Sure, here is ...'), not a prompt. Classified separately below, excluded from any prompt pool by construction."
+      },
+      "license": "MIT (repo LICENSE, Copyright (c) 2023 Andy Zou)",
+      "access_notes": "Public, unauthenticated raw fetch via raw.githubusercontent.com. No access gate.",
+      "role_this_session": "supplementary (per 3A0), re-confirmed",
+      "intra_source_exact_dedup_check": {
+        "unique_goal_strings": 520,
+        "total_rows": 520,
+        "note": "No exact-text duplicates found. This does NOT clear the near-duplicate/templating concern flagged in 3A0 (literature-documented internal repetition) - that requires embedding-based near-dup tooling (e.g. complete_neardup_check.py's SentenceTransformer approach), which was not run this session. See unresolved_issues."
+      },
+      "classification": {
+        "field_classified": "goal",
+        "n": 520,
+        "counts": {
+          "behavior_description": 481,
+          "complete_user_facing_prompt": 37,
+          "category_label": 2
+        },
+        "confidence_breakdown": {
+          "complete_user_facing_prompt (imperative, low-confidence fallback)": 37
+        },
+        "target_field_classification": {
+          "field_classified": "target",
+          "n": 520,
+          "counts": {
+            "target_goal": 520
+          },
+          "note": "100% classified target_goal by field-role construction (GCG affirmative-completion prefixes), not eligible as prompts under any circumstance."
+        }
+      }
+    },
+    {
+      "source_name": "JailbreakBench / JBB-Behaviors",
+      "official_url": "https://github.com/JailbreakBench/jailbreakbench (package/code repo); dataset itself hosted at https://huggingface.co/datasets/dedeswim/JBB-Behaviors",
+      "repository": "JailbreakBench/jailbreakbench (code only - the actual JBB-Behaviors dataset is NOT in this repo, confirmed by full clone + file search)",
+      "file_fetched": null,
+      "revision": "23dbdf6b19650521604456229bc1d9c4156c85c1",
+      "revision_note": "commit of the code repo (jailbreakbench package), date 2025-03-31T15:30:30+02:00. This is NOT a revision of the dataset itself, which could not be reached.",
+      "download_timestamp_utc": null,
+      "local_path": null,
+      "gitignored": null,
+      "byte_size": null,
+      "sha256": null,
+      "format": null,
+      "schema": null,
+      "row_count": null,
+      "status": "NOT_ACQUIRED",
+      "reason": "JBB-Behaviors is distributed via the HuggingFace `datasets` library (dedeswim/JBB-Behaviors), confirmed by reading src/jailbreakbench/dataset.py in the cloned code repo. huggingface.co is not in this sandbox's allowed network egress list; a direct request returned HTTP 403 with header x-deny-reason: host_not_allowed. Also cloned JailbreakBench/jailbreakbench and JailbreakBench/artifacts in full and searched for any mirrored CSV/JSON/parquet copy of the behaviors data - none exists in either repo. A web search for a GitHub-hosted mirror also returned nothing relevant.",
+      "license_of_code_repo": "MIT (Copyright (c) 2023 JailbreakBench Team) - dataset's own license/card was not independently reachable this session",
+      "role_this_session": "supplementary (per 3A0); acquisition deferred, not independently verified"
+    }
+  ],
+  "strongreject_overlap": {
+    "method": "sha256(stripped forbidden_prompt text) compared against sha256(stripped source_prompt text) for ALL 155 rows in candidate_records_v2.jsonl, live and non-live, per frozen protocol decision #2 ('not currently live' != 'unused')",
+    "raw_csv_total_rows": 313,
+    "candidate_records_v2_total_rows": 155,
+    "candidate_records_v2_all_source_datasets": [
+      "StrongREJECT"
+    ],
+    "matched_rows": 155,
+    "matched_rows_note": "All 155 rows in candidate_records_v2.jsonl were confirmed as exact hash matches to a raw CSV row. All 155 rows' recorded source_prompt_sha256 field matched the recomputed hash (0 mismatches) - the project's own stored hashes are trustworthy.",
+    "disjoint_unused_pool_size": 158,
+    "disjoint_unused_pool_by_category": {
+      "Disinformation and deception": 6,
+      "Hate, harassment and discrimination": 3,
+      "Illegal goods and services": 38,
+      "Non-violent crimes": 7,
+      "Sexual content": 50,
+      "Violence": 54
+    },
+    "disjoint_unused_pool_by_upstream_source_column": {
+      "custom": 129,
+      "DAN": 10,
+      "AdvBench": 13,
+      "MaliciousInstruct": 2,
+      "MasterKey": 2,
+      "OpenAI System Card": 2
+    },
+    "disjoint_unused_pool_classification": {
+      "complete_user_facing_prompt": 132,
+      "behavior_description": 26
+    },
+    "id_matching_caveat": "The upstream CSV has no persistent ID column, so 'source_id' disjointness could not be checked by literal string comparison of an upstream identifier - it was checked via exact-text content hash instead, which is a stronger and unambiguous form of the same check (two rows with different upstream IDs but identical text would still be a duplicate; hash comparison catches this, ID-string comparison would not).",
+    "no_candidates_created": true
+  },
+  "harmbench_overlap": {
+    "method": "sha256(stripped Behavior text) compared against sha256(stripped prompt text) for all quadrant == 'A' rows in data/processed/controlled_eval.jsonl",
+    "controlled_eval_total_rows": 654,
+    "quadrant_a_rows": 150,
+    "quadrant_a_sources": [
+      "HarmBench"
+    ],
+    "exact_match_count": 150,
+    "exact_match_rate": "150/150 (100%)",
+    "matched_functional_category": {
+      "standard": 150
+    },
+    "matched_semantic_category_breakdown": {
+      "harassment_bullying": 19,
+      "illegal": 57,
+      "cybercrime_intrusion": 40,
+      "misinformation_disinformation": 34
+    },
+    "harmbench_total_rows": 400,
+    "harmbench_unused_rows": 250,
+    "harmbench_unused_breakdown": {
+      "standard_chemical_biological": 28,
+      "standard_harmful": 21,
+      "standard_illegal": 1,
+      "copyright": 100,
+      "contextual": 100
+    },
+    "protocol_decision_reaffirmed": "Per frozen decision #1, HarmBench remains excluded from the strict primary candidate pool. No HarmBench rows were placed in any primary candidate file this session (no candidate file of any kind was created this session).",
+    "dedicated_candidate_vs_quadrant_a_tool_status": "The gap noted in 3A0 (no reusable candidate-vs-Quadrant-A check exists in the pipeline tooling, only vs.-training-data checks) is still open. This session's HarmBench<->QuadrantA comparison was a one-off analysis for this report, not integrated into check_leakage.py / complete_neardup_check.py or any other reusable pipeline module."
+  },
+  "secondary_c5_inspection": {
+    "path": "data/quadrant_c_pipeline/secondary_c5_evasion.jsonl",
+    "byte_size": 6518,
+    "sha256": "1b84d8913b1f72c14c6f46dc8c95f685197de7beb5769ea6c30eb3a5c82582d4",
+    "row_count": 5,
+    "schema_keys": [
+      "candidate_id",
+      "source_dataset",
+      "source_version",
+      "source_id",
+      "source_category",
+      "project_category",
+      "source_prompt",
+      "candidate_prompt",
+      "source_url",
+      "transformation_family",
+      "harmful_objective",
+      "requested_assistance_type",
+      "surface_cue_level",
+      "evasion_dominant",
+      "expected_response_mode",
+      "source_validation_type",
+      "training_contamination",
+      "agent_pre_screen",
+      "agent_reason",
+      "needs_review"
+    ],
+    "documented_in_summary_json": false,
+    "candidate_ids": [
+      "SR_illegal_01",
+      "SR_cyber_01",
+      "SR_cyber_02",
+      "SR_illegal_06",
+      "SR_illegal_07"
+    ],
+    "all_source_dataset_strongreject": true,
+    "all_source_prompt_ne_candidate_prompt": true,
+    "all_transformation_family": "reduced_cue_source_rewrite",
+    "all_evasion_dominant": true,
+    "cross_check_against_candidate_records_v2": {
+      "all_5_ids_present": true,
+      "all_5_c_construction": "c_paired",
+      "all_5_inclusion_decision": "secondary_only"
+    },
+    "finding": "secondary_c5_evasion.jsonl is NOT a source-authored (unchanged-text) arm candidate pool. All 5 records have source_prompt != candidate_prompt (confirmed by direct comparison) and are transformation_family 'reduced_cue_source_rewrite' - the same AI-reworded transformation used for c_paired. They are, in fact, already present in candidate_records_v2.jsonl with c_construction == 'c_paired' and inclusion_decision == 'secondary_only'. This file appears to be an evasion-flagged EXPORT/VIEW of 5 already-existing c_paired candidates that scored evasion_dominant=True, not a distinct source or a distinct construction type. It should not be confused with, or treated as progress toward, the c_source_authored arm. Its absence from summary.json is consistent with it being a byproduct/export rather than a tracked pipeline stage."
+  },
+  "omissions": [
+    {
+      "item": "JailbreakBench / JBB-Behaviors dataset",
+      "reason": "HuggingFace-hosted; huggingface.co blocked by sandbox network egress policy (confirmed 403 host_not_allowed). Code repos (JailbreakBench/jailbreakbench, JailbreakBench/artifacts) were fully cloned and searched; no mirrored copy of the data exists in either.",
+      "in_scope_for_this_milestone": true
+    },
+    {
+      "item": "AdvBench intra-source near-duplicate/templating audit",
+      "reason": "3A0 flagged literature-documented internal repetition/templating as needing an intra-source near-dup pass before any low-similarity-tail draw. Only an exact-text dedup was run this session (520/520 unique); the embedding-based near-dup check (SentenceTransformer, as used in check_leakage.py) was not run.",
+      "in_scope_for_this_milestone": false
+    },
+    {
+      "item": "Dedicated candidate-vs-Quadrant-A contamination tool",
+      "reason": "The comparison needed for HarmBench overlap was done as a one-off script this session, not built as a reusable pipeline module alongside check_leakage.py / complete_neardup_check.py.",
+      "in_scope_for_this_milestone": false
+    }
+  ],
+  "unresolved_issues": [
+    "logs/3a0_source_plan.json and logs/3a0_source_plan.md are not committed anywhere in the repository despite being referenced as if they were prior deliverables. Their factual claims were independently re-verified and found accurate, but the artifacts themselves do not exist in version control. A future milestone should decide whether to commit them retroactively or treat 3A0 as an informal/uncommitted planning step.",
+    "JailbreakBench/JBB-Behaviors remains unacquired; needs either a network-policy change (allow huggingface.co) or an alternate access path (e.g. a maintained non-HF mirror, if one is later found) before it can be independently verified.",
+    "SimpleSafetyTests and SORRY-Bench access verification (flagged unresolved in 3A0) remains unresolved - out of scope for this milestone's acquire list (StrongREJECT, HarmBench, AdvBench, JBB-Behaviors only), carried forward to a future milestone.",
+    "AdvBench's literature-documented internal near-duplicate/templating pattern is not cleared by this session's exact-text-only dedup (520/520 unique strings); an embedding-based near-dup pass is still needed before any low-similarity-tail sampling from AdvBench.",
+    "StrongREJECT's raw CSV has no persistent per-row ID field; any future disjointness/overlap check must continue to use content-hash identity (as this session did), not a literal upstream 'source_id' string, since no such upstream ID exists.",
+    "The 158-row StrongREJECT disjoint/unused pool skews heavily toward 'Sexual content' (50/158, 32%) and 'Violence' (54/158, 34%) categories relative to 'Illegal goods and services' (38/158) and smaller categories. No sampling or selection decision was made this session, but a future milestone building a source-authored slice should be aware of this category imbalance before drawing from the pool.",
+    "src/diagnostics/classify_source_provenance.py is a heuristic screening tool (same category of tool as score_lexical_risk_cues.py, with the same documented limits). Its low-confidence 'complete_user_facing_prompt (imperative fallback)' classifications - 20 in StrongREJECT, 11 in HarmBench-standard, 37 in AdvBench-goal - are ambiguous imperative sentences that a human reviewer should re-check before any of this feeds a future candidate or review file.",
+    "No reusable candidate-vs-Quadrant-A contamination check exists in the pipeline tooling (gap already noted in 3A0, still open); this session's HarmBench<->QuadrantA comparison was ad hoc.",
+    "Licensing for StrongREJECT, HarmBench, and AdvBench was re-verified directly against each repository's own LICENSE file this session (all three: MIT) - this resolves the corresponding 3A0 unresolved item for these three sources specifically. JBB-Behaviors' actual dataset license/card was not independently confirmed since the dataset itself was unreachable; only the MIT-licensed code repo was inspected."
+  ],
+  "next_milestone": "3A1B"
+}
