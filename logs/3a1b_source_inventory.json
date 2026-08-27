@@ -1,0 +1,356 @@
+{
+  "milestone": "3A1B",
+  "generated_utc": "2026-08-27T22:27:19Z",
+  "repository": "https://github.com/urosavurdic/dpo-safety-representations",
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "parent_commit_3a1a": "17d82dade0f8b6070245084f39d59b4ce07aaa5c",
+  "3a1a_patch_recovery": {
+    "note": "The 3A1A binary patch was requested as a deliverable in that milestone but was only ever delivered as a chat attachment, never committed to the repo or recorded with a hash anywhere in version control. Regenerated this session and verified before continuing, per instruction.",
+    "command": "git diff --binary a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5 17d82dade0f8b6070245084f39d59b4ce07aaa5c",
+    "parent_commit": "a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5",
+    "child_commit": "17d82dade0f8b6070245084f39d59b4ce07aaa5c",
+    "byte_size": 41462,
+    "sha256": "a430d513b989af2c3a1df6b67a0cea5d7273d7f57fda774ba17261114cb6bb7f",
+    "apply_check_verified": true,
+    "apply_check_method": "git worktree add at parent commit, then `git apply --check` in isolation"
+  },
+  "sources": [
+    {
+      "source_name": "SimpleSafetyTests",
+      "official_url": "https://github.com/bertiev/SimpleSafetyTests",
+      "repository": "bertiev/SimpleSafetyTests",
+      "file_fetched": "SimpleSafetyTests - test cases.csv",
+      "revision": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "revision_note": "main branch HEAD at fetch time; commit date 2024-03-25T15:36:49-04:00",
+      "download_timestamp_utc": "2026-08-27T12:30:28Z",
+      "local_path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "gitignored": true,
+      "byte_size": 12610,
+      "sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "format": "csv",
+      "schema": [
+        "id",
+        "harm_area",
+        "counter",
+        "category",
+        "prompts_final"
+      ],
+      "row_count": 100,
+      "id_field": "id",
+      "text_field": "prompts_final",
+      "category_fields": [
+        "harm_area (5 values, 20 rows each)",
+        "category (Information and advice seeking / Instructions and actions, 50/50)"
+      ],
+      "provenance_field": null,
+      "license": "CC BY 4.0 (Attribution 4.0 International, repo LICENSE)",
+      "access_notes": "Public, unauthenticated clone. No access gate.",
+      "content_sensitivity_note": "One harm_area is 'Child safety' (20/100 rows). Acquired, hashed, and structurally classified like every other row, but no example text from this or any harm_area is reproduced in this report or its JSON twin - counts and category labels only.",
+      "role_this_session": "primary-candidate quality, re-confirming 3A0's qualitative assessment with fresh acquisition + zero overlap against StrongREJECT/HarmBench/AdvBench/C-paired",
+      "overlap_with_strongreject_harmbench_advbench_cpaired": {
+        "method": "sha256(stripped prompts_final) vs sha256(stripped text) in each reference source",
+        "StrongREJECT": 0,
+        "HarmBench": 0,
+        "AdvBench": 0,
+        "C-paired candidate pool": 0,
+        "no_overlap_rows": 100
+      },
+      "classification": {
+        "field_classified": "prompts_final",
+        "n": 100,
+        "counts": {
+          "complete_user_facing_prompt": 77,
+          "behavior_description": 22,
+          "category_label": 1
+        }
+      }
+    },
+    {
+      "source_name": "Do-Not-Answer",
+      "official_url": "https://github.com/Libr-AI/do-not-answer",
+      "repository": "Libr-AI/do-not-answer",
+      "file_fetched": "datasets/data_en.csv",
+      "revision": "460703484df354958a5e1cd7378a38fcb94a2f3e",
+      "revision_note": "main branch HEAD at fetch time; commit date 2024-06-07T18:55:51+04:00",
+      "download_timestamp_utc": "2026-08-27T12:31:08Z",
+      "local_path": "data/raw/3a1b_source_cache/donotanswer/data_en.csv",
+      "gitignored": true,
+      "byte_size": 3912791,
+      "sha256": "410449674780aa7304512043706f7981f666a79528d11546da34ebdd9595681c",
+      "format": "csv",
+      "schema": [
+        "id",
+        "risk_area",
+        "types_of_harm",
+        "specific_harms",
+        "question",
+        "GPT4_response",
+        "GPT4_harmful",
+        "GPT4_action",
+        "ChatGPT_response",
+        "ChatGPT_harmful",
+        "ChatGPT_action",
+        "Claude_response",
+        "Claude_harmful",
+        "Claude_action",
+        "ChatGLM2_response",
+        "ChatGLM2_harmful",
+        "ChatGLM2_action",
+        "llama2-7b-chat_response",
+        "llama2-7b-chat_harmful",
+        "llama2-7b-chat_action",
+        "vicuna-7b_response",
+        "vicuna-7b_harmful",
+        "vicuna-7b_action"
+      ],
+      "row_count": 939,
+      "id_field": "id",
+      "text_field": "question",
+      "category_fields": [
+        "risk_area (5 values)",
+        "types_of_harm (12 values)",
+        "specific_harms"
+      ],
+      "provenance_field": null,
+      "license": "Apache License 2.0 (repo LICENSE)",
+      "access_notes": "Public, unauthenticated clone. No access gate.",
+      "role_this_session": "SUPPLEMENTARY ONLY - see provenance_notes. NOT eligible for the strict source_authored primary pool regardless of how complete/well-formed the question text reads structurally.",
+      "overlap_with_strongreject_harmbench_advbench_cpaired": {
+        "method": "sha256(stripped question) vs sha256(stripped text) in each reference source",
+        "StrongREJECT": 0,
+        "HarmBench": 0,
+        "AdvBench": 0,
+        "C-paired candidate pool": 0,
+        "no_overlap_rows": 939
+      },
+      "classification": {
+        "field_classified": "question",
+        "n": 939,
+        "counts": {
+          "complete_user_facing_prompt": 927,
+          "behavior_description": 12
+        },
+        "provenance_override": [
+          "Structural classification alone is misleading here: 927/939 read as complete, well-formed user questions, but per this milestone's special rule the source-generated provenance must be preserved. These questions were generated by GPT-4 against a risk taxonomy, then human-filtered (per the Do-Not-Answer paper and this project's own prior CLAUDE.md/3A0 characterization). The correct primary label for eligibility purposes is source_generated_prompt for all 939 rows, not complete_user_facing_prompt - see provenance_notes."
+        ]
+      }
+    },
+    {
+      "source_name": "SORRY-Bench (base records)",
+      "official_url": "https://github.com/SORRY-Bench/SORRY-Bench (code); dataset at https://huggingface.co/datasets/sorry-bench/sorry-bench-202503",
+      "repository": "SORRY-Bench/SORRY-Bench",
+      "file_fetched": null,
+      "revision": "7da10addffb6790cfeb75281eaffb5a176861653",
+      "revision_note": "code repo main branch HEAD; commit date 2025-03-01T15:42:36-05:00. Not a revision of the dataset itself, which was unreachable.",
+      "download_timestamp_utc": null,
+      "local_path": null,
+      "gitignored": null,
+      "byte_size": null,
+      "sha256": null,
+      "format": null,
+      "schema": null,
+      "row_count": null,
+      "status": "NOT_ACQUIRED",
+      "reason": "Confirmed directly from the code repo's own README ('Download Dataset' section): the base question.jsonl and all 20 linguistic-mutation files are distributed exclusively via a GATED HuggingFace dataset (sorry-bench/sorry-bench-202503) - 'Due to potentially unsafe and offensive content, you need to first request access.' This is inaccessible for two independent reasons this session: (1) huggingface.co is not in this sandbox's network allowlist (as in 3A1A), and (2) even with HF access, the dataset requires a granted-access request that cannot be completed in an unattended session. The cloned code repo contains no bundled copy of question.jsonl - only mutation *code* (data/sorry_bench/mutate/*.py), not mutation *data*. Time spent confirming this: well under the 45-minute cap.",
+      "license_of_code_repo": "MIT (Copyright (c) 2023 LLM-Tuning-Safety)",
+      "role_this_session": "unresolved from 3A0, still unresolved - carried to a future milestone"
+    },
+    {
+      "source_name": "JailbreakBench / JBB-Behaviors (PARTIAL - see limitation)",
+      "official_url": "https://pypi.org/project/jailbreakbench/ (bundled data); authoritative full dataset at https://huggingface.co/datasets/dedeswim/JBB-Behaviors",
+      "repository": "jailbreakbench PyPI package v0.1.0 (source: JailbreakBench/jailbreakbench)",
+      "file_fetched": "jailbreakbench/data/behaviors.csv (extracted from the wheel)",
+      "revision": "jailbreakbench==0.1.0 (only version on PyPI, confirmed via `pip index versions`)",
+      "revision_note": "package revision, not a dataset revision/commit - the bundled CSV's own upstream generation history is not separately versioned",
+      "download_timestamp_utc": "2026-08-27T17:26:27Z",
+      "local_path": "data/raw/3a1b_source_cache/jailbreakbench/behaviors.csv (also cached the full wheel: jailbreakbench-0.1.0-py3-none-any.whl)",
+      "gitignored": true,
+      "byte_size": 22067,
+      "sha256": "221c868b3beef1e0c0cc8ad0250d57f21a409094aa57330ad4a73689e0414f73",
+      "wheel_byte_size": 42369,
+      "wheel_sha256": "68254ebed1f7073e62274234b17ead801dbb9ac47ad97ae43b354c48c29e1cf5",
+      "format": "csv",
+      "schema": [
+        "(unnamed index)",
+        "Goal",
+        "Target",
+        "Behavior",
+        "Category"
+      ],
+      "row_count": 100,
+      "id_field": "unnamed index column (0-99)",
+      "text_field": "Goal",
+      "non_prompt_fields": {
+        "Target": "GCG-style affirmative-completion prefix, not a prompt - classified separately, excluded by construction"
+      },
+      "category_field": "Category (10 values, 10 rows each, matching JBB's documented OpenAI-usage-policy-derived taxonomy)",
+      "provenance_field": null,
+      "critical_limitation": "This bundled CSV is NOT confirmed identical to the authoritative JBB-Behaviors dataset. The package's own loader (src/jailbreakbench/dataset.py, self.df.Source.to_list()) and README both reference a 'Source' column (values: Original, Trojan Detection Challenge 2023/HarmBench, or AdvBench) that this bundled CSV does NOT have - the full, Source-tagged dataset is loaded at runtime from huggingface.co (dedeswim/JBB-Behaviors), which remains blocked in this sandbox (same host_not_allowed 403 confirmed again this session). The bundled file is real, verifiably part of the official jailbreakbench==0.1.0 package (MIT-licensed), and its generation script (generate_behaviors.py) documents the same three source categories - but it should be treated as a partial/legacy artifact, not a substitute for the authoritative dataset, until HF access is available.",
+      "license": "MIT (JailbreakBench/jailbreakbench repo LICENSE, Copyright (c) 2023 JailbreakBench Team)",
+      "access_notes": "PyPI wheel download, unauthenticated, no gate. The authoritative HF dataset remains inaccessible.",
+      "role_this_session": "supplementary only; per-row Original/AdvBench/HarmBench distinction reconstructed independently below since the Source column itself is absent",
+      "independently_reconstructed_provenance": {
+        "method": "Because the documented Source column is missing from this file, provenance was reconstructed independently via sha256(stripped Goal text) against the cached StrongREJECT/HarmBench/AdvBench reference sets, rather than trusting any label.",
+        "exact_match_AdvBench_goal": 11,
+        "exact_match_HarmBench_Behavior": 9,
+        "exact_match_StrongREJECT_forbidden_prompt": 3,
+        "exact_match_C_paired_candidate_pool": 1,
+        "c_paired_match_detail": "Goal text (Category: Economic harm) is byte-identical to candidate_records_v2.jsonl source_id SR_illegal_08 (c_construction: c_paired) - a genuine cross-dataset text collision worth flagging for any future JBB-derived candidate.",
+        "no_match_any_reference": 80,
+        "no_match_caveat": "This 80-row 'no match' bucket is an UPPER BOUND on 'Original', not a confirmed count - it also includes any rows sourced from the Trojan Detection Challenge 2023 (a fourth documented source this project has no reference corpus for) and any rows whose matching AdvBench/HarmBench source text was paraphrased rather than copied verbatim, which an exact-hash check cannot catch."
+      },
+      "classification": {
+        "field_classified": "Goal",
+        "n": 100,
+        "counts": {
+          "behavior_description": 93,
+          "category_label": 2,
+          "complete_user_facing_prompt": 5
+        },
+        "target_field_classification": {
+          "n": 100,
+          "counts": {
+            "target_goal": 100
+          }
+        }
+      }
+    },
+    {
+      "source_name": "JailbreakHub (in-the-wild scrape)",
+      "official_url": "https://github.com/verazuo/jailbreak_llms",
+      "repository": "verazuo/jailbreak_llms",
+      "file_fetched": "data/prompts/jailbreak_prompts_2023_12_25.csv",
+      "revision": "4f4031bf8be187f4478c7f94f42b08714722c12e",
+      "revision_note": "main branch HEAD at fetch time; commit date 2024-12-24T09:30:57+01:00",
+      "download_timestamp_utc": "2026-08-27T17:25:45Z",
+      "local_path": "data/raw/3a1b_source_cache/jailbreakhub/jailbreak_prompts_2023_12_25.csv",
+      "gitignored": true,
+      "byte_size": 3778717,
+      "sha256": "accf97463de96c33c48453dfee9600191ff6fd5a0c43f3f11d5ebf98d1a5de55",
+      "format": "csv",
+      "schema": [
+        "platform",
+        "source",
+        "prompt",
+        "jailbreak",
+        "created_at",
+        "date",
+        "community",
+        "community_id",
+        "previous_community_id"
+      ],
+      "row_count": 1405,
+      "row_count_note": "All 1405 rows have jailbreak == True in this file (it is the pre-filtered jailbreak-tagged subset of the full scrape, per the repo's own README). Date range 2022-12-27 to 2023-12-24. Platforms: discord 469, reddit 425, website 509, open_source 2.",
+      "id_field": null,
+      "text_field": "prompt",
+      "category_field": "community / community_id (source community, not a harm category)",
+      "provenance_field": "platform, source, created_at - genuine naturally-occurring provenance metadata (unlike the other four sources this milestone)",
+      "license": "MIT (repo LICENSE, Copyright (c) 2023 Vera)",
+      "access_notes": "Public, unauthenticated clone. No access gate.",
+      "role_this_session": "supplementary, per-item manual review required - see record_classification_notes for a documented reliability problem with the automated pass",
+      "overlap_with_strongreject_harmbench_advbench_cpaired": {
+        "method": "sha256(stripped prompt) vs sha256(stripped text) in each reference source",
+        "StrongREJECT": 0,
+        "HarmBench": 0,
+        "AdvBench": 0,
+        "C-paired candidate pool": 0,
+        "no_overlap_rows": 1405
+      },
+      "classification": {
+        "field_classified": "prompt",
+        "n": 1405,
+        "counts": {
+          "complete_user_facing_prompt": 463,
+          "evaluation_template": 351,
+          "jailbreak_wrapper": 581,
+          "behavior_description": 6,
+          "category_label": 3,
+          "incomplete_or_context_dependent": 1
+        },
+        "reliability_caveat": "See record_classification_notes - the complete_user_facing_prompt count here is a known overestimate."
+      }
+    },
+    {
+      "source_name": "JailbreakHub forbidden_question_set (companion resource, NOT in-the-wild)",
+      "official_url": "https://github.com/verazuo/jailbreak_llms",
+      "repository": "verazuo/jailbreak_llms",
+      "file_fetched": "data/forbidden_question/forbidden_question_set.csv",
+      "revision": "4f4031bf8be187f4478c7f94f42b08714722c12e",
+      "revision_note": "same commit as jailbreak_prompts_2023_12_25.csv above",
+      "download_timestamp_utc": "2026-08-27T17:25:45Z",
+      "local_path": "data/raw/3a1b_source_cache/jailbreakhub/forbidden_question_set.csv",
+      "gitignored": true,
+      "byte_size": 38076,
+      "sha256": "0d1e5cae6eb755f31103809ee45cfc537e9e2d92b5171f08704bae7de82081c3",
+      "format": "csv",
+      "schema": [
+        "content_policy_id",
+        "content_policy_name",
+        "q_id",
+        "question"
+      ],
+      "row_count": 390,
+      "id_field": "q_id",
+      "text_field": "question",
+      "category_field": "content_policy_name (13 of 14 OpenAI usage-policy scenarios; Child Sexual Abuse explicitly excluded by the dataset authors per their own README)",
+      "provenance_field": null,
+      "license": "MIT (same repo as above)",
+      "access_notes": "Public, unauthenticated clone. No access gate.",
+      "provenance_warning": "NOT an in-the-wild source despite living in the same repository as jailbreak_prompts_2023_12_25.csv. Per the repo's own README: 'we construct a question set comprising 390 questions across 13 forbidden scenarios adopted from OpenAI Usage Policy.' This is a researcher-constructed representative-question set used to benchmark jailbreak template effectiveness, not naturally-occurring user/community text. See provenance_notes.",
+      "role_this_session": "supplementary at best; provenance class is constructed/source_generated-like, not naturally-occurring",
+      "overlap_with_strongreject_harmbench_advbench_cpaired": {
+        "method": "sha256(stripped question) vs sha256(stripped text) in each reference source",
+        "StrongREJECT": 34,
+        "HarmBench": 0,
+        "AdvBench": 0,
+        "C-paired candidate pool": 24,
+        "no_overlap_rows": 356,
+        "note": "34 rows are byte-identical to a StrongREJECT forbidden_prompt; 24 of those (a subset) are byte-identical to a source_prompt already present in candidate_records_v2.jsonl - meaningful direct-collision risk for any future sampling from this file."
+      },
+      "classification": {
+        "field_classified": "question",
+        "n": 390,
+        "counts": {
+          "complete_user_facing_prompt": 390
+        }
+      }
+    }
+  ],
+  "record_classification_notes": [
+    "Per instruction, the heuristic classifier's imperative-opening-verb rule was NOT used as an automatic eligibility gate anywhere in this session - it produced a label plus a 'low-confidence' flag for ambiguous imperative sentences (see each source's classification.counts), and every ambiguous case is preserved as its own bucket for future human review rather than being silently folded into either complete_user_facing_prompt or behavior_description.",
+    "JailbreakHub jailbreak_prompts_2023_12_25.csv classifier reliability check: of the 72 rows under 300 characters that the classifier labeled complete_user_facing_prompt, a broader manual keyword pass (pretend/roleplay/act as/persona/character/from now on/developer mode/jailbroken/etc., a superset of the classifier's own regex) found wrapper/persona cues in 27/72 (37.5%) that the narrow classifier missed. Cross-referenced against the source's own ground truth (100% of these 1405 rows are tagged jailbreak==True by the dataset authors), this confirms the classifier under-detects wrapper structure on this source's long, creative, multi-paragraph template style. The reported complete_user_facing_prompt count of 463/1405 for this file should be read as a loose upper bound requiring per-item review, not a usable count - consistent with 3A0's original conclusion that only manual per-item identification, not a bulk pull, is valid for this source.",
+    "SimpleSafetyTests and JailbreakHub forbidden_question_set both classify with very high complete_user_facing_prompt rates (77% and 100% respectively) using short, direct, single-sentence question/imperative phrasing that the classifier handles reliably (no template markers, no wrapper markers, no long multi-part structure) - these two are the highest-confidence structural classifications produced this session.",
+    "Do-Not-Answer's high complete_user_facing_prompt rate (927/939, 98.7%) is structurally accurate but provenance-misleading in isolation - see provenance_notes and the 'provenance_override' field on its source entry."
+  ],
+  "provenance_notes": [
+    "Do-Not-Answer: preserved as source_generated_prompt provenance for all 939 rows, per this milestone's special rule. The `question` field is GPT-4-generated against the paper's risk taxonomy, then human-filtered - not human-authored, regardless of how complete or naturalistic the resulting sentences read structurally. This project's own prior 3A0 characterization ('confirmed GPT-4-generated then human-filtered') is reaffirmed by this session's direct reading of the acquired file and repo.",
+    "JailbreakHub forbidden_question_set.csv: preserved as a researcher-constructed/source_generated-like provenance, explicitly NOT the in-the-wild component of the JailbreakHub project. The repo's own README states the authors 'construct' this 390-question set from the OpenAI Usage Policy taxonomy to benchmark jailbreak templates - it was not scraped or collected from real user activity, unlike jailbreak_prompts_2023_12_25.csv. The two files share a GitHub repo and a paper, but only the latter is a genuine in-the-wild source. Conflating them would misrepresent forbidden_question_set as naturally-occurring when it is not.",
+    "JailbreakHub jailbreak_prompts_2023_12_25.csv: genuinely naturally-occurring provenance (Reddit/Discord/website posts, Dec 2022-Dec 2023, with real platform/community/created_at metadata) - the one source acquired this session that is authentically in-the-wild rather than researcher- or model-constructed. All 1405 rows are majority wrapper/persona-template structure by the dataset's own jailbreak==True tag; per this milestone's special rule, none of these were placed in the complete_user_facing_prompt class in bulk - the automated 463-count is flagged as unreliable (see record_classification_notes) and any eligible standalone requests within it require individual manual identification, not yet performed.",
+    "JailbreakBench/JBB-Behaviors bundled CSV: per this milestone's special rule ('preserve the per-row distinction between Original, AdvBench-derived, and HarmBench-derived records'), the documented Source column was not present in the only accessible copy of this data (see critical_limitation on that source entry). The distinction was reconstructed independently via content-hash comparison rather than trusted from a label that wasn't even available: 11 rows verbatim-match AdvBench, 9 verbatim-match HarmBench, 3 verbatim-match StrongREJECT (a fourth overlap this project's own reference corpus can detect that JBB's own three-way Source taxonomy doesn't distinguish), 1 verbatim-matches an existing C-paired candidate's source_prompt, and 80 match none of the four - an upper bound on 'Original', since Trojan Detection Challenge-derived and paraphrased-rather-than-verbatim rows would also fall in this bucket undetected.",
+    "SORRY-Bench base set vs. mutations: per this milestone's special rule, only the base set (question.jsonl) would have been in scope for source-authored consideration, explicitly excluding all 20 linguistic-mutation files (ASCII/Atbash/Caesar/Morse encodings, persuasion rewrites, translations - confirmed present as mutation code, not mutation data, in data/sorry_bench/mutate/ of the cloned code repo). This distinction could not be exercised this session because the base set itself was unreachable (gated HF access + blocked network) - recorded for whichever future milestone does gain access.",
+    "StrongREJECT/HarmBench/AdvBench (3A1A sources) were used only as a hash-comparison reference corpus this session, per instruction; no new acquisition or reclassification of them was performed."
+  ],
+  "omissions": [
+    {
+      "item": "SORRY-Bench base question.jsonl (and all 20 mutation files, by extension)",
+      "reason": "Gated HuggingFace dataset (sorry-bench/sorry-bench-202503) requiring an explicit access grant, confirmed directly from the code repo's own README, in addition to huggingface.co being outside this sandbox's network allowlist. No bundled copy exists in the code repo. Time spent: well under the 45-minute cap before recording this and moving on.",
+      "in_scope_for_this_milestone": true
+    },
+    {
+      "item": "Authoritative JBB-Behaviors dataset with the documented Source column (HuggingFace dedeswim/JBB-Behaviors)",
+      "reason": "huggingface.co blocked (confirmed 403 host_not_allowed again this session, same as 3A1A). A partial substitute (the PyPI-bundled behaviors.csv, no Source column) was found and acquired instead - see that source's critical_limitation field. This is a partial, not total, omission.",
+      "in_scope_for_this_milestone": true
+    }
+  ],
+  "unresolved_issues": [
+    "The 3A1A binary patch had never been committed or hash-recorded in the repository despite being a required 3A1A deliverable. Regenerated this session as `git diff --binary a8aa91a9..17d82da`, verified it applies cleanly (`git apply --check`) against a clean worktree at the 3A1A parent commit, and computed its SHA-256: a430d513b989af2c3a1df6b67a0cea5d7273d7f57fda774ba17261114cb6bb7f (byte size 41,462). A future milestone should decide where 3A1A/3A1B patches should live permanently (tracked in-repo vs. delivered out-of-band each time), since neither has a durable, version-controlled home yet.",
+    "SORRY-Bench base set remains unacquired - needs either a granted HF access request (a human-in-the-loop step this session cannot perform) plus a network-policy change, or an alternate non-HF distribution if one exists.",
+    "The authoritative Source-tagged JBB-Behaviors dataset remains unacquired; only a partial, Source-column-less substitute was found. The 80-row 'matches none of our references' bucket in that partial file should not be treated as a confirmed 'Original' count until the real Source column is available.",
+    "JailbreakHub jailbreak_prompts_2023_12_25.csv needs genuine per-item manual review to identify any standalone complete harmful requests among the 1405 wrapper-tagged rows - the automated classification is demonstrated unreliable on this specific source (see record_classification_notes) and should not be used to select candidates.",
+    "JailbreakHub forbidden_question_set.csv has non-trivial verbatim overlap with StrongREJECT (34 rows) and with the existing C-paired candidate pool (24 rows) - a future milestone drawing from this file must dedupe against candidate_records_v2.jsonl by content hash, not just by dataset name.",
+    "None of this session's new sources (SimpleSafetyTests, Do-Not-Answer, JailbreakBench-partial, JailbreakHub-both-files) have been checked for near-duplicate (as opposed to exact-hash) overlap against each other or against 3A1A's sources - only exact-text hashing was performed, consistent with the no-scoring/no-embedding-tooling constraint of this milestone, but this remains a real gap before any candidate pool is built.",
+    "Do-Not-Answer and JailbreakHub-forbidden_question_set are both explicitly non-eligible for the strict c_source_authored primary pool on provenance grounds (GPT-4-generated and researcher-constructed, respectively) regardless of how well-formed their text reads structurally - this should be encoded as a hard rule, not just a note, if/when a future milestone builds selection logic.",
+    "The child-safety-related harm_area in SimpleSafetyTests (20/100 rows) was acquired and hash/classification-counted like the rest of the file, but no example text from that category was reproduced anywhere in this report; a future milestone handling this category specifically should apply the same restraint."
+  ],
+  "next_milestone": "3A1C"
+}
