@@ -1,0 +1,171 @@
+{
+  "milestone": "3A1C-0",
+  "generated_utc": "2026-08-28T00:00:00Z",
+  "reviewed_branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "reviewed_head": "f47363968088cdf9cd77b3245658169d49d7b737",
+  "actual_3a1b_commit": "f47363968088cdf9cd77b3245658169d49d7b737",
+  "actual_3a1b_commit_subject": "Milestone 3A1B: remaining source acquisition and schema audit",
+  "actual_3a1b_commit_date": "2026-08-28T00:48:32+02:00",
+  "actual_3a1b_parent": "9778cfcf3a1a3a40c80fdb91eb56a1e6fd39a88d",
+  "actual_3a1b_parent_subject": "Step 7: prepare colab_unified_analysis.ipynb for the final v2 GPU rerun",
+  "actual_3a1b_parent_date": "2026-08-27T23:29:28+02:00",
+  "both_reachable": true,
+  "verification_method": [
+    "git fetch origin (full, non-shallow clone)",
+    "git log --format='%H %P %s' --all --grep='Milestone 3A1B' -n 5 -> exactly one match, giving the commit/parent pair above",
+    "git cat-file -t on the historical SHAs from the prior review",
+    "git ls-remote against every branch (agent/c-quadrant-end-to-end-e0e2317a, main, phase4-wip)"
+  ],
+  "historical_sha_discrepancies": [
+    {
+      "field": "logs/3a1a_source_inventory.json / .md: self-reported head_commit / HEAD",
+      "recorded_value": "a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5",
+      "reachable_in_current_history": false,
+      "note": "Not found via git cat-file -t, git log --all, or git ls-remote on any branch. Cause not determined from available evidence (recording error at the time vs. later rebase/amend/force-push making a once-real commit unreachable). Should not be used as an anchor for anything going forward."
+    },
+    {
+      "field": "logs/3a1b_source_inventory.json: parent_commit_3a1a and 3a1a_patch_recovery.child_commit",
+      "recorded_value": "17d82dade0f8b6070245084f39d59b4ce07aaa5c",
+      "reachable_in_current_history": false,
+      "note": "Not found by the same three methods above. This value was used as the 'child' endpoint of a git diff --binary command recorded in 3A1B's own JSON; that command cannot be reproduced against real repository state."
+    },
+    {
+      "field": "logs/3a1b_source_inventory.json: 3a1a_patch_recovery.command",
+      "recorded_value": "git diff --binary a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5 17d82dade0f8b6070245084f39d59b4ce07aaa5c",
+      "reachable_in_current_history": false,
+      "note": "Both endpoints unreachable; the recorded byte_size (41462) and sha256 (a430d513b989af2c3a1df6b67a0cea5d7273d7f57fda774ba17261114cb6bb7f) for this patch cannot be independently reproduced or verified against current repository history."
+    },
+    {
+      "field": "actual git parent of the 3A1B commit vs. the conceptual '3A1A parent' referenced in 3A1B's JSON",
+      "recorded_value": "3A1B's JSON implies its parent state is '3A1A' (via parent_commit_3a1a)",
+      "reachable_in_current_history": true,
+      "note": "The real git parent of f473639 is 9778cfcf ('Step 7: prepare colab_unified_analysis.ipynb for the final v2 GPU rerun'), five commits after the actual 3A1A commit (b3b27df) and after four unrelated GPU/steering-track commits (0566fb9, c87d019, e1a9818, 5cc6bf6, 9778cfc). '3A1A parent' in the old report appears to have meant 'prior milestone' conceptually, not the literal git parent; either way the SHA given for it does not exist."
+    }
+  ],
+  "patch_status": {
+    "requested_canonical_path": "artifacts/patches/c_quadrant_9778cfcf_f4736396.patch",
+    "canonical_path_available": false,
+    "blocking_reason": "A tracked, empty regular file named 'artifacts' already exists at the repository root (added in commit b94d9b7 'Lst chngs'). A file and a directory cannot share the same path, so 'artifacts/patches/' cannot be created without first deleting or renaming the existing tracked 'artifacts' file. That change is outside this milestone's authorized scope (documentation/errata only) and was not made.",
+    "patch_generated": true,
+    "patch_generation_location": "scratch location outside the repository tree (not committed), pending resolution of the artifacts path collision",
+    "patch_command_used": "git diff --binary 9778cfcf3a1a3a40c80fdb91eb56a1e6fd39a88d f47363968088cdf9cd77b3245658169d49d7b737 -- . ':(exclude)artifacts/patches/*.patch'",
+    "patch_byte_size": 39452,
+    "patch_sha256": "b43aa4554ce250052c28f1cd04f1ee643d081774045cf8cc3f4b513f61cd05cc",
+    "apply_check_verified": true,
+    "apply_check_method": "git worktree add at the actual parent commit (9778cfcf), then git apply --check in isolation",
+    "recommendation": "A future milestone should decide whether to remove/rename the pre-existing tracked 'artifacts' file so the canonical artifacts/patches/ path can be used, then re-run the exact patch command above and commit the result at that path. Until then, this patch exists only as an unattached scratch artifact and is not part of any commit."
+  },
+  "classifier_status": {
+    "file": "src/diagnostics/classify_source_provenance.py",
+    "dataclass_fields": ["label", "reason"],
+    "has_separate_confidence_field": false,
+    "confidence_representation": "reason-string substring only, present on exactly one branch",
+    "opening_verb_behavior_description_branch": {
+      "trigger": "_BEHAVIOR_VERB_START regex match (e.g. write/give/create/describe/provide/...) with no first-person/question framing",
+      "returns_label": "behavior_description",
+      "reason_text": "imperative task-directive opening verb, no first-person/question framing",
+      "contains_low_confidence_marker": false
+    },
+    "imperative_fallback_branch": {
+      "trigger": "imperative sentence matching neither wrapper/template markers nor _BEHAVIOR_VERB_START, no first-person/question framing",
+      "returns_label": "complete_user_facing_prompt",
+      "reason_text": "imperative sentence, addressable to an assistant, no template/wrapper markers (low-confidence: see module docstring on imperative ambiguity)",
+      "contains_low_confidence_marker": true
+    },
+    "asymmetry_finding": "Both branches classify structurally identical imperative sentences under the same real ambiguity (the module's own docstring says a red-teaming 'behavior' label and a real chatbot request can be grammatically indistinguishable), but only the complete_user_facing_prompt-labeled branch carries a low-confidence note in its reason string. The behavior_description-labeled branch carries none, even though it is equally provisional.",
+    "governing_rule_for_this_and_future_milestones": "The classifier is triage only: a screening aid for a human reviewer, not a harm classifier, not a semantic adjudicator, and not a final eligibility gate. Its output must not be used to automatically include or exclude any record. Both the opening-verb behavior_description outputs and the imperative-fallback complete_user_facing_prompt outputs must be treated as equally provisional pending human review, regardless of which one currently exposes that caveat in its reason string.",
+    "code_changed_this_milestone": false
+  },
+  "jbb_package_status": {
+    "claim_under_review": "3A1B report states jailbreakbench==0.1.0 was 'the only version on PyPI, confirmed via pip index versions'",
+    "verification_method": "Queried https://pypi.org/pypi/jailbreakbench/json (package index metadata only; the wheel/data file was not re-downloaded, consistent with this milestone's no-redownload constraint)",
+    "versions_existing_on_pypi": ["0.1.0", "0.1.1", "0.1.2", "0.1.3", "1.0.0"],
+    "latest_version_on_pypi": "1.0.0",
+    "requires_python_by_version": {
+      "0.1.0": ">=3.10",
+      "0.1.1": "<3.12,>=3.10",
+      "0.1.2": "<3.12,>=3.10",
+      "0.1.3": "<3.12,>=3.10",
+      "1.0.0": "<3.12,>=3.10"
+    },
+    "sandbox_python_version": "3.12.3",
+    "versions_installable_under_sandbox_python": ["0.1.0"],
+    "claim_assessment": "The claim 'only version on PyPI' is factually incorrect: PyPI hosts five releases, with 1.0.0 current. The likely real cause of pip only offering 0.1.0 is the requires_python upper bound (<3.12) on every release after 0.1.0, combined with a Python 3.12 sandbox - not an absence of newer releases.",
+    "exact_package_version_actually_used_by_3a1b": "0.1.0",
+    "embedded_csv_hash_as_reported_by_3a1b": "221c868b3beef1e0c0cc8ad0250d57f21a409094aa57330ad4a73689e0414f73",
+    "embedded_csv_hash_independently_reverified_this_session": false,
+    "embedded_csv_hash_reverification_reason_not_done": "Would require downloading the package/wheel, which this milestone's scope excludes (no dataset acquisition/redownload). Carried forward from 3A1B's own report without independent re-verification.",
+    "embedded_file_contains_official_source_column": false,
+    "source_column_determination_basis": "Already established in 3A1B's own committed inventory (schema listed as unnamed-index/Goal/Target/Behavior/Category, no Source field; critical_limitation field explicitly notes the Source column is absent from the bundled file and is only available via the blocked HuggingFace dataset). Not re-derived this session.",
+    "open_question_not_resolved": "Whether jailbreakbench 0.1.1, 0.1.2, 0.1.3, or 1.0.0 (untested under Python 3.12 this session) bundle a Source-tagged CSV remains unverified and is recorded as unresolved, not corrected, per instruction not to invent a correction."
+  },
+  "stale_state_files": [
+    {
+      "file": "logs/agent_state.json",
+      "describes_pre_3a1b_state": true,
+      "describes_pre_3a1a_state": true,
+      "specific_staleness": [
+        "base_commit/code_commit still point to e0e2317a52e89b0d614b99152a9ca71758baf489, the original task base commit, not any 3A1A/3A1B commit",
+        "status is still 'needs_human_review' referring to the original 104-row c_paired review queue, with no mention of 3A1A/3A1B/source-policy work at all",
+        "unresolved_issues still lists 'C-source-authored arm: not built (HarmBench/JailbreakBench CSV unavailable in sandbox)' - both HarmBench and a partial JailbreakBench CSV have since been acquired and analyzed in 3A1A/3A1B",
+        "sources_omitted still lists 'HarmBench CSV (network unavailable in sandbox)' and 'JailbreakBench (not attempted)', both outdated",
+        "next_action still points to 'Researcher reviews data/review/c_review_queue.csv (104 rows), then resumes from logs/RESUME_PROMPT.md', with no reference to the 3A1A/3A1B/3A1C track"
+      ],
+      "treated_as_current_truth_this_session": false,
+      "requires_later_handoff_update": true
+    }
+  ],
+  "filename_issues": [
+    {
+      "intended_path": "logs/3a0_source_plan.json",
+      "actual_path_found": "logs/3a0_souece_plan.json",
+      "typo": "'source' misspelled as 'souece'",
+      "actual_path_contains_valid_json": true,
+      "canonical_path_exists": false,
+      "action_taken_this_session": "none - not renamed, not reconstructed from memory, per instruction",
+      "recommendation": "A future milestone with explicit authorization to touch this file should rename it to the canonical path (a simple git mv, content-preserving), rather than this documentation-only milestone doing so implicitly."
+    }
+  ],
+  "source_policy_implications": [
+    "StrongREJECT disjointness against all 155 existing C-paired rows (not only the 104 currently live) remains the relevant, already-computed overlap result; not recomputed this session.",
+    "StrongREJECT provenance must remain per-row (custom/DAN/AdvBench/MaliciousInstruct/MasterKey/OpenAI System Card/etc.) and must not be collapsed into a blanket 'human-authored' characterization.",
+    "SimpleSafetyTests may be considered for the strict primary pool if its exact file hash and source provenance remain verified as recorded in 3A1B (CC BY 4.0, zero overlap with StrongREJECT/HarmBench/AdvBench/C-paired).",
+    "AdvBench remains supplementary unless its unresolved near-duplicate/templating concern and provenance concerns are explicitly addressed (embedding-based near-dup pass still not run).",
+    "Do-Not-Answer remains supplementary as long as its source-generated (GPT-4-generated, human-filtered) provenance is retained and not overridden by its structurally complete-reading text.",
+    "SORRY-Bench remains unresolved because its gated base data was not acquired (gated HuggingFace access plus a blocked network host, confirmed from the code repo's own README).",
+    "The partial JBB PyPI file remains supplementary or unresolved: it lacks the official per-row Source column, and the 'only version on PyPI' basis for using 0.1.0 is corrected in jbb_package_status above without a resolution being invented.",
+    "JailbreakHub remains supplementary and cannot contribute rows based only on the raw heuristic complete-prompt count (463/1405 was explicitly flagged as an unreliable upper bound in 3A1B, further supported by the classifier_status asymmetry finding above).",
+    "HarmBench remains excluded from the strict primary pool under the existing project protocol because live Quadrant A is entirely HarmBench (150/150, independently reconfirmed by content hash in 3A1A) and HarmBench is part of the H = A union B Fightin' Words reference corpus (confirmed by direct inspection of src/corpus_discrimination.py, unchanged this session).",
+    "None of these unresolved supplementary sources is automatically a blocker for 3A2 if the strict primary pool construction is explicitly limited to sources with verified strict-primary status (currently: the StrongREJECT disjoint remainder and, pending review of its ambiguous classifier buckets, SimpleSafetyTests)."
+  ],
+  "blocking_issues": [
+    "Blocks 3A1C: the canonical archival-patch path artifacts/patches/ cannot be created because 'artifacts' already exists as a tracked, empty regular file (b94d9b7). A generated patch exists only at a scratch location outside the repository pending resolution.",
+    "Blocks 3A1C: the classifier confidence asymmetry (opening-verb behavior_description vs. imperative-fallback complete_user_facing_prompt) is now documented but not corrected in code; any 3A1C consolidation must state both buckets are equally provisional rather than relying on the tool's own (asymmetric) output.",
+    "Blocks 3A1C: logs/agent_state.json is stale and must not be read as current state by any future automated handoff; it needs an explicit update once 3A1C exists.",
+    "Blocks 3A2: whether jailbreakbench 0.1.1-1.0.0 bundle an official Source-tagged CSV is unresolved (not invented) - relevant to whether the partial JBB supplementary source can ever be upgraded in status.",
+    "Blocks 3A2 (carried forward, not re-verified this session): AdvBench embedding-based near-duplicate audit; StrongREJECT sub-source disjointness checks on the 29 non-'custom' rows; per-item manual review of JailbreakHub's 1405-row in-the-wild file; SORRY-Bench and the authoritative Source-tagged JBB-Behaviors dataset remain unacquired."
+  ],
+  "non_blocking_issues": [
+    "Documentation-only: logs/3a0_source_plan.json vs. logs/3a0_souece_plan.json filename typo (recorded, not fixed, per instruction).",
+    "Documentation-only: data/quadrant_c_pipeline/summary.json remains stale relative to candidate_records_v2.jsonl (not touched or re-verified this session; out of this milestone's scope).",
+    "Documentation-only: neither 3A1A's nor 3A1B's binary patch has a durable, version-controlled home yet; this session adds a third orphaned patch (scratch-only) to that same unresolved pattern, pending the artifacts/ path collision being resolved."
+  ],
+  "files_changed_this_session": [
+    "logs/3a1b_reconciliation.json (new)",
+    "logs/3a1b_reconciliation.md (new)"
+  ],
+  "files_not_changed": [
+    "logs/3a1a_source_inventory.json",
+    "logs/3a1a_source_inventory.md",
+    "logs/3a1b_source_inventory.json",
+    "logs/3a1b_source_inventory.md",
+    "logs/agent_state.json",
+    "logs/benchmark_gate_config.json",
+    "src/diagnostics/classify_source_provenance.py",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl",
+    "data/processed/controlled_eval.jsonl"
+  ],
+  "datasets_redownloaded_this_session": false,
+  "python_files_changed_this_session": false,
+  "next_milestone": "3A1C"
+}
