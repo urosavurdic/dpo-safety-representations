@@ -1,0 +1,237 @@
+{
+  "milestone": "3A1",
+  "created_at_utc": "2026-08-28T00:30:00Z",
+  "source_policy_version": "3A1C-v1",
+  "consolidates": ["3A0", "3A1A", "3A1B", "3A1C-0"],
+  "note_on_3a1c_0": "logs/3a1b_reconciliation.json and logs/3a1b_reconciliation.md were produced in an earlier session that lacked push credentials for this repository. Between that session and this one, the branch was fast-forwarded upstream by four commits, one of which is this exact 3A1C-0 errata pair landing as commit ff55fa0496415e9b5e2058cbc53bd4d7ede8cb76 (parent f47363968088cdf9cd77b3245658169d49d7b737, the actual 3A1B commit) - byte-for-byte identical to the locally-drafted content, confirmed by diff. It is therefore genuinely present and preserved in the current repository; this milestone does not recreate it. The three other new commits since 3A1B (2274921 Milestone 5B, d0a3ba9 Milestone 6B, 6e77658 Step 7 follow-up) are confirmed unrelated GPU/steering-track work - verified via git diff --stat to touch only notebooks/colab_unified_analysis.ipynb, src/analysis/v2_pipeline.py, and a new test file, none of which reference quadrant_c_pipeline candidate selection, the gate config, or the classifier.",
+  "reviewed_branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "reviewed_head_at_consolidation_time": "6e7765815dc6dec579c7f0ca4cade358bbd3ee4d",
+  "actual_3a1c_0_commit": "ff55fa0496415e9b5e2058cbc53bd4d7ede8cb76",
+  "actual_3a1c_0_parent": "f47363968088cdf9cd77b3245658169d49d7b737",
+  "sources": [
+    {
+      "source_name": "StrongREJECT",
+      "status": "strict_primary",
+      "official_url": "https://github.com/alexandrasouly/strongreject",
+      "repository": "alexandrasouly/strongreject",
+      "file": "strongreject_dataset/strongreject_dataset.csv",
+      "revision": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "local_cache_path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "local_cache_available_in_this_session": false,
+      "local_cache_note": "Gitignored working file from 3A1A's session; not present in this fresh clone. 3A2 must reacquire from the official_url/revision above and verify the SHA-256 matches before use. Do not invent contents or hash if unavailable.",
+      "eligibility_scope": "The 158-row disjoint remainder (of 313 total raw rows) versus all 155 existing C-paired candidate_records_v2.jsonl rows, not only the 104 currently live rows.",
+      "provenance_handling": "Per-row upstream provenance must be preserved from the CSV's own 'source' column (values observed in 3A1A: custom, DAN, AdvBench, MaliciousInstruct, MasterKey, OpenAI System Card). No row may be described as 'human-authored' as a blanket label; 'custom' rows are source-team-authored, not independently confirmed human-authored, and the DAN/AdvBench/MaliciousInstruct/MasterKey/OpenAI-System-Card-attributed rows are curated-from-other-datasets, not originally authored by StrongREJECT.",
+      "identity_method": "No persistent upstream row ID exists; identity for disjointness/dedup purposes must use sha256 of stripped forbidden_prompt text, not a literal ID string.",
+      "outstanding_record_level_work": [
+        "Sub-source disjointness/wrapper checks on the 29 non-'custom' rows within the 158-row disjoint pool (DAN 10, AdvBench 13, MaliciousInstruct 2, MasterKey 2, OpenAI System Card 2) - not yet done.",
+        "Human review of classifier-flagged ambiguous rows (20 imperative-fallback complete_user_facing_prompt rows within the full 313-row set) before individual inclusion/exclusion."
+      ]
+    },
+    {
+      "source_name": "SimpleSafetyTests",
+      "status": "strict_primary",
+      "official_url": "https://github.com/bertiev/SimpleSafetyTests",
+      "repository": "bertiev/SimpleSafetyTests",
+      "file": "SimpleSafetyTests - test cases.csv",
+      "revision": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "local_cache_path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "local_cache_available_in_this_session": false,
+      "local_cache_note": "Gitignored working file from 3A1B's session; not present in this fresh clone. 3A2 must reacquire from the official_url/revision above and verify the SHA-256 matches before use.",
+      "eligibility_scope": "All 100 rows, subject to record-level checks below; zero exact-hash overlap against StrongREJECT/HarmBench/AdvBench/C-paired was recorded in 3A1B.",
+      "provenance_handling": "No per-row author field exists. Must be described as an unchanged external dataset record with source-level provenance (hand-crafted test-case set per the dataset's own documentation), not as individually verified human-authored text for any specific row.",
+      "content_sensitivity_note": "20/100 rows fall under the 'Child safety' harm_area. No example text from this or any harm_area has been reproduced in any inventory document; this restraint must be preserved through 3A2 and any later researcher-review materials.",
+      "outstanding_record_level_work": [
+        "Structural classification review of the 22 behavior_description and 1 category_label rows before treating the remaining 77 as the eligible set.",
+        "Exact/normalized/near-duplicate and contamination checks per the required 3A2 checks list below (only exact-hash overlap against 4 reference sets has been run so far)."
+      ]
+    },
+    {
+      "source_name": "AdvBench",
+      "status": "supplementary",
+      "official_url": "https://github.com/llm-attacks/llm-attacks",
+      "reason": "Literature-documented internal near-duplicate/templating pattern not cleared by exact-text-only dedup (520/520 unique strings, but no embedding-based near-dup pass has been run). Structural classification: only 37/520 rows read as complete_user_facing_prompt, all low-confidence.",
+      "may_enter_strict_primary_if": "An embedding-based near-duplicate audit clears the templating concern and a future milestone explicitly promotes it - not assumed here."
+    },
+    {
+      "source_name": "Do-Not-Answer",
+      "status": "supplementary",
+      "official_url": "https://github.com/Libr-AI/do-not-answer",
+      "reason": "All 939 rows are source_generated_prompt provenance (GPT-4-generated against a risk taxonomy, then human-filtered), per the paper and this project's own prior characterization. Must not be described as human-authored regardless of how complete the text reads (927/939 structurally read as complete_user_facing_prompt).",
+      "may_enter_strict_primary_if": "The project explicitly and narrowly redefines 'unchanged external record' to include source-generated-then-filtered text, documented as such - not adopted in this policy."
+    },
+    {
+      "source_name": "JailbreakBench / JBB-Behaviors (partial PyPI file)",
+      "status": "supplementary",
+      "official_url": "https://pypi.org/project/jailbreakbench/ (bundled); authoritative dataset at https://huggingface.co/datasets/dedeswim/JBB-Behaviors",
+      "reason": "The bundled jailbreakbench==0.1.0 CSV lacks the official per-row Source column (Original/Trojan Detection Challenge 2023-HarmBench/AdvBench). Provenance was reconstructed by content hash (11 AdvBench, 9 HarmBench, 3 StrongREJECT, 1 C-paired collision, 80 unmatched). The 80-row unmatched bucket is an upper bound on 'Original', not a confirmed count.",
+      "package_version_note": "3A1B's claim that 0.1.0 was 'the only version on PyPI' is incorrect (5 versions exist, latest 1.0.0); 0.1.0 was simply the only one installable under this sandbox's Python 3.12 due to a requires_python<3.12 constraint on later releases. Whether a newer version bundles the official Source column remains unresolved, not assumed either way.",
+      "may_enter_strict_primary_if": "The authoritative HF dataset (with the Source column) becomes accessible and is verified, or a newer PyPI release is confirmed to include it."
+    },
+    {
+      "source_name": "JailbreakHub in-the-wild (jailbreak_prompts_2023_12_25.csv)",
+      "status": "supplementary",
+      "official_url": "https://github.com/verazuo/jailbreak_llms",
+      "reason": "Genuinely naturally-occurring provenance, but the automated classifier's 463/1405 complete_user_facing_prompt count is a demonstrated overestimate - a manual spot-check found wrapper/persona cues in 27/72 (37.5%) of a sub-sample the classifier called complete. Per-item manual review is required before any row is used; bulk/heuristic-count-based inclusion is not permitted.",
+      "may_enter_strict_primary_if": "Individual rows pass per-item manual review confirming a standalone complete harmful request with no wrapper/persona/template structure - not performed at the source level."
+    },
+    {
+      "source_name": "JailbreakHub forbidden_question_set.csv",
+      "status": "supplementary",
+      "official_url": "https://github.com/verazuo/jailbreak_llms",
+      "reason": "Researcher-constructed benchmark-target set per the dataset authors' own README ('we construct a question set...'), not naturally-occurring - despite sharing a repository with the genuinely in-the-wild file above. 34/390 rows are byte-identical to a StrongREJECT forbidden_prompt, 24 of those already present in the C-paired pool.",
+      "may_enter_strict_primary_if": "Not applicable under the current source-generated/researcher-constructed provenance classification."
+    },
+    {
+      "source_name": "HarmBench",
+      "status": "excluded",
+      "official_url": "https://github.com/centerforaisafety/HarmBench",
+      "reason": "Live Quadrant A is 100% HarmBench (150/150 confirmed by content hash), and HarmBench is part of the fixed H = A union B Fightin' Words reference corpus (confirmed by direct inspection of src/corpus_discrimination.py). Using it as a C-source-authored candidate source would create direct reference-corpus dependence and contamination risk. This is a predeclared protocol decision, not a claim that its score distribution is provably incapable of producing a low Fightin' Words score.",
+      "may_be_used_supplementary_for": "Sensitivity/exploratory analysis only, never merged into the strict-primary or Q25-eligible pool."
+    },
+    {
+      "source_name": "SORRY-Bench (base question set)",
+      "status": "unresolved",
+      "official_url": "https://github.com/SORRY-Bench/SORRY-Bench (code); dataset at https://huggingface.co/datasets/sorry-bench/sorry-bench-202503",
+      "reason": "Base question.jsonl and all 20 linguistic-mutation files are distributed exclusively via a gated HuggingFace dataset requiring an explicit access grant, confirmed from the code repo's own README. Also blocked by this sandbox's network allowlist (huggingface.co not permitted).",
+      "not_used_by_3a2_unless": "Gated access is granted and a network path to huggingface.co is available; base and mutation data must be kept separate on acquisition."
+    },
+    {
+      "source_name": "Authoritative Source-tagged JBB-Behaviors dataset",
+      "status": "unresolved",
+      "official_url": "https://huggingface.co/datasets/dedeswim/JBB-Behaviors",
+      "reason": "HuggingFace-hosted; huggingface.co blocked by sandbox network policy (confirmed 403 host_not_allowed in both 3A1A and 3A1B sessions). Only a partial, Source-column-less PyPI substitute has been acquired (see the JailbreakBench/JBB-Behaviors supplementary entry above).",
+      "not_used_by_3a2_unless": "HF access becomes available and the dataset is acquired and independently verified."
+    }
+  ],
+  "strict_primary_sources": ["StrongREJECT", "SimpleSafetyTests"],
+  "supplementary_sources": [
+    "AdvBench",
+    "Do-Not-Answer",
+    "JailbreakBench / JBB-Behaviors (partial PyPI file)",
+    "JailbreakHub in-the-wild (jailbreak_prompts_2023_12_25.csv)",
+    "JailbreakHub forbidden_question_set.csv"
+  ],
+  "excluded_sources": ["HarmBench"],
+  "unresolved_sources": [
+    "SORRY-Bench (base question set)",
+    "Authoritative Source-tagged JBB-Behaviors dataset"
+  ],
+  "policy_correction_applied": "Per explicit instruction for this milestone: unresolved or supplementary-source issues do not block 3A2 as a whole. They only block that specific source's use in the strict-primary pool. 3A2 may proceed using only StrongREJECT and SimpleSafetyTests as strict-primary inputs, with the supplementary/unresolved sources excluded from the strict-primary pool but not treated as a reason to halt 3A2 entirely.",
+  "eligibility_order": [
+    "source_and_provenance_audit",
+    "complete_standalone_user_facing_request_check",
+    "exact_deduplication",
+    "normalized_deduplication",
+    "near_duplicate_checking",
+    "contamination_checking",
+    "fixed_ABD_fightin_words_scoring",
+    "global_and_source_stratified_ranks",
+    "Q10_Q25_Q40_stratification",
+    "researcher_semantic_review"
+  ],
+  "scientific_definition_note": "C-source-authored is not a generic harmful-prompt collection and is not defined by absence of obvious harmful words. A low Fightin' Words or TF-IDF score does not by itself establish harmfulness, completeness, human authorship, or semantic neutrality; it is an operational screening statistic applied only after eligibility and provenance screening, per the eligibility_order above.",
+  "fixed_gate_settings": {
+    "source_verified_from": "logs/benchmark_gate_config.json",
+    "Q10": 0.10,
+    "Q25": 0.25,
+    "Q40": 0.40,
+    "default_source_authored_review_stratum": "Q25",
+    "source_authored_review_limit": 150,
+    "gate_config_modified_this_milestone": false,
+    "gate_config_sha256_this_session": null,
+    "gate_config_sha256_note": "Not recomputed as a distinct artifact hash in this JSON to avoid implying a new pinned value; the file itself is unmodified and remains the single source of truth. See required_3a2_checks and non_blocking_issues for the verification method used."
+  },
+  "no_shortcuts_policy": [
+    "No source quotas.",
+    "No artificial rebalancing across categories or sources.",
+    "No Q40 top-up introduced merely to reach 150 candidates.",
+    "No generated prompts.",
+    "No rewrites or paraphrases of source prompts.",
+    "No silent prompt edits of any kind.",
+    "Fewer than 150 candidates is an acceptable outcome.",
+    "Rows with pending review status cannot enter the frozen benchmark."
+  ],
+  "required_3a2_input_files": [
+    {
+      "source": "StrongREJECT",
+      "path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "url": "https://raw.githubusercontent.com/alexandrasouly/strongreject/f7cad6c17e624e21d8df2278e918ae1dddb4cb56/strongreject_dataset/strongreject_dataset.csv",
+      "repository": "alexandrasouly/strongreject",
+      "revision": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "availability_status": "not present in a fresh clone (gitignored working cache)",
+      "reacquisition_requirement": "Must be re-fetched from the URL/revision above and its SHA-256 verified to equal the expected value before any row from it is used in 3A2."
+    },
+    {
+      "source": "SimpleSafetyTests",
+      "path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "url": "https://raw.githubusercontent.com/bertiev/SimpleSafetyTests/d7aee9a9422a5a5488f478fd79c2479c891c0f3b/SimpleSafetyTests%20-%20test%20cases.csv",
+      "repository": "bertiev/SimpleSafetyTests",
+      "revision": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "availability_status": "not present in a fresh clone (gitignored working cache)",
+      "reacquisition_requirement": "Must be re-fetched from the URL/revision above and its SHA-256 verified to equal the expected value before any row from it is used in 3A2."
+    }
+  ],
+  "explicitly_disallowed_3a2_strict_primary_inputs": [
+    "HarmBench",
+    "AdvBench",
+    "Do-Not-Answer",
+    "JailbreakBench / JBB-Behaviors (partial PyPI file)",
+    "SORRY-Bench",
+    "JailbreakHub in-the-wild (jailbreak_prompts_2023_12_25.csv)",
+    "JailbreakHub forbidden_question_set.csv"
+  ],
+  "gitignored_cache_warning": "All source-file caches under data/raw/ are gitignored and will not exist in any fresh clone or new session unless explicitly reacquired and reverified. 3A2 must not assume any cache path listed above is populated without checking for the file and verifying its hash first.",
+  "required_3a2_checks": [
+    "exact_prompt_text_preservation",
+    "deterministic_ids_independent_of_row_position",
+    "exact_duplicate_detection",
+    "normalized_duplicate_detection",
+    "near_duplicate_detection_using_existing_repository_machinery_where_available",
+    "overlap_against_all_quadrant_a_rows",
+    "overlap_against_all_155_existing_c_paired_records",
+    "contamination_checks_against_every_available_training_file",
+    "explicit_unknown_status_when_a_required_check_cannot_run",
+    "preservation_of_source_revision_source_file_hash_prompt_hash_and_provenance",
+    "source_category_and_project_category_mapping_without_invented_labels",
+    "no_use_of_model_behavior_activations_probes_steering_or_causal_results"
+  ],
+  "overlap_risks": [
+    "StrongREJECT vs existing C-paired records: resolved (155/155 matched, 158 disjoint remainder) - re-verify hash currency once the CSV is reacquired for 3A2.",
+    "HarmBench vs Quadrant A: resolved (150/150 exact match).",
+    "AdvBench vs JBB-derived records: partially resolved (11 exact matches found in 3A1B's JBB partial file); embedding-based near-dup between AdvBench and JBB not yet run.",
+    "HarmBench vs JBB-derived records: partially resolved (9 exact matches found in 3A1B's JBB partial file).",
+    "SORRY-Bench vs prior datasets: unknown (source unacquired).",
+    "Do-Not-Answer vs other source families: resolved as zero exact-hash overlap against StrongREJECT/HarmBench/AdvBench/C-paired in 3A1B; not checked against JailbreakHub/JBB.",
+    "JailbreakHub vs benchmark/jailbreak-template sources: forbidden_question_set vs StrongREJECT (34 matches, 24 already in C-paired) resolved; jailbreak_prompts_2023_12_25.csv vs all four reference sets resolved at zero exact-hash overlap, but per-item manual review of its content is still required before any use.",
+    "Cross-source near-duplicate (non-exact) checking among 3A1B's five newly acquired sources, and between them and 3A1A's three sources, has not been performed at all - open gap distinct from the exact-hash checks above."
+  ],
+  "contamination_requirements": [
+    "Every candidate drawn from a strict-primary source must be checked against every available training file used anywhere in this project, not only against the eval/benchmark files.",
+    "Where a training-file contamination check cannot be run (e.g. a training corpus is unavailable in the current environment), the candidate's contamination_status must be recorded as explicitly unknown, never as clean by default."
+  ],
+  "classifier_limitations": [
+    "src/diagnostics/classify_source_provenance.py is triage only: a screening aid for human reviewers, not a harm classifier, not a semantic adjudicator, and not a final eligibility gate under any circumstance. Its code was not modified in 3A1A, 3A1B, 3A1C-0, or this milestone.",
+    "ClassificationResult has exactly two fields, label and reason; there is no separate boolean/numeric confidence field anywhere in the tool's output.",
+    "The imperative-fallback branch (label=complete_user_facing_prompt for ambiguous imperative sentences with no wrapper/template/opening-verb match) embeds a '(low-confidence: ...)' note in its reason string.",
+    "The opening-verb behavior_description branch (label=behavior_description for the same grammatical shape but matching a fixed opening-verb list) carries no such marker, despite the module's own docstring treating both as equally ambiguous cases.",
+    "Both the opening-verb behavior_description outputs and the imperative-fallback complete_user_facing_prompt outputs must be treated as equally provisional pending human review; the current asymmetric flagging in the tool's raw output must not be read as meaning one bucket is more reliable than the other.",
+    "On JailbreakHub's in-the-wild file specifically, an independent manual spot-check found the classifier under-detects wrapper/persona structure on long, multi-paragraph creative templates (27/72 missed in a sub-sample), while it performs reliably on short, single-register text (StrongREJECT, SimpleSafetyTests, forbidden_question_set). This is a documented, source-dependent reliability profile, not a reason to distrust the tool universally, but also not a reason to trust its behavior_description/complete_user_facing_prompt split on long-form sources without human review."
+  ],
+  "blocking_issues": [],
+  "non_blocking_issues": [
+    "StrongREJECT and SimpleSafetyTests source CSVs are not present in the current filesystem (gitignored caches) and must be reacquired and hash-verified before 3A2 uses them - this is a required input-preparation step for 3A2, not a reason to halt 3A2 itself, since the reacquisition URLs/revisions/expected hashes are fully specified above.",
+    "Sub-source disjointness checks on the 29 non-'custom'-provenance rows of the StrongREJECT disjoint pool remain outstanding and should be completed as part of 3A2's record-level eligibility checks, not as a precondition to starting 3A2.",
+    "AdvBench's embedding-based near-duplicate audit remains outstanding; since AdvBench is supplementary only, this does not block 3A2's strict-primary construction.",
+    "SORRY-Bench and the authoritative Source-tagged JBB-Behaviors dataset remain unresolved; since neither is in the strict-primary input list, this does not block 3A2.",
+    "The jailbreakbench PyPI 'only version' claim from 3A1B has been corrected (5 versions exist); since the partial JBB file is supplementary only, this does not block 3A2.",
+    "logs/3a0_source_plan.json still does not exist under its canonical name (only the misspelled logs/3a0_souece_plan.json); documentation-only, unrelated to the strict-primary input list.",
+    "logs/agent_state.json remains stale (pre-3A1A); does not affect the 3A2 input contract defined in this document, but should be updated in a future handoff.",
+    "The historical 3A1A/3A1B self-reported commit SHAs (a8aa91a9..., 17d82da...) remain unreachable in git history; this milestone's own reviewed_head_at_consolidation_time and the 3A1C commit/parent recorded in logs/3a1c_handoff.json are independently verified via git rev-parse and git log, not carried forward from those unreachable values.",
+    "The tracked, empty regular file named 'artifacts' at the repository root still blocks creating artifacts/patches/ as a directory; this milestone's archival patch is recorded at an alternate path per instruction, not blocking 3A1C or 3A2."
+  ],
+  "next_milestone": "3A2"
+}

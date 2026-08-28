@@ -1,0 +1,125 @@
+{
+  "milestone": "3A1C",
+  "created_at_utc": "2026-08-28T00:45:00Z",
+  "reviewed_branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "reviewed_head_before_this_commit": "6e7765815dc6dec579c7f0ca4cade358bbd3ee4d",
+  "actual_3a1b_commit": "f47363968088cdf9cd77b3245658169d49d7b737",
+  "actual_3a1b_parent": "9778cfcf3a1a3a40c80fdb91eb56a1e6fd39a88d",
+  "actual_3a1c_0_commit": "ff55fa0496415e9b5e2058cbc53bd4d7ede8cb76",
+  "actual_3a1c_0_parent": "f47363968088cdf9cd77b3245658169d49d7b737",
+  "3a1c_0_status": "present_and_preserved",
+  "unrelated_commits_since_3a1b_reviewed_for_impact": [
+    {"sha": "2274921", "subject": "Milestone 5B: fix cross-session scoping bug in direction/behavioral aggregation", "impact_on_c_source_authored_track": "none"},
+    {"sha": "d0a3ba9", "subject": "Milestone 6B: expose steering/generation/resume config the dry run was missing", "impact_on_c_source_authored_track": "none"},
+    {"sha": "6e77658", "subject": "Step 7 follow-up: exercise the complete run graph after Milestone 6B", "impact_on_c_source_authored_track": "none - this commit's own message independently confirms 3A1B/3A1C-0 touch only data/review and process docs, no benchmark/gate/pipeline files"}
+  ],
+  "historical_unreachable_shas_not_used_as_anchors": [
+    "a8aa91a93bddb75b77bd70ecd4aa46a4ddfe66b5",
+    "17d82dade0f8b6070245084f39d59b4ce07aaa5c"
+  ],
+  "strict_primary_sources": [
+    {
+      "name": "StrongREJECT",
+      "eligible_scope": "158-row disjoint remainder vs. all 155 existing C-paired rows",
+      "record_level_checks_still_required": true
+    },
+    {
+      "name": "SimpleSafetyTests",
+      "eligible_scope": "100 rows, subject to record-level checks; heuristic classifier count is not the final eligible count",
+      "record_level_checks_still_required": true
+    }
+  ],
+  "supplementary_sources": [
+    "AdvBench",
+    "Do-Not-Answer",
+    "JailbreakBench / JBB-Behaviors (partial PyPI file)",
+    "JailbreakHub in-the-wild (jailbreak_prompts_2023_12_25.csv)",
+    "JailbreakHub forbidden_question_set.csv"
+  ],
+  "excluded_sources": ["HarmBench"],
+  "unresolved_sources": [
+    "SORRY-Bench base dataset",
+    "authoritative Source-tagged JBB-Behaviors dataset"
+  ],
+  "policy_correction": "An issue blocks a source's inclusion in the strict-primary pool; it does not block 3A2 as a whole when the strict-primary input list simply excludes that source. All supplementary and unresolved sources above are excluded from the strict-primary input list; none of them blocks 3A2.",
+  "required_3a2_input_files": [
+    {
+      "source": "StrongREJECT",
+      "path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "url": "https://raw.githubusercontent.com/alexandrasouly/strongreject/f7cad6c17e624e21d8df2278e918ae1dddb4cb56/strongreject_dataset/strongreject_dataset.csv",
+      "repository": "alexandrasouly/strongreject",
+      "revision": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "availability_status": "not present in current working tree (gitignored data/raw/ cache)",
+      "reacquisition_requirement": "Fetch from url/revision above; verify SHA-256 equals expected_sha256 before use; if it does not match, halt and record unknown provenance rather than proceeding."
+    },
+    {
+      "source": "SimpleSafetyTests",
+      "path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "url": "https://raw.githubusercontent.com/bertiev/SimpleSafetyTests/d7aee9a9422a5a5488f478fd79c2479c891c0f3b/SimpleSafetyTests%20-%20test%20cases.csv",
+      "repository": "bertiev/SimpleSafetyTests",
+      "revision": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "availability_status": "not present in current working tree (gitignored data/raw/ cache)",
+      "reacquisition_requirement": "Fetch from url/revision above; verify SHA-256 equals expected_sha256 before use; if it does not match, halt and record unknown provenance rather than proceeding."
+    }
+  ],
+  "gitignored_cache_warning": "Any fresh clone or new sandbox will not have data/raw/ populated. 3A2 must check for file existence and verify the hash before treating either cache as usable, in every session, regardless of what a prior session's report says.",
+  "explicitly_disallowed_3a2_strict_primary_inputs": [
+    "HarmBench",
+    "AdvBench",
+    "Do-Not-Answer",
+    "JailbreakBench / JBB-Behaviors (partial PyPI file)",
+    "SORRY-Bench",
+    "JailbreakHub in-the-wild (jailbreak_prompts_2023_12_25.csv)",
+    "JailbreakHub forbidden_question_set.csv"
+  ],
+  "required_3a2_checks": [
+    "exact_prompt_text_preservation",
+    "deterministic_ids_independent_of_row_position",
+    "exact_duplicate_detection",
+    "normalized_duplicate_detection",
+    "near_duplicate_detection_using_existing_repository_machinery_where_available",
+    "overlap_against_all_quadrant_a_rows",
+    "overlap_against_all_155_existing_c_paired_records",
+    "contamination_checks_against_every_available_training_file",
+    "explicit_unknown_status_when_a_required_check_cannot_run",
+    "preservation_of_source_revision_source_file_hash_prompt_hash_and_provenance",
+    "source_category_and_project_category_mapping_without_invented_labels",
+    "no_use_of_model_behavior_activations_probes_steering_or_causal_results"
+  ],
+  "distinctions_3a2_must_maintain": [
+    "source_eligibility - decided in this document (3A1/3A1C), not re-litigated per-candidate in 3A2",
+    "provenance_class - per-row/per-source (custom, curated, upstream-derived, source-generated, unknown) - must travel with every candidate record",
+    "structural_classifier_triage - classify_source_provenance.py output; advisory only, both ambiguous buckets provisional, never auto-include/exclude",
+    "later_semantic_researcher_review - human judgment on completeness/harmfulness/neutrality, distinct from and downstream of triage",
+    "fixed_score_based_selection - A/B/D Fightin' Words scoring and Q10/Q25/Q40 stratification, applied only after all of the above, and never as a proxy for any of them"
+  ],
+  "fixed_gate_settings_verified_unchanged": {
+    "Q10": 0.10,
+    "Q25": 0.25,
+    "Q40": 0.40,
+    "default_source_authored_review_stratum": "Q25",
+    "source_authored_review_limit": 150,
+    "file": "logs/benchmark_gate_config.json",
+    "modified_this_milestone": false
+  },
+  "no_shortcuts_policy": [
+    "no source quotas",
+    "no artificial rebalancing",
+    "no Q40 top-up to reach 150",
+    "no generated prompts",
+    "no rewrites or paraphrases",
+    "no silent prompt edits",
+    "fewer than 150 candidates is acceptable",
+    "pending-review rows cannot enter the frozen benchmark"
+  ],
+  "blocking_issues": [],
+  "non_blocking_issues": [
+    "Both required strict-primary source CSVs are absent from the working tree and must be reacquired/hash-verified as part of 3A2's own setup - specified fully above, not a reason to delay starting 3A2.",
+    "StrongREJECT sub-source disjointness checks (29 non-'custom' rows) and SimpleSafetyTests classifier-bucket review remain outstanding record-level work to be done inside 3A2's eligibility pipeline, not before it.",
+    "AdvBench near-dup audit, SORRY-Bench acquisition, and the authoritative JBB dataset remain open, but none are strict-primary inputs so none blocks 3A2.",
+    "The tracked empty 'artifacts' file still blocks the canonical artifacts/patches/ path; this milestone's patch is recorded at an alternate path (see patch_status in this session's report)."
+  ],
+  "next_milestone": "3A2"
+}
