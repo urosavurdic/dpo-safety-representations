@@ -1,0 +1,73 @@
+{
+  "milestone": "3A4",
+  "objective": "Score the 3A3-validated C-source-authored candidate universe with the existing Fightin' Words diagnostic, rank it, and build the Q25 human review queue.",
+  "input_artifact": {
+    "path": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+    "sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+    "row_count": 413,
+    "matches_3a3_log": true
+  },
+  "eligible_count": 209,
+  "scoring_reference": {
+    "eval_set_path": "data/processed/controlled_eval.jsonl",
+    "eval_set_sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+    "h_quadrant_a_count": 150,
+    "h_quadrant_b_count": 250,
+    "d_quadrant_count": 150,
+    "corpus_h_sha256": "42510627856418066fb0a069e917bd27c869c177e2cc659c92ad15beaf5c5d89",
+    "corpus_d_sha256": "6623cdcab46fb89914b8017bed911ca176e9417f7b17bbd5fead07814d59a2af",
+    "prior_config": {
+      "prior_strength_per_token": 0.01,
+      "min_count": 1,
+      "vocab_size": 2199
+    },
+    "tokenizer_version": "word_tokenize_v1_lower_alphanum_apostrophe",
+    "min_token_recognition_fraction": 0.5,
+    "c_used_to_construct_reference": false
+  },
+  "score_field_used_for_ranking": "fightin_words_score_unnormalized",
+  "ranking_rules": {
+    "method": "empirical_rank(score, reference_scores): fraction of reference scores <= this score; lower rank = more D-like = more desirable for c_source_authored",
+    "global_rank_reference": "all scored eligible candidates (n=209)",
+    "source_rank_reference": "scored eligible candidates within the same source_dataset",
+    "computed_before_stratum_filtering": true,
+    "tie_handling": "empirical_rank gives exact-score ties identical rank values by construction; any total order needed downstream (queue row order, the review-limit cutoff) breaks ties with (global_rank, record_id) ascending"
+  },
+  "quantile_definitions": {
+    "Q10": 0.1,
+    "Q25": 0.25,
+    "Q40": 0.4
+  },
+  "default_review_stratum": "Q25",
+  "review_queue_limit": 150,
+  "counts": {
+    "eligible_by_source": {
+      "StrongREJECT": 132,
+      "SimpleSafetyTests": 77
+    },
+    "qualifying_for_stratum_by_source": {
+      "StrongREJECT": 39,
+      "SimpleSafetyTests": 13
+    },
+    "qualifying_for_stratum_total": 52,
+    "queued_by_source": {
+      "StrongREJECT": 39,
+      "SimpleSafetyTests": 13
+    },
+    "final_queue_count": 52,
+    "capped_by_limit": false
+  },
+  "output_artifacts": {
+    "review_queue_csv": {
+      "path": "data/review/c_source_authored_review_queue.csv",
+      "sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+      "row_count": 52
+    }
+  },
+  "not_performed_this_milestone": [
+    "3A2/3A3 re-verification (duplicate/overlap/contamination/provenance)",
+    "human review (milestone 3B)",
+    "benchmark freeze"
+  ],
+  "next_milestone": "3B - human review of the C-source-authored queue."
+}
