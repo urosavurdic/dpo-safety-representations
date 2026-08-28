@@ -1442,14 +1442,27 @@ def cosine_per_layer(a: np.ndarray, b: np.ndarray) -> list[float]:
     return np.sum(a * b, axis=-1).tolist()
 
 
-def aggregate_directions(ctx, stages) -> None:
+def aggregate_directions(ctx) -> None:
     """Cosine diagnostics across stages, in the sections Finding 3 reads.
 
     Only pairs where both stages are available are computed, so a partially
     trained alt branch produces a partial report rather than an error.
+
+    Discovery is over ALL_STAGES (every bound `{stage}_v2_direction.npy` on
+    disk), not just whichever stages the calling command's own `--stages`
+    happened to be invoked with. A T4 session budget means a full 9-stage
+    run is normally assembled across several sessions/invocations - e.g.
+    `direction --stages M1_alt M2_alt M3_alt` in one session after
+    `M0..M3` were already bound in an earlier one. Scoping discovery to the
+    caller's subset would silently drop cross_branch/adjacent_alt/
+    direct_branch pairs whose other side is already bound and sitting
+    right there on disk (e.g. M1_vs_M1_alt, needing M1 from a prior
+    session's run), producing a file that exists but is missing entries
+    every downstream reader of it expects - the direction itself doesn't
+    change based on which stages this particular call was asked to touch.
     """
     directions = {}
-    for stage in stages:
+    for stage in ALL_STAGES:
         path = (
             ctx.paths.refusal_direction / f"{stage}_v2_direction.npy"
         )
@@ -1650,14 +1663,23 @@ def compute_probes(ctx, stages) -> None:
         print(f"  probes: wrote {output_path}")
 
 
-def merge_behavioral(ctx, stages) -> None:
+def merge_behavioral(ctx) -> None:
     """Combine the per-stage behavioral files into one v2_raw.json.
 
     Per-stage files are the checkpoint unit; this combined view is what a
     reader (and v2_compat) consumes.
+
+    Discovery is over ALL_STAGES (every per-stage v2_raw_{stage}.json on
+    disk), not just whichever stages the calling session's own plan
+    happened to cover - same reasoning as aggregate_directions above. This
+    matters more here than there: since this function *overwrites*
+    v2_raw.json wholesale, scoping discovery to the caller's subset would
+    not just omit a stage from the combined view, it would silently erase
+    an already-merged stage from a prior session the moment a later,
+    narrower-scoped session runs.
     """
     combined = {}
-    for stage in stages:
+    for stage in ALL_STAGES:
         path = ctx.paths.behavioral / f"v2_raw_{stage}.json"
         if path.exists():
             combined[stage] = load_json(path)
@@ -1893,14 +1915,14 @@ def main_run(args) -> None:
     ]
     print("\n=== CPU aggregation ===")
     try:
-        aggregate_directions(ctx, analysis_stages)
+        aggregate_directions(ctx)
     except RuntimeError as exc:
         print(f"  direction diagnostics skipped: {exc}")
 
     if args.with_probes:
         compute_probes(ctx, analysis_stages)
 
-    merge_behavioral(ctx, analysis_stages)
+    merge_behavioral(ctx)
 
     write_run_manifest(ctx, args, plan, incomplete)
     print_status(ctx)
@@ -2311,7 +2333,7 @@ def cmd_extract(args) -> None:
 def cmd_behavior(args) -> None:
     ctx = build_context(args)
     for_each_stage(ctx, args.stages, stage_behavior)
-    merge_behavioral(ctx, args.stages)
+    merge_behavioral(ctx)
 
 
 def cmd_direction(args) -> None:
@@ -2319,7 +2341,7 @@ def cmd_direction(args) -> None:
     for stage in args.stages:
         if activations_bound(ctx, stage):
             stage_direction(ctx, stage)
-    aggregate_directions(ctx, args.stages)
+    aggregate_directions(ctx)
 
 
 def cmd_probes(args) -> None:
