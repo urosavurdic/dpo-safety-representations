@@ -1,0 +1,106 @@
+{
+  "milestone": "3A2-1",
+  "objective": "Construct the reproducible C-source-authored candidate universe from StrongREJECT and SimpleSafetyTests only.",
+  "input_source_hashes": {
+    "StrongREJECT": {
+      "path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "verified": true,
+      "row_count": 313
+    },
+    "SimpleSafetyTests": {
+      "path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "verified": true,
+      "row_count": 100
+    }
+  },
+  "reference_pools_checked": {
+    "c_paired_pool_size_checked": 155,
+    "c_paired_pool_note": "Full 155-row pool, not restricted to the 104 currently-live frozen rows (Step 6 hard requirement).",
+    "quadrant_a_size_checked": 150
+  },
+  "candidate_count_total": 413,
+  "candidate_count_by_source": {
+    "StrongREJECT": 313,
+    "SimpleSafetyTests": 100
+  },
+  "eligible_for_3a3_count": 209,
+  "excluded_count": 204,
+  "standalone_status_breakdown": {
+    "complete": 342,
+    "excluded_not_standalone": 71
+  },
+  "structural_classifier_label_breakdown": {
+    "complete_user_facing_prompt": 342,
+    "behavior_description": 70,
+    "category_label": 1
+  },
+  "structural_classifier_label_breakdown_by_source": {
+    "StrongREJECT": {
+      "complete_user_facing_prompt": 265,
+      "behavior_description": 48
+    },
+    "SimpleSafetyTests": {
+      "complete_user_facing_prompt": 77,
+      "behavior_description": 22,
+      "category_label": 1
+    }
+  },
+  "low_confidence_structural_flag_count": 46,
+  "exact_duplicate_count": 0,
+  "normalized_duplicate_count": 0,
+  "c_paired_overlap_count": 155,
+  "c_paired_overlap_count_by_source": {
+    "StrongREJECT": 155,
+    "SimpleSafetyTests": 0
+  },
+  "quadrant_a_overlap_count": 0,
+  "provenance_class_breakdown": {
+    "upstream-derived": 92,
+    "custom": 221,
+    "curated": 100
+  },
+  "strongreject_upstream_provenance_breakdown": {
+    "DAN": 35,
+    "custom": 221,
+    "Jailbreaking via Prompt Engineering": 3,
+    "AdvBench": 25,
+    "HarmfulQ": 11,
+    "MaliciousInstruct": 12,
+    "OpenAI System Card": 3,
+    "MasterKey": 3
+  },
+  "advbench_flagged_upstream_rows": 25,
+  "contamination_exact_status_note": "Exact-text-only check against the four training files listed below; informational in 3A2-1, not used to drive candidate_universe_status (deferred to 3A3 per Step 10 scoping).",
+  "contamination_training_files_checked": [
+    "dpo_pairs.jsonl",
+    "sft_helpful.jsonl",
+    "sft_helpful_alt.jsonl",
+    "sft_safety.jsonl"
+  ],
+  "contamination_exact_matches_found": 0,
+  "contamination_near_status": "unknown_for_all_records - embedding model unavailable (no network path to huggingface.co in this sandbox)",
+  "unresolved_from_prior_milestones_not_addressed_here": [
+    "StrongREJECT sub-source disjointness verification for non-'custom' rows (92 rows total, 25 of which are labeled 'AdvBench' upstream) - flagged per-record via provenance_notes, not independently re-verified against AdvBench's own file this milestone.",
+    "SORRY-Bench acquisition and authoritative JBB-Behaviors dataset remain unresolved sources; neither is a strict-primary input so neither blocks 3A2."
+  ],
+  "output_artifacts": {
+    "candidate_universe_jsonl": {
+      "path": "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl",
+      "sha256": "921ebe1687f2926115d4b1d846a97aebaaae0d0d10d5943e141bf2be696581c1",
+      "row_count": 413
+    }
+  },
+  "not_performed_this_milestone": [
+    "near_duplicate_embedding_check",
+    "fightin_words_scoring",
+    "Q10_Q25_Q40_stratification",
+    "review_queue_generation",
+    "benchmark_freeze",
+    "project_category_taxonomy_mapping"
+  ],
+  "next_milestone": "3A3 - candidate validation, near-duplicate, overlap, and contamination checks."
+}
