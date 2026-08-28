@@ -1,0 +1,72 @@
+{
+  "milestone": "3A2-0",
+  "created_at_utc": "2026-08-28T04:23:00Z",
+  "objective": "Reacquire and cryptographically verify the two strict-primary source artifacts named in logs/3a1c_handoff.json, prior to any candidate construction, filtering, or scoring.",
+  "contract_source": "logs/3a1c_handoff.json (required_3a2_input_files), cross-checked against logs/3a1_source_inventory.json - not guessed or re-derived from memory.",
+  "reviewed_branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "reviewed_head": "1e6e6d3ae749f05d04dae59f38de4fc095f4817e",
+  "acquisitions": [
+    {
+      "source": "StrongREJECT",
+      "requested_url": "https://raw.githubusercontent.com/alexandrasouly/strongreject/f7cad6c17e624e21d8df2278e918ae1dddb4cb56/strongreject_dataset/strongreject_dataset.csv",
+      "repository": "alexandrasouly/strongreject",
+      "requested_revision": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "actual_revision_fetched": "f7cad6c17e624e21d8df2278e918ae1dddb4cb56",
+      "revision_match": true,
+      "path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "acquisition_method": "curl -sSL against the pinned commit-SHA raw.githubusercontent.com URL (not a branch ref, so content is immutable at this URL)",
+      "http_status": 200,
+      "byte_size": 56359,
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "actual_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "hash_match": true,
+      "structural_sanity_check": {
+        "header": ["category", "source", "forbidden_prompt"],
+        "row_count_excluding_header": 313,
+        "matches_3a1a_reported_total_row_count": true
+      },
+      "availability": "present_and_verified",
+      "verification_status": "VERIFIED",
+      "discrepancy": null
+    },
+    {
+      "source": "SimpleSafetyTests",
+      "requested_url": "https://raw.githubusercontent.com/bertiev/SimpleSafetyTests/d7aee9a9422a5a5488f478fd79c2479c891c0f3b/SimpleSafetyTests%20-%20test%20cases.csv",
+      "repository": "bertiev/SimpleSafetyTests",
+      "requested_revision": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "actual_revision_fetched": "d7aee9a9422a5a5488f478fd79c2479c891c0f3b",
+      "revision_match": true,
+      "path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "acquisition_method": "curl -sSL against the pinned commit-SHA raw.githubusercontent.com URL (space in filename percent-encoded as %20; not a branch ref, so content is immutable at this URL)",
+      "http_status": 200,
+      "byte_size": 12610,
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "actual_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "hash_match": true,
+      "structural_sanity_check": {
+        "header": ["id", "harm_area", "counter", "category", "prompts_final"],
+        "row_count_excluding_header": 100,
+        "matches_3a1b_reported_total_row_count": true
+      },
+      "availability": "present_and_verified",
+      "verification_status": "VERIFIED",
+      "discrepancy": null
+    }
+  ],
+  "overall_acceptance_result": "MET - both strict-primary source files are present and hash-verified against the exact contract recorded in logs/3a1c_handoff.json.",
+  "notes": [
+    "Both files were fetched from commit-pinned raw.githubusercontent.com URLs (not branch refs), so re-fetching the same URL in a future session should reproduce byte-identical content as long as the upstream repositories do not rewrite that specific commit's history.",
+    "Row counts and column headers for both files match the counts already reported in logs/3a1a_source_inventory.json and logs/3a1b_source_inventory.json; no attempt was made to reproduce or inspect individual prompt text in this sub-step, consistent with 3A2-0's scope (acquisition/verification only, no candidate filtering).",
+    "Fetched files were written to their expected cache paths under data/raw/, which remain gitignored per .gitignore line 6 (data/raw/) and are not part of this commit - only this acquisition record is committed, matching the project's existing convention that source caches are working files, not tracked repository artifacts.",
+    "No candidates were constructed, no prompts were scored, no review queue was created, and no benchmark/gate/classifier/C-paired/model files were touched in this sub-step."
+  ],
+  "files_not_modified": [
+    "logs/benchmark_gate_config.json",
+    "data/quadrant_c_pipeline/candidate_records_v2.jsonl",
+    "data/processed/controlled_eval.jsonl",
+    "src/diagnostics/classify_source_provenance.py",
+    "src/corpus_discrimination.py"
+  ],
+  "next_milestone": "3A2-1",
+  "next_milestone_description": "Construct the raw C-source-authored candidate universe. Not begun in this sub-step."
+}
