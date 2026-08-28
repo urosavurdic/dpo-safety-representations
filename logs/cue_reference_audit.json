@@ -1,0 +1,47 @@
+{
+  "milestone": "cue_reference_audit",
+  "scope": "audit_only_no_scorer_implementation_no_scoring_no_benchmark_modification",
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "distinct_from": "3A c_source_authored track (candidate curation against an already-fixed reference)",
+  "headline_finding": "Existing Fightin' Words reference H=quadrant A (HarmBench) union quadrant B (XSTest), D=quadrant D is definitionally identical to quadrants A and B; 3a4_scoring.md already excludes StrongREJECT/SimpleSafetyTests candidates from H/D in one direction, but the reverse (scoring HarmBench/XSTest against a reference that excludes them) was never built.",
+  "per_source_audit": {
+    "HarmBench": {"defensible_prompt_level_label": true, "label": "harmful", "basis": "corpus membership, red-team-authored behaviors; Behavior field is the prompt", "existing_role": "is quadrant A (150/150 exact hash); fixed H half of existing reference"},
+    "StrongREJECT": {"defensible_prompt_level_label": true, "label": "harmful", "basis": "per-row source + category fields; access sha256-verified in 3a2", "existing_role": "existing c_source_authored candidate pool (313 rows, 132 eligible); also source of frozen benchmark's c_paired (104, different construction)"},
+    "SimpleSafetyTests": {"defensible_prompt_level_label": true, "label": "harmful", "basis": "corpus membership, 100 hand-crafted unsafe requests, 5 harm areas", "existing_role": "existing c_source_authored candidate pool (100 rows, 77 eligible)"},
+    "XSTest_safe": {"defensible_prompt_level_label": true, "label": "benign", "basis": "per-row type field / label==safe split", "existing_role": "is quadrant B (250/250); fixed H half of existing reference"},
+    "JailbreakBench_benign": {"defensible_prompt_level_label": "unresolved", "label": null, "basis": "verified this session: pip-installable jailbreakbench==0.1.0 bundles only behaviors.csv, 100 harmful rows, no benign split, no Source column; full dataset incl. any benign split is huggingface.co-only, blocked by sandbox network policy (host_not_allowed)", "existing_role": "unused, unacquirable under current network policy"},
+    "OR_Bench": {"defensible_prompt_level_label": false, "label": null, "basis": "confirmed via paper/repo: 80k safe + 600 toxic labels are LLM-generated and LLM-moderator-labeled, not human-curated; dataset hosted only at huggingface.co (blocked)", "existing_role": "unused"},
+    "PKU_SafeRLHF": {"defensible_prompt_level_label": false, "label": null, "basis": "data_prep.py schema uses only is_response_0_safe/is_response_1_safe/safer_response_id (response-level); build_matched_pairs keeps only prompts whose two responses disagree on safety, i.e. no single prompt-level safety field exists", "existing_role": "used for M2/M3 training data only (dpo_pairs.jsonl, sft_safety.jsonl), not intent labeling"},
+    "existing_dpo_safety_training_sets": {"defensible_prompt_level_label": false, "label": null, "basis": "derived from PKU-SafeRLHF chosen/rejected, same root cause", "existing_role": "training data only"}
+  },
+  "pku_safe_rlhf_20_row_check": "not run - schema already shown to lack a prompt-level field (data_prep.py, already in repo); also moot since huggingface.co is unreachable under current network policy",
+  "selected_reference_sources": {
+    "harmful_rotating_LOSO": ["HarmBench", "StrongREJECT", "SimpleSafetyTests"],
+    "benign_high_register_single_source_no_rotation": ["XSTest_safe"],
+    "benign_low_register_fightin_words_D_role_unchanged": ["quadrant_D_pool(Alpaca/Dolly/OASST1)"]
+  },
+  "excluded_sources": ["JailbreakBench_benign", "OR_Bench", "PKU_SafeRLHF", "existing_dpo_safety_training_sets"],
+  "deduplication_rule": "reuse stripped_sha256 (exact) and normalized_sha256 (lowercase/whitespace-collapsed) from src/data_pipeline/build_c_source_authored_candidates.py, itself carried over from check_leakage.py/build_secondary_c3_c4.py; near-dup embedding check deferred, same environment gap as prior sessions",
+  "reference_candidate_separation": "a source may be reference for one scoring pass and candidate for another, never both roles over the same instances in the same pass; must be enforced by source tag, not sha256 alone",
+  "source_held_out_scoring_plan": {
+    "harmful": "3-fold leave-one-source-out across HarmBench/StrongREJECT/SimpleSafetyTests",
+    "benign": "unresolved limitation - only one accessible source (XSTest); no held-out fold possible without network-policy change or a new hand-curated source (against project's own no-shortcuts policy)",
+    "agreement_integration": "reuse empirical_rank()/assign_strata() from corpus_discrimination.py for both methods independently; use the already-predeclared, never-yet-wired max_metric_rank_disagreement=0.25 in logs/benchmark_gate_config.json (read-only, frozen) as the two-method agreement threshold; disagreement beyond that routes to human review, mirroring existing c_review_queue.csv triage"
+  },
+  "overlap_reuse_identified": [
+    "Quadrant A = HarmBench 150/150 exact hash",
+    "Quadrant B = XSTest safe 250/250",
+    "StrongREJECT ~29% upstream-derived (DAN/AdvBench/HarmfulQ/MaliciousInstruct/MasterKey/OpenAI System Card/Jailbreaking-via-Prompt-Engineering)",
+    "JBB partial file verbatim-matches 11 AdvBench, 9 HarmBench, 3 StrongREJECT rows (irrelevant while JBB is unused, relevant if network policy changes)",
+    "Zero exact-hash overlap already measured between HarmBench, StrongREJECT, SimpleSafetyTests"
+  ],
+  "not_performed_this_session": [
+    "fitting either CUE method",
+    "scoring any candidate",
+    "Q10/Q25/Q40 stratification",
+    "near-duplicate embedding checks",
+    "any modification to corpus_discrimination.py, benchmark_gate_config.json, or data/frozen_v2/*"
+  ],
+  "new_acquisition_this_session": "pip download jailbreakbench (PyPI, allowed domain) for schema-only inspection; wheel not committed",
+  "next_milestone_not_started": "implement TF-IDF+LR scorer under the LOSO plan, alongside existing FightinWords class, wire max_metric_rank_disagreement into a real agreement check"
+}
