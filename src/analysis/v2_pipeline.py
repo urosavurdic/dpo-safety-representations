@@ -1821,6 +1821,34 @@ def main_run(args) -> None:
     print(f"Split SHA-256: {ctx.split_sha}")
     print(f"Rows: {len(ctx.rows)}")
     print(f"Artifact root: {ctx.paths.root}")
+    print(
+        "Output locations: "
+        f"activations={ctx.paths.activations}, "
+        f"raw={ctx.paths.raw}, "
+        f"behavioral={ctx.paths.behavioral}, "
+        f"refusal_direction={ctx.paths.refusal_direction}, "
+        f"manifests={ctx.paths.manifests}"
+    )
+    print(
+        "Resume: shard-checkpointed under "
+        f"{ctx.paths.behavior_shards}, {ctx.paths.causal_shards}, "
+        f"{ctx.paths.steering_shards} (each shard is bound to the "
+        "benchmark+split SHA above; a killed session resumes from the "
+        "next unfinished shard rather than restarting the stage)."
+    )
+    print(
+        f"Generation config: max_new_tokens={ctx.max_new_tokens}, "
+        f"act_batch={ctx.act_batch}, gen_batch={ctx.gen_batch}, "
+        "do_sample=False, repetition_penalty=1.1"
+    )
+    print(
+        f"Steering config: layers={sorted(set(args.steer_layers))}, "
+        f"quadrants={args.quadrants}, "
+        "alpha_source=direction_estimation_only (fixed for the `run` "
+        "command by design - not exposed as a --run flag, per the "
+        "scientific guard against tuning alpha or selecting layers "
+        "from C outcomes)"
+    )
     print(f"Session budget: {ctx.deadline.describe()}")
 
     describe_plan(plan)
