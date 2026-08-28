@@ -1,0 +1,157 @@
+{
+  "milestone": "3A3",
+  "objective": "Validate the C-source-authored candidate universe from 3A2-1 with the required record-level gates, without redoing acquisition or construction.",
+  "input_artifact": {
+    "path": "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl",
+    "sha256": "921ebe1687f2926115d4b1d846a97aebaaae0d0d10d5943e141bf2be696581c1",
+    "row_count": 413
+  },
+  "checks": {
+    "exact_duplicate_validation": "pass",
+    "normalized_duplicate_validation": "pass",
+    "near_duplicate_validation": "unknown",
+    "training_contamination_exact": "pass",
+    "training_contamination_near": "unknown",
+    "overlap_reverification_c_paired_and_quadrant_a": "pass",
+    "source_provenance_validation": "pass",
+    "exact_prompt_preservation": "pass",
+    "structural_classifier_validation": "pass"
+  },
+  "overall_status": "validated_with_unknowns",
+  "exact_duplicate_validation_detail": {
+    "status": "pass",
+    "mismatches": [],
+    "recomputed_duplicate_count": 0
+  },
+  "normalized_duplicate_validation_detail": {
+    "status": "pass",
+    "mismatches": [],
+    "recomputed_duplicate_count": 0
+  },
+  "overlap_reverification_detail": {
+    "status": "pass",
+    "mismatches": [],
+    "c_paired_overlap_count": 155,
+    "c_paired_pool_size_checked": 155,
+    "quadrant_a_overlap_count": 0,
+    "quadrant_a_pool_size_checked": 150
+  },
+  "near_duplicate_validation_detail": {
+    "config": {
+      "method": "sentence-transformers cosine similarity, repo convention from src/diagnostics/check_leakage.py and src/diagnostics/complete_neardup_check.py",
+      "model_name": "all-MiniLM-L6-v2",
+      "similarity_threshold": 0.9,
+      "implementation": "embeddings computed once per text set, then a single similarity matrix (embeddings @ embeddings.T) - O(n*m) over embedding vectors, not an O(N^2) pairwise text comparison."
+    },
+    "comparisons": {
+      "within_StrongREJECT": {
+        "status": "unknown",
+        "reason": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+      },
+      "within_SimpleSafetyTests": {
+        "status": "unknown",
+        "reason": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+      },
+      "StrongREJECT_vs_SimpleSafetyTests": {
+        "status": "unknown",
+        "reason": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+      },
+      "candidates_vs_QuadrantA": {
+        "status": "unknown",
+        "reason": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+      },
+      "candidates_vs_CPaired": {
+        "status": "unknown",
+        "reason": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+      }
+    },
+    "blocker": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+  },
+  "training_contamination_detail": {
+    "exact_status": "pass",
+    "exact_mismatches": [],
+    "exact_contamination_counts_by_file": {},
+    "training_files_checked": [
+      "dpo_pairs.jsonl",
+      "sft_helpful.jsonl",
+      "sft_helpful_alt.jsonl",
+      "sft_safety.jsonl"
+    ],
+    "near_status_by_file": {
+      "dpo_pairs.jsonl": "unknown",
+      "sft_helpful.jsonl": "unknown",
+      "sft_helpful_alt.jsonl": "unknown",
+      "sft_safety.jsonl": "unknown"
+    },
+    "near_blocker": "OSError: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.\nCheck your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'."
+  },
+  "source_provenance_validation_detail": {
+    "StrongREJECT": {
+      "reacquired_from": "https://raw.githubusercontent.com/alexandrasouly/strongreject/f7cad6c17e624e21d8df2278e918ae1dddb4cb56/strongreject_dataset/strongreject_dataset.csv",
+      "path": "data/raw/3a1a_source_cache/strongreject/strongreject_dataset.csv",
+      "present": true,
+      "sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "expected_sha256": "4dd70357e4ff8b5d0ba5ebafecab5d6dd5633ce8046e3dd1c8bd93e64de44381",
+      "verified": true
+    },
+    "SimpleSafetyTests": {
+      "reacquired_from": "https://raw.githubusercontent.com/bertiev/SimpleSafetyTests/d7aee9a9422a5a5488f478fd79c2479c891c0f3b/SimpleSafetyTests - test cases.csv",
+      "path": "data/raw/3a1b_source_cache/simplesafetytests/SimpleSafetyTests - test cases.csv",
+      "present": true,
+      "sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "expected_sha256": "6d95a1301e0d0f3a3c4cf5392f4afff11ad6e3066f95d23aaa138d44aedf986c",
+      "verified": true
+    },
+    "per_record_field_validation": {
+      "status": "pass",
+      "mismatches": []
+    }
+  },
+  "exact_prompt_preservation_detail": {
+    "status": "pass",
+    "rows_checked": 413,
+    "mismatches": []
+  },
+  "structural_classifier_validation_detail": {
+    "status": "pass",
+    "classifier_determinism_mismatches": [],
+    "non_standalone_silently_promoted": [],
+    "low_confidence_provisional_count": 46
+  },
+  "counts": {
+    "total_candidates": 413,
+    "eligible_for_3a3_count": 209,
+    "excluded_count": 204,
+    "exclusion_reason_counts": {
+      "overlaps_c_paired_pool": 155,
+      "not_standalone_user_facing_request": 71
+    },
+    "c_paired_overlap_count": 155,
+    "c_paired_pool_size_checked": 155,
+    "quadrant_a_overlap_count": 0,
+    "quadrant_a_pool_size_checked": 150,
+    "training_contamination_exact_counts_by_file": {},
+    "remaining_validated_candidate_count": 209
+  },
+  "output_artifacts": {
+    "input_candidate_universe_jsonl": {
+      "path": "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl",
+      "sha256": "921ebe1687f2926115d4b1d846a97aebaaae0d0d10d5943e141bf2be696581c1",
+      "row_count": 413
+    },
+    "validated_candidate_universe_jsonl": {
+      "path": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+      "sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+      "row_count": 413
+    }
+  },
+  "corrections_made_this_milestone": [],
+  "not_performed_this_milestone": [
+    "fightin_words_scoring",
+    "Q10_Q25_Q40_stratification",
+    "review_queue_generation",
+    "benchmark_freeze",
+    "candidate_reconstruction (no validation failure required one)"
+  ],
+  "next_milestone": "3A4 - fixed Fightin' Words scoring, ranking, quantiles, and review queue."
+}
