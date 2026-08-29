@@ -1,0 +1,71 @@
+{
+  "milestone": "CUE scorer implementation (Method 1: TF-IDF+LogReg, Method 2: Fightin' Words reused)",
+  "objective": "Implement the two CUE scoring methods per logs/cue_reference_audit.md's reference-data/LOSO design; freeze parameters; add focused unit tests. No final candidate batch scored.",
+  "new_artifacts": {
+    "src/cue_scoring.py": "TfidfLogRegCueScorer, leave_one_source_out_folds, grouped_kfold_indices, score_harmful_reference_sources_loso, compute_agreement, load_reference_texts_from_repo",
+    "tests/test_cue_scoring.py": "20 focused unit tests: deterministic scoring, empty/short prompts, obvious synthetic ordering, leakage-safe fold construction"
+  },
+  "reused_unchanged": [
+    "src/corpus_discrimination.FightinWords",
+    "src/corpus_discrimination.empirical_rank",
+    "src/corpus_discrimination.assign_strata",
+    "src/corpus_discrimination.word_tokenize / TOKENIZER_VERSION",
+    "src/data_pipeline/build_c_source_authored_candidates.stripped_sha256",
+    "src/data_pipeline/build_c_source_authored_candidates.normalized_sha256",
+    "logs/benchmark_gate_config.json (read-only: max_metric_rank_disagreement, min_token_recognition_fraction)"
+  ],
+  "frozen_config_version": "cue_scorer_v1",
+  "frozen_config": {
+    "tfidf_logreg": {
+      "word_ngram_range": [1, 2],
+      "word_min_df": 2,
+      "char_ngram_range": [3, 5],
+      "char_analyzer": "char_wb",
+      "char_min_df": 2,
+      "sublinear_tf": true,
+      "max_features_per_view": 20000,
+      "logreg_C": 1.0,
+      "logreg_penalty": "l2",
+      "logreg_class_weight": "balanced",
+      "logreg_max_iter": 2000,
+      "logreg_random_state": 20260829
+    },
+    "fightin_words": {
+      "prior_strength_per_token": 0.01,
+      "min_count": 1,
+      "min_token_recognition_fraction": 0.5
+    },
+    "leakage_control": {
+      "harmful_loso_sources": ["HarmBench", "StrongREJECT", "SimpleSafetyTests"],
+      "benign_high_register_source": "XSTest",
+      "benign_high_register_held_out": false,
+      "benign_low_register_quadrant": "D",
+      "dedup_group_key": "prompt_normalized_sha256"
+    }
+  },
+  "leakage_control_design": "3-fold leave-one-source-out across HarmBench/StrongREJECT/SimpleSafetyTests; XSTest and quadrant D fixed on the benign side (XSTest limitation disclosed, not silently papered over); generic dedup-group-aware GroupKFold fallback for pools without distinct sources.",
+  "features_used": "prompt text only (TF-IDF vectors, Fightin' Words token counts); source/category metadata used only to build folds, never as a model feature",
+  "verification_this_session": {
+    "new_tests": "pytest tests/test_cue_scoring.py -> 20/20 passed",
+    "focused_regression_check": "pytest tests/test_cue_scoring.py tests/data_pipeline/test_score_and_queue_c_source_authored.py tests/data_pipeline/test_build_c_source_authored_candidates.py -> 58/58 passed",
+    "full_historical_suite_run": false,
+    "real_data_smoke_check": {
+      "performed": true,
+      "output_file_written": false,
+      "harmbench_n": 150,
+      "strongreject_eligible_n": 132,
+      "simplesafetytests_eligible_n": 77,
+      "total_scored_out_of_fold": 359,
+      "methods_agreement_rate_within_gate_threshold": 0.6936
+    }
+  },
+  "frozen_benchmark_and_gate_config_modified": false,
+  "not_performed_this_milestone": [
+    "scoring or freezing a final candidate batch",
+    "Q10/Q25/Q40 stratification of harmful-reference or C-source-authored items",
+    "an XSTest CUE score (see src/cue_scoring.XSTEST_LIMITATION_NOTE)",
+    "any modification to data/frozen_v2/* or logs/benchmark_gate_config.json",
+    "the full historical test suite (pytest tests/ -v)"
+  ],
+  "next_milestone": "Run the frozen scorers over the full intended candidate pools, apply Q10/Q25/Q40 stratification via assign_strata(), and build the resulting human review queue."
+}
