@@ -1,0 +1,68 @@
+{
+  "task": "3D-C: implementation-mismatch audit for the S2/S3 length-dependence warning surfaced in 3D-B",
+  "generated_at_utc": "2026-08-29T00:00:00+00:00",
+  "provenance": {
+    "git_commit_at_audit_start": "e6a77742e5b6f63fa7b77619101e2c31fa23f36b",
+    "immutable_baselines": {
+      "3d_b_json_path": "logs/3d_b_lexical_outlierness_pilot.json",
+      "3d_b_json_sha256": "95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5",
+      "3d_b_report_path": "logs/3d_b_lexical_outlierness_pilot.md",
+      "3d_b_report_sha256": "20704ac61861eef26630ae1989b88b428eeb3669677378f9f6646f7eba31142a",
+      "grouping_artifact_path": "data/quadrant_c_pipeline/lexical_outlierness_groups_v1.json",
+      "grouping_artifact_sha256": "9d5f14ae3597d5cd1c20d58aa194739be5c956beeaeda0b638b7f5d4a8ff0f39",
+      "input_population_path": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+      "input_population_sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7"
+    },
+    "note": "None of the four immutable baselines above were modified, regenerated, or overwritten by this task. All four SHA-256 values were verified against the values already recorded in logs/3d_a_lexical_outlierness_design.md (population) and logs/3d_b_lexical_outlierness_pilot.md (results) before any audit work began."
+  },
+  "mandatory_decision_gate": {
+    "method": "Independent, three-part audit performed before any code was touched: (1) static line-by-line read of src/data_pipeline/lexical_outlierness.py and src/data_pipeline/lexical_outlierness_pilot.py against logs/3d_a_lexical_outlierness_design.md sections 2, 3, 4, 6; (2) fresh from-scratch manual re-derivation of the S2 IDF/centroid/cosine construction and the S3 count/N/|V|/self-information construction, diffed numerically against the module's own functions on a synthetic fold (see reproducibility.manual_rederivation_check below); (3) full pilot re-run from an unmodified checkout, in a scratch copy of the repository so the frozen 3D-B artifacts were never touched, to confirm bit-for-bit reproducibility.",
+    "s2_checklist": {
+      "raw_within_document_tf_counts": "MATCH - word_ngrams_1_2() builds a Counter of raw n-gram occurrence counts; _vectorize() multiplies count*idf directly with no augmentation or log scaling.",
+      "group_local_idf": "MATCH - fold_tfidf() computes df/idf only from ref_feats, which the caller (run_pilot's per-group loop) has already restricted to rows outside the held-out group (`ref_ids = [rid for rid in record_ids if rid not in members]`).",
+      "per_document_l2_normalization": "MATCH - _vectorize() L2-normalizes each document's raw TF-IDF vector to unit length before it is used in centroid construction, exactly as S2 requires ('normalize-first step... applied identically to v_i and to every reference vector before centroid construction').",
+      "cosine_distance_to_logo_centroid": "MATCH - score_tfidf() returns 1 - cosine(v_i, mu_i); mu_i is the fold-local (LOGO) centroid; mu is not re-normalized after averaging, matching the design doc's explicit note that this is immaterial under cosine.",
+      "idf_formula": "MATCH - idf_{-g}(t) = ln((1+total_weight)/(1+df)) + 1, algebraically identical to the design doc's ln((1+|R_-g|)/(1+df_-g(t)))+1 for the unweighted (primary) case where total_weight == |R_-g|. Independently re-derived from scratch and diffed at 0.0 max absolute error against fold_tfidf()'s output on a synthetic 3-document fold.",
+      "centroid_averaging_order": "MATCH - mu_i = (1/|R_-g|) * sum(v_j_normalized), i.e. averaging happens strictly after per-document L2 normalization, matching the design doc's locked centroid construction. Independently re-derived and diffed at 0.0 max absolute error."
+    },
+    "s3_checklist": {
+      "repeated_token_occurrences": "MATCH - score_selfinfo() sums over the token *list* (with repeats), not a deduplicated vocabulary set, matching 'the sum is over token occurrences in x_i, not over x_i's distinct vocabulary'.",
+      "fixed_alpha_1_0": "MATCH - module-level constant ALPHA = 1.0, used unconditionally in score_selfinfo().",
+      "division_by_n_i": "MATCH - score_selfinfo() divides the summed surprisal by len(tokens), and n_i is defined identically (len(tokens[rid])) wherever n_i is used elsewhere (length diagnostics, OOV diagnostic).",
+      "count_and_normalizer_construction": "MATCH - fold_selfinfo() builds c_{-g}(t) as raw token-occurrence counts over ref_tokens (LOGO-excluded), N_{-g} as their sum, and |V_{-g}| as the number of distinct types - independently re-derived from scratch and diffed as exactly equal (dict equality) against fold_selfinfo()'s output on the same synthetic fold used for the S2 check."
+    },
+    "shared_checklist": {
+      "held_out_group_exclusion_from_all_reference_statistics": "MATCH - a single `ref_ids` computation (excluding the entire held-out group, not just the held-out row) feeds both fold_tfidf() and fold_selfinfo() for every fold in the per-group loop in lexical_outlierness_pilot.run_pilot().",
+      "locked_preprocessing": "MATCH - normalize_text() performs NFKC -> lowercase -> URL placeholder -> whitespace collapse/strip; tokenize() uses \\b\\w+\\b; stopwords are never removed. Verified both by static read and by the pre-existing passing unit tests (test_normalize_text_url_and_whitespace, test_normalize_text_nfkc, test_tokenize_apostrophe_not_word_char, test_word_ngrams_1_2).",
+      "exact_group_assignments": "MATCH - re-running build_groups() on the exact 209-row population from a clean checkout reproduces data/quadrant_c_pipeline/lexical_outlierness_groups_v1.json byte-for-byte (SHA-256 9d5f14ae3597d5cd1c20d58aa194739be5c956beeaeda0b638b7f5d4a8ff0f39, identical to the committed, frozen artifact). The frozen artifact itself was not touched by this check (written only inside a scratch copy of the repository, then diffed and discarded).",
+      "fold_calibrated_percentile_construction": "MATCH - calibrated_percentile() implements the exact '<' + 0.5*'=' tie rule over the fold's reference-score distribution F_{g,m}; F_{g,m} itself is built by scoring every reference row directly against the fold's own fitted statistics (compute_fold_variant()'s ref_scores_tfidf / ref_scores_selfinfo), i.e. each reference row is NOT further leave-one-out'd within its own fold - exactly matching S6 step 3's explicit instruction ('not re-fit with itself excluded')."
+    },
+    "mismatch_found": false
+  },
+  "reproducibility": {
+    "manual_rederivation_check": "S2 (IDF + L2-normalized vectors + post-normalization centroid averaging) and S3 (raw token counts, N, |V|) were re-derived from first principles in an independent script (no calls into fold_tfidf/fold_selfinfo internals beyond the final equality check) on a synthetic 3-document fold, then diffed against the module's own fold_tfidf()/fold_selfinfo() output. Result: 0.0 max absolute difference on every centroid/IDF component, exact dict equality on every S3 count, and exact equality (to float precision) on a held-out S3 score.",
+    "full_pilot_rerun_check": {
+      "method": "src.data_pipeline.lexical_outlierness_pilot.run_pilot() was executed, unmodified, from a scratch copy of this exact commit (e6a77742e5b6f63fa7b77619101e2c31fa23f36b), so the frozen logs/3d_b_* files and the frozen grouping artifact in this repository were never opened for writing.",
+      "spearman_p_tfidf_p_selfinfo_frozen": 0.29099051803952836,
+      "spearman_p_tfidf_p_selfinfo_rerun": 0.29099051803952836,
+      "spearman_length_vs_p_tfidf_frozen": -0.5674511106345929,
+      "spearman_length_vs_p_tfidf_rerun": -0.5674511106345929,
+      "grouping_artifact_sha256_frozen": "9d5f14ae3597d5cd1c20d58aa194739be5c956beeaeda0b638b7f5d4a8ff0f39",
+      "grouping_artifact_sha256_rerun": "9d5f14ae3597d5cd1c20d58aa194739be5c956beeaeda0b638b7f5d4a8ff0f39",
+      "conclusion": "Bit-for-bit reproduction. The code currently in the repository is exactly the code that produced the frozen 3D-B artifacts - no drift, no uncommitted changes, no environment-dependent nondeterminism."
+    },
+    "unit_tests": "All 19 pre-existing tests in tests/data_pipeline/test_lexical_outlierness.py pass unmodified."
+  },
+  "case_applied": "Case 2 - implementation already matches the locked S2/S3 specification",
+  "actions_taken": [
+    "No modification to src/data_pipeline/lexical_outlierness.py or src/data_pipeline/lexical_outlierness_pilot.py.",
+    "No modification to logs/3d_b_lexical_outlierness_pilot.json, logs/3d_b_lexical_outlierness_pilot.md, or data/quadrant_c_pipeline/lexical_outlierness_groups_v1.json.",
+    "No re-run of the 209-row pilot against a modified implementation (none was warranted).",
+    "No promotion of the S9 length-residualization diagnostic to a primary score.",
+    "No new percentile definition, normalization step, or nuisance correction introduced.",
+    "This audit report added as a reproducibility/audit artifact only."
+  ],
+  "length_dependence_status": "REMAINS. Unmitigated - by design, since no construct-preserving correction is justified.",
+  "why_no_correction_is_mathematically_available": "The design doc (Section 8 of this task's brief, and the S2 'immaterial to the score' note in logs/3d_a_lexical_outlierness_design.md) already identifies and forecloses the one length-normalization move that would otherwise seem obvious: dividing a document's raw TF-IDF vector by its token count before the prescribed L2 normalization is pure scalar rescaling and cancels exactly under cosine similarity, so it is not a distinct construct at all, merely a no-op wrapped in extra arithmetic. No other length adjustment is licensed by the locked S2/S3 definitions without changing what is being measured (sublinear TF, BM25, L1 norm, document-length penalties, and residualized/regression-adjusted primary scores are all explicitly excluded by this task's brief as redesigns, not corrections). The audit above confirms the length association is not an artifact of a coding error: it is what raw-count TF-IDF with (1,2)-gram features and cosine-to-centroid distance does on this population, most plausibly because longer prompts contribute proportionally more distinct, low-document-frequency bigrams (bigram counts grow faster than unigram counts with length, and are individually rarer), which pushes their L2-normalized vector further from a centroid dominated by shorter, more template-like prompts.",
+  "conclusion_statement": "No construct-preserving correction is justified by the locked S2/S3 definitions; the observed length dependence remains a property of this exact operationalization and dataset."
+}
