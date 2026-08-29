@@ -1,0 +1,92 @@
+{
+  "milestone": "3e1_external_cue_resource_audit",
+  "scope": "diagnostic_audit_only_no_cue_score_no_classifier_no_new_lexicon_no_benchmark_changes",
+  "branch": "agent/c-quadrant-end-to-end-e0e2317a",
+  "distinct_from": "logs/cue_reference_audit.md (audits internal reference-data sources for fitting CUE; this file audits external lexical/pattern resources)",
+  "companion_markdown": "logs/3e1_external_cue_resource_audit.md",
+  "input_population": {
+    "harmful_source_artifact": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+    "harmful_source_sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+    "total_rows_reconciliation_only": 413,
+    "eligible_for_3a3_audit_population": 209,
+    "source_counts_eligible": {
+      "StrongREJECT": 132,
+      "SimpleSafetyTests": 77
+    },
+    "benign_control_artifact": "data/processed/controlled_eval.jsonl",
+    "benign_control_sha256": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+    "benign_pools": {
+      "XSTest_safe": {"quadrant": "B", "n": 250, "categories": 10, "per_category_n": 25},
+      "benign_D": {"quadrant": "D", "n": 150, "sources": {"Alpaca": 50, "Dolly-15k": 50, "OASST1": 50}}
+    },
+    "note": "Both pools read unmodified; not reconstructed for this audit."
+  },
+  "resources_evaluated": [
+    {
+      "name": "HurtLex (EN, v1.2)",
+      "type": "A. Static lexicon",
+      "repo": "github.com/valeriobasile/hurtlex",
+      "pinned_commit": "d4d5cf1199c09868486f978fcea58af0e8936a1e",
+      "license_stated": "CC BY-NC-SA 4.0",
+      "license_provenance": "stated_by_resource_documentation_not_independently_reverified_against_LICENSE_file_at_pinned_commit",
+      "local_raw_sha256": "a734820a63c87994781d182692e6dc7ec262c402016971a7fa31946ced0d470c"
+    },
+    {
+      "name": "MOL (Multilingual Offensive Lexicon)",
+      "type": "A. Static lexicon w/ per-term context annotation",
+      "repo": "github.com/franciellevargas/MOL",
+      "pinned_commit": "f3dd3ba1836f9079bd0908425713982a9076c1ff",
+      "license_stated": "MIT",
+      "license_provenance": "stated_by_resource_documentation_not_independently_reverified_against_LICENSE_file_at_pinned_commit",
+      "local_raw_sha256": "1b7b64e1dc031500a123640ad978f506f2bef292ef0a5aabc9debfb196389062"
+    }
+  ],
+  "excluded_not_reproducible": [
+    {"name": "TextDetox (textdetox/multilingual_toxic_lexicon)", "reason": "hosted only on huggingface.co, not in sandbox allowed egress list", "status": "not_evaluated"},
+    {"name": "domain-specific technical-harm lexicons (cyber/weapons/drugs/fraud)", "reason": "public resources in this space are network/binary artifacts, not natural-language request-phrasing lexicons", "status": "not_comparable"},
+    {"name": "sexual-exploitation/child-safety-specific term lists; hazardous biological/chemical-activity lexicons", "reason": "deliberately not sought or constructed for safety/dual-use-scope reasons", "status": "disclosed_coverage_gap_by_design"}
+  ],
+  "coverage_results": {
+    "hurtlex_raw_matching": {
+      "note": "case-insensitive substring match, both levels (conservative+inclusive), all 17 categories",
+      "harmful_209": {"n": 209, "hit_rate_pct": 96.2, "hit_n": 201, "zero_hit_rate_pct": 3.8, "zero_hit_n": 8, "avg_hits_per_prompt": 3.93},
+      "xstest_safe_250": {"n": 250, "hit_rate_pct": 87.6, "hit_n": 219, "zero_hit_rate_pct": 12.4, "zero_hit_n": 31, "avg_hits_per_prompt": 1.78},
+      "benign_d_150": {"n": 150, "hit_rate_pct": 85.3, "hit_n": 128, "zero_hit_rate_pct": 14.7, "zero_hit_n": 22, "avg_hits_per_prompt": 2.56}
+    },
+    "hurtlex_collision_audited_matching": {
+      "note": "case-insensitive whole-word/phrase match (regex word boundaries), conservative level only",
+      "harmful_209": {"n": 209, "hit_rate_pct": 36.8, "hit_n": 77, "zero_hit_rate_pct": 63.2, "zero_hit_n": 132, "avg_hits_per_prompt": 0.48},
+      "xstest_safe_250": {"n": 250, "hit_rate_pct": 38.0, "hit_n": 95, "zero_hit_rate_pct": 62.0, "zero_hit_n": 155, "avg_hits_per_prompt": 0.42},
+      "benign_d_150": {"n": 150, "hit_rate_pct": 22.0, "hit_n": 33, "zero_hit_rate_pct": 78.0, "zero_hit_n": 117, "avg_hits_per_prompt": 0.33},
+      "harmful_pool_total_hits_raw_vs_audited": {"raw": 821, "collision_audited": 100},
+      "harmful_pool_hurtlex_category_breakdown_of_audited_hits": {
+        "RE_felonies_crime": 6,
+        "ASM_ASF_genitalia_combined": 46,
+        "DMC_moral_behavioral_defects": 18,
+        "note": "remaining categories not itemized in the retained Markdown; these three are the only per-HurtLex-category counts recorded"
+      }
+    },
+    "mol": {
+      "note": "whole-word/phrase matching",
+      "harmful_209": {"n": 209, "hit_rate_pct": 12.9, "hit_n": 27, "zero_hit_rate_pct": 87.1, "zero_hit_n": 182, "avg_hits_per_prompt": 0.16},
+      "xstest_safe_250": {"n": 250, "hit_rate_pct": 8.4, "hit_n": 21, "zero_hit_rate_pct": 91.6, "zero_hit_n": 229, "avg_hits_per_prompt": 0.09},
+      "benign_d_150": {"n": 150, "hit_rate_pct": 4.7, "hit_n": 7, "zero_hit_rate_pct": 95.3, "zero_hit_n": 143, "avg_hits_per_prompt": 0.05},
+      "harmful_pool_total_hits": 34,
+      "harmful_pool_hits_by_term_type": {"context_independent": 15, "context_dependent": 19},
+      "harmful_pool_top_terms": {"fake": 5, "scam": 5, "drug dealer": 1},
+      "hate_label_field_hits_any_population": 0
+    }
+  },
+  "counts_derivation_method": "hit_n/zero_hit_n values are arithmetically back-derived from the published rate and n: each is the unique integer whose rate rounds to the published one-decimal-place value, cross-checked to sum to n. None were obtained by rerunning or rescoring.",
+  "limitations": {
+    "per_source_topic_category_hit_rate_breakdown": "Observed qualitatively during the audit (ranged 68.8% to 100% under raw HurtLex matching, noisier under collision-audited matching for categories as small as n=2), but the underlying per-category computation was not retained as a separate artifact. Not reproduced here; treat the range as a qualitative observation, not an audited figure backed by retained data."
+  },
+  "resource_classification": {
+    "hurtlex_raw_matching": {"class": 4, "label": "not_useful", "basis": "benign-control hit rate (85-88%) close to harmful-pool hit rate (96%); dominated by generic-token collisions"},
+    "hurtlex_collision_audited_matching": {"class": 3, "label": "supplementary_interpretable_signal", "basis": "removes most raw-matching noise but harmful-pool hit rate (36.8%) does not exceed XSTest-safe (38.0%); no net discriminative value; diagnostic/auditing lens only"},
+    "mol": {"class": 3, "label": "supplementary_interpretable_signal", "basis": "small real monotonic separation but coverage too sparse (12.9% hit rate, 0.16 hits/prompt) for a global or domain-limited primary signal"},
+    "no_class_1_or_2_resource_identified": true
+  },
+  "conclusion": "HurtLex and MOL provide supplementary interpretable lexical signals, but neither supplies sufficiently broad and specific coverage for a global primary CUE measure. The next possible direction is a newly defined within-harmful lexical-outlierness pilot; the existing harmful-versus-benign TF-IDF+Logistic Regression and Fightin' Words machinery in src/cue_scoring.py and src/corpus_discrimination.py must not be reused as that measure without explicit redesign.",
+  "not_done_per_task_instructions": ["cue_score", "benchmark_construction", "git_patch_in_3e1"]
+}
