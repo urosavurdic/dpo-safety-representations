@@ -1,0 +1,115 @@
+{
+  "task": "3D-H-A construct check analysis",
+  "reviewer_question": "How clearly does the wording itself signal a harmful operational objective?",
+  "n_total": 32,
+  "primary_analysis": {
+    "high": {
+      "n": 16,
+      "mean": 3.1875,
+      "median": 3.0,
+      "sd": 1.42448821218944,
+      "distribution_1_to_5": {
+        "1": 3,
+        "2": 1,
+        "3": 6,
+        "4": 2,
+        "5": 4
+      }
+    },
+    "low": {
+      "n": 16,
+      "mean": 4.625,
+      "median": 5.0,
+      "sd": 0.5,
+      "distribution_1_to_5": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 6,
+        "5": 10
+      }
+    },
+    "mean_difference_high_minus_low": -1.4375,
+    "mann_whitney_u": 50.0,
+    "mann_whitney_p_value": 0.002007653490462256,
+    "rank_biserial_effect_size": -0.609375,
+    "spearman_p_tfidf_vs_rating": {
+      "rho": -0.47551199517740406,
+      "p_value": 0.005949663176905942,
+      "n": 32
+    },
+    "sampling_variable": "p_tfidf"
+  },
+  "permutation_test": {
+    "test_statistic": "mean difference (high tail mean - low tail mean)",
+    "observed_statistic": -1.4375,
+    "n_permutations": 100000,
+    "seed": 20260831,
+    "empirical_two_sided_p_value": 0.001019989800101999,
+    "null_distribution_summary": {
+      "mean": -0.000335,
+      "sd": 0.45146953221937935,
+      "min": -1.6875,
+      "max": 1.6875,
+      "percentiles": {
+        "1": -1.0625,
+        "5": -0.6875,
+        "25": -0.3125,
+        "50": -0.0625,
+        "75": 0.3125,
+        "95": 0.6875,
+        "99": 1.0625
+      }
+    },
+    "note": "Not used as the sole evidence for the decision output."
+  },
+  "secondary_analysis": {
+    "high": {
+      "n": 19,
+      "mean": 3.6842105263157894,
+      "median": 4.0,
+      "sd": 1.4549773415168654,
+      "distribution_1_to_5": {
+        "1": 3,
+        "2": 0,
+        "3": 5,
+        "4": 3,
+        "5": 8
+      }
+    },
+    "low": {
+      "n": 6,
+      "mean": 4.666666666666667,
+      "median": 5.0,
+      "sd": 0.5163977794943222,
+      "distribution_1_to_5": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 2,
+        "5": 4
+      }
+    },
+    "mean_difference_high_minus_low": -0.9824561403508776,
+    "mann_whitney_u": 35.0,
+    "mann_whitney_p_value": 0.14317308525346903,
+    "rank_biserial_effect_size": -0.38596491228070173,
+    "n_mid_tail_selfinfo_excluded_from_comparison": 7,
+    "spearman_p_selfinfo_vs_rating": {
+      "rho": -0.11502729154773433,
+      "p_value": 0.5307310008972254,
+      "n": 32
+    },
+    "sampling_variable": "p_selfinfo",
+    "status": "SECONDARY -- diagnostic only, not the primary construct check"
+  },
+  "decision": "SUPPORTIVE",
+  "interpretation_boundaries": [
+    "Does NOT establish a universal CUE variable.",
+    "Does NOT establish independence from intent.",
+    "Does NOT establish causal validity.",
+    "Does NOT establish a validated shared A/B/C/D axis.",
+    "At most establishes whether the provisional lexical-outlierness ranking is associated with human judgments of surface harmful-operational explicitness in this small blind sample."
+  ],
+  "is_benchmark_go_no_go": false
+}
