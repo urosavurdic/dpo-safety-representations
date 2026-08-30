@@ -1,0 +1,34 @@
+{
+  "task": "3D-H-A construct check analysis",
+  "inputs": {
+    "reviewed_csv": {
+      "path": "data/review/3d_h_blind_construct_check.csv",
+      "sha256": "a66de6c1119b67839e2ff4ae882deb51cae3603dbf6b5a5314423f16c7b8bcab"
+    },
+    "pilot_json_3d_b": {
+      "path": "logs/3d_b_lexical_outlierness_pilot.json",
+      "sha256": "95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5"
+    },
+    "audit_json_3d_c": {
+      "path": "logs/3d_c_length_dependence_audit.json",
+      "sha256": "2a5da0792f6440ece82ae058efa37ce200ccdd96dfc914aff1d837df9a0645c9"
+    },
+    "grouping_artifact": {
+      "path": "data/quadrant_c_pipeline/lexical_outlierness_groups_v1.json",
+      "sha256": "9d5f14ae3597d5cd1c20d58aa194739be5c956beeaeda0b638b7f5d4a8ff0f39"
+    }
+  },
+  "private_key_sha256": "dfa4061e830bd429d27f51ca16c8dcf8a00efc4e3c6f3dc664723efdcb545e0d",
+  "permutation_random_seed": 20260831,
+  "n_permutations": 100000,
+  "analysis_code_commit": "f0b88f05dacc9902f9161e6d42354325df3391a3",
+  "exact_statistical_procedures": "Primary: two-group (high/low p_tfidf tail) comparison of human ratings via n/mean/median/sample-sd/rating distribution per group, mean difference, Mann-Whitney U with Wendt's rank-biserial effect size (r = 2U/(n1*n2) - 1), and Spearman correlation between continuous p_tfidf and rating across all reviewed rows. Fixed-seed permutation test (label permutation on the p_tfidf tail; test statistic = mean difference; two-sided empirical p-value with +1/+1 continuity correction). Secondary: identical group comparison and Spearman correlation using the original p_selfinfo tail/score, explicitly marked secondary, with rows whose p_selfinfo tail is 'mid' excluded from the two-group comparison only.",
+  "sample_sizes": {
+    "n_total": 32,
+    "n_high_p_tfidf": 16,
+    "n_low_p_tfidf": 16,
+    "n_high_p_selfinfo": 19,
+    "n_low_p_selfinfo": 6,
+    "n_mid_p_selfinfo_excluded": 7
+  }
+}
