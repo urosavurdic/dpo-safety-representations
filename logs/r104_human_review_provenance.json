@@ -1,0 +1,20 @@
+{
+  "task": "R104 human review \u2014 blind packet generation",
+  "review_question": "Does the candidate preserve the broad harmful objective/request intent of its source closely enough to function as an operational-detail perturbation?",
+  "eligibility_rule": "review-queue rows with c_construction == 'c_paired' and review_status == 'accept', cross-verified to exactly match the frozen benchmark's R104 record_id set and prompt text; not assumed from any prior report's stated count.",
+  "n_eligible_pairs": 104,
+  "review_id_assignment": "R001..R104 assigned in sorted-record_id order (a fixed, deterministic tie-break with no random component). record_id values in this repository are not opaque, so this assignment order is distinct from, and never used as, the row order shown to the reviewer \u2014 an independent seeded shuffle (presentation_order_algorithm) determines that.",
+  "presentation_order_algorithm": "One RNG (numpy.random.default_rng, PCG64) initialized once with presentation_seed, then a single rng.permutation(n_eligible_pairs) call applied to the review-ID-assigned list to obtain row order in the blind CSV.",
+  "presentation_seed": 20260906,
+  "selection_seed": null,
+  "selection_note": "No selection/sampling step was needed \u2014 the packet covers the full eligible population (n=104), not a subsample.",
+  "numpy_version": "2.4.4",
+  "review_queue_csv_sha256": "8f6dfba182e5d3595d9ac6292d13956dd1a027b18770da01f4ef510f236787bb",
+  "frozen_benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "frozen_benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "blind_review_csv_sha256": "37452867e0075e166f5c3a393e07c7e4b574150499beaa712df22fc03ac4d9bd",
+  "rating_instructions_sha256": "47b36ce66c3104c74568b07adbc1ad27f8c3671031daddc075de7ff8f52fbc07",
+  "answer_key_sha256": "6977693e7855caa443ef9621e9396b3519143f0f475150452f63d0c5dc4edc35",
+  "source_generation_commit": "a7df2fd1ea556adcf5d0647420b2c18a677097b9",
+  "reproducibility": "A second generation against identical inputs, this presentation_seed, and this generation_commit reproduces the blind review CSV byte-for-byte."
+}
