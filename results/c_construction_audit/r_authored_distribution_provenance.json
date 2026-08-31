@@ -1,0 +1,43 @@
+{
+  "task": "C-E -- R-AUTHORED distributional characterization",
+  "input": {
+    "path": "data/review/c_source_authored_review_queue.csv",
+    "sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "row_count": 52
+  },
+  "feature_definitions_reused_from": {
+    "word_count": "existing CSV column (len(text.split()) convention, src/data_pipeline/score_and_queue_c_source_authored.py)",
+    "character_count": "existing CSV column (len(text) convention, same source)",
+    "sentence_count": "logs/c_existing_construction_audit_spec.md section 7.5 ([.!?]+ match count on raw text, same rule as 3d_b's multi_sentence_rule)",
+    "mean_word_length": "src/corpus_discrimination.py::word_tokenize (word_tokenize_v1_lower_alphanum_apostrophe)",
+    "lexical_diversity": "logs/c_existing_construction_audit_spec.md section 7.5 (len(set(tokens))/len(tokens), same word_tokenize)",
+    "has_bullet_marker/has_numbered_step/has_code_block/multi_sentence_flag": "logs/3d_b_lexical_outlierness_pilot.json -> confound_diagnostics -> formatting_diagnostic_config, regexes reused verbatim",
+    "lexical_risk_hit_count": "src/diagnostics/score_lexical_risk_cues.py::score_prompt, reused unmodified",
+    "fightin_words_score_normalized/fw_z_score": "existing CSV columns, reused as-is, never recomputed"
+  },
+  "r104_reference_source": {
+    "path": "logs/c_b_paired_delta_analysis.json",
+    "c_b_implementation_commit": "ddba4c1b7fc2f34dc6477e110daf0e4c3bfff505",
+    "note": "R104 numbers are read from this committed file, not recomputed"
+  },
+  "abcd_reference_source": {
+    "path": "results/c_construction_audit/audit.json",
+    "note": "A/B/C/D numbers are read from this committed file, not recomputed"
+  },
+  "software_versions": {
+    "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+    "numpy": "2.4.4",
+    "scipy": "1.17.1",
+    "pandas": "3.0.2"
+  },
+  "seed": null,
+  "seed_note": "no stochastic procedure is used anywhere in this module",
+  "deterministic": true,
+  "source_commit_at_generation": "b2c4cba7be2d09633e58c1ff70232384a5fe3cb9",
+  "no_prompt_text_in_outputs": true,
+  "outputs": {
+    "json": "results/c_construction_audit/r_authored_distribution.json",
+    "md": "results/c_construction_audit/r_authored_distribution.md",
+    "provenance": "results/c_construction_audit/r_authored_distribution_provenance.json"
+  }
+}
