@@ -54,7 +54,7 @@ def test_already_produced_true_only_when_all_outputs_exist(tmp_path, monkeypatch
     monkeypatch.chdir(tmp_path)
     assert already_produced("causal_stats") is False
     Path("results/summaries").mkdir(parents=True)
-    Path("results/summaries/causal_ablation_narrow_summary.json").write_text("{}")
+    Path("results/summaries/causal_ablation_wide_summary.json").write_text("{}")
     assert already_produced("causal_stats") is True
 
 

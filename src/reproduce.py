@@ -66,12 +66,12 @@ COMPONENTS = {
     },
     "causal_stats": {
         "description": "Wilson-CI summary, McNemar test, bootstrap CI on an already-generated causal-ablation raw file",
-        "requires": ["results/raw/causal_ablation_raw_narrow.json"],
-        "produces": ["results/summaries/causal_ablation_narrow_summary.json"],
+        "requires": ["results/raw/causal_ablation_raw_wide.json"],
+        "produces": ["results/summaries/causal_ablation_wide_summary.json"],
         "commands": [
-            "python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_narrow.json --stage M3",
-            "python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_narrow.json --conditions M3_baseline M3_ablated",
-            "python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_raw_narrow.json --quadrant C --category soft_deflection",
+            "python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_wide.json",
+            "python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_wide.json --conditions M3_baseline M3_ablated",
+            "python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_raw_wide.json --quadrant C --category soft_deflection",
         ],
     },
 }
