@@ -223,6 +223,13 @@ DEFAULT_GATE_CONFIG = "logs/benchmark_gate_config.json"
 DEFAULT_FORMATTING_CONFIG_SOURCE = "logs/3d_b_lexical_outlierness_pilot.json"
 DEFAULT_OUT_MD = "logs/cf_joint_geometry_analysis.md"
 DEFAULT_OUT_JSON = "logs/cf_joint_geometry_analysis.json"
+# C-F-A section 5.3: "required PC1-PC2 and PC1-PC3 plots" -- no exact path
+# is pinned by the spec (section 8's canonical-output-paths list only pins
+# the .md/.json paths), so these follow the same
+# logs/cf_joint_geometry_analysis.* naming convention already established
+# for that pinned pair.
+DEFAULT_OUT_PCA_PC1_PC2_PLOT = "logs/cf_joint_geometry_pca_pc1_pc2.png"
+DEFAULT_OUT_PCA_PC1_PC3_PLOT = "logs/cf_joint_geometry_pca_pc1_pc3.png"
 
 
 class AuditFailClosed(SystemExit):
@@ -687,6 +694,20 @@ def build_all_views(
     combined_view_retained = {
         name: combined_view[name][~oov_mask[name]] for name in populations
     }
+    # Row identity for the lexical-only/combined views, aligned 1:1 with
+    # the OOV-filtered rows above (never with the pre-filter `populations`
+    # length) -- this is the only row-identity handle PCA coordinate
+    # output (section 5.3) is allowed to carry, per the onboarding
+    # row-identity/privacy rule (opaque record_id + population label +
+    # coordinate values only).
+    record_ids_retained = {
+        name: [
+            row["record_id"]
+            for row, keep in zip(populations[name], ~oov_mask[name])
+            if keep
+        ]
+        for name in populations
+    }
 
     return {
         "structural_raw": structural_raw,
@@ -697,6 +718,7 @@ def build_all_views(
         "structural_view": structural_view,
         "lexical_view": lexical_view_retained,
         "combined_view": combined_view_retained,
+        "record_ids": record_ids_retained,
         "oov_excluded_row_counts": {
             name: int(oov_mask[name].sum()) for name in populations
         },
@@ -771,6 +793,111 @@ def fit_pca_combined(abcd_combined_rows: np.ndarray) -> PCA:
 def cumulative_explained_variance(pca: PCA, k: int) -> float:
     k = min(k, len(pca.explained_variance_ratio_))
     return float(np.sum(pca.explained_variance_ratio_[:k]))
+
+
+def pca_component_loadings(pca: PCA, k: int = 3) -> Dict[str, List[float]]:
+    """Component loadings for the displayed components (PC1-PC3), one
+    row per component, one value per combined-view feature dimension --
+    one of the C-F-C-confirmed-missing PCA artifacts. Reuses the already-
+    fitted `pca.components_`; does not refit anything."""
+    k = min(k, pca.components_.shape[0])
+    return {f"pc{i + 1}": pca.components_[i].tolist() for i in range(k)}
+
+
+def pca_coordinates(
+    pca: PCA,
+    combined_view: Dict[str, np.ndarray],
+    record_ids: Dict[str, List[str]],
+    population_order: Sequence[str] = ALL_POPULATIONS_ORDER,
+    k: int = 3,
+) -> List[dict]:
+    """PC1-PC3 coordinates for all six reported populations (C-F-A
+    section 5.3 / the C-F-C-confirmed-missing "PC1-PC2 coordinates",
+    "PC1-PC3 coordinates", and "PCA projections for all six reported
+    populations" artifacts, satisfied together since PC1 is shared).
+
+    Every population is `pca.transform`-ed (never `pca.fit`/`fit_transform`-
+    ed) through the already-fitted A u B u C u D PCA -- this function
+    never refits, mirroring the fit/transform split already used
+    throughout `build_all_views` for the structural standardizer, the
+    TF-IDF vectorizers/SVD, and the common FightinWords fit.
+
+    Row identity is restricted to exactly what the onboarding row-
+    identity/privacy rule allows: the opaque, already-stable
+    `record_id`, the population label, and the coordinate values --
+    never prompt text, tokens, or any other content.
+    """
+    k = min(k, pca.n_components_)
+    rows: List[dict] = []
+    for name in population_order:
+        X = combined_view[name]
+        if X.shape[0] == 0:
+            continue
+        coords = pca.transform(X)[:, :k]
+        ids = record_ids[name]
+        for rid, coord in zip(ids, coords):
+            row = {"record_id": rid, "population": name}
+            for i in range(k):
+                row[f"pc{i + 1}"] = float(coord[i])
+            rows.append(row)
+    return rows
+
+
+def plot_pca_scatter(
+    coordinates: List[dict],
+    x_key: str,
+    y_key: str,
+    out_path: Path,
+    title: str,
+) -> Path:
+    """Renders one of the two C-F-C-confirmed-missing required PCA plots
+    (section 5.3): all six populations, with R104-source/R-AUTHORED drawn
+    in a visually distinct (open-marker) style from the A/B/C/D quadrants
+    (filled markers) from the start -- never presented as if they were a
+    fifth/sixth quadrant. Does not refit or recompute anything; only
+    renders the already-computed `coordinates` (see `pca_coordinates`)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    quadrant_styles = {
+        "A": dict(marker="o", color="#1b9e77"),
+        "B": dict(marker="s", color="#d95f02"),
+        "C": dict(marker="^", color="#7570b3"),
+        "D": dict(marker="D", color="#e7298a"),
+    }
+    auxiliary_styles = {
+        "R104_source": dict(marker="o", color="#1b9e77"),
+        "R_AUTHORED": dict(marker="s", color="#d95f02"),
+    }
+
+    fig, ax = plt.subplots(figsize=(7, 6))
+    for name in QUADRANT_ORDER:
+        xs = [r[x_key] for r in coordinates if r["population"] == name]
+        ys = [r[y_key] for r in coordinates if r["population"] == name]
+        if not xs:
+            continue
+        style = quadrant_styles[name]
+        ax.scatter(xs, ys, label=name, alpha=0.75, s=28, **style)
+    for name in AUXILIARY_ORDER:
+        xs = [r[x_key] for r in coordinates if r["population"] == name]
+        ys = [r[y_key] for r in coordinates if r["population"] == name]
+        if not xs:
+            continue
+        style = auxiliary_styles[name]
+        ax.scatter(
+            xs, ys, label=name, alpha=0.9, s=40,
+            facecolors="none", edgecolors=style["color"], marker=style["marker"],
+            linewidths=1.3,
+        )
+    ax.set_xlabel(x_key.upper())
+    ax.set_ylabel(y_key.upper())
+    ax.set_title(title)
+    ax.legend(loc="best", fontsize="small")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
 
 
 # ── section 5.4: energy distance + label-permutation test ──────────────
@@ -993,6 +1120,26 @@ def build_markdown(analysis: dict) -> str:
             "- intent/surface contrast angle: undefined (a zero-norm contrast vector)"
         )
         lines.append("")
+    pca = analysis["pca"]
+    lines += [
+        "## PCA (section 5.3 -- reporting/visualization only)",
+        "",
+        f"Cumulative explained variance, PC1-PC2: "
+        f"{pca['cumulative_explained_variance_pc1_pc2']:.4f}",
+        f"Cumulative explained variance, PC1-PC3: "
+        f"{pca['cumulative_explained_variance_pc1_pc3']:.4f}",
+        f"PC1-PC2 plot: `{pca['plot_pc1_pc2_path']}`",
+        f"PC1-PC3 plot: `{pca['plot_pc1_pc3_path']}`",
+        f"Populations projected: {len(pca['coordinates'])} rows across "
+        f"{len(ALL_POPULATIONS_ORDER)} populations (R104-source/"
+        "R-AUTHORED transformed only, never fit).",
+        "",
+        "A visually clean four-cluster PC1-PC2 plot is not, by itself, "
+        "evidence for the intended construct, and its absence is not, by "
+        "itself, evidence against it (section 5.3's explicit "
+        "non-criterion) -- PCA here is reporting, not testing.",
+        "",
+    ]
     lines += [
         "## R-AUTHORED caveats (repeated per C-F-A section 6)",
         "",
@@ -1025,6 +1172,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--n-permutations", type=int, default=N_PERMUTATIONS_DEFAULT)
     parser.add_argument("--out-md", default=DEFAULT_OUT_MD)
     parser.add_argument("--out-json", default=DEFAULT_OUT_JSON)
+    parser.add_argument("--out-pca-pc1-pc2-plot", default=DEFAULT_OUT_PCA_PC1_PC2_PLOT)
+    parser.add_argument("--out-pca-pc1-pc3-plot", default=DEFAULT_OUT_PCA_PC1_PC3_PLOT)
     parser.add_argument(
         "--run-embeddings", action="store_true", default=False,
         help="Attempt the optional section-7 embeddings robustness check "
@@ -1044,6 +1193,8 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
     formatting_config_source_path = REPO_ROOT / args.formatting_config_source
     out_md_path = REPO_ROOT / args.out_md
     out_json_path = REPO_ROOT / args.out_json
+    out_pca_pc1_pc2_plot_path = REPO_ROOT / args.out_pca_pc1_pc2_plot
+    out_pca_pc1_pc3_plot_path = REPO_ROOT / args.out_pca_pc1_pc3_plot
 
     # 1. Fail-closed hash re-verification (C-F-A section 1).
     verified_hashes = verify_pinned_hashes()
@@ -1114,15 +1265,36 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
             "energy_distance_holm_bonferroni": corrected,
         }
 
-    # 5. PCA on the combined view (section 5.3).
+    # 5. PCA on the combined view (section 5.3). Fit on A u B u C u D
+    #    only; R104-source and R-AUTHORED are transformed via the fitted
+    #    components, never fit (mirrors every other fit/transform split
+    #    in this module).
     abcd_combined = np.vstack([views["combined_view"][q] for q in QUADRANT_ORDER])
     pca = fit_pca_combined(abcd_combined)
+    pca_coords = pca_coordinates(
+        pca, views["combined_view"], views["record_ids"], ALL_POPULATIONS_ORDER, k=3
+    )
+    pca_loadings = pca_component_loadings(pca, k=3)
+    plot_pca_scatter(
+        pca_coords, "pc1", "pc2", out_pca_pc1_pc2_plot_path,
+        "C-F PCA (combined view): PC1 vs PC2, all six populations",
+    )
+    plot_pca_scatter(
+        pca_coords, "pc1", "pc3", out_pca_pc1_pc3_plot_path,
+        "C-F PCA (combined view): PC1 vs PC3, all six populations",
+    )
     pca_result = {
         "cumulative_explained_variance_pc1_pc2": cumulative_explained_variance(pca, 2),
         "cumulative_explained_variance_pc1_pc3": cumulative_explained_variance(pca, 3),
+        "component_loadings": pca_loadings,
+        "coordinates": pca_coords,
+        "plot_pc1_pc2_path": _display_path(out_pca_pc1_pc2_plot_path),
+        "plot_pc1_pc3_path": _display_path(out_pca_pc1_pc3_plot_path),
         "note": "PCA is reporting/visualization only, fit on A u B u C u D "
         "rows; R104-source/R-AUTHORED are projected, never fit "
-        "(section 5.3).",
+        "(section 5.3). Coordinate rows carry only record_id, "
+        "population label, and PC1-PC3 coordinate values (onboarding "
+        "row-identity/privacy rule) -- no prompt text or other content.",
     }
 
     # 6. Token/n-gram JSD (section 5.5).
@@ -1223,6 +1395,8 @@ def main(argv: Optional[Sequence[str]] = None) -> dict:
 
     print(f"analysis_json={_display_path(out_json_path)}")
     print(f"analysis_md={_display_path(out_md_path)}")
+    print(f"pca_pc1_pc2_plot={pca_result['plot_pc1_pc2_path']}")
+    print(f"pca_pc1_pc3_plot={pca_result['plot_pc1_pc3_path']}")
     print(f"generation_commit={analysis['code_version'].get('generation_commit')}")
     for name in ALL_POPULATIONS_ORDER:
         print(f"{name}: n={analysis['population_counts'][name]}")
