@@ -1,0 +1,3661 @@
+{
+  "task": "C-C -- execute and freeze the existing-C audit",
+  "spec_reference": "logs/c_existing_construction_audit_spec.md section 7 (locked by C-A; implemented by C-B; re-executed unmodified by C-C)",
+  "provenance": {
+    "c_b_implementation_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
+    "c_c_parent_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
+    "c_c_working_tree_dirty_at_generation": true,
+    "exact_command": "python -m src.analysis.c_b_paired_delta_analysis --review-csv data/review/c_review_queue.csv --benchmark-latest data/frozen_v2/LATEST_BENCHMARK.json --gate-config logs/benchmark_gate_config.json --formatting-config-source logs/3d_b_lexical_outlierness_pilot.json --bootstrap-seed 20260901 --n-bootstrap 10000 --permutation-seed 20260902 --n-permutations 100000 --out-md logs/c_b_paired_delta_analysis.md --out-json logs/c_b_paired_delta_analysis.json",
+    "exact_configuration": {
+      "bootstrap_seed": 20260901,
+      "n_bootstrap": 10000,
+      "permutation_seed": 20260902,
+      "n_permutations": 100000,
+      "holm_alpha": 0.05
+    },
+    "software_versions": {
+      "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+      "numpy": "2.4.4",
+      "scipy": "1.17.1",
+      "pandas": "3.0.2",
+      "scikit_learn": "1.8.0"
+    },
+    "reproducibility_check": {
+      "committed_output_path": "logs/c_b_paired_delta_analysis.json",
+      "byte_identical_excluding_code_version": true
+    }
+  },
+  "primary_r104_paired_analysis": {
+    "task": "C-B paired delta analysis (R104 c_paired quadrant-C construction)",
+    "spec_reference": "logs/c_existing_construction_audit_spec.md section 7",
+    "code_version": {
+      "generation_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
+      "working_tree_dirty": true
+    },
+    "software_versions": {
+      "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+      "numpy": "2.4.4",
+      "scipy": "1.17.1",
+      "pandas": "3.0.2",
+      "scikit_learn": "1.8.0"
+    },
+    "config": {
+      "review_csv": "data/review/c_review_queue.csv",
+      "benchmark_latest": "data/frozen_v2/LATEST_BENCHMARK.json",
+      "gate_config": "logs/benchmark_gate_config.json",
+      "formatting_config_source": "logs/3d_b_lexical_outlierness_pilot.json",
+      "bootstrap_seed": 20260901,
+      "n_bootstrap": 10000,
+      "permutation_seed": 20260902,
+      "n_permutations": 100000,
+      "gate_config_min_token_recognition_fraction": 0.5
+    },
+    "pinned_input_hashes_verified": {
+      "data/review/c_review_queue.csv": "8f6dfba182e5d3595d9ac6292d13956dd1a027b18770da01f4ef510f236787bb",
+      "data/frozen_v2/LATEST_BENCHMARK.json": "817885c1c50dcbb5babddaec05b938f0f47067151ababa3c669e893f38ea937a",
+      "logs/benchmark_gate_config.json": "1ac73585f08a4d685996c96eecafdbfcc74478ab07f7f762a4a9de2b2568b743",
+      "logs/3d_b_lexical_outlierness_pilot.json": "95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5",
+      "src/corpus_discrimination.py": "1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc",
+      "src/cue_scoring.py": "ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d",
+      "src/diagnostics/score_lexical_risk_cues.py": "5fda0d1856814b0582c07cc50fb2a42acb3275601ccb0b17e6a602d32545b89a",
+      "src/v2_io.py": "34ca0e74ac669061a6e0f9fd1758c87c034cbeebb3f4a5af7783aebdea524e72",
+      "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b"
+    },
+    "additional_recorded_input_hashes_not_pinned_by_c_a": {
+      "data/processed/controlled_eval.jsonl": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+      "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7"
+    },
+    "provenance_integrity": {
+      "frozen_quadrant_c_row_count": 104,
+      "review_queue_row_count": 104,
+      "record_id_sets_match": true,
+      "all_c_construction_c_paired": true,
+      "all_source_dataset_strongreject": true
+    },
+    "pair_integrity": {
+      "review_status_filter": {
+        "expected_pairs": 104,
+        "valid_pairs": 104,
+        "excluded_pairs": 0,
+        "exclusion_reasons": []
+      },
+      "populations": {
+        "population_1_all_valid_accepted_pairs": {
+          "expected_pairs": 104,
+          "valid_pairs": 104,
+          "excluded_pairs": 0,
+          "note": "expected_pairs is the subset size C-A section 7.3 currently observed (104/78/26). If a future re-freeze changes assistance_type_preserved membership, this excluded_pairs value reflects the difference from that historical expectation, not a row-level exclusion reason."
+        },
+        "population_2_assistance_type_preserved_yes": {
+          "expected_pairs": 78,
+          "valid_pairs": 78,
+          "excluded_pairs": 0,
+          "note": "expected_pairs is the subset size C-A section 7.3 currently observed (104/78/26). If a future re-freeze changes assistance_type_preserved membership, this excluded_pairs value reflects the difference from that historical expectation, not a row-level exclusion reason."
+        },
+        "population_3_assistance_type_preserved_partial": {
+          "expected_pairs": 26,
+          "valid_pairs": 26,
+          "excluded_pairs": 0,
+          "note": "expected_pairs is the subset size C-A section 7.3 currently observed (104/78/26). If a future re-freeze changes assistance_type_preserved membership, this excluded_pairs value reflects the difference from that historical expectation, not a row-level exclusion reason."
+        }
+      }
+    },
+    "cue_scorer_provenance": {
+      "held_out_source": "StrongREJECT",
+      "train_h_sources": [
+        "HarmBench",
+        "SimpleSafetyTests",
+        "XSTest"
+      ],
+      "train_d_pool": "quadrant_D",
+      "n_h": 477,
+      "n_d": 150,
+      "reference_h_sha256": "955e37964cfc9b1e940f8189db640c53be8cff8859ae3928cbf884027837bda5",
+      "reference_d_sha256": "6623cdcab46fb89914b8017bed911ca176e9417f7b17bbd5fead07814d59a2af",
+      "config_version": "cue_scorer_v1",
+      "note": "StrongREJECT is held out of the H reference because every R104 source_prompt/candidate_prompt is StrongREJECT-provenance text (C-A section 2); scoring it with a reference that includes StrongREJECT would be circular. Mirrors the existing leave-one-source-out convention in src/cue_scoring.py.",
+      "construct_relevance_note": "Not construct-relevant: 3f_a already disqualifies this score as C_cue ground truth, because it is fit directly on the harmful/benign label. Reported for completeness only -- a significant paired difference on this feature must not be described as evidence about C_cue."
+    },
+    "results": {
+      "population_1_all_valid_accepted_pairs": {
+        "n_valid_pairs": 104,
+        "n_low_coverage_excluded_from_lexical_family": 0,
+        "low_coverage_excluded_record_ids": [],
+        "features": {
+          "word_count": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 28.53846153846154,
+              "median": 26.0,
+              "sd": 14.766087542049764,
+              "iqr": 23.5
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 17.53846153846154,
+              "median": 17.0,
+              "sd": 3.582381582736768,
+              "iqr": 5.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": -11.0,
+              "median": -8.5,
+              "sd": 13.042127409998752,
+              "iqr": 19.0
+            },
+            "paired_effect_size_dz": -0.8434206823931842,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -13.548076923076923,
+              "mean_ci_high": -8.509615384615385
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -11.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -0.003686730769230769,
+                "sd": 1.6732400630052546
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 20,
+              "n_negative": 79,
+              "n_zero": 5,
+              "proportion_positive_of_nonzero": 0.20202020202020202
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 36,
+                "harassment_bullying": 27,
+                "illegal": 3,
+                "cybercrime_intrusion": 13
+              },
+              "positive": {
+                "harassment_bullying": 12,
+                "illegal": 2,
+                "cybercrime_intrusion": 6
+              },
+              "zero": {
+                "illegal": 1,
+                "misinformation_disinformation": 1,
+                "harassment_bullying": 2,
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "character_count": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 159.68269230769232,
+              "median": 147.5,
+              "sd": 78.20762315078177,
+              "iqr": 123.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 111.0,
+              "median": 110.5,
+              "sd": 22.564255606333685,
+              "iqr": 26.25
+            },
+            "delta": {
+              "n": 104,
+              "mean": -48.68269230769231,
+              "median": -32.0,
+              "sd": 66.11526628093962,
+              "iqr": 102.25
+            },
+            "paired_effect_size_dz": -0.7363305790954221,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -61.50985576923077,
+              "mean_ci_high": -35.932451923076925
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -48.68269230769231,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -0.018869615384615377,
+                "sd": 8.045297603919463
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 30,
+              "n_negative": 73,
+              "n_zero": 1,
+              "proportion_positive_of_nonzero": 0.2912621359223301
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 36,
+                "harassment_bullying": 24,
+                "illegal": 2,
+                "cybercrime_intrusion": 11
+              },
+              "positive": {
+                "harassment_bullying": 17,
+                "illegal": 4,
+                "misinformation_disinformation": 1,
+                "cybercrime_intrusion": 8
+              },
+              "zero": {
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "sentence_count": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 1.8269230769230769,
+              "median": 2.0,
+              "sd": 1.2103301939931148,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 1.0,
+              "median": 1.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": -0.8269230769230769,
+              "median": -1.0,
+              "sd": 1.2103301939931148,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -0.683221059035879,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -1.0673076923076923,
+              "mean_ci_high": -0.6057692307692307
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.8269230769230769,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -0.0003225,
+                "sd": 0.14317255778607443
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 6,
+              "n_negative": 59,
+              "n_zero": 39,
+              "proportion_positive_of_nonzero": 0.09230769230769231
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 5,
+                "harassment_bullying": 26,
+                "illegal": 2,
+                "cybercrime_intrusion": 6
+              },
+              "negative": {
+                "misinformation_disinformation": 32,
+                "harassment_bullying": 15,
+                "illegal": 3,
+                "cybercrime_intrusion": 9
+              },
+              "positive": {
+                "illegal": 1,
+                "cybercrime_intrusion": 5
+              }
+            }
+          },
+          "mean_word_length": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 4.590530688012522,
+              "median": 4.49,
+              "sd": 0.5156783034577691,
+              "iqr": 0.6914202464202459
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 5.285478516827488,
+              "median": 5.255434782608695,
+              "sd": 0.5439875303570876,
+              "iqr": 0.777320906432748
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.694947828814967,
+              "median": 0.7212346477052363,
+              "sd": 0.5846813253356471,
+              "iqr": 0.7732700551132878
+            },
+            "paired_effect_size_dz": 1.1885924839758126,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.581044318429262,
+              "mean_ci_high": 0.8049051769764863
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.694947828814967,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 4.060475016249587e-05,
+                "sd": 0.08882399031787079
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 90,
+              "n_negative": 13,
+              "n_zero": 1,
+              "proportion_positive_of_nonzero": 0.8737864077669902
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 3,
+                "harassment_bullying": 8,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              },
+              "positive": {
+                "misinformation_disinformation": 33,
+                "harassment_bullying": 33,
+                "illegal": 5,
+                "cybercrime_intrusion": 19
+              },
+              "zero": {
+                "misinformation_disinformation": 1
+              }
+            }
+          },
+          "has_bullet_marker": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 104,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 37,
+                "harassment_bullying": 41,
+                "illegal": 6,
+                "cybercrime_intrusion": 20
+              }
+            }
+          },
+          "has_numbered_step": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 104,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 37,
+                "harassment_bullying": 41,
+                "illegal": 6,
+                "cybercrime_intrusion": 20
+              }
+            }
+          },
+          "has_code_block": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 104,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 37,
+                "harassment_bullying": 41,
+                "illegal": 6,
+                "cybercrime_intrusion": 20
+              }
+            }
+          },
+          "multi_sentence_flag": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.5673076923076923,
+              "median": 1.0,
+              "sd": 0.49784824523147586,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": -0.5673076923076923,
+              "median": -1.0,
+              "sd": 0.49784824523147586,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -1.1395193168631559,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.6634615384615384,
+              "mean_ci_high": -0.47115384615384615
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.5673076923076923,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -4.019230769230773e-05,
+                "sd": 0.07386959559205238
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 59,
+              "n_zero": 45,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 5,
+                "harassment_bullying": 26,
+                "illegal": 3,
+                "cybercrime_intrusion": 11
+              },
+              "negative": {
+                "misinformation_disinformation": 32,
+                "harassment_bullying": 15,
+                "illegal": 3,
+                "cybercrime_intrusion": 9
+              }
+            }
+          },
+          "fightin_words": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 5.471118182692307,
+              "median": 6.823816,
+              "sd": 17.98811715516017,
+              "iqr": 22.16462675
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 14.86757960576923,
+              "median": 14.139050000000001,
+              "sd": 9.829459222269477,
+              "iqr": 14.327758
+            },
+            "delta": {
+              "n": 104,
+              "mean": 9.396461423076921,
+              "median": 7.059211999999999,
+              "sd": 18.14131445018169,
+              "iqr": 19.173726
+            },
+            "paired_effect_size_dz": 0.5179592387795701,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 5.982885214423078,
+              "mean_ci_high": 13.004115334134616
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 9.396461423076921,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -0.00018162084365384488,
+                "sd": 1.9996322032560607
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 70,
+              "n_negative": 34,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6730769230769231
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 26,
+                "harassment_bullying": 30,
+                "illegal": 5,
+                "cybercrime_intrusion": 9
+              },
+              "negative": {
+                "misinformation_disinformation": 11,
+                "illegal": 1,
+                "cybercrime_intrusion": 11,
+                "harassment_bullying": 11
+              }
+            },
+            "length_sensitivity": {
+              "n": 104,
+              "spearman_corr_with_word_count_delta": -0.3389535161197036,
+              "spearman_p_value": 0.0004320760009518749,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.5,
+                "at_or_below_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 15.680011865384616
+                },
+                "above_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 3.1129109807692297
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "fw_z_score": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 4.174381,
+              "median": 4.808936,
+              "sd": 8.514480793511277,
+              "iqr": 10.860546999999999
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 5.942299923076923,
+              "median": 6.057641,
+              "sd": 5.512861595143734,
+              "iqr": 6.742804250000001
+            },
+            "delta": {
+              "n": 104,
+              "mean": 1.7679189230769232,
+              "median": 0.46630900000000075,
+              "sd": 9.44556929364439,
+              "iqr": 11.0616365
+            },
+            "paired_effect_size_dz": 0.18716912322759596,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.031121488221153428,
+              "mean_ci_high": 3.6176869384615378
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 1.7679189230769232,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.05979940200597994,
+              "null_distribution_summary": {
+                "mean": 0.0037566054255769228,
+                "sd": 0.9413490989032793
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 53,
+              "n_negative": 51,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.5096153846153846
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 9,
+                "illegal": 3,
+                "harassment_bullying": 23,
+                "cybercrime_intrusion": 16
+              },
+              "positive": {
+                "misinformation_disinformation": 28,
+                "harassment_bullying": 18,
+                "illegal": 3,
+                "cybercrime_intrusion": 4
+              }
+            },
+            "length_sensitivity": {
+              "n": 104,
+              "spearman_corr_with_word_count_delta": -0.2674235269368377,
+              "spearman_p_value": 0.0060620484133135566,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.5,
+                "at_or_below_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 4.405137346153846
+                },
+                "above_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": -0.8692995000000001
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_diversity": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.9053845350779071,
+              "median": 0.9175170068027211,
+              "sd": 0.08064672299737365,
+              "iqr": 0.15363636363636357
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.954760970511162,
+              "median": 0.9545454545454546,
+              "sd": 0.05359192942192737,
+              "iqr": 0.0625
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.049376435433255,
+              "median": 0.04221491228070173,
+              "sd": 0.08129987630502328,
+              "iqr": 0.0951839826839827
+            },
+            "paired_effect_size_dz": 0.6073371532325957,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.033511670491878996,
+              "mean_ci_high": 0.06515948302700801
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.049376435433255,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 2.9607031136252484e-05,
+                "sd": 0.009322672586854926
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 68,
+              "n_negative": 14,
+              "n_zero": 22,
+              "proportion_positive_of_nonzero": 0.8292682926829268
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 1,
+                "harassment_bullying": 14,
+                "illegal": 3,
+                "cybercrime_intrusion": 4
+              },
+              "positive": {
+                "misinformation_disinformation": 29,
+                "harassment_bullying": 20,
+                "illegal": 3,
+                "cybercrime_intrusion": 16
+              },
+              "negative": {
+                "harassment_bullying": 7,
+                "misinformation_disinformation": 7
+              }
+            },
+            "length_sensitivity": {
+              "n": 104,
+              "spearman_corr_with_word_count_delta": -0.499799378276997,
+              "spearman_p_value": 6.607982724922425e-08,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.5,
+                "at_or_below_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 0.08591286680166073
+                },
+                "above_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 0.012840004064849262
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_risk_hit_count": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.5068610661742388,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 104,
+              "mean": -0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.5068610661742388,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": -0.5311727161506193,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.375,
+              "mean_ci_high": -0.17307692307692307
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.2692307692307692,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 0.0003578846153846154,
+                "sd": 0.05605796820418454
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 25,
+              "n_zero": 79,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 28,
+                "harassment_bullying": 36,
+                "illegal": 4,
+                "cybercrime_intrusion": 11
+              },
+              "negative": {
+                "misinformation_disinformation": 9,
+                "harassment_bullying": 5,
+                "illegal": 2,
+                "cybercrime_intrusion": 9
+              }
+            },
+            "length_sensitivity": {
+              "n": 104,
+              "spearman_corr_with_word_count_delta": -0.08145555922744949,
+              "spearman_p_value": 0.4110687665028413,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.5,
+                "at_or_below_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": -0.21153846153846154
+                },
+                "above_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": -0.3269230769230769
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "cue_tfidf_logreg_margin": {
+            "valid_n": 104,
+            "source": {
+              "n": 104,
+              "mean": 0.3068365961538462,
+              "median": 0.26146,
+              "sd": 0.7576672797150259,
+              "iqr": 1.0192902499999998
+            },
+            "candidate": {
+              "n": 104,
+              "mean": 0.685435105769231,
+              "median": 0.7313945,
+              "sd": 0.577118277524893,
+              "iqr": 0.74064175
+            },
+            "delta": {
+              "n": 104,
+              "mean": 0.37859850961538466,
+              "median": 0.351262,
+              "sd": 0.88342724920184,
+              "iqr": 1.16983275
+            },
+            "paired_effect_size_dz": 0.4285565222913843,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.2053039579326923,
+              "mean_ci_high": 0.54734728125
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.37859850961538466,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 3.999960000399996e-05,
+              "null_distribution_summary": {
+                "mean": 0.00017106742923076907,
+                "sd": 0.09374824470953592
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 71,
+              "n_negative": 33,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6826923076923077
+            },
+            "family": "distributional_exploratory",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 32,
+                "harassment_bullying": 26,
+                "illegal": 5,
+                "cybercrime_intrusion": 8
+              },
+              "negative": {
+                "misinformation_disinformation": 5,
+                "harassment_bullying": 15,
+                "cybercrime_intrusion": 12,
+                "illegal": 1
+              }
+            },
+            "length_sensitivity": {
+              "n": 104,
+              "spearman_corr_with_word_count_delta": -0.34946792282692984,
+              "spearman_p_value": 0.0002767298642058968,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.5,
+                "at_or_below_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 0.6812772500000002
+                },
+                "above_median_stratum": {
+                  "n": 52,
+                  "mean_feature_delta": 0.07591976923076928
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            },
+            "construct_relevance_note": "Not construct-relevant: 3f_a already disqualifies this score as C_cue ground truth (fit directly on the harmful/benign label). Reported for completeness only; a significant paired difference here must not be described as evidence about C_cue."
+          }
+        },
+        "multiple_comparison_correction": {
+          "method": "holm_bonferroni",
+          "alpha": 0.05,
+          "family_size": 13,
+          "note": "Applied separately within this population only (C-A section 7.6 item 5) -- not pooled across the three populations, which represent different predeclared evidence tiers rather than repeated measurements of the same question.",
+          "per_feature": {
+            "word_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 1,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "character_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 2,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "sentence_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 3,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "mean_word_length": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 4,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "multi_sentence_flag": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 5,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "fightin_words": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 6,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "lexical_diversity": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 7,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "lexical_risk_hit_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 8,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "cue_tfidf_logreg_margin": {
+              "raw_p": 3.999960000399996e-05,
+              "rank": 9,
+              "adjusted_p_holm": 0.00019999800001999982,
+              "reject_at_alpha": true
+            },
+            "fw_z_score": {
+              "raw_p": 0.05979940200597994,
+              "rank": 10,
+              "adjusted_p_holm": 0.23919760802391976,
+              "reject_at_alpha": false
+            },
+            "has_bullet_marker": {
+              "raw_p": 1.0,
+              "rank": 11,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_numbered_step": {
+              "raw_p": 1.0,
+              "rank": 12,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_code_block": {
+              "raw_p": 1.0,
+              "rank": 13,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            }
+          }
+        },
+        "source_sensitivity": {
+          "applicable": false,
+          "reason": "R104 is 100% StrongREJECT (C-A section 2) -- no within-R104 source contrast is computable."
+        },
+        "decision_labels": null,
+        "decision_labels_note": "KEEP FOR HUMAN REVIEW / KEEP AS SECONDARY / INCONCLUSIVE / DROP labels (C-A section 7.7) are not assigned by this implementation -- final interpretation is out of scope for the C-B implementation task."
+      },
+      "population_2_assistance_type_preserved_yes": {
+        "n_valid_pairs": 78,
+        "n_low_coverage_excluded_from_lexical_family": 0,
+        "low_coverage_excluded_record_ids": [],
+        "features": {
+          "word_count": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 28.807692307692307,
+              "median": 25.5,
+              "sd": 15.855727542566312,
+              "iqr": 26.5
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 17.423076923076923,
+              "median": 17.0,
+              "sd": 3.7399883004512846,
+              "iqr": 3.75
+            },
+            "delta": {
+              "n": 78,
+              "mean": -11.384615384615385,
+              "median": -8.0,
+              "sd": 13.936992510572724,
+              "iqr": 20.5
+            },
+            "paired_effect_size_dz": -0.8168631342794306,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -14.525641025641026,
+              "mean_ci_high": -8.333333333333334
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -11.384615384615385,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 0.0031964102564102565,
+                "sd": 2.0323533164164336
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 16,
+              "n_negative": 58,
+              "n_zero": 4,
+              "proportion_positive_of_nonzero": 0.21621621621621623
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 28,
+                "harassment_bullying": 15,
+                "illegal": 3,
+                "cybercrime_intrusion": 12
+              },
+              "positive": {
+                "harassment_bullying": 8,
+                "illegal": 2,
+                "cybercrime_intrusion": 6
+              },
+              "zero": {
+                "misinformation_disinformation": 1,
+                "harassment_bullying": 2,
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "character_count": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 159.84615384615384,
+              "median": 145.0,
+              "sd": 83.49835940888912,
+              "iqr": 136.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 110.08974358974359,
+              "median": 110.0,
+              "sd": 23.458272374378783,
+              "iqr": 24.75
+            },
+            "delta": {
+              "n": 78,
+              "mean": -49.756410256410255,
+              "median": -27.5,
+              "sd": 69.98890188413009,
+              "iqr": 104.75
+            },
+            "paired_effect_size_dz": -0.7109185730443996,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -65.53878205128204,
+              "mean_ci_high": -34.33269230769232
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -49.756410256410255,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 0.011064102564102559,
+                "sd": 9.697193243264682
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 25,
+              "n_negative": 52,
+              "n_zero": 1,
+              "proportion_positive_of_nonzero": 0.3246753246753247
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 28,
+                "harassment_bullying": 12,
+                "illegal": 2,
+                "cybercrime_intrusion": 10
+              },
+              "positive": {
+                "harassment_bullying": 13,
+                "illegal": 3,
+                "misinformation_disinformation": 1,
+                "cybercrime_intrusion": 8
+              },
+              "zero": {
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "sentence_count": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 1.8717948717948718,
+              "median": 2.0,
+              "sd": 1.3227183183065658,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 1.0,
+              "median": 1.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": -0.8717948717948718,
+              "median": -1.0,
+              "sd": 1.3227183183065658,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -0.6590933683529862,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -1.1794871794871795,
+              "mean_ci_high": -0.6025641025641025
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.8717948717948718,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -2.7948717948717886e-05,
+                "sd": 0.17926674670834855
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 5,
+              "n_negative": 44,
+              "n_zero": 29,
+              "proportion_positive_of_nonzero": 0.10204081632653061
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 3,
+                "harassment_bullying": 18,
+                "illegal": 2,
+                "cybercrime_intrusion": 6
+              },
+              "negative": {
+                "misinformation_disinformation": 26,
+                "illegal": 3,
+                "harassment_bullying": 7,
+                "cybercrime_intrusion": 8
+              },
+              "positive": {
+                "cybercrime_intrusion": 5
+              }
+            }
+          },
+          "mean_word_length": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 4.5375221749390136,
+              "median": 4.409698025551684,
+              "sd": 0.5092720583586641,
+              "iqr": 0.7648273978643338
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 5.269124407333221,
+              "median": 5.222222222222222,
+              "sd": 0.5705041372373683,
+              "iqr": 0.7599789915966388
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.7316022323942055,
+              "median": 0.7212346477052363,
+              "sd": 0.6034167632654801,
+              "iqr": 0.7838375350140054
+            },
+            "paired_effect_size_dz": 1.2124327279789686,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.5977498595420441,
+              "mean_ci_high": 0.8658330582803078
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.7316022323942055,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -0.0004716132731441613,
+                "sd": 0.10712156921050336
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 69,
+              "n_negative": 9,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.8846153846153846
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 3,
+                "harassment_bullying": 4,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              },
+              "positive": {
+                "misinformation_disinformation": 26,
+                "harassment_bullying": 21,
+                "illegal": 4,
+                "cybercrime_intrusion": 18
+              }
+            }
+          },
+          "has_bullet_marker": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 78,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 29,
+                "harassment_bullying": 25,
+                "illegal": 5,
+                "cybercrime_intrusion": 19
+              }
+            }
+          },
+          "has_numbered_step": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 78,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 29,
+                "harassment_bullying": 25,
+                "illegal": 5,
+                "cybercrime_intrusion": 19
+              }
+            }
+          },
+          "has_code_block": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 78,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 29,
+                "harassment_bullying": 25,
+                "illegal": 5,
+                "cybercrime_intrusion": 19
+              }
+            }
+          },
+          "multi_sentence_flag": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.5641025641025641,
+              "median": 1.0,
+              "sd": 0.49908340894508724,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": -0.5641025641025641,
+              "median": -1.0,
+              "sd": 0.49908340894508724,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -1.1302771320226972,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.6666666666666666,
+              "mean_ci_high": -0.44871794871794873
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.5641025641025641,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -8.641025641025649e-05,
+                "sd": 0.08509355480076629
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 44,
+              "n_zero": 34,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 3,
+                "harassment_bullying": 18,
+                "illegal": 2,
+                "cybercrime_intrusion": 11
+              },
+              "negative": {
+                "misinformation_disinformation": 26,
+                "illegal": 3,
+                "harassment_bullying": 7,
+                "cybercrime_intrusion": 8
+              }
+            }
+          },
+          "fightin_words": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 5.225210858974359,
+              "median": 6.7704275,
+              "sd": 18.948968914685455,
+              "iqr": 23.526746
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 13.850436294871793,
+              "median": 13.4371535,
+              "sd": 9.923757380249794,
+              "iqr": 12.788797250000002
+            },
+            "delta": {
+              "n": 78,
+              "mean": 8.625225435897436,
+              "median": 5.9336554999999995,
+              "sd": 18.64104378509845,
+              "iqr": 15.345449
+            },
+            "paired_effect_size_dz": 0.46270077659451636,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 4.633773644551283,
+              "mean_ci_high": 12.73501389807692
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 8.625225435897436,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 5.999940000599994e-05,
+              "null_distribution_summary": {
+                "mean": 0.0010017830133333364,
+                "sd": 2.3217860027962263
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 52,
+              "n_negative": 26,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6666666666666666
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 21,
+                "harassment_bullying": 18,
+                "illegal": 4,
+                "cybercrime_intrusion": 9
+              },
+              "negative": {
+                "misinformation_disinformation": 8,
+                "illegal": 1,
+                "harassment_bullying": 7,
+                "cybercrime_intrusion": 10
+              }
+            },
+            "length_sensitivity": {
+              "n": 78,
+              "spearman_corr_with_word_count_delta": -0.4294997074690343,
+              "spearman_p_value": 8.708926679628158e-05,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.0,
+                "at_or_below_median_stratum": {
+                  "n": 40,
+                  "mean_feature_delta": 16.155605174999998
+                },
+                "above_median_stratum": {
+                  "n": 38,
+                  "mean_feature_delta": 0.6985099210526312
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "fw_z_score": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 4.211006602564102,
+              "median": 4.998153,
+              "sd": 8.52957063198243,
+              "iqr": 10.91892325
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 5.084581756410256,
+              "median": 5.3817725,
+              "sd": 5.152524051465145,
+              "iqr": 5.00552875
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.8735751538461539,
+              "median": -0.37921899999999975,
+              "sd": 9.548721615663192,
+              "iqr": 10.74197525
+            },
+            "paired_effect_size_dz": 0.0914860846307625,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -1.156574402243588,
+              "mean_ci_high": 2.988217930128203
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.8735751538461539,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.4234757652423476,
+              "null_distribution_summary": {
+                "mean": 0.005157039731025641,
+                "sd": 1.0827810923596517
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 36,
+              "n_negative": 42,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.46153846153846156
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 9,
+                "illegal": 3,
+                "harassment_bullying": 14,
+                "cybercrime_intrusion": 16
+              },
+              "positive": {
+                "misinformation_disinformation": 20,
+                "harassment_bullying": 11,
+                "illegal": 2,
+                "cybercrime_intrusion": 3
+              }
+            },
+            "length_sensitivity": {
+              "n": 78,
+              "spearman_corr_with_word_count_delta": -0.2729545041692791,
+              "spearman_p_value": 0.01561237500174176,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.0,
+                "at_or_below_median_stratum": {
+                  "n": 40,
+                  "mean_feature_delta": 3.61733355
+                },
+                "above_median_stratum": {
+                  "n": 38,
+                  "mean_feature_delta": -2.0145915789473685
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_diversity": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.9023190873420128,
+              "median": 0.9128787878787878,
+              "sd": 0.07969480978579097,
+              "iqr": 0.14861952861952865
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.9530554960904576,
+              "median": 0.9545454545454546,
+              "sd": 0.05705316572085283,
+              "iqr": 0.0625
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.050736408748444865,
+              "median": 0.04755000591786007,
+              "sd": 0.08053388093107035,
+              "iqr": 0.09577922077922085
+            },
+            "paired_effect_size_dz": 0.6300007917396977,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.03224284758707145,
+              "mean_ci_high": 0.06879814562231867
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.050736408748444865,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": -5.1458165927280746e-05,
+                "sd": 0.010705479261797768
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 53,
+              "n_negative": 9,
+              "n_zero": 16,
+              "proportion_positive_of_nonzero": 0.8548387096774194
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 1,
+                "harassment_bullying": 9,
+                "illegal": 2,
+                "cybercrime_intrusion": 4
+              },
+              "positive": {
+                "misinformation_disinformation": 23,
+                "harassment_bullying": 12,
+                "illegal": 3,
+                "cybercrime_intrusion": 15
+              },
+              "negative": {
+                "harassment_bullying": 4,
+                "misinformation_disinformation": 5
+              }
+            },
+            "length_sensitivity": {
+              "n": 78,
+              "spearman_corr_with_word_count_delta": -0.5033331002819001,
+              "spearman_p_value": 2.640617440323232e-06,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.0,
+                "at_or_below_median_stratum": {
+                  "n": 40,
+                  "mean_feature_delta": 0.07794981358779642
+                },
+                "above_median_stratum": {
+                  "n": 38,
+                  "mean_feature_delta": 0.022090719443864294
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_risk_hit_count": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.5265194936778478,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 78,
+              "mean": -0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.5265194936778478,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": -0.5113405533195675,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.38461538461538464,
+              "mean_ci_high": -0.15384615384615385
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.2692307692307692,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 9.99990000099999e-06,
+              "null_distribution_summary": {
+                "mean": 1.2820512820512597e-06,
+                "sd": 0.06691388137915433
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 18,
+              "n_zero": 60,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 22,
+                "harassment_bullying": 24,
+                "illegal": 4,
+                "cybercrime_intrusion": 10
+              },
+              "negative": {
+                "misinformation_disinformation": 7,
+                "illegal": 1,
+                "harassment_bullying": 1,
+                "cybercrime_intrusion": 9
+              }
+            },
+            "length_sensitivity": {
+              "n": 78,
+              "spearman_corr_with_word_count_delta": -0.10831659475135128,
+              "spearman_p_value": 0.3451887922562089,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.0,
+                "at_or_below_median_stratum": {
+                  "n": 40,
+                  "mean_feature_delta": -0.175
+                },
+                "above_median_stratum": {
+                  "n": 38,
+                  "mean_feature_delta": -0.3684210526315789
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "cue_tfidf_logreg_margin": {
+            "valid_n": 78,
+            "source": {
+              "n": 78,
+              "mean": 0.314802076923077,
+              "median": 0.331194,
+              "sd": 0.759145465473862,
+              "iqr": 1.02215875
+            },
+            "candidate": {
+              "n": 78,
+              "mean": 0.592643576923077,
+              "median": 0.550313,
+              "sd": 0.554539074196386,
+              "iqr": 0.68783375
+            },
+            "delta": {
+              "n": 78,
+              "mean": 0.27784149999999996,
+              "median": 0.2928045,
+              "sd": 0.9091810300147143,
+              "iqr": 1.07645425
+            },
+            "paired_effect_size_dz": 0.3055953554106858,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.07861109743589745,
+              "mean_ci_high": 0.4741561785256409
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.27784149999999996,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.008959910400895992,
+              "null_distribution_summary": {
+                "mean": 0.0002389297094871795,
+                "sd": 0.1073156230766552
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 51,
+              "n_negative": 27,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6538461538461539
+            },
+            "family": "distributional_exploratory",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 25,
+                "harassment_bullying": 15,
+                "illegal": 4,
+                "cybercrime_intrusion": 7
+              },
+              "negative": {
+                "misinformation_disinformation": 4,
+                "harassment_bullying": 10,
+                "cybercrime_intrusion": 12,
+                "illegal": 1
+              }
+            },
+            "length_sensitivity": {
+              "n": 78,
+              "spearman_corr_with_word_count_delta": -0.37390161311895953,
+              "spearman_p_value": 0.0007460058620195445,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -8.0,
+                "at_or_below_median_stratum": {
+                  "n": 40,
+                  "mean_feature_delta": 0.5830228
+                },
+                "above_median_stratum": {
+                  "n": 38,
+                  "mean_feature_delta": -0.043401973684210504
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            },
+            "construct_relevance_note": "Not construct-relevant: 3f_a already disqualifies this score as C_cue ground truth (fit directly on the harmful/benign label). Reported for completeness only; a significant paired difference here must not be described as evidence about C_cue."
+          }
+        },
+        "multiple_comparison_correction": {
+          "method": "holm_bonferroni",
+          "alpha": 0.05,
+          "family_size": 13,
+          "note": "Applied separately within this population only (C-A section 7.6 item 5) -- not pooled across the three populations, which represent different predeclared evidence tiers rather than repeated measurements of the same question.",
+          "per_feature": {
+            "word_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 1,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "character_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 2,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "sentence_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 3,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "mean_word_length": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 4,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "multi_sentence_flag": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 5,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "lexical_diversity": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 6,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "lexical_risk_hit_count": {
+              "raw_p": 9.99990000099999e-06,
+              "rank": 7,
+              "adjusted_p_holm": 0.0001299987000129999,
+              "reject_at_alpha": true
+            },
+            "fightin_words": {
+              "raw_p": 5.999940000599994e-05,
+              "rank": 8,
+              "adjusted_p_holm": 0.0003599964000359997,
+              "reject_at_alpha": true
+            },
+            "cue_tfidf_logreg_margin": {
+              "raw_p": 0.008959910400895992,
+              "rank": 9,
+              "adjusted_p_holm": 0.04479955200447996,
+              "reject_at_alpha": true
+            },
+            "fw_z_score": {
+              "raw_p": 0.4234757652423476,
+              "rank": 10,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_bullet_marker": {
+              "raw_p": 1.0,
+              "rank": 11,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_numbered_step": {
+              "raw_p": 1.0,
+              "rank": 12,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_code_block": {
+              "raw_p": 1.0,
+              "rank": 13,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            }
+          }
+        },
+        "source_sensitivity": {
+          "applicable": false,
+          "reason": "R104 is 100% StrongREJECT (C-A section 2) -- no within-R104 source contrast is computable."
+        },
+        "decision_labels": null,
+        "decision_labels_note": "KEEP FOR HUMAN REVIEW / KEEP AS SECONDARY / INCONCLUSIVE / DROP labels (C-A section 7.7) are not assigned by this implementation -- final interpretation is out of scope for the C-B implementation task."
+      },
+      "population_3_assistance_type_preserved_partial": {
+        "n_valid_pairs": 26,
+        "n_low_coverage_excluded_from_lexical_family": 0,
+        "low_coverage_excluded_record_ids": [],
+        "features": {
+          "word_count": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 27.73076923076923,
+              "median": 28.0,
+              "sd": 11.094350606710398,
+              "iqr": 14.25
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 17.884615384615383,
+              "median": 17.5,
+              "sd": 3.102604365070391,
+              "iqr": 5.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": -9.846153846153847,
+              "median": -9.0,
+              "sd": 10.034708995052354,
+              "iqr": 12.0
+            },
+            "paired_effect_size_dz": -0.9812097043380655,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -13.73076923076923,
+              "mean_ci_high": -6.230769230769231
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -9.846153846153847,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 3.999960000399996e-05,
+              "null_distribution_summary": {
+                "mean": -0.004462307692307693,
+                "sd": 2.739343836484172
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 4,
+              "n_negative": 21,
+              "n_zero": 1,
+              "proportion_positive_of_nonzero": 0.16
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 12,
+                "cybercrime_intrusion": 1
+              },
+              "positive": {
+                "harassment_bullying": 4
+              },
+              "zero": {
+                "illegal": 1
+              }
+            }
+          },
+          "character_count": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 159.19230769230768,
+              "median": 161.0,
+              "sd": 61.03836120393092,
+              "iqr": 85.5
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 113.73076923076923,
+              "median": 113.0,
+              "sd": 19.810214925250445,
+              "iqr": 27.75
+            },
+            "delta": {
+              "n": 26,
+              "mean": -45.46153846153846,
+              "median": -33.5,
+              "sd": 53.9245626921393,
+              "iqr": 61.75
+            },
+            "paired_effect_size_dz": -0.8430580832167878,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -66.38461538461539,
+              "mean_ci_high": -26.268269230769246
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -45.46153846153846,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.00010999890001099989,
+              "null_distribution_summary": {
+                "mean": -0.010226923076923076,
+                "sd": 13.716528887131538
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 5,
+              "n_negative": 21,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.19230769230769232
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 12,
+                "cybercrime_intrusion": 1
+              },
+              "positive": {
+                "harassment_bullying": 4,
+                "illegal": 1
+              }
+            }
+          },
+          "sentence_count": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 1.6923076923076923,
+              "median": 2.0,
+              "sd": 0.7883771061734743,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 1.0,
+              "median": 1.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": -0.6923076923076923,
+              "median": -1.0,
+              "sd": 0.7883771061734743,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -0.8781428162823351,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -1.0,
+              "mean_ci_high": -0.4230769230769231
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.6923076923076923,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.00042999570004299955,
+              "null_distribution_summary": {
+                "mean": -0.0005046153846153846,
+                "sd": 0.2040899465164184
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 1,
+              "n_negative": 15,
+              "n_zero": 10,
+              "proportion_positive_of_nonzero": 0.0625
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 6,
+                "harassment_bullying": 8,
+                "cybercrime_intrusion": 1
+              },
+              "zero": {
+                "harassment_bullying": 8,
+                "misinformation_disinformation": 2
+              },
+              "positive": {
+                "illegal": 1
+              }
+            }
+          },
+          "mean_word_length": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 4.749556227233045,
+              "median": 4.814736842105264,
+              "sd": 0.511582868008149,
+              "iqr": 0.5851855494361402
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 5.334540845310296,
+              "median": 5.266666666666667,
+              "sd": 0.4619520031084408,
+              "iqr": 0.6994949494949498
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.5849846180772518,
+              "median": 0.7319061583577713,
+              "sd": 0.5198071949272728,
+              "iqr": 0.6356646825396826
+            },
+            "paired_effect_size_dz": 1.1253876894857104,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.3941084064382505,
+              "mean_ci_high": 0.7788088105058246
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.5849846180772518,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 2.999970000299997e-05,
+              "null_distribution_summary": {
+                "mean": 0.0007150371727972617,
+                "sd": 0.15289225972290998
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 21,
+              "n_negative": 4,
+              "n_zero": 1,
+              "proportion_positive_of_nonzero": 0.84
+            },
+            "family": "structural",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 7,
+                "harassment_bullying": 12,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              },
+              "negative": {
+                "harassment_bullying": 4
+              },
+              "zero": {
+                "misinformation_disinformation": 1
+              }
+            }
+          },
+          "has_bullet_marker": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 26,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 16,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "has_numbered_step": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 26,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 16,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "has_code_block": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "paired_effect_size_dz": null,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.0,
+              "mean_ci_high": 0.0
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 1.0,
+              "null_distribution_summary": {
+                "mean": 0.0,
+                "sd": 0.0
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 0,
+              "n_zero": 26,
+              "proportion_positive_of_nonzero": null
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 16,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              }
+            }
+          },
+          "multi_sentence_flag": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.5769230769230769,
+              "median": 1.0,
+              "sd": 0.5038314736557788,
+              "iqr": 1.0
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": -0.5769230769230769,
+              "median": -1.0,
+              "sd": 0.5038314736557788,
+              "iqr": 1.0
+            },
+            "paired_effect_size_dz": -1.1450715310358612,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.7692307692307693,
+              "mean_ci_high": -0.38461538461538464
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.5769230769230769,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 5.999940000599994e-05,
+              "null_distribution_summary": {
+                "mean": -0.00041923076923076934,
+                "sd": 0.14958578138575784
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 15,
+              "n_zero": 11,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "formatting_confound",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": false,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 6,
+                "harassment_bullying": 8,
+                "cybercrime_intrusion": 1
+              },
+              "zero": {
+                "harassment_bullying": 8,
+                "illegal": 1,
+                "misinformation_disinformation": 2
+              }
+            }
+          },
+          "fightin_words": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 6.208840153846154,
+              "median": 7.168573,
+              "sd": 15.048192743385808,
+              "iqr": 16.225315000000002
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 17.919009538461538,
+              "median": 17.675258,
+              "sd": 9.04623365527106,
+              "iqr": 14.831480249999998
+            },
+            "delta": {
+              "n": 26,
+              "mean": 11.710169384615382,
+              "median": 9.490441500000001,
+              "sd": 16.680355143202686,
+              "iqr": 25.288764750000002
+            },
+            "paired_effect_size_dz": 0.7020335768682554,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 5.554646085576924,
+              "mean_ci_high": 18.124312796153845
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 11.710169384615382,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.0011399886001139988,
+              "null_distribution_summary": {
+                "mean": 0.01996590402846154,
+                "sd": 3.9627566087185437
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 18,
+              "n_negative": 8,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6923076923076923
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "negative": {
+                "misinformation_disinformation": 3,
+                "cybercrime_intrusion": 1,
+                "harassment_bullying": 4
+              },
+              "positive": {
+                "harassment_bullying": 12,
+                "illegal": 1,
+                "misinformation_disinformation": 5
+              }
+            },
+            "length_sensitivity": {
+              "n": 26,
+              "spearman_corr_with_word_count_delta": -0.030126697196397823,
+              "spearman_p_value": 0.8838468911942264,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -9.0,
+                "at_or_below_median_stratum": {
+                  "n": 14,
+                  "mean_feature_delta": 13.591133071428573
+                },
+                "above_median_stratum": {
+                  "n": 12,
+                  "mean_feature_delta": 9.515711750000001
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "fw_z_score": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 4.064504192307693,
+              "median": 4.3621175,
+              "sd": 8.636396592167605,
+              "iqr": 10.460358000000001
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 8.515454423076923,
+              "median": 9.443977499999999,
+              "sd": 5.853450634903049,
+              "iqr": 7.0054385
+            },
+            "delta": {
+              "n": 26,
+              "mean": 4.450950230769231,
+              "median": 3.4118294999999996,
+              "sd": 8.761890931421597,
+              "iqr": 11.73928325
+            },
+            "paired_effect_size_dz": 0.5079896868845267,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 1.3539400769230772,
+              "mean_ci_high": 7.935472395192308
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 4.450950230769231,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.012519874801251987,
+              "null_distribution_summary": {
+                "mean": 0.0002329800892307682,
+                "sd": 1.9053170634301744
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 17,
+              "n_negative": 9,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.6538461538461539
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 8,
+                "harassment_bullying": 7,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              },
+              "negative": {
+                "harassment_bullying": 9
+              }
+            },
+            "length_sensitivity": {
+              "n": 26,
+              "spearman_corr_with_word_count_delta": -0.22047264766454772,
+              "spearman_p_value": 0.27912264432345435,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -9.0,
+                "at_or_below_median_stratum": {
+                  "n": 14,
+                  "mean_feature_delta": 6.34795557142857
+                },
+                "above_median_stratum": {
+                  "n": 12,
+                  "mean_feature_delta": 2.237777333333334
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_diversity": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.9145808782855892,
+              "median": 0.9302884615384616,
+              "sd": 0.0843616006971792,
+              "iqr": 0.1413461538461539
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.9598773937732747,
+              "median": 0.9534632034632035,
+              "sd": 0.04208485316724081,
+              "iqr": 0.05555555555555558
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.0452965154876854,
+              "median": 0.025568181818181768,
+              "sd": 0.08504577250781933,
+              "iqr": 0.09356060606060607
+            },
+            "paired_effect_size_dz": 0.532613369859398,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.014410451071325618,
+              "mean_ci_high": 0.07833232098895113
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.0452965154876854,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.01030989690103099,
+              "null_distribution_summary": {
+                "mean": 2.269502020547532e-05,
+                "sd": 0.018573730451737554
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 15,
+              "n_negative": 5,
+              "n_zero": 6,
+              "proportion_positive_of_nonzero": 0.75
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 6,
+                "harassment_bullying": 8,
+                "cybercrime_intrusion": 1
+              },
+              "zero": {
+                "harassment_bullying": 5,
+                "illegal": 1
+              },
+              "negative": {
+                "misinformation_disinformation": 2,
+                "harassment_bullying": 3
+              }
+            },
+            "length_sensitivity": {
+              "n": 26,
+              "spearman_corr_with_word_count_delta": -0.5118016403457106,
+              "spearman_p_value": 0.007525141077264845,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -9.0,
+                "at_or_below_median_stratum": {
+                  "n": 14,
+                  "mean_feature_delta": 0.0884306227661922
+                },
+                "above_median_stratum": {
+                  "n": 12,
+                  "mean_feature_delta": -0.00502660967057252
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "lexical_risk_hit_count": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.45234432086120485,
+              "iqr": 0.75
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.0,
+              "median": 0.0,
+              "sd": 0.0,
+              "iqr": 0.0
+            },
+            "delta": {
+              "n": 26,
+              "mean": -0.2692307692307692,
+              "median": 0.0,
+              "sd": 0.45234432086120485,
+              "iqr": 0.75
+            },
+            "paired_effect_size_dz": -0.5951898958700063,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": -0.46153846153846156,
+              "mean_ci_high": -0.11538461538461539
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": -0.2692307692307692,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.016399836001639984,
+              "null_distribution_summary": {
+                "mean": -0.00028153846153846154,
+                "sd": 0.10188008224783292
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 0,
+              "n_negative": 7,
+              "n_zero": 19,
+              "proportion_positive_of_nonzero": 0.0
+            },
+            "family": "lexical_audit",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "zero": {
+                "misinformation_disinformation": 6,
+                "harassment_bullying": 12,
+                "cybercrime_intrusion": 1
+              },
+              "negative": {
+                "harassment_bullying": 4,
+                "illegal": 1,
+                "misinformation_disinformation": 2
+              }
+            },
+            "length_sensitivity": {
+              "n": 26,
+              "spearman_corr_with_word_count_delta": 0.08682981988852886,
+              "spearman_p_value": 0.6731926805517288,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -9.0,
+                "at_or_below_median_stratum": {
+                  "n": 14,
+                  "mean_feature_delta": -0.35714285714285715
+                },
+                "above_median_stratum": {
+                  "n": 12,
+                  "mean_feature_delta": -0.16666666666666666
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            }
+          },
+          "cue_tfidf_logreg_margin": {
+            "valid_n": 26,
+            "source": {
+              "n": 26,
+              "mean": 0.28294015384615384,
+              "median": 0.140238,
+              "sd": 0.7676747289534386,
+              "iqr": 0.9216789999999999
+            },
+            "candidate": {
+              "n": 26,
+              "mean": 0.9638096923076923,
+              "median": 0.990456,
+              "sd": 0.5635884154978894,
+              "iqr": 0.53291925
+            },
+            "delta": {
+              "n": 26,
+              "mean": 0.6808695384615384,
+              "median": 0.859968,
+              "sd": 0.7367307293774696,
+              "iqr": 0.9648482499999999
+            },
+            "paired_effect_size_dz": 0.9241769228723046,
+            "bootstrap_ci": {
+              "n_bootstrap": 10000,
+              "seed": 20260901,
+              "ci_level": 0.95,
+              "mean_ci_low": 0.40781622884615387,
+              "mean_ci_high": 0.9558904365384613
+            },
+            "sign_flip_permutation_test": {
+              "test_statistic": "mean(delta_i) under random sign-flips",
+              "observed_statistic": 0.6808695384615384,
+              "n_permutations": 100000,
+              "seed": 20260902,
+              "empirical_two_sided_p_value": 0.00010999890001099989,
+              "null_distribution_summary": {
+                "mean": 0.0004983415138461535,
+                "sd": 0.19586039519868767
+              }
+            },
+            "sign_consistency": {
+              "n_positive": 20,
+              "n_negative": 6,
+              "n_zero": 0,
+              "proportion_positive_of_nonzero": 0.7692307692307693
+            },
+            "family": "distributional_exploratory",
+            "directional_hypothesis": "None predeclared (two-sided test) -- C-A section 7.5",
+            "low_coverage_sensitive": true,
+            "rows_excluded_missing_value": [],
+            "category_sensitivity": {
+              "positive": {
+                "misinformation_disinformation": 7,
+                "harassment_bullying": 11,
+                "illegal": 1,
+                "cybercrime_intrusion": 1
+              },
+              "negative": {
+                "misinformation_disinformation": 1,
+                "harassment_bullying": 5
+              }
+            },
+            "length_sensitivity": {
+              "n": 26,
+              "spearman_corr_with_word_count_delta": -0.2865459721975566,
+              "spearman_p_value": 0.15583839479606948,
+              "median_word_count_delta_split": {
+                "median_word_count_delta": -9.0,
+                "at_or_below_median_stratum": {
+                  "n": 14,
+                  "mean_feature_delta": 0.899246
+                },
+                "above_median_stratum": {
+                  "n": 12,
+                  "mean_feature_delta": 0.426097
+                }
+              },
+              "note": "Descriptive length-sensitivity association only -- not a causal claim that length change 'caused' this feature's delta."
+            },
+            "construct_relevance_note": "Not construct-relevant: 3f_a already disqualifies this score as C_cue ground truth (fit directly on the harmful/benign label). Reported for completeness only; a significant paired difference here must not be described as evidence about C_cue."
+          }
+        },
+        "multiple_comparison_correction": {
+          "method": "holm_bonferroni",
+          "alpha": 0.05,
+          "family_size": 13,
+          "note": "Applied separately within this population only (C-A section 7.6 item 5) -- not pooled across the three populations, which represent different predeclared evidence tiers rather than repeated measurements of the same question.",
+          "per_feature": {
+            "mean_word_length": {
+              "raw_p": 2.999970000299997e-05,
+              "rank": 1,
+              "adjusted_p_holm": 0.00038999610003899964,
+              "reject_at_alpha": true
+            },
+            "word_count": {
+              "raw_p": 3.999960000399996e-05,
+              "rank": 2,
+              "adjusted_p_holm": 0.00047999520004799953,
+              "reject_at_alpha": true
+            },
+            "multi_sentence_flag": {
+              "raw_p": 5.999940000599994e-05,
+              "rank": 3,
+              "adjusted_p_holm": 0.0006599934000659993,
+              "reject_at_alpha": true
+            },
+            "character_count": {
+              "raw_p": 0.00010999890001099989,
+              "rank": 4,
+              "adjusted_p_holm": 0.0010999890001099988,
+              "reject_at_alpha": true
+            },
+            "cue_tfidf_logreg_margin": {
+              "raw_p": 0.00010999890001099989,
+              "rank": 5,
+              "adjusted_p_holm": 0.0010999890001099988,
+              "reject_at_alpha": true
+            },
+            "sentence_count": {
+              "raw_p": 0.00042999570004299955,
+              "rank": 6,
+              "adjusted_p_holm": 0.0034399656003439964,
+              "reject_at_alpha": true
+            },
+            "fightin_words": {
+              "raw_p": 0.0011399886001139988,
+              "rank": 7,
+              "adjusted_p_holm": 0.007979920200797993,
+              "reject_at_alpha": true
+            },
+            "lexical_diversity": {
+              "raw_p": 0.01030989690103099,
+              "rank": 8,
+              "adjusted_p_holm": 0.06185938140618594,
+              "reject_at_alpha": false
+            },
+            "fw_z_score": {
+              "raw_p": 0.012519874801251987,
+              "rank": 9,
+              "adjusted_p_holm": 0.06259937400625994,
+              "reject_at_alpha": false
+            },
+            "lexical_risk_hit_count": {
+              "raw_p": 0.016399836001639984,
+              "rank": 10,
+              "adjusted_p_holm": 0.06559934400655994,
+              "reject_at_alpha": false
+            },
+            "has_bullet_marker": {
+              "raw_p": 1.0,
+              "rank": 11,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_numbered_step": {
+              "raw_p": 1.0,
+              "rank": 12,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            },
+            "has_code_block": {
+              "raw_p": 1.0,
+              "rank": 13,
+              "adjusted_p_holm": 1.0,
+              "reject_at_alpha": false
+            }
+          }
+        },
+        "source_sensitivity": {
+          "applicable": false,
+          "reason": "R104 is 100% StrongREJECT (C-A section 2) -- no within-R104 source contrast is computable."
+        },
+        "decision_labels": null,
+        "decision_labels_note": "KEEP FOR HUMAN REVIEW / KEEP AS SECONDARY / INCONCLUSIVE / DROP labels (C-A section 7.7) are not assigned by this implementation -- final interpretation is out of scope for the C-B implementation task."
+      }
+    },
+    "implementation_decisions": [
+      "IMPLEMENTATION DECISION 1: CUE score fit with StrongREJECT held out of the H reference (LOSO), since R104 text is 100% StrongREJECT-provenance and scoring it with a reference that includes StrongREJECT would be circular. See module docstring.",
+      "IMPLEMENTATION DECISION 2: the section-7.4 low-coverage exclusion rule is applied to fightin_words, fw_z_score, lexical_diversity, lexical_risk_hit_count, and cue_tfidf_logreg_margin (all frequency/lexicon-based), and not to any structural count or formatting indicator. See module docstring."
+    ],
+    "explicit_non_actions": [
+      "did not create, rewrite, or modify any prompt",
+      "did not modify any C-A section 7.1 pinned input",
+      "did not run model inference or GPU code",
+      "did not access the web",
+      "did not begin B/D construction or common-CUE/contrastive construction",
+      "did not assign a KEEP/KEEP-AS-SECONDARY/INCONCLUSIVE/DROP label (C-A section 7.7; out of scope for this implementation task)",
+      "did not analyze R-AUTHORED (100% review_status=pending per C-A section 3; not part of the locked section 7 contract)"
+    ]
+  },
+  "secondary_abcd_distributions": {
+    "evidence_tier": "C-A section 8.6 evidence-hierarchy tier 5 -- A/B/C/D unpaired distributions, secondary evidence only",
+    "not_predeclared": "No cross-quadrant (A-vs-B-vs-C-vs-D) effect size, significance test, or multiple-comparison correction is defined anywhere in this repository. C-C's brief explicitly states C need not differ from every quadrant, and instructs execution only, so no such test is newly defined here. What follows is descriptive-only, reusing numbers already computed and committed by `src/audit_existing_quadrants.py` (A/B/D) and `src/diagnostics/quadrant_composition_check.py` (all four quadrants' lexical-risk-lexicon hit rate), plus a direct read of quadrant C's own category/source fields from the frozen benchmark.",
+    "quadrant_c_category_composition": {
+      "misinformation_disinformation": 37,
+      "harassment_bullying": 41,
+      "illegal": 6,
+      "cybercrime_intrusion": 20
+    },
+    "quadrant_c_source_composition": {
+      "StrongREJECT": 104
+    },
+    "quadrant_c_n": 104,
+    "benchmark_sha256_verified": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+    "per_quadrant_word_char_length_and_source_category": {
+      "A": {
+        "quadrant": "A",
+        "total_rows": 150,
+        "unique_prompts": 150,
+        "unique_normalized_prompts": 150,
+        "exact_duplicates": 0,
+        "normalized_duplicates": 0,
+        "near_duplicate_check": "not_run_model_unavailable",
+        "sources": {
+          "HarmBench": 150
+        },
+        "categories": {
+          "harassment_bullying": 19,
+          "illegal": 57,
+          "cybercrime_intrusion": 40,
+          "misinformation_disinformation": 34
+        },
+        "splits": {
+          "direction_estimation": 120,
+          "held_out_behavioral": 30
+        },
+        "word_length": {
+          "min": 3,
+          "max": 27,
+          "mean": 14.53
+        },
+        "char_length": {
+          "min": 23,
+          "max": 180,
+          "mean": 90.98
+        }
+      },
+      "B": {
+        "quadrant": "B",
+        "total_rows": 250,
+        "unique_prompts": 250,
+        "unique_normalized_prompts": 250,
+        "exact_duplicates": 0,
+        "normalized_duplicates": 0,
+        "near_duplicate_check": "not_run_model_unavailable",
+        "sources": {
+          "XSTest": 250
+        },
+        "categories": {
+          "homonyms": 25,
+          "figurative_language": 25,
+          "safe_targets": 25,
+          "safe_contexts": 25,
+          "definitions": 25,
+          "nons_group_real_discr": 25,
+          "real_group_nons_discr": 25,
+          "historical_events": 25,
+          "privacy_public": 25,
+          "privacy_fictional": 25
+        },
+        "splits": {
+          "null": 250
+        },
+        "word_length": {
+          "min": 3,
+          "max": 16,
+          "mean": 8.37
+        },
+        "char_length": {
+          "min": 12,
+          "max": 79,
+          "mean": 44.35
+        }
+      },
+      "D": {
+        "quadrant": "D",
+        "total_rows": 150,
+        "unique_prompts": 150,
+        "unique_normalized_prompts": 150,
+        "exact_duplicates": 0,
+        "normalized_duplicates": 0,
+        "near_duplicate_check": "not_run_model_unavailable",
+        "sources": {
+          "Alpaca": 50,
+          "Dolly-15k": 50,
+          "OASST1": 50
+        },
+        "categories": {
+          "null": 150
+        },
+        "splits": {
+          "held_out_behavioral": 30,
+          "direction_estimation": 120
+        },
+        "word_length": {
+          "min": 3,
+          "max": 98,
+          "mean": 16.06
+        },
+        "char_length": {
+          "min": 14,
+          "max": 560,
+          "mean": 91.24
+        }
+      },
+      "C_note": "quadrant C is out of scope for src/audit_existing_quadrants.py (A/B/D only); C's word/char length distribution is instead available from C-B's own descriptive stats (candidate side) and from quadrant_composition_report.json below."
+    },
+    "per_quadrant_lexical_risk_lexicon_hit_rate": {
+      "A": {
+        "n": 150,
+        "mean_words": 14.5,
+        "median_words": 14.0,
+        "mean_cue_hits": 0.307,
+        "pct_with_cue_hit": 29.3
+      },
+      "B": {
+        "n": 250,
+        "mean_words": 8.4,
+        "median_words": 8.0,
+        "mean_cue_hits": 0.032,
+        "pct_with_cue_hit": 3.2
+      },
+      "C": {
+        "n": 104,
+        "mean_words": 17.5,
+        "median_words": 17.0,
+        "mean_cue_hits": 0,
+        "pct_with_cue_hit": 0.0
+      },
+      "D": {
+        "n": 150,
+        "mean_words": 16.1,
+        "median_words": 10.0,
+        "mean_cue_hits": 0,
+        "pct_with_cue_hit": 0.0
+      }
+    },
+    "quadrant_composition_report_predictions": [
+      {
+        "prediction": "B (benign, harmful-sounding) scores comparably to A on cue density despite being benign",
+        "holds": false,
+        "detail": "A=0.307, B=0.032"
+      },
+      {
+        "prediction": "C (harmful, reduced-cue) scores lower than A on cue density",
+        "holds": true,
+        "detail": "A=0.307, C=0"
+      },
+      {
+        "prediction": "C's cue density approaches D's (both near the neutral-wording floor)",
+        "holds": true,
+        "detail": "C=0, D=0, gap=0"
+      }
+    ]
+  },
+  "confounds": {
+    "length_sensitivity": {
+      "method": "Spearman correlation of each lexical-audit/distributional-exploratory feature's paired delta against the word_count paired delta, per C-A section 7.6 item 8 (already computed by C-B; not recomputed differently here)",
+      "raw_association_by_population": {
+        "population_1_all_valid_accepted_pairs": {
+          "fightin_words": {
+            "spearman_corr_with_word_count_delta": -0.3389535161197036,
+            "spearman_p_value": 0.0004320760009518749
+          },
+          "fw_z_score": {
+            "spearman_corr_with_word_count_delta": -0.2674235269368377,
+            "spearman_p_value": 0.0060620484133135566
+          },
+          "lexical_diversity": {
+            "spearman_corr_with_word_count_delta": -0.499799378276997,
+            "spearman_p_value": 6.607982724922425e-08
+          },
+          "lexical_risk_hit_count": {
+            "spearman_corr_with_word_count_delta": -0.08145555922744949,
+            "spearman_p_value": 0.4110687665028413
+          },
+          "cue_tfidf_logreg_margin": {
+            "spearman_corr_with_word_count_delta": -0.34946792282692984,
+            "spearman_p_value": 0.0002767298642058968
+          }
+        },
+        "population_2_assistance_type_preserved_yes": {
+          "fightin_words": {
+            "spearman_corr_with_word_count_delta": -0.4294997074690343,
+            "spearman_p_value": 8.708926679628158e-05
+          },
+          "fw_z_score": {
+            "spearman_corr_with_word_count_delta": -0.2729545041692791,
+            "spearman_p_value": 0.01561237500174176
+          },
+          "lexical_diversity": {
+            "spearman_corr_with_word_count_delta": -0.5033331002819001,
+            "spearman_p_value": 2.640617440323232e-06
+          },
+          "lexical_risk_hit_count": {
+            "spearman_corr_with_word_count_delta": -0.10831659475135128,
+            "spearman_p_value": 0.3451887922562089
+          },
+          "cue_tfidf_logreg_margin": {
+            "spearman_corr_with_word_count_delta": -0.37390161311895953,
+            "spearman_p_value": 0.0007460058620195445
+          }
+        },
+        "population_3_assistance_type_preserved_partial": {
+          "fightin_words": {
+            "spearman_corr_with_word_count_delta": -0.030126697196397823,
+            "spearman_p_value": 0.8838468911942264
+          },
+          "fw_z_score": {
+            "spearman_corr_with_word_count_delta": -0.22047264766454772,
+            "spearman_p_value": 0.27912264432345435
+          },
+          "lexical_diversity": {
+            "spearman_corr_with_word_count_delta": -0.5118016403457106,
+            "spearman_p_value": 0.007525141077264845
+          },
+          "lexical_risk_hit_count": {
+            "spearman_corr_with_word_count_delta": 0.08682981988852886,
+            "spearman_p_value": 0.6731926805517288
+          },
+          "cue_tfidf_logreg_margin": {
+            "spearman_corr_with_word_count_delta": -0.2865459721975566,
+            "spearman_p_value": 0.15583839479606948
+          }
+        }
+      },
+      "interpretation_note": "Descriptive association only, per C-B's own field-level note -- not a causal claim that length change caused any lexical feature's delta. Reported as raw/attenuated association, not adjusted causal estimate."
+    },
+    "formatting_sensitivity": {
+      "population_1_all_valid_accepted_pairs": {
+        "zero_variance_indicators": [
+          "has_bullet_marker",
+          "has_numbered_step",
+          "has_code_block"
+        ],
+        "zero_variance_note": "0/n on both source and candidate sides in every population -- floor effect, uninformative for this resource, not evidence of absence of formatting differences in general",
+        "multi_sentence_flag_delta_mean": -0.5673076923076923,
+        "multi_sentence_flag_d_z": -1.1395193168631559,
+        "multi_sentence_flag_holm_adjusted_p": 0.0001299987000129999
+      },
+      "population_2_assistance_type_preserved_yes": {
+        "zero_variance_indicators": [
+          "has_bullet_marker",
+          "has_numbered_step",
+          "has_code_block"
+        ],
+        "zero_variance_note": "0/n on both source and candidate sides in every population -- floor effect, uninformative for this resource, not evidence of absence of formatting differences in general",
+        "multi_sentence_flag_delta_mean": -0.5641025641025641,
+        "multi_sentence_flag_d_z": -1.1302771320226972,
+        "multi_sentence_flag_holm_adjusted_p": 0.0001299987000129999
+      },
+      "population_3_assistance_type_preserved_partial": {
+        "zero_variance_indicators": [
+          "has_bullet_marker",
+          "has_numbered_step",
+          "has_code_block"
+        ],
+        "zero_variance_note": "0/n on both source and candidate sides in every population -- floor effect, uninformative for this resource, not evidence of absence of formatting differences in general",
+        "multi_sentence_flag_delta_mean": -0.5769230769230769,
+        "multi_sentence_flag_d_z": -1.1450715310358612,
+        "multi_sentence_flag_holm_adjusted_p": 0.0006599934000659993
+      }
+    },
+    "source_association": {
+      "applicable": false,
+      "reason": "R104 is 100% StrongREJECT (C-A section 2) -- no within-R104 source contrast is computable."
+    },
+    "category_robustness": {
+      "applicable": "descriptive only, no formal test predeclared (C-A section 7.6 item 6)",
+      "reason": "project_category is unbalanced across R104 (6-41 rows across 4 levels) and across quadrant A vs quadrant C at very different proportions (C-A section 1); per-feature category_sensitivity breakdowns exist in the underlying C-B JSON (results.<population>.features.<feature>.category_sensitivity) but are not aggregated into a formal robustness statistic here, consistent with C-A's own predeclaration that no such test was specified."
+    },
+    "repeated_template_concentration": {
+      "computed": false,
+      "reason": "No existing repository artifact defines or computes a repeated-rewrite-template concentration metric for R104 or R-AUTHORED. Defining one now would be a new metric, which is out of scope for this execution-only task. This is reported as an evidence gap, not silently skipped."
+    }
+  },
+  "r_authored": {
+    "present": true,
+    "queue_path": "data/review/c_source_authored_review_queue.csv",
+    "queue_sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "raw_candidates_path": "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl",
+    "raw_candidates_sha256": "921ebe1687f2926115d4b1d846a97aebaaae0d0d10d5943e141bf2be696581c1",
+    "validated_candidates_path": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+    "validated_candidates_sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+    "n_queued": 52,
+    "review_status_counts": {
+      "pending": 52
+    },
+    "source_dataset_counts": {
+      "StrongREJECT": 39,
+      "SimpleSafetyTests": 13
+    },
+    "classifier_status_counts": {
+      "provisional_low_confidence": 17,
+      "confirmed": 35
+    },
+    "provenance_class_counts": {
+      "custom": 37,
+      "curated": 13,
+      "upstream-derived": 2
+    },
+    "aggregate_distributions_unpaired_unlabeled": {
+      "word_count": {
+        "n": 52,
+        "mean": 29.76923076923077,
+        "median": 25.0,
+        "sd": 24.0629106435413
+      },
+      "character_count": {
+        "n": 52,
+        "mean": 161.48076923076923,
+        "median": 151.0,
+        "sd": 130.1671248795497
+      },
+      "fightin_words_score_normalized": {
+        "n": 52,
+        "mean": -0.5494302115384615,
+        "median": -0.4162865,
+        "sd": 0.4379483606571466
+      },
+      "fw_z_score": {
+        "n": 52,
+        "mean": -3.8298117884615386,
+        "median": -1.4289835000000002,
+        "sd": 12.355382067157112
+      }
+    },
+    "treated_as": "unlabeled external distributional evidence only (C-A section 8.6 tier 7); review_status is pending 52/52, per C-A section 3 -- no construct claim of any kind is made about this population",
+    "not_tuned_on_this": "no C-B or C-C feature definition, threshold, or inclusion rule was adjusted based on these numbers",
+    "comparability_caveats": [
+      "word_count here is len(text.split()) (src/data_pipeline/score_and_queue_c_source_authored.py); R104's word_count_source/word_count_candidate columns in data/review/c_review_queue.csv were not verified to use the identical tokenization rule -- treat any numeric gap as approximate, not a controlled contrast.",
+      "fightin_words_score_normalized/fw_z_score here were fit against H=quadrant A union quadrant B vs D=quadrant D (logs/3a4_scoring.md); R104's fightin_words feature in the C-B contract above was fit LOSO with StrongREJECT held out of H (C-B IMPLEMENTATION DECISION 1). These are two different fitted references -- the two fightin_words-family numbers are not on a directly comparable scale and must not be differenced against each other.",
+      "the R-AUTHORED queue was explicitly rank-selected (Q25 = lowest-fightin_words-score quartile, i.e. most D-like) by the 3A4 scoring pipeline, not randomly sampled -- so this population's own fightin_words/fw_z_score distribution is a product of the selection rule, not an independent observation about the source-authored candidate pool as a whole. Comparing it to R104 without accounting for this selection would conflate a sampling artifact with a construction property."
+    ]
+  },
+  "decision_status": {
+    "keep_drop_label_assigned": false,
+    "keep_drop_label_note": "C-C does not choose KEEP/DROP, per its own task brief and per C-A section 7.7.",
+    "strongest_paired_signal_population_1_all_pairs": {
+      "feature": "mean_word_length",
+      "family": "structural",
+      "d_z": 1.1885924839758126,
+      "holm_adjusted_p": 0.0001299987000129999,
+      "mean_delta": 0.694947828814967
+    },
+    "strongest_preserved_assistance_result_population_2_yes": {
+      "feature": "mean_word_length",
+      "family": "structural",
+      "d_z": 1.2124327279789686,
+      "holm_adjusted_p": 0.0001299987000129999,
+      "mean_delta": 0.7316022323942055
+    },
+    "strongest_confound": {
+      "type": "length_sensitivity",
+      "feature": "lexical_diversity",
+      "spearman_corr_with_word_count_delta": -0.499799378276997,
+      "spearman_p_value": 6.607982724922425e-08,
+      "note": "Largest-magnitude length association among lexical-audit/distributional-exploratory features in population 1 (all 104 pairs); see also the multi_sentence_flag formatting confound, which is the single largest-|d_z| effect in the entire feature set and is a structural (not lexical-content) change."
+    },
+    "contradictory_findings": [
+      "fightin_words shows candidates scoring HIGHER (more harmful-associated wording) than sources (population 1 mean delta = 9.396, d_z = 0.518), which is the opposite direction implied by R104's own historical 'reduced_cue_source_rewrite' naming -- already flagged in 3f_a section 2.1 and independently reproduced here, not a new finding.",
+      "In the same population, lexical_risk_hit_count (the fixed lexicon) moves in the opposite direction (mean delta = -0.269, d_z = -0.531) -- i.e. one lexical instrument reports candidates as 'more distinctively harmful-registered' while another reports them as 'triggering fewer fixed-lexicon risk terms.' Both are real, current numbers; they are not reconcilable into a single 'candidates are more/less cue-salient' statement without picking one instrument as authoritative, which this document does not do.",
+      "R-AUTHORED's own fightin_words/fw_z_score distribution sits toward the D-like (benign-associated) end of its reference scale, which could misleadingly read as 'R-AUTHORED is lower-cue than R104' -- but this is a direct artifact of the Q25 rank-selection rule used to build the 52-row queue (see load_r_authored_summary comparability_caveats), not an independent distributional finding, and the two fightin_words scores are fit against different H/D references besides."
+    ],
+    "what_this_audit_cannot_establish": [
+      "Whether R104's paired changes isolate surface-cue wording independent of the harmful/benign construct (C_cue) -- no resource in this repository measures C_cue directly (C-A section 5); this audit does not change that.",
+      "Near-duplicate (as opposed to exact-string) overlap between R104 and quadrant A -- requires embedding-model inference, which is out of scope for this CPU-only task (C-A section 2, restated, not re-tested here).",
+      "Any KEEP / KEEP AS SECONDARY / INCONCLUSIVE / DROP resource decision for R104, R-AUTHORED, 3D-B, or 3D-H (C-A section 7.7; explicitly deferred by both C-B and C-C).",
+      "A formal statistical comparison between R104 and R-AUTHORED, or across A/B/C/D quadrants generally -- no such test is predeclared anywhere in this repository, and defining one is out of scope for this execution-only task.",
+      "Repeated-rewrite-template concentration within R104 or R-AUTHORED -- no existing repository artifact defines this metric (see build_confounds).",
+      "A construct claim of any kind about R-AUTHORED -- 100% of its 52-row queue remains review_status=pending; zero human review has occurred."
+    ]
+  },
+  "explicit_non_actions": [
+    "did not change any C-B feature definition, sign convention, seed, or inclusion rule",
+    "did not add any new statistical test, effect size, or corrected comparison across A/B/C/D quadrants",
+    "did not modify data/review/c_review_queue.csv, data/frozen_v2/*, data/review/c_source_authored_review_queue.csv, or any C-A section 7.1 pinned input",
+    "did not create, rewrite, or score any prompt",
+    "did not run model inference or GPU code, and did not access the web",
+    "did not begin common-CUE/contrastive construction",
+    "did not assign a KEEP/KEEP-AS-SECONDARY/INCONCLUSIVE/DROP label to any resource",
+    "did not overwrite logs/c_b_paired_delta_analysis.md or logs/c_b_paired_delta_analysis.json"
+  ]
+}
