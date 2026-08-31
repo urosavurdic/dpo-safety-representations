@@ -23,6 +23,8 @@ import numpy as np
 import pytest
 
 from src.analysis.cf_joint_geometry import (
+    ALL_POPULATIONS_ORDER,
+    AUXILIARY_ORDER,
     PAIR_ORDER,
     QUADRANT_ORDER,
     apply_standardizer,
@@ -32,8 +34,10 @@ from src.analysis.cf_joint_geometry import (
     centroid,
     check_r_authored_word_char_basis,
     cosine_angle_degrees,
+    cumulative_explained_variance,
     energy_distance,
     factorial_contrasts,
+    fit_pca_combined,
     fit_standardizer,
     holm_bonferroni,
     jsd_base2,
@@ -44,7 +48,10 @@ from src.analysis.cf_joint_geometry import (
     mean_word_length,
     ngram_distribution,
     pairwise_centroid_distances,
+    pca_component_loadings,
+    pca_coordinates,
     permutation_test_energy_distance,
+    plot_pca_scatter,
     residualize_on_covariate,
     rng_for_pair,
     score_fw_common,
@@ -487,3 +494,118 @@ class TestResidualization:
         X = np.zeros((3, 0))
         residuals = residualize_on_covariate(X, np.array([1.0, 2.0, 3.0]))
         assert residuals.shape == (3, 0)
+
+
+# ── section 5.3 PCA artifacts (C-F-C-confirmed-missing implementation
+# fix): coordinates, loadings, all-six-population projection, R104-
+# source/R-AUTHORED projection-only-ness, determinism, required plots ──
+class TestPCA:
+    def _small_combined_views(self):
+        """Small but non-degenerate combined-view fixture: 5 rows per
+        quadrant (20 total, 4 features) so PCA has enough components for
+        PC1-PC3, plus small R104-source/R-AUTHORED auxiliary populations."""
+        rng = np.random.default_rng(0)
+        combined = {
+            "A": rng.normal(loc=0.0, size=(5, 4)),
+            "B": rng.normal(loc=1.0, size=(5, 4)),
+            "C": rng.normal(loc=2.0, size=(5, 4)),
+            "D": rng.normal(loc=3.0, size=(5, 4)),
+            "R104_source": rng.normal(loc=2.0, size=(3, 4)),
+            "R_AUTHORED": rng.normal(loc=2.5, size=(2, 4)),
+        }
+        record_ids = {
+            name: [f"{name}-{i}" for i in range(X.shape[0])]
+            for name, X in combined.items()
+        }
+        return combined, record_ids
+
+    def _fit_on_abcd(self, combined):
+        abcd_rows = np.vstack([combined[q] for q in QUADRANT_ORDER])
+        return fit_pca_combined(abcd_rows)
+
+    # -- coordinate dimensions --
+    def test_pca_coordinate_dimensions(self):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        coords = pca_coordinates(pca, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        assert len(coords) == sum(X.shape[0] for X in combined.values())
+        for row in coords:
+            assert set(row.keys()) == {"record_id", "population", "pc1", "pc2", "pc3"}
+            assert all(isinstance(row[f"pc{i}"], float) for i in (1, 2, 3))
+
+    # -- stable row identity --
+    def test_pca_stable_row_identity(self):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        coords = pca_coordinates(pca, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        expected_ids = {rid for ids in record_ids.values() for rid in ids}
+        got_ids = {row["record_id"] for row in coords}
+        assert got_ids == expected_ids  # every input record_id appears exactly once
+        assert len(coords) == len(got_ids)  # no duplicated/dropped rows
+        for row in coords:
+            # each coordinate row's record_id belongs to the population it is labeled with
+            assert row["record_id"] in record_ids[row["population"]]
+
+    # -- loading dimensions --
+    def test_pca_loading_dimensions(self):
+        combined, _ = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        loadings = pca_component_loadings(pca, k=3)
+        assert set(loadings.keys()) == {"pc1", "pc2", "pc3"}
+        n_features = combined["A"].shape[1]
+        for vec in loadings.values():
+            assert len(vec) == n_features
+
+    # -- all six populations represented in required projection output --
+    def test_all_six_populations_represented(self):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        coords = pca_coordinates(pca, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        assert {row["population"] for row in coords} == set(ALL_POPULATIONS_ORDER)
+
+    # -- R104-source is projection-only --
+    def test_r104_source_is_projection_only(self):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        components_before = pca.components_.copy()
+        # perturbing R104-source rows drastically must not change the
+        # already-fitted components -- pca_coordinates only transforms it
+        perturbed = dict(combined)
+        perturbed["R104_source"] = combined["R104_source"] * 1000.0
+        _ = pca_coordinates(pca, perturbed, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        np.testing.assert_array_equal(pca.components_, components_before)
+        assert "R104_source" in AUXILIARY_ORDER  # never an A/B/C/D quadrant
+
+    # -- R-AUTHORED is projection-only --
+    def test_r_authored_is_projection_only(self):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        components_before = pca.components_.copy()
+        perturbed = dict(combined)
+        perturbed["R_AUTHORED"] = combined["R_AUTHORED"] * 1000.0
+        _ = pca_coordinates(pca, perturbed, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        np.testing.assert_array_equal(pca.components_, components_before)
+        assert "R_AUTHORED" in AUXILIARY_ORDER  # never an A/B/C/D quadrant
+
+    # -- deterministic PCA numerical output --
+    def test_pca_deterministic_numerical_output(self):
+        combined, record_ids = self._small_combined_views()
+        pca1 = self._fit_on_abcd(combined)
+        pca2 = self._fit_on_abcd(combined)
+        coords1 = pca_coordinates(pca1, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        coords2 = pca_coordinates(pca2, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        assert coords1 == coords2
+        assert cumulative_explained_variance(pca1, 2) == cumulative_explained_variance(pca2, 2)
+        assert cumulative_explained_variance(pca1, 3) == cumulative_explained_variance(pca2, 3)
+
+    # -- required plot files created --
+    def test_required_plot_files_created(self, tmp_path):
+        combined, record_ids = self._small_combined_views()
+        pca = self._fit_on_abcd(combined)
+        coords = pca_coordinates(pca, combined, record_ids, ALL_POPULATIONS_ORDER, k=3)
+        pc12_path = tmp_path / "pca_pc1_pc2.png"
+        pc13_path = tmp_path / "pca_pc1_pc3.png"
+        plot_pca_scatter(coords, "pc1", "pc2", pc12_path, "PC1 vs PC2")
+        plot_pca_scatter(coords, "pc1", "pc3", pc13_path, "PC1 vs PC3")
+        assert pc12_path.exists() and pc12_path.stat().st_size > 0
+        assert pc13_path.exists() and pc13_path.stat().st_size > 0
