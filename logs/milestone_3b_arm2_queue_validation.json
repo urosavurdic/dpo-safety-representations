@@ -1,0 +1,65 @@
+{
+  "milestone": "3B",
+  "objective": "Independently validate the committed Arm-2 (c_source_authored) review queue against the current repository state, without performing the human review (Milestone 3C) or changing any candidate decision.",
+  "queue_csv": {
+    "path": "data/review/c_source_authored_review_queue.csv",
+    "sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "row_count": 52
+  },
+  "validated_input": {
+    "path": "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl",
+    "sha256": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+    "eligible_count": 209
+  },
+  "reproduction_check": {
+    "reproduced_sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "committed_sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "byte_identical": true
+  },
+  "checks": {
+    "schema": {
+      "pass": true,
+      "problems": []
+    },
+    "row_identity": {
+      "pass": true,
+      "problems": []
+    },
+    "review_status": {
+      "pass": true,
+      "problems": []
+    },
+    "provenance_fields": {
+      "pass": true,
+      "problems": []
+    },
+    "contamination_and_overlap": {
+      "pass": true,
+      "problems": []
+    },
+    "construction_identity": {
+      "pass": true,
+      "problems": []
+    },
+    "population_relationship_membership": {
+      "pass": true,
+      "problems": []
+    },
+    "queue_hash_matches_3a4_log": {
+      "pass": true,
+      "problems": []
+    },
+    "population_relationship_full_reproduction": {
+      "pass": true,
+      "problems": []
+    }
+  },
+  "overall_pass": true,
+  "not_performed_this_milestone": [
+    "Milestone 3C human review of the 52 queued candidates (HUMAN ONLY)",
+    "semantic near-duplicate check (still open per release_gap_audit.md item 10)",
+    "any modification of the 52 candidate rows or decisions",
+    "benchmark integration"
+  ],
+  "next_milestone": "3C - human review of the C-source-authored queue (HUMAN ONLY), then Milestone 4A benchmark integration once both C-arm human reviews (R104 and Arm-2) are complete."
+}

@@ -1853,6 +1853,17 @@ def main_run(args) -> None:
 
     describe_plan(plan)
 
+    print(
+        "\nPost-loop CPU aggregation (after any live per-stage work above): "
+        "direction diagnostics; "
+        + (
+            "probes WILL run (--with-probes requested)"
+            if args.with_probes
+            else "probes will NOT run (--with-probes not passed)"
+        )
+        + "; behavioral merge."
+    )
+
     if args.dry_run:
         print("\nDry run complete. No model code was executed.")
         return

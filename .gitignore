@@ -18,3 +18,6 @@ results/companions/*/activations/*.npy
 outputs/smoke_test_m1/
 outputs/smoke_test_*/
 outputs/smoke_test_m1/
+# git-am patch outputs (per release-hardening rules: patches themselves
+# are never committed to the repo, only their SHA-256 is recorded)
+artifacts/patches/*.patch
