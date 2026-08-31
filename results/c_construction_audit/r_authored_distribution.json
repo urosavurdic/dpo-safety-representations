@@ -1,0 +1,378 @@
+{
+  "task": "C-E -- R-AUTHORED distributional characterization",
+  "spec_reference": "logs/c_existing_construction_audit_spec.md section 7.5 (feature definitions reused unmodified); results/c_construction_audit/audit.json and logs/c_b_paired_delta_analysis.json (R104 reference numbers, reused not recomputed)",
+  "input": {
+    "path": "data/review/c_source_authored_review_queue.csv",
+    "sha256": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "row_count": 52,
+    "review_status_counts": {
+      "pending": 52
+    }
+  },
+  "selection_bias_warning": "R-AUTHORED is a Q25-selected subset (lowest-fightin_words-score quartile of the eligible source-authored candidate pool, i.e. most D-like by that instrument, per src/data_pipeline/score_and_queue_c_source_authored.py and logs/3a4_scoring.md), not a random or representative sample of all source-authored candidates. This report's distribution must not be used to define a new threshold, must not be used to tune any existing metric, and must not be described as an independent external validation set for the current audit. review_status is pending for 100% of rows -- these are UNVALIDATED, not accepted, C labels.",
+  "r_authored_descriptive_stats": {
+    "word_count": {
+      "n": 52,
+      "mean": 29.76923076923077,
+      "median": 25.0,
+      "sd": 24.297676306727062,
+      "iqr": 19.75
+    },
+    "character_count": {
+      "n": 52,
+      "mean": 161.48076923076923,
+      "median": 151.0,
+      "sd": 131.43707812211528,
+      "iqr": 111.0
+    },
+    "sentence_count": {
+      "n": 52,
+      "mean": 2.0,
+      "median": 2.0,
+      "sd": 1.495090003192804,
+      "iqr": 2.0
+    },
+    "mean_word_length": {
+      "n": 52,
+      "mean": 4.312937735194243,
+      "median": 4.325821237585943,
+      "sd": 0.6537438174956257,
+      "iqr": 0.833484848484848
+    },
+    "lexical_diversity": {
+      "n": 52,
+      "mean": 0.9050273299289228,
+      "median": 0.9298029556650247,
+      "sd": 0.09320482590224967,
+      "iqr": 0.15417771883289122
+    },
+    "lexical_risk_hit_count": {
+      "n": 52,
+      "mean": 0.11538461538461539,
+      "median": 0.0,
+      "sd": 0.42720460055933956,
+      "iqr": 0.0
+    },
+    "has_bullet_marker": {
+      "n": 52,
+      "mean": 0.019230769230769232,
+      "median": 0.0,
+      "sd": 0.1386750490563073,
+      "iqr": 0.0
+    },
+    "has_numbered_step": {
+      "n": 52,
+      "mean": 0.0,
+      "median": 0.0,
+      "sd": 0.0,
+      "iqr": 0.0
+    },
+    "has_code_block": {
+      "n": 52,
+      "mean": 0.0,
+      "median": 0.0,
+      "sd": 0.0,
+      "iqr": 0.0
+    },
+    "multi_sentence_flag": {
+      "n": 52,
+      "mean": 0.6538461538461539,
+      "median": 1.0,
+      "sd": 0.4803844614152614,
+      "iqr": 1.0
+    },
+    "fightin_words_score_normalized": {
+      "n": 52,
+      "mean": -0.5494302115384615,
+      "median": -0.4162865,
+      "sd": 0.44222112877127284,
+      "iqr": 0.56457975
+    },
+    "fw_z_score": {
+      "n": 52,
+      "mean": -3.8298117884615386,
+      "median": -1.4289835000000002,
+      "sd": 12.475925234518627,
+      "iqr": 10.72827175
+    }
+  },
+  "comparisons_vs_r104_unpaired": {
+    "word_count": {
+      "r_authored": {
+        "n": 52,
+        "mean": 29.76923076923077,
+        "median": 25.0,
+        "sd": 24.297676306727062,
+        "iqr": 19.75
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 28.53846153846154,
+        "median": 26.0,
+        "sd": 14.766087542049764,
+        "iqr": 23.5
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 17.53846153846154,
+        "median": 17.0,
+        "sd": 3.582381582736768,
+        "iqr": 5.0
+      },
+      "cohens_d_vs_r104_source": 0.06661623393306829,
+      "cohens_d_vs_r104_candidate": 0.8561197217820864,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    },
+    "character_count": {
+      "r_authored": {
+        "n": 52,
+        "mean": 161.48076923076923,
+        "median": 151.0,
+        "sd": 131.43707812211528,
+        "iqr": 111.0
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 159.68269230769232,
+        "median": 147.5,
+        "sd": 78.20762315078177,
+        "iqr": 123.0
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 111.0,
+        "median": 110.5,
+        "sd": 22.564255606333685,
+        "iqr": 26.25
+      },
+      "cohens_d_vs_r104_source": 0.01815217650040136,
+      "cohens_d_vs_r104_candidate": 0.6483782979203091,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    },
+    "sentence_count": {
+      "r_authored": {
+        "n": 52,
+        "mean": 2.0,
+        "median": 2.0,
+        "sd": 1.495090003192804,
+        "iqr": 2.0
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 1.8269230769230769,
+        "median": 2.0,
+        "sd": 1.2103301939931148,
+        "iqr": 1.0
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 1.0,
+        "median": 1.0,
+        "sd": 0.0,
+        "iqr": 0.0
+      },
+      "cohens_d_vs_r104_source": 0.13196876689832487,
+      "cohens_d_vs_r104_candidate": 1.1622724263194304,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    },
+    "mean_word_length": {
+      "r_authored": {
+        "n": 52,
+        "mean": 4.312937735194243,
+        "median": 4.325821237585943,
+        "sd": 0.6537438174956257,
+        "iqr": 0.833484848484848
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 4.590530688012522,
+        "median": 4.49,
+        "sd": 0.5156783034577691,
+        "iqr": 0.6914202464202459
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 5.285478516827488,
+        "median": 5.255434782608695,
+        "sd": 0.5439875303570876,
+        "iqr": 0.777320906432748
+      },
+      "cohens_d_vs_r104_source": -0.4911852714531215,
+      "cohens_d_vs_r104_candidate": -1.6692261415008856,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    },
+    "lexical_diversity": {
+      "r_authored": {
+        "n": 52,
+        "mean": 0.9050273299289228,
+        "median": 0.9298029556650247,
+        "sd": 0.09320482590224967,
+        "iqr": 0.15417771883289122
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 0.9053845350779071,
+        "median": 0.9175170068027211,
+        "sd": 0.08064672299737365,
+        "iqr": 0.15363636363636357
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 0.954760970511162,
+        "median": 0.9545454545454546,
+        "sd": 0.05359192942192737,
+        "iqr": 0.0625
+      },
+      "cohens_d_vs_r104_source": -0.00420185616515532,
+      "cohens_d_vs_r104_candidate": -0.718003608096675,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    },
+    "lexical_risk_hit_count": {
+      "r_authored": {
+        "n": 52,
+        "mean": 0.11538461538461539,
+        "median": 0.0,
+        "sd": 0.42720460055933956,
+        "iqr": 0.0
+      },
+      "r104_source": {
+        "n": 104,
+        "mean": 0.2692307692307692,
+        "median": 0.0,
+        "sd": 0.5068610661742388,
+        "iqr": 0.0
+      },
+      "r104_candidate": {
+        "n": 104,
+        "mean": 0.0,
+        "median": 0.0,
+        "sd": 0.0,
+        "iqr": 0.0
+      },
+      "cohens_d_vs_r104_source": -0.3192215510841839,
+      "cohens_d_vs_r104_candidate": 0.4693396640810579,
+      "ci_note": "no CI reported -- locked C-A section 7.6 contract only predeclares a CI method for R104's own paired deltas, not for this unpaired comparison"
+    }
+  },
+  "fightin_words_comparison": {
+    "r_authored_fightin_words_score_normalized": {
+      "n": 52,
+      "mean": -0.5494302115384615,
+      "median": -0.4162865,
+      "sd": 0.44222112877127284,
+      "iqr": 0.56457975
+    },
+    "r_authored_fw_z_score": {
+      "n": 52,
+      "mean": -3.8298117884615386,
+      "median": -1.4289835000000002,
+      "sd": 12.475925234518627,
+      "iqr": 10.72827175
+    },
+    "r104_fightin_words_source": {
+      "n": 104,
+      "mean": 5.471118182692307,
+      "median": 6.823816,
+      "sd": 17.98811715516017,
+      "iqr": 22.16462675
+    },
+    "r104_fightin_words_candidate": {
+      "n": 104,
+      "mean": 14.86757960576923,
+      "median": 14.139050000000001,
+      "sd": 9.829459222269477,
+      "iqr": 14.327758
+    },
+    "r104_fw_z_score_source": {
+      "n": 104,
+      "mean": 4.174381,
+      "median": 4.808936,
+      "sd": 8.514480793511277,
+      "iqr": 10.860546999999999
+    },
+    "r104_fw_z_score_candidate": {
+      "n": 104,
+      "mean": 5.942299923076923,
+      "median": 6.057641,
+      "sd": 5.512861595143734,
+      "iqr": 6.742804250000001
+    },
+    "comparison_vs_r104_fightin_words": "NOT COMPARABLE -- different fitted reference",
+    "comparison_vs_r104_fw_z_score": "NOT COMPARABLE -- different fitted reference",
+    "reason": "R-AUTHORED's fightin_words_score_normalized/fw_z_score were fit against H=quadrant A union quadrant B, D=quadrant D (logs/3a4_scoring.md). R104's fightin_words feature in the locked C-B contract was fit LOSO with StrongREJECT held out of H (C-B IMPLEMENTATION DECISION 1). Different fitted references, not a common scale -- reported separately, never differenced."
+  },
+  "comparisons_vs_abcd": {
+    "word_count": {
+      "r_authored": {
+        "n": 52,
+        "mean": 29.76923076923077,
+        "median": 25.0,
+        "sd": 24.297676306727062,
+        "iqr": 19.75
+      },
+      "quadrant_A": {
+        "n": 150,
+        "mean_words": 14.53
+      },
+      "quadrant_B": {
+        "n": 250,
+        "mean_words": 8.37
+      },
+      "quadrant_D": {
+        "n": 150,
+        "mean_words": 16.06
+      },
+      "quadrant_C_note": "quadrant C word-length stats equal R104's candidate-side stats already reported above (quadrant C IS R104's 104 accepted candidates) -- see comparisons_vs_r104.word_count."
+    },
+    "lexical_risk_hit_rate": {
+      "r_authored": {
+        "n": 52,
+        "mean_cue_hits": 0.11538461538461539,
+        "pct_with_cue_hit": 7.6923076923076925
+      },
+      "quadrant_A": {
+        "n": 150,
+        "mean_words": 14.5,
+        "median_words": 14.0,
+        "mean_cue_hits": 0.307,
+        "pct_with_cue_hit": 29.3
+      },
+      "quadrant_B": {
+        "n": 250,
+        "mean_words": 8.4,
+        "median_words": 8.0,
+        "mean_cue_hits": 0.032,
+        "pct_with_cue_hit": 3.2
+      },
+      "quadrant_C": {
+        "n": 104,
+        "mean_words": 17.5,
+        "median_words": 17.0,
+        "mean_cue_hits": 0,
+        "pct_with_cue_hit": 0.0
+      },
+      "quadrant_D": {
+        "n": 150,
+        "mean_words": 16.1,
+        "median_words": 10.0,
+        "mean_cue_hits": 0,
+        "pct_with_cue_hit": 0.0
+      }
+    }
+  },
+  "not_computed": {
+    "punctuation_question_density": "NOT COMPUTED -- no implementation of a punctuation/question density feature exists anywhere in this repository, and none is defined in the locked C-A section 7.5 contract. Defining one here would be a new feature definition, out of scope for this task. Evidence gap, not a silent omission.",
+    "cue_tfidf_logreg_margin": "NOT COMPUTED -- not in this task's required feature-family list; no existing scored value for R-AUTHORED to reuse; scoring it fresh for an unscored population is out of scope for a reuse-only task. Evidence gap, not a silent omission.",
+    "near_duplicate_check": "NOT RUN -- embedding-model inference is out of scope for this CPU-only task, consistent with the same gap already noted for R104/quadrant A/B/D in the prior C-C audit."
+  },
+  "decision_status": {
+    "keep_drop_label_assigned": false,
+    "note": "C-E is descriptive characterization only; no KEEP/DROP or promote/reject decision is made here."
+  },
+  "no_modification_confirmation": {
+    "r_authored_records_modified": false,
+    "frozen_benchmark_modified": false,
+    "c_b_contract_modified": false,
+    "previous_c_c_outputs_modified": false
+  }
+}
