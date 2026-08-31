@@ -1,0 +1,27 @@
+{
+  "pinned_by_c_a_section_7_1_fail_closed": {
+    "data/review/c_review_queue.csv": "8f6dfba182e5d3595d9ac6292d13956dd1a027b18770da01f4ef510f236787bb",
+    "data/frozen_v2/LATEST_BENCHMARK.json": "817885c1c50dcbb5babddaec05b938f0f47067151ababa3c669e893f38ea937a",
+    "logs/benchmark_gate_config.json": "1ac73585f08a4d685996c96eecafdbfcc74478ab07f7f762a4a9de2b2568b743",
+    "logs/3d_b_lexical_outlierness_pilot.json": "95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5",
+    "src/corpus_discrimination.py": "1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc",
+    "src/cue_scoring.py": "ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d",
+    "src/diagnostics/score_lexical_risk_cues.py": "5fda0d1856814b0582c07cc50fb2a42acb3275601ccb0b17e6a602d32545b89a",
+    "src/v2_io.py": "34ca0e74ac669061a6e0f9fd1758c87c034cbeebb3f4a5af7783aebdea524e72",
+    "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b"
+  },
+  "additional_recorded_by_c_b_not_pinned": {
+    "data/processed/controlled_eval.jsonl": "e640c2fba47afe2853c8717ae8492c62bf26cce21f6ec677f68ea88b117c05af",
+    "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7"
+  },
+  "additional_secondary_inputs_read_by_c_c_not_fail_closed": {
+    "logs/audit_quadrants_report.json": "4a26a8cc89dfa92f4869395f1ce10a58104bc30b7beb0819b5546daeba725bdb",
+    "data/quadrant_composition_report.json": "30bcf932e29ba00672e0be89c3d77868f214d0645f0dd2eb2602a7870c9b9c8f",
+    "data/review/c_source_authored_review_queue.csv": "c62725ec37b3d950d7fda164c89d6e71a315cc5dad1a701147100c9f8e8e485a",
+    "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl": "921ebe1687f2926115d4b1d846a97aebaaae0d0d10d5943e141bf2be696581c1",
+    "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl": "8be074b8f42e87aa1c3eee83abedec9743e48ce1a65758e329118b34a6c37ca7",
+    "logs/3a4_scoring.md": "7e6918be3c22755beca8b42ce2f89c64cf271fd8dc28b61b2d574c5900376527",
+    "logs/c_existing_construction_audit_spec.md": "fab0c2e42b18cdfb95b0fd2dbed3f644dfdacb3e333c9e6734f69c5731c40df4"
+  },
+  "note": "The first group is fail-closed hash-verified by C-B's own module (abort on mismatch). The second and third groups are recorded for this audit's own reproducibility but are not fail-closed checks -- a mismatch there would mean C-C's secondary/R-AUTHORED evidence is stale relative to this manifest, not that the primary R104 result is invalid."
+}
