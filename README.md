@@ -526,6 +526,11 @@ pip install -r requirements.txt
 pytest tests/ -v
 ```
 
+For byte-identical reproducibility of the C-B/C-C floating-point results
+(not just structural/statistical equivalence), install the exact pinned
+versions in `requirements-lock.txt` instead of the lower-bound ranges in
+`requirements.txt`.
+
 ---
 
 ## How to Cite

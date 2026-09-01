@@ -162,6 +162,17 @@ def run_locked_c_b_contract() -> Dict:
     #     real numeric drift; it is excluded from the pass/fail verdict
     #     for the same reason code_version is, but the diff is still
     #     recorded below rather than discarded.
+    #
+    #     Note this only guarantees *structural* reproducibility (same
+    #     shape, same non-float values). Byte-identical *floating-point*
+    #     leaf values (e.g. results/*/features/*/length_sensitivity/
+    #     spearman_p_value) are additionally guaranteed only when running
+    #     against the exact versions pinned in requirements-lock.txt --
+    #     see software_versions_match below and
+    #     tests/analysis/test_c_c_construction_audit.py::
+    #     test_run_locked_c_b_contract_is_reproducible for how callers
+    #     should scope a byte-identical check on `results` to that
+    #     pinned environment rather than asserting it unconditionally.
     committed_path = REPO_ROOT / c_b.DEFAULT_OUT_JSON
     reproducibility_check = {"committed_output_path": c_b.DEFAULT_OUT_JSON}
     if committed_path.exists():
