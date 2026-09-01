@@ -1,0 +1,84 @@
+software_versions (committed): {'python': '3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]', 'numpy': '2.4.4', 'scipy': '1.17.1', 'pandas': '3.0.2', 'scikit_learn': '1.8.0'}
+software_versions (rerun):     {'python': '3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]', 'numpy': '2.4.6', 'scipy': '1.17.1', 'pandas': '3.0.5', 'scikit_learn': '1.9.0'}
+total differing leaf fields: 20
+
+/code_version/generation_commit
+  committed='ddba4c1b7fc2f34dc6477e110daf0e4c3bfff505'
+  rerun    ='a6586703bec8d37f9e251a8417768f0ce37b1ace'
+
+/config/benchmark_latest
+  committed='data/frozen_v2/LATEST_BENCHMARK.json'
+  rerun    ='data\\frozen_v2\\LATEST_BENCHMARK.json'
+
+/config/formatting_config_source
+  committed='logs/3d_b_lexical_outlierness_pilot.json'
+  rerun    ='logs\\3d_b_lexical_outlierness_pilot.json'
+
+/config/gate_config
+  committed='logs/benchmark_gate_config.json'
+  rerun    ='logs\\benchmark_gate_config.json'
+
+/config/review_csv
+  committed='data/review/c_review_queue.csv'
+  rerun    ='data\\review\\c_review_queue.csv'
+
+/pinned_input_hashes_verified/src/corpus_discrimination.py
+  committed='1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc'
+  rerun    ='225c003f7c590132f427e7eab604a3865b3bcbd0dba47ee40b177b6ee44c86db'
+
+/results/population_1_all_valid_accepted_pairs/features/cue_tfidf_logreg_margin/length_sensitivity/spearman_p_value
+  committed=0.0002767298642058968
+  rerun    =0.00027672986420589676
+
+/results/population_1_all_valid_accepted_pairs/features/fightin_words/length_sensitivity/spearman_p_value
+  committed=0.0004320760009518749
+  rerun    =0.0004320760009518748
+
+/results/population_1_all_valid_accepted_pairs/features/fw_z_score/length_sensitivity/spearman_p_value
+  committed=0.0060620484133135566
+  rerun    =0.006062048413313556
+
+/results/population_1_all_valid_accepted_pairs/features/lexical_diversity/length_sensitivity/spearman_p_value
+  committed=6.607982724922425e-08
+  rerun    =6.607982724922448e-08
+
+/results/population_2_assistance_type_preserved_yes/features/cue_tfidf_logreg_margin/length_sensitivity/spearman_p_value
+  committed=0.0007460058620195445
+  rerun    =0.0007460058620195446
+
+/results/population_2_assistance_type_preserved_yes/features/fightin_words/length_sensitivity/spearman_p_value
+  committed=8.708926679628158e-05
+  rerun    =8.708926679628159e-05
+
+/results/population_2_assistance_type_preserved_yes/features/fw_z_score/length_sensitivity/spearman_p_value
+  committed=0.01561237500174176
+  rerun    =0.015612375001741764
+
+/results/population_2_assistance_type_preserved_yes/features/lexical_diversity/length_sensitivity/spearman_p_value
+  committed=2.640617440323232e-06
+  rerun    =2.6406174403232323e-06
+
+/results/population_2_assistance_type_preserved_yes/features/lexical_risk_hit_count/length_sensitivity/spearman_p_value
+  committed=0.3451887922562089
+  rerun    =0.3451887922562087
+
+/results/population_3_assistance_type_preserved_partial/features/lexical_diversity/length_sensitivity/spearman_p_value
+  committed=0.007525141077264845
+  rerun    =0.00752514107726484
+
+/software_versions/numpy
+  committed='2.4.4'
+  rerun    ='2.4.6'
+
+/software_versions/pandas
+  committed='3.0.2'
+  rerun    ='3.0.5'
+
+/software_versions/python
+  committed='3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]'
+  rerun    ='3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]'
+
+/software_versions/scikit_learn
+  committed='1.8.0'
+  rerun    ='1.9.0'
+
