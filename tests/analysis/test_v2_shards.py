@@ -115,6 +115,22 @@ def test_declare_unit_rejects_a_changed_shard_plan(tmp_path):
         store.declare_unit("M3__baseline", n_shards=8, n_rows=32)
 
 
+def test_declare_unit_rejects_a_changed_row_count_with_shards_unchanged(
+    tmp_path,
+):
+    # ceil(n_rows / batch_size) is many-to-one: a row filter or benchmark
+    # edit can change the total row count while the shard count happens
+    # to stay the same. n_shards alone must not be treated as sufficient
+    # identification of "the same work"; a stale n_rows has to fail
+    # closed too, or a resumed run would silently merge shards built from
+    # a different row set.
+    store = store_at(tmp_path)
+    store.declare_unit("M3__baseline", n_shards=4, n_rows=32)
+
+    with pytest.raises(RuntimeError, match="row count"):
+        store.declare_unit("M3__baseline", n_shards=4, n_rows=40)
+
+
 def test_completed_shards_ignores_a_missing_file(tmp_path):
     # Drive sync can lose a part file after progress.json recorded it.
     store = store_at(tmp_path)

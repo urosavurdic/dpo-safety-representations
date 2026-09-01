@@ -228,7 +228,12 @@ class ShardStore:
 
         A shard count that changes between sessions means the plan changed
         (different batch size, different row filter) and any existing
-        shards are not reusable.
+        shards are not reusable. n_shards alone is not sufficient: a row
+        filter or benchmark edit can change the total row count while
+        leaving the *shard count* unchanged by coincidence (ceil(n/batch)
+        is many-to-one), which would otherwise let stale shards for a
+        different row set be silently reused. n_rows is checked too so
+        that case fails closed as well.
         """
         unit = self._unit(unit_key)
 
@@ -237,6 +242,14 @@ class ShardStore:
                 f"{unit_key}: shard plan changed ({unit['n_shards']} -> "
                 f"{n_shards}). Existing shards cannot be reused; change "
                 "the batch size back or clear this unit's parts."
+            )
+
+        if unit["n_rows"] is not None and unit["n_rows"] != n_rows:
+            raise RuntimeError(
+                f"{unit_key}: shard plan changed (row count "
+                f"{unit['n_rows']} -> {n_rows} with n_shards={n_shards} "
+                "unchanged). Existing shards cannot be reused; change the "
+                "row filter back or clear this unit's parts."
             )
 
         unit["n_shards"] = n_shards
