@@ -141,20 +141,68 @@ def run_locked_c_b_contract() -> Dict:
         analysis = c_b.main(argv)
 
     # Byte-for-byte cross-check against the already-committed C-B output
-    # (logs/c_b_paired_delta_analysis.json), ignoring only the two
-    # provenance fields expected to differ (generation commit / dirty
-    # flag) between the C-B authoring commit and the current HEAD.
+    # (logs/c_b_paired_delta_analysis.json), ignoring provenance fields
+    # that record *what produced this run* rather than *what the run
+    # computed*, and that therefore legitimately differ between any two
+    # executions of this same deterministic analysis:
+    #   - code_version (generation commit / working-tree-dirty flag):
+    #     this rerun is by definition on a different commit than the one
+    #     that authored the committed output.
+    #   - software_versions (python/numpy/scipy/pandas/scikit-learn):
+    #     requirements.txt pins only lower bounds ("numpy>=1.26" etc.),
+    #     not exact versions, and no lock file exists anywhere in this
+    #     repository, so a later `pip install -r requirements.txt`
+    #     legitimately resolves to newer compatible releases. Verified
+    #     by inspection (see logs/task1_cpu_hardening_report.md): with
+    #     numpy 2.4.4->2.5.2, pandas 3.0.2->3.0.5, scikit-learn
+    #     1.8.0->1.9.0, scipy 1.17.1->1.18.1, every field of `analysis`
+    #     other than software_versions itself -- including every
+    #     LogisticRegression-derived statistic in `results` -- is
+    #     exactly byte-identical, so this is not silently ignoring a
+    #     real numeric drift; it is excluded from the pass/fail verdict
+    #     for the same reason code_version is, but the diff is still
+    #     recorded below rather than discarded.
     committed_path = REPO_ROOT / c_b.DEFAULT_OUT_JSON
     reproducibility_check = {"committed_output_path": c_b.DEFAULT_OUT_JSON}
     if committed_path.exists():
         committed = json.loads(committed_path.read_text(encoding="utf-8"))
         rerun_for_diff = json.loads(json.dumps(analysis))
+        committed_software_versions = committed.get("software_versions", {})
+        rerun_software_versions = rerun_for_diff.get("software_versions", {})
         for d in (committed, rerun_for_diff):
             d.get("code_version", {}).pop("generation_commit", None)
             d.get("code_version", {}).pop("working_tree_dirty", None)
+            d.pop("software_versions", None)
         reproducibility_check["byte_identical_excluding_code_version"] = (
             json.dumps(committed, sort_keys=True) == json.dumps(rerun_for_diff, sort_keys=True)
         )
+        reproducibility_check["software_versions_match"] = (
+            committed_software_versions == rerun_software_versions
+        )
+        if not reproducibility_check["software_versions_match"]:
+            reproducibility_check["software_versions_diff"] = {
+                "committed": committed_software_versions,
+                "rerun": rerun_software_versions,
+            }
+        # pinned_input_hashes_verified (C-A section 7.1) is, unlike the two
+        # provenance fields above, part of the actual byte-identical
+        # verdict on purpose: it is the fail-closed record of which exact
+        # data/code files fed this run, so a genuine change to one of
+        # those files (e.g. a tracked bug fix landing in a pinned
+        # dependency such as src/corpus_discrimination.py) SHOULD flip
+        # this to non-reproducible rather than being silently absorbed --
+        # that is the whole point of pinning it. Recorded here, by key,
+        # so a False verdict is self-explanatory instead of requiring a
+        # manual diff of the two JSON files.
+        committed_hashes = committed.get("pinned_input_hashes_verified", {})
+        rerun_hashes = rerun_for_diff.get("pinned_input_hashes_verified", {})
+        hash_diff = {
+            path: {"committed": committed_hashes.get(path), "rerun": rerun_hashes.get(path)}
+            for path in sorted(set(committed_hashes) | set(rerun_hashes))
+            if committed_hashes.get(path) != rerun_hashes.get(path)
+        }
+        if hash_diff:
+            reproducibility_check["pinned_input_hash_diff"] = hash_diff
     else:
         reproducibility_check["byte_identical_excluding_code_version"] = None
         reproducibility_check["note"] = "no prior committed C-B output found to diff against"

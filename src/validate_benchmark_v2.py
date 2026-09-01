@@ -133,6 +133,32 @@ def pooled_cohen_d(a: list[float], b: list[float]):
     return abs((mean_a - mean_b) / pooled)
 
 
+def _stage_artifact_missing(activation_dir: Path, stage: str) -> list[str]:
+    """Return the repository-contract (POSIX-style) paths of any of the
+    four required per-stage activation artifacts that do not exist.
+
+    Uses .as_posix(), not str(): str(Path(...)) renders with the host OS
+    separator, so on a Windows host this would silently emit
+    "results\\activations\\M0_metadata.json" instead of the stable
+    "results/activations/M0_metadata.json" the rest of the repository
+    (e.g. benchmark_path.as_posix() below) already commits to. That
+    divergence is invisible on a POSIX CI host, where str() and
+    as_posix() happen to coincide -- see
+    test_missing_stage_artifacts_reports_posix_paths_even_on_windows_like_path
+    for a platform-independent regression guard.
+    """
+    final_path = activation_dir / f"{stage}_final.npy"
+    pooled_path = activation_dir / f"{stage}_pooled.npy"
+    metadata_path = activation_dir / f"{stage}_metadata.json"
+    binding_path = activation_dir / f"{stage}_metadata_binding.json"
+
+    return [
+        path.as_posix()
+        for path in (final_path, pooled_path, metadata_path, binding_path)
+        if not path.exists()
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--benchmark", required=True)
@@ -299,16 +325,7 @@ def main() -> None:
             / f"{stage}_metadata_binding.json"
         )
 
-        missing = [
-            str(path)
-            for path in (
-                final_path,
-                pooled_path,
-                metadata_path,
-                binding_path,
-            )
-            if not path.exists()
-        ]
+        missing = _stage_artifact_missing(activation_dir, stage)
 
         if missing:
             stale_artifacts.extend(
