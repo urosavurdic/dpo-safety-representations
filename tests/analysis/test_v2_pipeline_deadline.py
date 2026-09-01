@@ -205,7 +205,103 @@ def test_stage_incomplete_while_behavioral_output_is_still_missing(
     write_json_lf(
         ctx.paths.behavioral / "v2_raw_M3.json", [{"record_id": "r000"}]
     )
+    # The output file alone is still not enough - it also needs a binding
+    # sidecar bound to this run's benchmark/split (see the binding tests
+    # below); only once both are present is the stage actually complete.
+    assert stage_is_complete(ctx, item) is False
+
+    write_json_lf(
+        ctx.paths.behavioral / "v2_raw_M3_binding.json",
+        {**ctx.bind(), "stage": "M3"},
+    )
     assert stage_is_complete(ctx, item) is True
+
+
+def test_stage_incomplete_when_behavioral_output_binding_is_stale(
+    tmp_path,
+):
+    # A merged behavioral file surviving from a different (stale)
+    # benchmark/split keeps the same stage-based filename. If only
+    # .exists() were checked, this would be mistaken for fresh output and
+    # the whole stage (including stage_behavior's own regeneration path)
+    # would be skipped outright.
+    ctx = make_ctx(tmp_path)
+    _write_bound_activations(ctx, "M3")
+
+    write_json_lf(
+        ctx.paths.behavioral / "v2_raw_M3.json", [{"record_id": "r000"}]
+    )
+    write_json_lf(
+        ctx.paths.behavioral / "v2_raw_M3_binding.json",
+        {
+            "benchmark_sha256": "stale" * 16,
+            "split_manifest_sha256": "stale" * 16,
+        },
+    )
+
+    item = {
+        "stage": "M3",
+        "extract": True,
+        "behavior": True,
+        "causal": False,
+        "steering": False,
+        "norm_diag": False,
+    }
+    assert stage_is_complete(ctx, item) is False
+
+
+def test_stage_incomplete_when_causal_output_binding_is_missing(tmp_path):
+    ctx = make_ctx(tmp_path)
+    _write_bound_activations(ctx, "M3")
+
+    ctx.paths.raw.mkdir(parents=True, exist_ok=True)
+    write_json_lf(
+        ctx.paths.raw / "causal_ablation_v2_M3_L24-28.json",
+        [{"record_id": "r000"}],
+    )
+    # No binding sidecar at all - must not count as complete.
+    item = {
+        "stage": "M3",
+        "extract": True,
+        "behavior": False,
+        "causal": True,
+        "steering": False,
+        "norm_diag": False,
+    }
+    assert stage_is_complete(ctx, item) is False
+
+    write_json_lf(
+        ctx.paths.raw / "causal_ablation_v2_M3_L24-28_binding.json",
+        {**ctx.bind(), "stage": "M3"},
+    )
+    assert stage_is_complete(ctx, item) is True
+
+
+def test_stage_incomplete_when_norm_diag_output_binding_is_stale(tmp_path):
+    ctx = make_ctx(tmp_path)
+    _write_bound_activations(ctx, "M3")
+
+    ctx.paths.raw.mkdir(parents=True, exist_ok=True)
+    write_json_lf(
+        ctx.paths.raw / "residual_norm_v2_M3.json", {"stage": "M3"}
+    )
+    write_json_lf(
+        ctx.paths.raw / "residual_norm_v2_M3_binding.json",
+        {
+            "benchmark_sha256": "stale" * 16,
+            "split_manifest_sha256": "stale" * 16,
+        },
+    )
+
+    item = {
+        "stage": "M3",
+        "extract": True,
+        "behavior": False,
+        "causal": False,
+        "steering": False,
+        "norm_diag": True,
+    }
+    assert stage_is_complete(ctx, item) is False
 
 
 def test_stage_incomplete_while_steering_output_is_still_missing(
@@ -228,7 +324,42 @@ def test_stage_incomplete_while_steering_output_is_still_missing(
     write_json_lf(
         ctx.paths.raw / "steering_v2_M3_L24_tag.json", [{"record_id": "r000"}]
     )
+    # As with behavioral output, the result file alone is not enough - it
+    # needs a matching binding sidecar too.
+    assert stage_is_complete(ctx, item) is False
+
+    write_json_lf(
+        ctx.paths.raw / "steering_v2_M3_L24_tag_binding.json",
+        {**ctx.bind(), "stage": "M3"},
+    )
     assert stage_is_complete(ctx, item) is True
+
+
+def test_stage_incomplete_when_steering_output_binding_is_stale(tmp_path):
+    ctx = make_ctx(tmp_path)
+    _write_bound_activations(ctx, "M3")
+
+    ctx.paths.raw.mkdir(parents=True, exist_ok=True)
+    write_json_lf(
+        ctx.paths.raw / "steering_v2_M3_L24_tag.json", [{"record_id": "r000"}]
+    )
+    write_json_lf(
+        ctx.paths.raw / "steering_v2_M3_L24_tag_binding.json",
+        {
+            "benchmark_sha256": "stale" * 16,
+            "split_manifest_sha256": "stale" * 16,
+        },
+    )
+
+    item = {
+        "stage": "M3",
+        "extract": True,
+        "behavior": False,
+        "causal": False,
+        "steering": True,
+        "norm_diag": False,
+    }
+    assert stage_is_complete(ctx, item) is False
 
 
 def test_steering_binding_sidecar_alone_does_not_count_as_output(

@@ -2009,32 +2009,78 @@ def stage_start_blocked(ctx, stage: str) -> tuple[bool, str]:
     return False, ""
 
 
+def _output_is_bound(ctx, output_path, binding_path) -> bool:
+    """An output file only counts as complete if its binding sidecar
+    still matches this run's benchmark/split.
+
+    Existence alone is not enough: a merged output left over from a
+    different (stale) benchmark or split keeps the same stage-based
+    filename, so checking only .exists() would let stale results be
+    mistaken for fresh ones and skip the stage's own regeneration path
+    entirely (stage_behavior/causal/steering/norm_diag never run to
+    re-validate, since the caller treats stage_is_complete()==True as
+    "nothing left to do").
+    """
+    if not output_path.exists():
+        return False
+    try:
+        assert_binding(binding_path, ctx.benchmark_sha, ctx.split_sha)
+    except Exception:
+        return False
+    return True
+
+
 def stage_is_complete(ctx, item) -> bool:
     stage = item["stage"]
 
     if item["extract"] and not activations_bound(ctx, stage):
         return False
 
-    checks = []
     if item["behavior"]:
-        checks.append(ctx.paths.behavioral / f"v2_raw_{stage}.json")
+        if not _output_is_bound(
+            ctx,
+            ctx.paths.behavioral / f"v2_raw_{stage}.json",
+            ctx.paths.behavioral / f"v2_raw_{stage}_binding.json",
+        ):
+            return False
+
     if item["causal"]:
-        checks.append(
-            ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json"
-        )
+        if not _output_is_bound(
+            ctx,
+            ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json",
+            ctx.paths.raw
+            / f"causal_ablation_v2_{stage}_L24-28_binding.json",
+        ):
+            return False
+
     if item["norm_diag"]:
-        checks.append(ctx.paths.raw / f"residual_norm_v2_{stage}.json")
+        if not _output_is_bound(
+            ctx,
+            ctx.paths.raw / f"residual_norm_v2_{stage}.json",
+            ctx.paths.raw / f"residual_norm_v2_{stage}_binding.json",
+        ):
+            return False
 
     if item["steering"]:
-        # Steering filenames encode the tag, so a glob is the honest check.
-        if not ctx.paths.raw.exists() or not [
+        # Steering filenames encode the tag, so a glob finds the outputs;
+        # each one found must carry a currently-valid binding sidecar.
+        if not ctx.paths.raw.exists():
+            return False
+        steering_outputs = [
             path
             for path in ctx.paths.raw.glob(f"steering_v2_{stage}_L*.json")
             if "_binding" not in path.name
-        ]:
+        ]
+        if not steering_outputs:
             return False
+        for path in steering_outputs:
+            binding_path = path.with_name(
+                path.stem + "_binding" + path.suffix
+            )
+            if not _output_is_bound(ctx, path, binding_path):
+                return False
 
-    return all(path.exists() for path in checks)
+    return True
 
 
 def write_run_manifest(ctx, args, plan, incomplete) -> None:
