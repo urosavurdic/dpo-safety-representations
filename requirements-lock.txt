@@ -1,0 +1,52 @@
+# Exact-version lock for byte-identical numerical reproducibility.
+#
+# requirements.txt intentionally pins only lower bounds (e.g.
+# "numpy>=1.26") and this repository has no other lock file, so a plain
+# `pip install -r requirements.txt` legitimately resolves to whatever
+# compatible releases exist on the day it is run. That is fine for
+# running the analysis, but it is NOT sufficient for the strict,
+# byte-for-byte reproducibility checks in
+# tests/analysis/test_c_c_construction_audit.py
+# (test_run_locked_c_b_contract_is_reproducible) and
+# tests/analysis/test_c_b_paired_delta_analysis.py: floating-point leaf
+# values produced by numpy/scipy/pandas/scikit-learn internals (e.g. the
+# scipy.stats.spearmanr p-values in src/analysis/c_b_paired_delta_analysis.py)
+# can legitimately differ at the ULP level across library patch versions
+# and across platforms/compilers/BLAS backends (observed concretely:
+# Linux+GCC vs. Windows+MSVC), with zero effect on any scientific
+# conclusion.
+#
+# These are the exact versions recorded in the "software_versions" field
+# of the committed logs/c_b_paired_delta_analysis.json (the artifact
+# those tests diff against). Installing exactly these versions, on the
+# same OS/platform family the artifact was generated on (Linux), is the
+# supported way to reproduce the committed numeric results byte-for-byte.
+# Running with any other resolved versions -- or on a different
+# OS/compiler/BLAS -- is expected to still match every field structurally
+# (counts, hashes, pass/fail decisions) but may show ULP-level float
+# drift in a handful of leaf statistics; that is not a code defect, and
+# is exactly what the software_versions_match / software_versions_diff
+# fields in run_locked_c_b_contract()'s reproducibility_check exist to
+# make explicit rather than silently pretending byte identity holds
+# across a boundary it was never guaranteed across.
+#
+# This file intentionally pins only the packages this repository's own
+# software_versions provenance record tracks (see the "software_versions"
+# dict built in src/analysis/c_b_paired_delta_analysis.py -- the
+# reproducibility-relevant CPU analysis stack does not import
+# torch/transformers/trl/peft/accelerate/datasets/sentence-transformers,
+# so those are left to requirements.txt's existing lower-bound
+# convention and are out of scope for this lock).
+#
+# Reference platform: Python 3.12.3, Linux, GCC-built CPython.
+#
+# Usage:
+#   python3.12 -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements-lock.txt
+#   pytest tests/analysis/test_c_c_construction_audit.py -q
+
+numpy==2.4.4
+scipy==1.17.1
+pandas==3.0.2
+scikit-learn==1.8.0
+PyYAML==6.0.3
