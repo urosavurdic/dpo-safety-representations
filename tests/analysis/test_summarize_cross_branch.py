@@ -70,8 +70,12 @@ def test_direction_cross_branch_similarity_computes_mean(tmp_path):
     assert result["mean"] == pytest.approx(0.8)
 
 
-def test_build_comparison_omits_sections_with_missing_data():
-    # Nothing available at all for this pair -> only "pair" key present
+def test_build_comparison_omits_sections_with_missing_data(tmp_path, monkeypatch):
+    # Nothing available at all for this pair -> only "pair" key present.
+    # Must isolate cwd: the real repo now has completed M3_direct/M3_direct_alt
+    # refusal-direction results on disk, so without this the test silently
+    # picks up real data and no longer exercises the "missing data" path.
+    monkeypatch.chdir(tmp_path)
     comp = build_comparison("M3_direct", "M3_direct_alt", raw_rows_by_stage={})
     assert comp == {"pair": "M3_direct_vs_M3_direct_alt"}
 
