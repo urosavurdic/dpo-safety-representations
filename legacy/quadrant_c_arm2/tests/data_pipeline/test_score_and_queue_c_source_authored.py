@@ -8,7 +8,7 @@ mirroring the convention already established in
 tests/data_pipeline/test_validate_c_source_authored_candidates.py.
 """
 from src.corpus_discrimination import FightinWords, assign_strata, empirical_rank
-from src.data_pipeline.score_and_queue_c_source_authored import (
+from legacy.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import (
     build_queue_row,
     classifier_status_label,
     contamination_status_label,
