@@ -139,7 +139,7 @@ PINNED_INPUT_HASHES = {
     "logs/3d_b_lexical_outlierness_pilot.json":
         "95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5",
     "src/corpus_discrimination.py":
-        "1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc",
+        "225c003f7c590132f427e7eab604a3865b3bcbd0dba47ee40b177b6ee44c86db",
     "src/cue_scoring.py":
         "ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d",
     "src/diagnostics/score_lexical_risk_cues.py":

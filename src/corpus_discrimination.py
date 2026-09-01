@@ -174,7 +174,7 @@ class FightinWords:
 # ── Helper: load eval-set texts by quadrant ───────────────────────────────────
 def load_quadrant_texts(eval_path: str, quadrant: str) -> List[str]:
     texts = []
-    with open(eval_path) as f:
+    with open(eval_path, encoding="utf-8") as f:
         for line in f:
             row = json.loads(line)
             if row.get("quadrant") == quadrant:

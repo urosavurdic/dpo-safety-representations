@@ -453,3 +453,87 @@ def test_reported_output_paths_track_a_non_default_out_dir(
     # The default 'logs/...' location must NOT have been written to by a
     # run that requested a different --out-dir.
     assert not (tmp_path / "logs" / "benchmark_validation_status.json").exists()
+
+
+# --------------------------------------------------------------------------
+# Stable POSIX-style path formatting for reported missing-artifact paths
+# --------------------------------------------------------------------------
+
+
+class _FakeWindowsChildPath:
+    """Path-like stand-in for a single artifact path under a fake Windows
+    host: str() renders with backslashes (like a real WindowsPath), but
+    .as_posix() still returns the stable forward-slash form. Delegates
+    .exists() to a real Path so the missing/present logic under test is
+    unchanged.
+    """
+
+    def __init__(self, real: Path, posix_str: str):
+        self._real = real
+        self._posix = posix_str
+
+    def exists(self) -> bool:
+        return self._real.exists()
+
+    def as_posix(self) -> str:
+        return self._posix
+
+    def __str__(self) -> str:
+        return self._posix.replace("/", "\\")
+
+
+class _FakeWindowsDir:
+    """Directory-like stand-in whose '/' operator yields
+    _FakeWindowsChildPath children, so a helper that (incorrectly) does
+    str(path) instead of path.as_posix() would produce backslash paths
+    even though this test runs on a POSIX CI host."""
+
+    def __init__(self, real_dir: Path, posix_prefix: str):
+        self._real_dir = real_dir
+        self._posix_prefix = posix_prefix
+
+    def __truediv__(self, name: str) -> _FakeWindowsChildPath:
+        return _FakeWindowsChildPath(
+            self._real_dir / name, f"{self._posix_prefix}/{name}"
+        )
+
+
+def test_missing_stage_artifacts_reports_posix_paths_even_on_windows_like_path(
+    tmp_path,
+):
+    """Regression guard for the reported-path formatting bug: on a real
+    Windows host, str(pathlib.Path(...)) renders with backslashes, so
+    building the "missing" message with str(path) instead of
+    path.as_posix() silently produces
+    "results\\activations\\M0_metadata.json" there -- invisible on this
+    POSIX CI host, where str() and as_posix() happen to coincide. The
+    fake directory below mimics Windows str() semantics without needing
+    an actual Windows host, so a regression back to str(path) fails this
+    assertion here too.
+    """
+    fake_dir = _FakeWindowsDir(tmp_path, "results/activations")
+
+    missing = vbv._stage_artifact_missing(fake_dir, "M0")
+
+    assert missing == [
+        "results/activations/M0_final.npy",
+        "results/activations/M0_pooled.npy",
+        "results/activations/M0_metadata.json",
+        "results/activations/M0_metadata_binding.json",
+    ]
+    assert all("\\" not in path for path in missing)
+
+
+def test_missing_stage_artifacts_omits_present_files(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    act_dir = Path("results") / "activations"
+    (tmp_path / act_dir).mkdir(parents=True)
+    (tmp_path / act_dir / "M0_final.npy").write_bytes(b"\x00")
+    (tmp_path / act_dir / "M0_metadata.json").write_text("{}", encoding="utf-8")
+
+    missing = vbv._stage_artifact_missing(act_dir, "M0")
+
+    assert missing == [
+        "results/activations/M0_pooled.npy",
+        "results/activations/M0_metadata_binding.json",
+    ]
