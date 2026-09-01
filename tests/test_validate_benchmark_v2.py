@@ -403,3 +403,53 @@ def test_status_contains_every_field_the_v2_run_gate_reads(tmp_path, monkeypatch
     ]
     for field in warning_only_gate_fields:
         assert field in status, f"missing warning-only gate field: {field}"
+
+
+def test_reported_output_paths_track_a_non_default_out_dir(
+    tmp_path, monkeypatch
+):
+    """status['outputs'] and the printed summary must name wherever the
+    files were actually written, not a hardcoded 'logs/...'. Every other
+    test in this module passes --out-dir logs (the notebook's own default),
+    which would let a hardcoded 'logs/...' string pass unnoticed - so this
+    test deliberately points --out-dir somewhere else and checks the
+    self-reported paths resolve to real files there."""
+    monkeypatch.setattr(vbv, "REQUIRED_STAGES", ["M0"])
+    fixture = build_fixture_repo(tmp_path)
+
+    monkeypatch.chdir(tmp_path)
+    argv = [
+        "validate_benchmark_v2",
+        "--benchmark",
+        str(fixture["benchmark_path"]),
+        "--review-csv",
+        str(fixture["review_path"]),
+        "--gate-config",
+        str(fixture["gate_path"]),
+        "--split-manifest",
+        str(fixture["split_path"]),
+        "--out-dir",
+        "custom_reports",
+    ]
+    monkeypatch.setattr(sys, "argv", argv)
+    vbv.main()
+
+    status = json.loads(
+        (tmp_path / "custom_reports" / "benchmark_validation_status.json")
+        .read_text(encoding="utf-8")
+    )
+
+    assert status["outputs"]["validation_status"] == (
+        "custom_reports/benchmark_validation_status.json"
+    )
+    assert status["outputs"]["validation_report"] == (
+        "custom_reports/benchmark_validation_report.md"
+    )
+    for key in ("validation_status", "validation_report"):
+        assert (tmp_path / status["outputs"][key]).exists(), (
+            f"self-reported path for {key} does not exist: "
+            f"{status['outputs'][key]}"
+        )
+    # The default 'logs/...' location must NOT have been written to by a
+    # run that requested a different --out-dir.
+    assert not (tmp_path / "logs" / "benchmark_validation_status.json").exists()
