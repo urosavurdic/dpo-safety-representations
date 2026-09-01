@@ -538,11 +538,11 @@ def main() -> None:
         },
         "outputs": {
             "validation_status": (
-                "logs/benchmark_validation_status.json"
-            ),
+                out_dir / "benchmark_validation_status.json"
+            ).as_posix(),
             "validation_report": (
-                "logs/benchmark_validation_report.md"
-            ),
+                out_dir / "benchmark_validation_report.md"
+            ).as_posix(),
         },
         "generated_at_utc": datetime.now(
             timezone.utc
@@ -654,11 +654,11 @@ def main() -> None:
     )
     print(
         "Validation status: "
-        "logs/benchmark_validation_status.json"
+        f"{status['outputs']['validation_status']}"
     )
     print(
         "Markdown report: "
-        "logs/benchmark_validation_report.md"
+        f"{status['outputs']['validation_report']}"
     )
 
     if warnings:
