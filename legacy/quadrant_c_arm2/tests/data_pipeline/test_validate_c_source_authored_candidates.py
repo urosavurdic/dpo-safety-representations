@@ -11,7 +11,7 @@ from src.data_pipeline.build_c_source_authored_candidates import (
     normalized_sha256,
     stripped_sha256,
 )
-from src.data_pipeline.validate_c_source_authored_candidates import (
+from legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_candidates import (
     contamination_validation,
     prompt_preservation_validation,
     structural_classifier_validation,

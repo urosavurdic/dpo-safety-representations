@@ -64,11 +64,11 @@ from src.data_pipeline.build_c_source_authored_candidates import (
     EVAL_SET_PATH,
     file_sha256,
 )
-from src.data_pipeline.validate_c_source_authored_candidates import (
+from legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_candidates import (
     OUT_JSONL as VALIDATED_JSONL_PATH,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 GATE_CONFIG_PATH = REPO_ROOT / "logs/benchmark_gate_config.json"
 INPUT_LOG_JSON = REPO_ROOT / "logs/3a3_validation.json"

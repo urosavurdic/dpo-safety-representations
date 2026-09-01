@@ -200,14 +200,19 @@ on direct execution.
 
 ## 10. EXACT ORDER OF NEXT TASKS
 
+*Note: items 2, 6, 7, and 8 below involve Arm-2 / `c_source_authored`,
+which is deferred from the active release (R104 / `c_paired` is the sole
+active C construction). They are marked `DEFERRED` and are not required
+to reach this release's Colab run. See `legacy/quadrant_c_arm2/README.md`.*
+
 1. **`HUMAN ONLY`** — Complete the R104 blind review (`data/review/r104_human_review_blind.csv`, 104 empty `decision` cells) and reconcile its outcome against the existing accept-all `c_review_queue.csv` before the frozen benchmark is treated as final for the GPU rerun.
-2. **`HUMAN ONLY`** — Complete Milestone 3C: review the 52-row `data/review/c_source_authored_review_queue.csv`.
+2. **`DEFERRED`** — Milestone 3C: review the 52-row `data/review/c_source_authored_review_queue.csv`. Not required for the active release; Arm-2 is deferred, not in the active benchmark.
 3. **Engineering, small, independent of 1–2** — Fix the `artifacts` stray-file / `artifacts/patches/` breakage (§5B). Trivial, no scientific risk, should happen ASAP since every subsequent milestone's patch step depends on it.
 4. **Engineering, small, independent of 1–2** — Fix the `causal_stats` `stage`/`model_stage` mismatch in `src/reproduce.py`'s wiring (§5A): either point it at `causal_ablation_raw_wide.json`, or normalize the narrow file's field name, and drop the unsupported `--stage` flag from the invocation.
 5. **Engineering, small, independent of 1–2** — Make `--with-probes` visible in `--dry-run` output (§4.6).
-6. **Blocked on 1 and 2** — Milestone 3B: produce the missing explicit Arm-2 review-queue validation artifact (§4.2) — likely quick since the queue already looks structurally correct.
-7. **Blocked on 1, 2, 6** — Milestone 4A: extend `src/finalize_benchmark.py` (or its inputs) to actually integrate Arm 2 (§4.4) — provenance-file gap must be closed first.
-8. **Blocked on 7** — Milestone 4B: build the paired companion set (infrastructure is ready and unused).
+6. **`DEFERRED`** — Milestone 3B: produce the missing explicit Arm-2 review-queue validation artifact (§4.2). Not required for the active release.
+7. **`DEFERRED`** — Milestone 4A: extend `src/finalize_benchmark.py` (or its inputs) to actually integrate Arm 2 (§4.4). Not required for the active release; the active benchmark uses R104 / `c_paired` only.
+8. **`DEFERRED`** — Milestone 4B: build the paired companion set (infrastructure is ready and unused). Not required for the active release.
 9. **Blocked on 1–8, or an explicit scientific decision to proceed without it** — resolve or explicitly accept-as-limitation the semantic near-duplicate gap (§4.10, §8) — `HUMAN ONLY` scientific call.
 10. **After 1–9 (or an explicit, documented decision to defer some of them)** — refresh `logs/agent_state.json` and `logs/RESUME_PROMPT.md` (currently ~6 days stale), set `PINNED_COMMIT` in the notebook, and run the actual Milestone 8A/8B/8C final-verification / readiness-audit / handoff sequence.
 11. **Only after 1–10** — the real T4 GPU rerun.

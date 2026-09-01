@@ -89,7 +89,7 @@ from src.data_pipeline.build_c_source_authored_candidates import (
     stripped_sha256,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 IN_JSONL = REPO_ROOT / "data/quadrant_c_pipeline/c_source_authored_candidates_raw_v1.jsonl"
 OUT_JSONL = REPO_ROOT / "data/quadrant_c_pipeline/c_source_authored_candidates_validated_v1.jsonl"
