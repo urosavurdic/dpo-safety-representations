@@ -1,7 +1,8 @@
 # RESUME PROMPT — v2 Benchmark Pipeline
 
-Use this prompt to start a new Claude session that picks up exactly where the
-previous agent left off. The agent must NOT rely on any prior conversation memory.
+Use this prompt to start a new Claude session that picks up exactly where
+the previous agent left off. The agent must NOT rely on any prior
+conversation memory.
 
 ---
 
@@ -9,22 +10,17 @@ previous agent left off. The agent must NOT rely on any prior conversation memor
 
 Repository: https://github.com/urosavurdic/dpo-safety-representations
 Branch: `agent/c-quadrant-end-to-end-e0e2317a`
-Base commit: `e0e2317a52e89b0d614b99152a9ca71758baf489`
+Final HEAD as of this handoff: `3e668107fd966f1af0f0eea13c95e2626d2aedf9`
 
-The researcher has just reviewed and committed `data/review/c_review_queue.csv`
-with `review_status` set to `accept` or `reject` for all 104 rows.
+All CPU-side release engineering is done: the R104/c_paired benchmark is
+frozen and validated, Arm-2 is deferred and archived under
+`legacy/quadrant_c_arm2/`, `pytest`/`compileall` are clean (modulo missing
+heavy ML deps in CPU-only sandboxes — not a code issue), and a fresh clone
+resolves everything without manual intervention. Full detail:
+`logs/FINAL_RELEASE_HANDOFF.md`.
 
----
-
-## What was done before this prompt
-
-Phase 0–7 are complete:
-- Full reconciliation audit (see `logs/reconciliation_report.{json,md}`)
-- C-paired provenance reconstructed in `data/quadrant_c_pipeline/candidate_records_v2.jsonl`
-- Gate config frozen at `logs/benchmark_gate_config.json`
-- Direction split manifest at `logs/direction_split_manifest.json`
-- Review queue generated at `data/review/c_review_queue.csv` (104 rows, all c_paired)
-- Scripts: `src/finalize_benchmark.py`, `src/validate_benchmark_v2.py`, `rerun_mechanistic_v2.sh`
+**Nothing here needs further CPU/release-engineering work.** The only
+remaining step is the GPU run in Colab.
 
 ---
 
@@ -35,76 +31,61 @@ Phase 0–7 are complete:
 git fetch origin
 git checkout agent/c-quadrant-end-to-end-e0e2317a
 cat logs/agent_state.json
-git status --short
+cat logs/FINAL_RELEASE_HANDOFF.md
+git status --short   # expect clean
 
-# 2. Verify the reviewed CSV was committed and has no pending rows
-sha256sum data/review/c_review_queue.csv
-python3 -c "
-import csv
-rows = list(csv.DictReader(open('data/review/c_review_queue.csv')))
-pending = [r for r in rows if r['review_status'].strip() == 'pending']
-print(f'Total: {len(rows)}, pending: {len(pending)}')
-accepted = [r for r in rows if r['review_status'].strip() == 'accept']
-print(f'Accepted: {len(accepted)}')
-"
-
-# 3. Finalize the frozen benchmark
-python -m src.finalize_benchmark \
-    --review-csv data/review/c_review_queue.csv \
-    --gate-config logs/benchmark_gate_config.json
-
-# 4. Run validation
-BENCH=$(python3 -c "import json; print(json.load(open('data/frozen_v2/LATEST_BENCHMARK.json'))['benchmark_path'])")
-python -m src.validate_benchmark_v2 \
-    --benchmark "$BENCH" \
-    --review-csv data/review/c_review_queue.csv \
-    --gate-config logs/benchmark_gate_config.json \
-    --split-manifest logs/direction_split_manifest.json
-
-# 5. Check status
-cat logs/benchmark_validation_status.json | python3 -m json.tool | grep -E "technical_benchmark|reduced_cue|wording_only"
-
-# 6. Generate patch
-BASE=e0e2317a
-CODE=$(git rev-parse HEAD | cut -c1-8)
-git diff --binary $BASE HEAD \
-    -- . ':(exclude)artifacts/patches/*.patch' \
-    > artifacts/patches/c_quadrant_${BASE}_${CODE}.patch
-sha256sum artifacts/patches/c_quadrant_${BASE}_${CODE}.patch
+# 2. Confirm you're at (or past) the handoff commit
+git log -1 --format='%H'   # expect 3e668107fd966f1af0f0eea13c95e2626d2aedf9 or a descendant
 ```
 
----
+If `git status --short` is not empty, or HEAD is not
+`3e668107fd966f1af0f0eea13c95e2626d2aedf9` (or a descendant of it), stop
+and reconcile before doing anything else — do not assume this prompt's
+claims still hold.
 
-## Current blockers (must report, not ignore)
+## What's actually left: the Colab GPU run
 
-1. `c_review_pass` will FAIL until all rows are accepted or rejected.
-2. `artifact_freshness_pass` will FAIL until GPU rerun regenerates activations against the frozen benchmark.
-3. C-source-authored arm is NOT built — declare it unavailable unless you acquire HarmBench CSV locally.
-4. `model_stage` vs `stage` mismatch in `results/raw/causal_ablation_raw_narrow.json` — needs fix in summarization code if that path is used.
+1. Open `notebooks/colab_unified_analysis.ipynb` in Colab.
+2. Runtime > Change runtime type > T4 GPU.
+3. In the "Clone and pin the exact commit" cell, set:
+   `PINNED_COMMIT = '3e668107fd966f1af0f0eea13c95e2626d2aedf9'`
+   (or the current HEAD if this branch has moved since).
+4. Run top-to-bottom through the dry-run/calibration cells — safe to
+   repeat, costs only a small calibration pass, not the full GPU budget.
+5. In the live-run cell, set `RUN_GPU = True` and re-run it. This invokes
+   `bash rerun_mechanistic_v2.sh --regenerate --with-probes
+   --with-norm-diag --act-batch auto --gen-batch auto --deadline-minutes
+   <SESSION_DEADLINE_MINUTES>` under the hood.
+6. If the session disconnects or the (default 300-minute) deadline is
+   hit: reopen the notebook, run top-to-bottom again. Completed
+   shards/stages under `results/behavioral_eval/v2_shards/`,
+   `results/raw/v2_causal_shards/`, `results/raw/v2_steering_shards/` are
+   skipped automatically; the run resumes from the first unfinished
+   shard. `results/` and the HF cache are bound to a persistent Drive
+   folder (`/content/drive/MyDrive/dpo_safety_v2/`), so this survives
+   disconnects and fresh runtimes.
 
----
+## Current blockers
+
+None on the CPU/release-engineering side. The only reason no GPU results
+exist yet is that the live run hasn't been started — see above.
 
 ## Files the next agent MUST NOT overwrite
 
-- `data/processed/controlled_eval.jsonl` (any old result artifacts)
+- `data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl` and
+  `data/frozen_v2/LATEST_BENCHMARK.json` (frozen; changing either
+  invalidates every downstream hash-bound artifact)
+- `logs/direction_split_manifest.json` (regenerate only via
+  `python -m src.create_direction_split_manifest`, never hand-edit)
 - `logs/benchmark_gate_config.json` (frozen before validation)
-- Any existing `results/` file (mark stale, do not delete)
+- Any existing `results/` file (mark stale, do not delete — the shard
+  resume logic depends on what's already there)
+- `legacy/quadrant_c_arm2/**` (archived Arm-2 code — move back into the
+  active path only on an explicit decision to un-defer Arm-2, not as
+  routine cleanup)
 
----
+## Known limitations carried forward
 
-## Unresolved issues (from logs/agent_state.json)
-
-- C-source-authored arm not built
-- Activation artifacts stale (370-row era); GPU rerun required
-- StrongREJECT source CSV SHA-256 not recorded
-- Near-duplicate check not run (embedding model unavailable)
-
----
-
-## Queue SHA-256 (verify before using)
-
-`data/review/c_review_queue.csv` SHA-256 when generated:
-`9e0f82592bb6e87953b05bcb65177a6a7651152e087edef43c2429b5cbe1ef01`
-
-If the SHA after researcher edit differs, that's expected (review fields changed).
-Verify that ONLY the review fields changed — no prompt text was edited.
+See `README.md` §Limitations and `logs/FINAL_RELEASE_HANDOFF.md` for the
+current list (LoRA confound, single direction, 1.5B scale, etc.) — not
+repeated here to avoid drift between copies.
