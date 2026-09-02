@@ -69,12 +69,19 @@ def test_notebook_is_thin(nb):
         assert thin, f"{name}: code cell is not a thin shell:\n{src}"
 
 
+QUICK_NOTEBOOKS = {"00_setup_and_verify.ipynb", "04b_judge_preflight.ipynb"}
+
+
 def test_targets_the_240_270_window(nb):
     name, data = nb
-    if name == "04b_judge_preflight.ipynb":
-        return  # preflight is short by design, not a full session
     text = "\n".join("".join(c["source"]) for c in data["cells"] if c["cell_type"] == "markdown")
-    assert "240-270" in text and "300" in text, f"{name} must state the 240-270 / hard-300 target"
+    if name in QUICK_NOTEBOOKS:
+        # setup / preflight are short by design and say so
+        assert "240-270" in text, f"{name} should still reference the S1-S5 target for context"
+        assert ("Quick session" in text or "No full run here" in text), \
+            f"{name} must flag that it is NOT a 240-270 min session"
+    else:
+        assert "240-270" in text and "300" in text, f"{name} must state the 240-270 / hard-300 target"
 
 
 def test_judge_notebook_uses_only_the_consolidated_manifest():
