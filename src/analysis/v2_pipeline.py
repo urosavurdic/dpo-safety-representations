@@ -98,6 +98,47 @@ ABLATION_LAYERS = list(range(24, 29))
 COLLAPSING_STEER_LAYERS = list(range(14, 29))
 DEFAULT_STEER_LAYERS = [24]
 
+# The frozen v2 benchmark's identity and composition. The SHA (checked by
+# v2_io.resolve_benchmark) already fully determines the file and therefore the
+# counts; assert_frozen_v2_counts() is a belt-and-suspenders check that fails
+# with a specific, readable message if the wrong file is ever loaded under the
+# frozen SHA's name. On any deliberate re-freeze, update these together with
+# data/frozen_v2/LATEST_BENCHMARK.json.
+# (Deliberately kept here, not in src/v2_io.py, which is byte-hash-pinned by the
+# C-B/C-C reproducibility audits in src/analysis/c_b_paired_delta_analysis.py.)
+FROZEN_V2_BENCHMARK_SHA256 = (
+    "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b"
+)
+FROZEN_V2_COUNTS = {"total": 654, "A": 150, "B": 250, "C": 104, "D": 150}
+
+
+def assert_frozen_v2_counts(rows, benchmark_sha256):
+    """Fail closed if the frozen v2 benchmark's row/quadrant counts are wrong.
+
+    No-op unless ``benchmark_sha256`` is the pinned frozen benchmark SHA, so
+    toy/synthetic benchmarks in the test suite are unaffected.
+    """
+    if benchmark_sha256 != FROZEN_V2_BENCHMARK_SHA256:
+        return
+
+    expected_total = FROZEN_V2_COUNTS["total"]
+    if len(rows) != expected_total:
+        raise RuntimeError(
+            "Frozen v2 benchmark row count mismatch: "
+            f"expected {expected_total}, got {len(rows)}."
+        )
+
+    actual = {}
+    for row in rows:
+        quadrant = row.get("quadrant")
+        actual[quadrant] = actual.get(quadrant, 0) + 1
+    expected = {q: c for q, c in FROZEN_V2_COUNTS.items() if q != "total"}
+    if actual != expected:
+        raise RuntimeError(
+            "Frozen v2 benchmark quadrant counts mismatch: "
+            f"expected {expected}, got {actual}."
+        )
+
 DEFAULT_ACT_BATCH = 8
 DEFAULT_GEN_BATCH = 8
 MAX_NEW_TOKENS = 200
@@ -286,6 +327,11 @@ def build_context(args) -> RunContext:
             "Every benchmark row must carry record_id; rows without one: "
             f"{missing_ids[:10]}"
         )
+
+    # Belt-and-suspenders: the SHA already locks the file, but assert the frozen
+    # v2 composition explicitly so a wrong file loaded under the frozen SHA's
+    # name fails with a readable message. No-op for non-frozen (toy) benchmarks.
+    assert_frozen_v2_counts(rows, benchmark_sha)
 
     limit = getattr(args, "limit", None)
     if limit:
@@ -1010,7 +1056,11 @@ def run_paired_conditions(
     return True
 
 
-def stage_causal(ctx, stage, model, tokenizer, device, direction) -> bool:
+def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=None) -> bool:
+    from src.analysis.intervention_conditions import parse_conditions_arg
+
+    requested_conditions = parse_conditions_arg(conditions)
+
     rows = intervention_rows(ctx.rows)
     if not rows:
         raise RuntimeError("No rows remain for causal ablation.")
@@ -1074,6 +1124,14 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction) -> bool:
             **ctx.bind(),
             "stage": stage,
             "conditions": [baseline_name, ablated_name],
+            "generated_conditions": [baseline_name, ablated_name],
+            "requested_conditions": requested_conditions,
+            "intervention_plan_ref": (
+                "src/analysis/intervention_conditions.py - ablated_random / "
+                "ablated_AB generation + the §6.1 seed/gamma/RMS/cos provenance "
+                "block land with the T4 run; execution deferred (analysis_plan.md "
+                "§9 PRE-T4)."
+            ),
             "layers": ABLATION_LAYERS,
             "layer_indexing": (
                 "hidden_states index; hook on decoder block index-1"
@@ -1161,9 +1219,13 @@ def stage_steering(
     alpha_source="direction_estimation_only",
     alpha_value=None,
     alpha_coefficient=1.0,
+    alpha_coefficients=None,
     quadrants=("A", "B", "C", "D"),
     tag=None,
 ) -> bool:
+    from src.analysis.intervention_conditions import parse_alpha_coefficients_arg
+
+    requested_alpha_coefficients = parse_alpha_coefficients_arg(alpha_coefficients)
     layers = sorted(set(layers or DEFAULT_STEER_LAYERS))
     quadrants = list(quadrants)
     tag = tag or steering_tag(
@@ -1234,6 +1296,13 @@ def stage_steering(
             ),
             "alpha_source": alpha_source,
             "alpha_coefficient": alpha_coefficient,
+            "requested_alpha_coefficients": requested_alpha_coefficients,
+            "steering_plan_ref": (
+                "src/analysis/intervention_conditions.py - the steered_random "
+                "control and the {0.5,1.0,2.0} dose-response sweep + the §6.2 "
+                "provenance block (alpha_0 / realised additive norm / "
+                "degeneration rate) land with the T4 run; execution deferred."
+            ),
             "alphas_by_layer": {
                 str(layer): value for layer, value in alphas.items()
             },
@@ -1602,6 +1671,17 @@ def compute_probes(ctx, stages) -> None:
         test_c = np.asarray(by_quadrant["C"])
         test_d = np.asarray(by_quadrant["D"])
 
+        # WP-Probe: the A-vs-B probe must never be fit on (or layer-selected
+        # from) quadrant C or D - those are the held-out quadrants the probe is
+        # evaluated on. Assert no C/D row leaks into the training index set.
+        train_index_set = set(train_a.tolist()) | set(train_b.tolist())
+        cd_index_set = set(test_c.tolist()) | set(test_d.tolist())
+        if train_index_set & cd_index_set:
+            raise RuntimeError(
+                f"{stage}: probe training indices overlap quadrant C/D "
+                f"({sorted(train_index_set & cd_index_set)[:5]}...) - selection leakage."
+            )
+
         results = []
 
         for layer in range(final.shape[1]):
@@ -1655,9 +1735,12 @@ def compute_probes(ctx, stages) -> None:
                 **ctx.bind(),
                 "stage": stage,
                 "layer_selection": (
-                    "none; all layers retained; C not used for selection"
+                    "none; all layers retained; headline layer is the "
+                    "preregistered FINAL_LAYER (28); neither C nor D is used "
+                    "for layer selection or probe training"
                 ),
                 "train": "quadrant A versus 50 quadrant-B rows",
+                "no_cd_selection_asserted": True,
             },
         )
         print(f"  probes: wrote {output_path}")
@@ -1916,7 +1999,8 @@ def main_run(args) -> None:
 
             if finished and item["causal"]:
                 finished = stage_causal(
-                    ctx, stage, model, tokenizer, device, direction
+                    ctx, stage, model, tokenizer, device, direction,
+                    conditions=getattr(args, "conditions", None),
                 ) and finished
 
             if finished and item["steering"]:
@@ -1928,6 +2012,7 @@ def main_run(args) -> None:
                     device,
                     direction,
                     layers=args.steer_layers,
+                    alpha_coefficients=getattr(args, "alpha_coefficients", None),
                     quadrants=args.quadrants,
                 ) and finished
 
@@ -2440,7 +2525,9 @@ def cmd_causal(args) -> None:
     for_each_stage(
         ctx,
         [args.stage],
-        lambda c, s, m, t, d: stage_causal(c, s, m, t, d, direction),
+        lambda c, s, m, t, d: stage_causal(
+            c, s, m, t, d, direction, conditions=getattr(args, "conditions", None)
+        ),
     )
 
 
@@ -2461,6 +2548,7 @@ def cmd_steering(args) -> None:
             alpha_source=args.alpha_source,
             alpha_value=args.alpha_value,
             alpha_coefficient=args.alpha_coefficient,
+            alpha_coefficients=getattr(args, "alpha_coefficients", None),
             quadrants=args.quadrants,
             tag=args.tag,
         ),
@@ -2575,12 +2663,24 @@ def build_parser() -> argparse.ArgumentParser:
     causal = subparsers.add_parser("causal")
     add_common(causal)
     causal.add_argument("--stage", required=True, choices=ALL_STAGES)
+    causal.add_argument(
+        "--conditions", nargs="+", default=None,
+        help="Causal conditions to schedule (analysis_plan.md §6.3). Default = "
+             "the frozen required set (baseline ablated_AD ablated_random). "
+             "ablated_AB is a high-priority secondary that runs only if the "
+             "calibrated wall-time projection shows it fits.",
+    )
 
     steering = subparsers.add_parser("steering")
     add_common(steering)
     steering.add_argument("--stage", required=True, choices=ALL_STAGES)
     steering.add_argument(
         "--layers", nargs="+", type=int, default=DEFAULT_STEER_LAYERS
+    )
+    steering.add_argument(
+        "--alpha-coefficients", nargs="+", type=float, default=None,
+        help="Steering dose-response coefficients (analysis_plan.md §6.2). "
+             "Default = the frozen {0.5, 1.0, 2.0}.",
     )
     steering.add_argument(
         "--alpha-source",

@@ -1,0 +1,64 @@
+{
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "n_C": 104,
+  "n_A": 150,
+  "C_vs_A": {
+    "exact": [],
+    "near_duplicates": [],
+    "method": "sentence-transformers all-MiniLM-L6-v2 (cos>=0.9)"
+  },
+  "C_vs_training": {
+    "data/processed/sft_helpful.jsonl": {
+      "n_train_prompts": 6000,
+      "exact": [],
+      "near_duplicates": [],
+      "method": "sentence-transformers all-MiniLM-L6-v2 (cos>=0.9)"
+    },
+    "data/processed/sft_helpful_alt.jsonl": {
+      "n_train_prompts": 6000,
+      "exact": [],
+      "near_duplicates": [],
+      "method": "sentence-transformers all-MiniLM-L6-v2 (cos>=0.9)"
+    },
+    "data/processed/sft_safety.jsonl": {
+      "n_train_prompts": 4000,
+      "exact": [],
+      "near_duplicates": [],
+      "method": "sentence-transformers all-MiniLM-L6-v2 (cos>=0.9)"
+    },
+    "data/processed/dpo_pairs.jsonl": {
+      "n_train_prompts": 4000,
+      "exact": [],
+      "near_duplicates": [],
+      "method": "sentence-transformers all-MiniLM-L6-v2 (cos>=0.9)"
+    }
+  },
+  "category_coverage": {
+    "A_all": {
+      "harassment_bullying": 19,
+      "illegal": 57,
+      "cybercrime_intrusion": 40,
+      "misinformation_disinformation": 34
+    },
+    "C_all": {
+      "misinformation_disinformation": 37,
+      "harassment_bullying": 41,
+      "illegal": 6,
+      "cybercrime_intrusion": 20
+    },
+    "A_cf3_only": {
+      "misinformation_disinformation": 34,
+      "harassment_bullying": 19,
+      "illegal": 57,
+      "cybercrime_intrusion": 40
+    },
+    "C_cf3_only": {
+      "misinformation_disinformation": 37,
+      "harassment_bullying": 41,
+      "illegal": 6,
+      "cybercrime_intrusion": 20
+    },
+    "cf3_label_sets_match": true,
+    "A_non_cf3_categories": []
+  }
+}

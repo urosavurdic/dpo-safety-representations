@@ -17,10 +17,14 @@ from pathlib import Path
 
 from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 from src.eval_stats import rate_with_ci
+from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 
 
 import argparse
 
+# Legacy default pair; real frozen-v2 files carry their own condition names in
+# row["stage"] (e.g. M3_baseline / M3_ablated_AD / M3_ablated_random) and are
+# discovered from the file, not hardcoded. Kept only as a fallback ordering hint.
 CONDITIONS = ["M3_baseline", "M3_ablated"]
 QUADRANTS = ["A", "B", "C", "D"]
 CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
@@ -39,12 +43,30 @@ def classify_completion(text):
 from src.io_utils import load_json
 
 
+def _condition_order(rows):
+    """Discover condition names from the file (row['stage']); order the known
+    ones first (baseline, then AD, then random), any extras after."""
+    observed = {r["stage"] for r in rows}
+    preferred = [c for c in (
+        "M3_baseline", "M3_ablated_AD", "M3_ablated_random", "M3_ablated_AB",
+        "M3_ablated", "M3_steered",
+    ) if c in observed]
+    extras = sorted(observed - set(preferred))
+    return preferred + extras
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="results/raw/causal_ablation_raw_wide.json")
+    parser.add_argument("--file", default="results/raw/causal_ablation_v2_M3_L24-28.json")
+    add_binding_cli_args(parser)
     args = parser.parse_args()
-    rows = load_json(args.file)
-    print(f"Loaded {len(rows)} rows.")
+    rows = load_guarded_raw(
+        args.file,
+        benchmark_sha256=args.expect_benchmark_sha256,
+        allow_unbound=args.allow_unbound,
+    )
+    CONDITIONS = _condition_order(rows)
+    print(f"Loaded {len(rows)} rows. Conditions: {CONDITIONS}")
 
     counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     totals = defaultdict(lambda: defaultdict(int))

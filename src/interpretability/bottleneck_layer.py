@@ -43,6 +43,20 @@ STAGES = [
 ]
 OUT_PATH = Path("results/interpretability/bottleneck_layer.json")
 
+# WP-Stat: the A-vs-D metric is the headline (it is the contrast the direction
+# is defined from). The (A+C)-vs-(B+D) "harm vs surface wording" metric is
+# RELABELLED here as EXPLORATORY / cross-benchmark-confounded and must not be
+# read as a clean "harmfulness vs wording" separation: A=HarmBench, C=StrongREJECT,
+# B=XSTest, D=Alpaca, so (A+C) vs (B+D) also differs in source, topic, length and
+# register. See docs/audit/analysis_plan.md §3 and README Finding 3
+# ("mostly argmax noise").
+HARM_VS_SURFACE_CAVEAT = (
+    "EXPLORATORY, cross-benchmark confounded: (A+C) vs (B+D) mixes true "
+    "harmfulness with source/topic/length/register (HarmBench+StrongREJECT vs "
+    "XSTest+Alpaca). Not evidence of a harmfulness-vs-wording bottleneck. "
+    "Argmax across layers is largely resampling noise (analysis_plan.md §3)."
+)
+
 
 def cohens_d(x, y):
     """Standardized mean difference. Pooled std; returns 0.0 (not NaN) for a
@@ -172,19 +186,21 @@ def main():
               f"bootstrap mode {boot_summary_a_d['mode_layer']} "
               f"({boot_summary_a_d['mode_frac']:.0%} of resamples), "
               f"95% CI [{boot_summary_a_d['ci_low_2.5pct']}, {boot_summary_a_d['ci_high_97.5pct']}]")
-        print(f"  (A+C)-vs-(B+D) bottleneck layer:     {layer_hs:>2d}  (Cohen's d = {effect_hs:+.3f})  "
-              f"bootstrap mode {boot_summary_hs['mode_layer']} "
+        print(f"  (A+C)-vs-(B+D) [EXPLORATORY, confounded] layer: {layer_hs:>2d}  "
+              f"(Cohen's d = {effect_hs:+.3f})  bootstrap mode {boot_summary_hs['mode_layer']} "
               f"({boot_summary_hs['mode_frac']:.0%} of resamples), "
               f"95% CI [{boot_summary_hs['ci_low_2.5pct']}, {boot_summary_hs['ci_high_97.5pct']}]")
 
         out[stage] = {
+            "headline_metric": "a_vs_d",
             "a_vs_d": {
                 "per_layer_cohens_d": d_a_vs_d.tolist(),
                 "bottleneck_layer": layer_a_d,
                 "bottleneck_cohens_d": effect_a_d,
                 "bottleneck_bootstrap": boot_summary_a_d,
             },
-            "harm_vs_surface_wording": {
+            "harm_vs_surface_wording_EXPLORATORY": {
+                "_caveat": HARM_VS_SURFACE_CAVEAT,
                 "per_layer_cohens_d": d_harm_vs_surface.tolist(),
                 "bottleneck_layer": layer_hs,
                 "bottleneck_cohens_d": effect_hs,

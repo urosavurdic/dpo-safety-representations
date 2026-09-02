@@ -1,6 +1,7 @@
 import json
 
 import numpy as np
+import pytest
 
 from src.analysis.eval_probes import probe_metadata_is_fresh, probe_layer, split_b_train_holdout, split_by_quadrant
 
@@ -128,3 +129,31 @@ def test_probe_metadata_is_fresh_false_when_live_activation_metadata_missing(tmp
         assert probe_metadata_is_fresh("M0", probes_dir) is False
     finally:
         eval_probes_module.ACT_DIR = orig_act_dir
+
+
+# --- WP-Probe: fixed headline layer, exploratory selection gated ---
+
+from src.analysis.eval_probes import FINAL_LAYER, layer_row, pick_most_informative_layer
+
+
+def test_layer_row_returns_the_requested_fixed_layer():
+    rows = [
+        {"layer": 0, "cv_accuracy_mean": 0.9, "quadrant_c_flagged_unsafe_frac": 0.9},
+        {"layer": FINAL_LAYER, "cv_accuracy_mean": 0.6, "quadrant_c_flagged_unsafe_frac": 0.2},
+    ]
+    assert layer_row(rows)["layer"] == FINAL_LAYER
+    assert layer_row(rows, 0)["layer"] == 0
+
+
+def test_layer_row_raises_when_layer_absent():
+    with pytest.raises(ValueError, match="Layer 28"):
+        layer_row([{"layer": 0}])
+
+
+def test_pick_most_informative_layer_is_still_available_for_exploratory_use():
+    rows = [
+        {"layer": 0, "quadrant_c_flagged_unsafe_frac": 0.1},
+        {"layer": 14, "quadrant_c_flagged_unsafe_frac": 0.8},
+        {"layer": 28, "quadrant_c_flagged_unsafe_frac": 0.3},
+    ]
+    assert pick_most_informative_layer(rows)["layer"] == 14

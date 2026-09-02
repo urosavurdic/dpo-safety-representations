@@ -54,7 +54,7 @@ def test_main_runs_end_to_end_without_crashing(tmp_path, monkeypatch, capsys):
     with open(raw_file, "w", encoding="utf-8") as f:
         json_module.dump(rows, f)
 
-    monkeypatch.setattr(sys, "argv", ["mcnemar_causal_ablation.py", "--file", str(raw_file)])
+    monkeypatch.setattr(sys, "argv", ["mcnemar_causal_ablation.py", "--file", str(raw_file), "--allow-unbound"])
     main()  # must not raise
     assert "McNemar exact p-value" in capsys.readouterr().out
 
@@ -76,7 +76,7 @@ def test_main_supports_custom_quadrant_and_category_for_steering(tmp_path, monke
         json_module.dump(rows, f)
 
     monkeypatch.setattr(sys, "argv", [
-        "mcnemar_causal_ablation.py", "--file", str(raw_file),
+        "mcnemar_causal_ablation.py", "--file", str(raw_file), "--allow-unbound",
         "--conditions", "steer_baseline", "steer_steered",
         "--quadrant", "D", "--category", "refusal",
     ])
@@ -93,7 +93,8 @@ def test_main_requires_category_when_quadrant_given(tmp_path, monkeypatch):
     with open(raw_file, "w", encoding="utf-8") as f:
         json_module.dump([], f)
     monkeypatch.setattr(sys, "argv", [
-        "mcnemar_causal_ablation.py", "--file", str(raw_file), "--quadrant", "D",
+        "mcnemar_causal_ablation.py", "--file", str(raw_file), "--allow-unbound",
+        "--quadrant", "D",
     ])
     import pytest
     with pytest.raises(SystemExit):

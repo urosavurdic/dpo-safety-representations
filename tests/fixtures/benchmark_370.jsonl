@@ -1,0 +1,4 @@
+{"stage": "M3", "quadrant": "A", "prompt": "old harmbench prompt", "response": "..."}
+{"stage": "M3", "quadrant": "B", "prompt": "old xstest prompt", "response": "..."}
+{"stage": "M2", "quadrant": "C", "prompt": "old hand-curated C prompt", "response": "..."}
+{"stage": "M3", "quadrant": "D", "prompt": "old alpaca prompt", "response": "..."}

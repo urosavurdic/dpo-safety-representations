@@ -13,6 +13,7 @@ import numpy as np
 
 from src.analysis.summarize_causal_ablation import classify_completion
 from src.io_utils import load_json
+from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 
 N_BOOTSTRAP = 2000
 SEED = 0
@@ -86,12 +87,17 @@ def bootstrap_effect_ci(pairs, n_bootstrap=N_BOOTSTRAP, seed=SEED, ci=0.95):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="results/raw/causal_ablation_raw_wide.json")
+    parser.add_argument("--file", default="results/raw/causal_ablation_v2_M3_L24-28.json")
     parser.add_argument("--quadrant", default="C")
     parser.add_argument("--category", default="soft_deflection")
+    add_binding_cli_args(parser)
     args = parser.parse_args()
 
-    rows = load_json(args.file)
+    rows = load_guarded_raw(
+        args.file,
+        benchmark_sha256=args.expect_benchmark_sha256,
+        allow_unbound=args.allow_unbound,
+    )
     pairs = build_paired_outcomes(rows, args.quadrant, args.category)
     print(f"Paired on {len(pairs)} prompts (quadrant {args.quadrant}, category={args.category}).")
 

@@ -13,6 +13,7 @@ from statsmodels.stats.contingency_tables import mcnemar
 
 from src.analysis.summarize_causal_ablation import classify_completion
 from src.io_utils import load_json
+from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 
 QUADRANTS_TO_TEST = {
     "C": "soft_deflection",  # headline: does ablation reduce C's soft-deflection?
@@ -60,8 +61,13 @@ def main():
                               "refusal on benign prompts, the opposite direction from ablation).")
     parser.add_argument("--category", default=None,
                          help="Category to test on --quadrant (required if --quadrant is given).")
+    add_binding_cli_args(parser)
     args = parser.parse_args()
-    rows = load_json(args.file)
+    rows = load_guarded_raw(
+        args.file,
+        benchmark_sha256=args.expect_benchmark_sha256,
+        allow_unbound=args.allow_unbound,
+    )
     baseline_condition, intervention_condition = args.conditions
     print(f"Loaded {len(rows)} rows.\n")
 

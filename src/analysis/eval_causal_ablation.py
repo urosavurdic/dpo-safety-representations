@@ -1,15 +1,21 @@
 """
+DEPRECATED standalone causal-ablation generator -- predates the frozen-v2
+benchmark binding and is NOT part of the Colab T4 run.
+
+The canonical causal-ablation path is
+    python -m src.analysis.v2_pipeline run        (or rerun_mechanistic_v2.sh)
+which resolves the frozen benchmark by SHA, binds the direction split, writes
+results/raw/causal_ablation_v2_{stage}_L24-28.json with a *_binding.json
+sidecar, and emits both a "stage" (condition) and "model_stage" (checkpoint)
+key per row. This script does none of that: it reads the mutable
+data/processed/controlled_eval.jsonl directly with no hash check.
+
+Kept only for historical/manual use. main() refuses to run without an explicit
+--allow-legacy opt-in.
+
 Component 5: causal ablation check (H4). Multi-layer scope, hidden_states
-layers 14-28 (decoder blocks 13-27, 0-indexed).
-
-Runs ON COLAB (GPU) -- this does real generation, unlike Components 2-4.
-
-Scope deliberately kept to generation only: writes a raw JSON file with
-the SAME SCHEMA as eval_behavioral.py's output (stage set to
-"M3_baseline" / "M3_ablated"). Classification and Wilson-CI stats are NOT
-reimplemented here -- point the existing eval_refusal_classifier.py /
-eval_stats.py at this file, treating the two conditions as two more
-stages. (Reusing already-validated code beats re-guessing its signature.)
+layers 24-28 (decoder blocks 23-27, 0-indexed) -- ABLATE_LAYERS = range(24, 29).
+The historical 14-28 window is diagnostic only (see CLAUDE.md).
 
 Ablation: at each target layer's output (every token position), project
 out the component along that layer's M3 diff-in-means direction (from
@@ -19,12 +25,12 @@ Component 4, results/refusal_direction/M3_direction.npy):
 import argparse
 import gc
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import torch
 from transformers import AutoTokenizer
-from transformers.convert_slow_tokenizers_checkpoints_to_fast import argparse
 
 from src.training.model import load_stage_model
 from src.training.eval_generation import build_generation_prompt
@@ -139,6 +145,11 @@ def run_condition(model, tokenizer, eval_rows, device, stage_name, out_rows):
                 "prompt": row["prompt"],
                 "quadrant": row["quadrant"],
                 "source": row["source"],
+                # "stage" carries the CONDITION name (what
+                # summarize_/mcnemar_/bootstrap_causal_ablation.py read);
+                # "model_stage" carries the same value here for parity with
+                # v2_pipeline.result_row's documented convention.
+                "stage": stage_name,
                 "model_stage": stage_name,
                 "response": response,
             })
@@ -153,10 +164,31 @@ def main():
     parser.add_argument(
     "--stage",
     default="M3",
-    choices=["M3", "M3_direct"],
+    choices=["M3", "M3_direct", "M3_alt", "M3_direct_alt"],
     help="Model stage to run causal ablation on (default: M3)",
 )
+    parser.add_argument(
+        "--allow-legacy",
+        action="store_true",
+        help="Acknowledge that this deprecated, non-frozen-v2-bound path is "
+             "being run on purpose. Without it this script refuses to run.",
+    )
     args = parser.parse_args()
+
+    if not args.allow_legacy:
+        print(
+            "REFUSING TO RUN: src.analysis.eval_causal_ablation is a deprecated "
+            "standalone generator that reads data/processed/controlled_eval.jsonl "
+            "directly with no benchmark-hash / split binding. It is NOT part of "
+            "the Colab T4 run.\n\n"
+            "Canonical causal ablation:\n"
+            "    python -m src.analysis.v2_pipeline run    (or rerun_mechanistic_v2.sh)\n"
+            "which writes results/raw/causal_ablation_v2_{stage}_L24-28.json with a "
+            "*_binding.json provenance sidecar.\n\n"
+            "If you really intend to run this legacy path, re-invoke with --allow-legacy.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     if tokenizer.pad_token is None:
@@ -182,7 +214,10 @@ def main():
           f"(decoder blocks {ABLATE_LAYERS[0]-1}-{ABLATE_LAYERS[-1]-1})")
 
     out_rows = []
-    out_path = Path(f"results/raw/causal_ablation_raw_{_output_suffix(ABLATE_LAYERS)}.json") #out_path = Path("results/causal_ablation_raw_narrow.json") #out_path = Path("results/causal_ablation_raw.json")
+    # Stage-suffixed so a second --stage run does not overwrite the first, and
+    # so a legacy opt-in run never masquerades as the historical, un-suffixed
+    # results/raw/causal_ablation_raw_{narrow,wide}.json artifacts.
+    out_path = Path(f"results/raw/causal_ablation_raw_{_output_suffix(ABLATE_LAYERS)}_{args.stage}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not args.skip_baseline:
