@@ -63,9 +63,45 @@ assert commit == PINNED_COMMIT, f"wrong commit: {{commit}} != {{PINNED_COMMIT}}"
 print("checked out", commit)"""
 
 
+_PERSIST = r'''import os, shutil
+from pathlib import Path
+
+# One Drive root holds everything that must survive a Colab disconnect / fresh
+# VM: results/ (activations, directions, behavioural output, shard checkpoints)
+# and the HF weight cache. Change DRIVE_ROOT only to run independent attempts
+# side by side. Mirrors colab_unified_analysis.ipynb's persistence plumbing.
+DRIVE_ROOT = Path('/content/drive/MyDrive/dpo_v2')
+DRIVE_RESULTS = DRIVE_ROOT / 'results'
+DRIVE_HF_CACHE = DRIVE_ROOT / 'hf_cache'
+DRIVE_RESULTS.mkdir(parents=True, exist_ok=True)
+DRIVE_HF_CACHE.mkdir(parents=True, exist_ok=True)
+
+# Must be set before any transformers/peft import so the ~3 GB base model +
+# LoRA adapters download ONCE total, not once per session.
+os.environ['HF_HOME'] = str(DRIVE_HF_CACHE)
+
+local_results = Path('results')
+if local_results.is_symlink():
+    pass  # already wired (cell re-run mid-session)
+else:
+    if not (DRIVE_RESULTS / 'activations').exists() and local_results.exists():
+        # first use of this Drive root: seed it with the checkout's committed
+        # results/ so v2 output layers on top instead of starting empty
+        shutil.copytree(local_results, DRIVE_RESULTS, dirs_exist_ok=True)
+    if local_results.exists():
+        shutil.rmtree(local_results)
+    local_results.symlink_to(DRIVE_RESULTS, target_is_directory=True)
+
+print('results/ ->', local_results.resolve())
+print('HF_HOME  ->', os.environ['HF_HOME'])
+!python -m src.analysis.v2_pipeline status'''
+
+
 def setup_preamble(start_num=1):
-    """Mount Drive + clone/pin + deps. Every session VM is fresh, so every
-    notebook runs this first."""
+    """Mount Drive + clone/pin + deps + bind results/ and HF cache to Drive.
+    Every session VM is fresh, so every notebook runs this first. Because
+    results/ is a symlink into Drive, a session that dies mid-run resumes from
+    the first unfinished shard on the next run."""
     return [
         md(f"## {start_num}. Mount Drive"),
         code("from google.colab import drive\ndrive.mount('/content/drive')"),
@@ -77,8 +113,8 @@ def setup_preamble(start_num=1):
              "# loads (see 04b). Matches colab_unified_{analysis,training}.ipynb.\n"
              "!pip uninstall -y torchao || true\n"
              "!nvidia-smi"),
-        md(f"## {start_num + 3}. Persistent storage"),
-        code("import os; os.makedirs('/content/drive/MyDrive/dpo_v2', exist_ok=True)"),
+        md(f"## {start_num + 3}. Persistent storage (results/ + HF cache bound to Drive)"),
+        code(_PERSIST),
     ]
 
 
