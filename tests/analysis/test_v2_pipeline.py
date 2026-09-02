@@ -275,3 +275,39 @@ def test_resolve_batch_size_auto_without_recorded_value_raises(tmp_path):
         vp.resolve_batch_size(
             "auto", "recommended_act_batch", calibration_path
         )
+
+
+# --- frozen-v2 count assertion (belt-and-suspenders over the benchmark SHA) ---
+
+
+def _frozen_shaped_rows():
+    rows = []
+    for quadrant, count in (("A", 150), ("B", 250), ("C", 104), ("D", 150)):
+        rows.extend({"quadrant": quadrant} for _ in range(count))
+    return rows
+
+
+def test_assert_frozen_v2_counts_passes_on_correct_composition():
+    vp.assert_frozen_v2_counts(_frozen_shaped_rows(), vp.FROZEN_V2_BENCHMARK_SHA256)
+    assert vp.FROZEN_V2_COUNTS == {
+        "total": 654, "A": 150, "B": 250, "C": 104, "D": 150,
+    }
+
+
+def test_assert_frozen_v2_counts_rejects_wrong_total():
+    with pytest.raises(RuntimeError, match="row count mismatch"):
+        vp.assert_frozen_v2_counts(
+            _frozen_shaped_rows()[:-1], vp.FROZEN_V2_BENCHMARK_SHA256
+        )
+
+
+def test_assert_frozen_v2_counts_rejects_wrong_quadrant_tally():
+    rows = _frozen_shaped_rows()
+    rows[0]["quadrant"] = "B"  # 149 A / 251 B, total still 654
+    with pytest.raises(RuntimeError, match="quadrant counts mismatch"):
+        vp.assert_frozen_v2_counts(rows, vp.FROZEN_V2_BENCHMARK_SHA256)
+
+
+def test_assert_frozen_v2_counts_is_noop_for_non_frozen_sha():
+    # Toy/synthetic benchmarks elsewhere in the suite must be unaffected.
+    vp.assert_frozen_v2_counts([{"quadrant": "A"}], "deadbeef" * 8)

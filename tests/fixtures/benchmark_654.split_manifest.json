@@ -1,0 +1,25 @@
+{
+  "benchmark_path": "tests/fixtures/benchmark_654.jsonl",
+  "benchmark_sha256": "fb94a06a744c88a5719bcbd93e671d83fe9b68780e53e7533bbe27e68b220925",
+  "direction_split_seed": 45,
+  "direction_train_fraction": 0.8,
+  "split_algorithm": "fixture_static",
+  "record_ids_direction_estimation": [
+    "fix_a_01",
+    "fix_a_02",
+    "fix_a_03",
+    "fix_d_01",
+    "fix_d_02"
+  ],
+  "record_ids_held_out_behavioral": [
+    "fix_a_04",
+    "fix_a_05",
+    "fix_d_03"
+  ],
+  "counts": {
+    "direction_estimation": 5,
+    "held_out_behavioral": 3
+  },
+  "split_hash_algorithm": "sha256_canonical_json_without_hash_fields",
+  "split_manifest_sha256": "092dbc1f9c6258c2b28322da0c2ead16b56a2e32771993571e4ec6c93333f7d7"
+}

@@ -1,30 +1,28 @@
-"""
-Regression tests for the causal_stats component of src/reproduce.py.
+"""Regression tests for the causal_stats component of src/reproduce.py (WP-Repro).
 
-Background (see logs/release_gap_audit.md section 5A): causal_stats used
-to point at results/raw/causal_ablation_raw_narrow.json, a file that uses
-the field name `model_stage` and M3_direct_baseline/M3_direct_ablated
-condition names -- while the three summarization scripts it calls
-(summarize_causal_ablation.py, mcnemar_causal_ablation.py,
-bootstrap_causal_effect.py) all read row["stage"] and expect
-M3_baseline/M3_ablated. On top of that, one of the invocations passed
---stage M3, a flag none of the three scripts accept. The result was a
-documented, single-command reproduction path that could not execute.
+History: causal_stats used to point at results/raw/causal_ablation_raw_wide.json
+(a pre-freeze / 370-era artifact keyed by `model_stage`, no benchmark/split
+binding). The frozen-v2 T4 run instead writes
+results/raw/causal_ablation_v2_M3_L24-28.json with a *_binding.json sidecar and
+per-row benchmark_sha256 / split_manifest_sha256. This module pins the new
+contract:
 
-tests/analysis/test_summarize_causal_ablation.py only ever exercised
-classify_completion() in isolation, so it never caught this. These tests
-exercise the actual wiring: the exact commands registered in
-COMPONENTS["causal_stats"], against the real committed input file.
+* causal_stats' three commands agree on one v2 file path;
+* that path is the benchmark-bound v2 name, not a legacy causal_ablation_raw_*;
+* causal_stats is BLOCKED until the T4 run produces that file (pre-T4 state);
+* the guarded stat scripts accept a benchmark-bound v2 fixture and refuse a
+  370-era fixture.
 """
-import os
-import shutil
-import subprocess
+import json
 from pathlib import Path
 
-from src.io_utils import load_json
-from src.reproduce import COMPONENTS
+import pytest
+
+from src.reproduce import COMPONENTS, missing_requirements
+from src.v2_binding_guard import LegacyArtifactError, load_guarded_raw
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+FIX = REPO_ROOT / "tests" / "fixtures"
 
 
 def _file_arg(cmd):
@@ -32,60 +30,50 @@ def _file_arg(cmd):
     return parts[parts.index("--file") + 1]
 
 
-def test_causal_stats_requires_and_commands_reference_one_consistent_file():
+def test_causal_stats_commands_reference_one_consistent_v2_file():
     commands = COMPONENTS["causal_stats"]["commands"]
     input_paths = {_file_arg(cmd) for cmd in commands}
     assert len(input_paths) == 1, f"causal_stats commands disagree on --file: {input_paths}"
-    assert COMPONENTS["causal_stats"]["requires"] == [next(iter(input_paths))]
+    (only,) = input_paths
+    assert only in COMPONENTS["causal_stats"]["requires"]
+    assert "causal_ablation_v2_" in only and "_L24-28" in only
+    assert "causal_ablation_raw_" not in only, "must not point at a pre-freeze file"
 
 
-def test_causal_stats_input_file_uses_stage_key_and_expected_conditions():
-    """
-    Guards against causal_stats being repointed at a file (like the old
-    *_narrow.json) whose schema the summarization scripts can't read.
-    """
-    input_path = COMPONENTS["causal_stats"]["requires"][0]
-    rows = load_json(REPO_ROOT / input_path)
-    assert rows, "expected at least one row in the causal_stats input file"
-    assert "stage" in rows[0], (
-        f"causal_stats input file must use the 'stage' key (found keys: {sorted(rows[0].keys())})"
+def test_causal_stats_requires_the_binding_sidecar():
+    requires = COMPONENTS["causal_stats"]["requires"]
+    assert any(r.endswith("_binding.json") for r in requires), (
+        "causal_stats must require the *_binding.json provenance sidecar"
     )
-    stages = {r["stage"] for r in rows}
-    assert stages == {"M3_baseline", "M3_ablated"}, f"unexpected stage values: {stages}"
 
 
-def test_causal_stats_commands_have_no_unsupported_stage_flag():
-    for cmd in COMPONENTS["causal_stats"]["commands"]:
-        parts = cmd.split()
-        assert "--stage" not in parts, f"'--stage' is not accepted by any causal_stats script: {cmd}"
+def test_causal_stats_is_blocked_until_t4(monkeypatch, tmp_path):
+    """Pre-T4, the v2 causal file does not exist -> causal_stats is BLOCKED.
+    This is the intended state, not a failure."""
+    monkeypatch.chdir(tmp_path)
+    assert missing_requirements("causal_stats"), (
+        "expected causal_stats to be blocked pre-T4 (v2 causal file not yet generated)"
+    )
 
 
-def test_causal_stats_commands_run_end_to_end(tmp_path):
-    """
-    Runs the exact registered commands, in an isolated cwd, against a copy
-    of the real committed input file. This is the actual reproduction path
-    a researcher running `python -m src.reproduce --components causal_stats`
-    would hit.
-    """
-    commands = COMPONENTS["causal_stats"]["commands"]
-    input_path = COMPONENTS["causal_stats"]["requires"][0]
+# The three causal_stats scripts all route their --file through
+# src.v2_binding_guard.load_guarded_raw, so the guard is exercised here at the
+# library level (env-independent - no statsmodels/torch needed).
 
-    src_input = REPO_ROOT / input_path
-    dst_input = tmp_path / input_path
-    dst_input.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy(src_input, dst_input)
+def test_v2_bound_fixture_passes_the_guard():
+    bench_sha = json.loads((FIX / "benchmark_654.LATEST_BENCHMARK.json").read_text())["benchmark_sha256"]
+    rows = load_guarded_raw(
+        FIX / "causal_ablation_v2_M3_L24-28.json", benchmark_sha256=bench_sha,
+    )
+    assert len(rows) == 6
+    assert {r["stage"] for r in rows} == {"M3_baseline", "M3_ablated_AD", "M3_ablated_random"}
 
-    env = dict(os.environ)
-    env["PYTHONPATH"] = str(REPO_ROOT) + os.pathsep + env.get("PYTHONPATH", "")
 
-    for cmd in commands:
-        result = subprocess.run(
-            cmd, shell=True, cwd=tmp_path, env=env, capture_output=True, text=True,
-        )
-        assert result.returncode == 0, (
-            f"causal_stats command failed: {cmd}\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
-        )
+def test_370_legacy_fixture_is_rejected_by_the_guard():
+    with pytest.raises(LegacyArtifactError):
+        load_guarded_raw(FIX / "causal_ablation_raw_370_legacy.json")
 
-    for produced in COMPONENTS["causal_stats"]["produces"]:
-        assert (tmp_path / produced).exists(), f"expected produced artifact missing: {produced}"
+
+def test_allow_unbound_escape_hatch_lets_legacy_through():
+    rows = load_guarded_raw(FIX / "causal_ablation_raw_370_legacy.json", allow_unbound=True)
+    assert rows and "model_stage" in rows[0]

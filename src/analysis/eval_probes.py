@@ -13,6 +13,7 @@ be topically/lexically adjacent to unsafe content while being safe). This
 holds surface style roughly constant, isolating safety specifically. The
 untrained remainder of B is a genuine held-out over-triggering check.
 """
+import argparse
 import json
 from pathlib import Path
 
@@ -29,6 +30,12 @@ STAGES = [
 ACT_DIR = Path("results/activations")
 B_TRAIN_SIZE = 50
 SEED = 42
+# The frozen headline layer for every probe comparison (WP-Probe). The full
+# per-layer curve is still saved for descriptive plotting, but no layer is
+# ever *selected* from it for a headline number - selecting the layer that
+# maximises quadrant-C (or D) flagging is a data-dependent choice on the
+# held-out quadrants themselves. See docs/audit/selection_leakage_scan.md.
+FINAL_LAYER = 28
 
 
 def load_stage_activations(stage, kind="final"):
@@ -82,8 +89,24 @@ def run_for_stage(stage, kind="final"):
             for i in range(arr.shape[1])]
 
 
+def layer_row(layer_results, layer=FINAL_LAYER):
+    """The fixed-layer row from a saved per-layer probe curve. This is the
+    ONLY selection used on the headline path - `layer` is preregistered
+    (FINAL_LAYER), never chosen from the results."""
+    for row in layer_results:
+        if row["layer"] == layer:
+            return row
+    raise ValueError(f"Layer {layer} not present in probe results "
+                     f"(have {[r['layer'] for r in layer_results]})")
+
+
 def pick_most_informative_layer(layer_results):
-    """NOT max cv_accuracy_mean - that metric saturates near 1.0 at almost
+    """EXPLORATORY ONLY (gated behind --exploratory-layer-scan). Selecting the
+    layer that maximises quadrant-C flagging is a data-dependent choice on a
+    held-out quadrant; its output is labelled exploratory and never used as a
+    headline number. See docs/audit/selection_leakage_scan.md.
+
+    NOT max cv_accuracy_mean - that metric saturates near 1.0 at almost
     every layer for every stage, including untrained M0 (see HANDOFF.md:
     "Naive CV accuracy retired (saturates even at untrained M0)"). Using it
     to pick a "best" layer just returns whichever layer happens to be first
@@ -124,7 +147,26 @@ def probe_metadata_is_fresh(stage, out_dir):
     return saved == live
 
 
+def _report_row(stage, row, label):
+    print(f"  {label} layer {row['layer']}: CV acc {row['cv_accuracy_mean']:.3f} "
+          f"± {row['cv_accuracy_std']:.3f}")
+    for name, key in (("Held-out B", "holdout_b_flagged_unsafe_frac"),
+                      ("Quadrant C", "quadrant_c_flagged_unsafe_frac"),
+                      ("Quadrant D", "quadrant_d_flagged_unsafe_frac")):
+        val = row.get(key)
+        print(f"    {name} -> unsafe: {val:.3f}" if val is not None else f"    {name} -> unsafe: n/a")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--exploratory-layer-scan", action="store_true",
+        help="Also print the layer that maximises quadrant-C flagging. This is "
+             "a data-dependent selection on a held-out quadrant - EXPLORATORY "
+             "ONLY, never a headline number (see docs/audit/selection_leakage_scan.md).",
+    )
+    args = parser.parse_args()
+
     out_dir = Path("results/probes")
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -132,23 +174,15 @@ def main():
     for stage in STAGES:
         result_path = out_dir / f"{stage}_probe_results.json"
         if result_path.exists() and probe_metadata_is_fresh(stage, out_dir):
-            # Adding a new stage to STAGES must not re-run/overwrite prior
-            # stages' already-finalized probe results (results/probes/*.json
-            # - see HANDOFF.md "Status: Phase 4 complete"). Reload instead --
-            # but only once we've confirmed it was trained on the CURRENT
-            # eval set, not silently reused from a stale one.
             print(f"\n=== {stage}: already computed, fresh, loading from disk ===")
             with open(result_path, encoding="utf-8") as f:
                 layer_results = json.load(f)
             all_results[stage] = layer_results
-            best = pick_most_informative_layer(layer_results)
-            print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
+            _report_row(stage, layer_row(layer_results), "FINAL")
             continue
         if result_path.exists():
             print(f"\n=== {stage}: existing probe result is STALE (predates the current eval set) -- re-running ===")
         if not activations_available(stage):
-            # Alt branch trains/pushes independently across sessions - not
-            # every stage in STAGES is necessarily ready yet.
             print(f"\n=== {stage}: SKIPPED, activations not yet extracted ===")
             continue
         print(f"\n=== {stage} ===")
@@ -156,26 +190,35 @@ def main():
         all_results[stage] = layer_results
         with open(result_path, "w", encoding="utf-8") as f:
             json.dump(layer_results, f, ensure_ascii=False, indent=2)
-        # Snapshot the activation metadata this probe was JUST trained on,
-        # so a future run can tell whether the eval set has changed since.
         with open(ACT_DIR / f"{stage}_metadata.json", encoding="utf-8") as f:
             live_metadata = json.load(f)
         with open(out_dir / f"{stage}_metadata.json", "w", encoding="utf-8") as f:
             json.dump(live_metadata, f, ensure_ascii=False, indent=2)
-        best = pick_most_informative_layer(layer_results)
-        print(f"  Best layer {best['layer']}: CV acc {best['cv_accuracy_mean']:.3f} ± {best['cv_accuracy_std']:.3f}")
-        print(f"    Held-out B -> unsafe: {best['holdout_b_flagged_unsafe_frac']:.3f}")
-        print(f"    Quadrant C -> unsafe: {best['quadrant_c_flagged_unsafe_frac']:.3f}")
-        print(f"    Quadrant D -> unsafe: {best['quadrant_d_flagged_unsafe_frac']:.3f}")
+        _report_row(stage, layer_row(layer_results), "FINAL")
 
-    print(f"\n{'Model':<6} {'Layer':<7} {'CV acc':<10} {'B(holdout)':<12} {'C':<8} {'D':<8}")
+    print(f"\nHeadline: fixed layer {FINAL_LAYER} (preregistered, not selected)\n")
+    print(f"{'Model':<6} {'Layer':<7} {'CV acc':<10} {'B(holdout)':<12} {'C':<8} {'D':<8}")
     for stage in STAGES:
         if stage not in all_results:
             continue
-        best = pick_most_informative_layer(all_results[stage])
-        print(f"{stage:<6} {best['layer']:<7} {best['cv_accuracy_mean']:.3f}     "
-              f"{best['holdout_b_flagged_unsafe_frac']:.3f}        "
-              f"{best['quadrant_c_flagged_unsafe_frac']:.3f}   {best['quadrant_d_flagged_unsafe_frac']:.3f}")
+        row = layer_row(all_results[stage])
+        c = row.get("quadrant_c_flagged_unsafe_frac")
+        d = row.get("quadrant_d_flagged_unsafe_frac")
+        b = row.get("holdout_b_flagged_unsafe_frac")
+        print(f"{stage:<6} {row['layer']:<7} {row['cv_accuracy_mean']:.3f}     "
+              f"{(b if b is not None else float('nan')):.3f}        "
+              f"{(c if c is not None else float('nan')):.3f}   "
+              f"{(d if d is not None else float('nan')):.3f}")
+
+    if args.exploratory_layer_scan:
+        print("\n[EXPLORATORY] layer maximising quadrant-C flagging "
+              "(data-dependent selection - NOT a headline result):")
+        for stage in STAGES:
+            if stage not in all_results:
+                continue
+            best = pick_most_informative_layer(all_results[stage])
+            print(f"  {stage:<6} layer {best['layer']:<3} "
+                  f"C={best['quadrant_c_flagged_unsafe_frac']:.3f}")
 
 
 if __name__ == "__main__":

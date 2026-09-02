@@ -7,6 +7,33 @@ this repo rather than *read about* it, this is the file to actually follow.
 
 ---
 
+## ⚑ FROZEN PLAN BANNER (pre-T4) — read `docs/audit/analysis_plan.md` first
+
+The pre-T4 analysis is **frozen**. Before touching any endpoint, direction,
+probe, causal/steering, or human-audit code, read **`docs/audit/analysis_plan.md`**
+(§§1–7: endpoints CF1/CF2 confirmatory + CF3 secondary, terminology/claim
+rules, H1/H2 math on `_final`, CF3 grouped-CV procedure, human sample,
+calibration-RMS γ and steering α conventions, execution priority, timing) and
+**`docs/audit/endpoint_table.md`**. Companion docs:
+`docs/EXPERIMENT.md` (frozen state, prompt-vs-response caveat, corpus stats),
+`docs/REPRODUCE.md` (pre-T4 / T4 / post-T4 command sequence),
+`docs/audit/selection_leakage_scan.md` (probe leakage scan),
+`results/README.md` (v2 vs 370-era results layout).
+
+Post-freeze changes to §§1–7 are **not allowed** without a recorded deviation.
+The holistic pre-T4 implementation (WP1–WP20) is code + CPU analysis modules +
+schemas + manifests + benchmark-binding guards + targeted tests only; anything
+needing regenerated 654-row activations/responses is implemented and tested but
+**executed only after the T4 run**. New modules from that pass:
+`src/v2_binding_guard.py`, `src/analysis/{verify_activations,control_directions,
+subspace_geometry,projection_trajectory,direction_decodability,behavioral_judges,
+build_human_review_packet,check_behavioral_agreement,behavioral_robustness,
+representation_projections,representation_robustness,matched_pair_representation,
+build_c_source_overt_adjunct,intervention_conditions}.py`,
+`src/diagnostics/check_c_vs_a_leakage.py`.
+
+---
+
 ## Research question
 
 **Short:** Does DPO give a language model genuinely richer internal

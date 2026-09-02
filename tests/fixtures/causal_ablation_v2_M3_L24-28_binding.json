@@ -1,0 +1,6 @@
+{
+  "benchmark_path": "tests/fixtures/benchmark_654.jsonl",
+  "benchmark_sha256": "fb94a06a744c88a5719bcbd93e671d83fe9b68780e53e7533bbe27e68b220925",
+  "split_manifest_path": "tests/fixtures/benchmark_654.split_manifest.json",
+  "split_manifest_sha256": "092dbc1f9c6258c2b28322da0c2ead16b56a2e32771993571e4ec6c93333f7d7"
+}

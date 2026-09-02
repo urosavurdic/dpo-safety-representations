@@ -4,11 +4,12 @@ import pytest
 
 from src.analysis.summarize_cross_branch import (
     behavioral_rates_for_stage,
-    probe_best_layer_for_stage,
+    probe_final_layer_for_stage,
     direction_cross_branch_similarity,
     build_comparison,
     CROSS_BRANCH_PAIRS,
 )
+from src.analysis.eval_probes import FINAL_LAYER
 
 
 def test_cross_branch_pairs_match_the_four_alt_stages():
@@ -36,20 +37,30 @@ def test_behavioral_rates_for_stage_computes_soft_deflection_not_just_refusal():
     assert result["C"]["soft_deflection"]["n"] == 3
 
 
-def test_probe_best_layer_for_stage_missing_file_returns_none(tmp_path):
-    assert probe_best_layer_for_stage("M1_alt", probes_dir=str(tmp_path)) is None
+def test_probe_final_layer_for_stage_missing_file_returns_none(tmp_path):
+    assert probe_final_layer_for_stage("M1_alt", probes_dir=str(tmp_path)) is None
 
 
-def test_probe_best_layer_for_stage_picks_max_cv_accuracy(tmp_path):
+def test_probe_final_layer_for_stage_returns_the_preregistered_layer_not_a_selected_one(tmp_path):
+    # layer 14 has the highest cv_accuracy AND highest C flagging - the old
+    # 'best layer' logic would have picked it. WP-Probe: the headline layer is
+    # always the fixed FINAL_LAYER, never selected from the results.
     results = [
         {"layer": 0, "cv_accuracy_mean": 0.5, "quadrant_c_flagged_unsafe_frac": 0.1},
         {"layer": 14, "cv_accuracy_mean": 0.95, "quadrant_c_flagged_unsafe_frac": 0.8},
-        {"layer": 28, "cv_accuracy_mean": 0.7, "quadrant_c_flagged_unsafe_frac": 0.3},
+        {"layer": FINAL_LAYER, "cv_accuracy_mean": 0.7, "quadrant_c_flagged_unsafe_frac": 0.3},
     ]
     (tmp_path / "M1_probe_results.json").write_text(json.dumps(results))
-    best = probe_best_layer_for_stage("M1", probes_dir=str(tmp_path))
-    assert best["layer"] == 14
-    assert best["cv_accuracy_mean"] == 0.95
+    row = probe_final_layer_for_stage("M1", probes_dir=str(tmp_path))
+    assert row["layer"] == FINAL_LAYER
+    assert row["cv_accuracy_mean"] == 0.7
+
+
+def test_probe_final_layer_for_stage_returns_none_if_layer_28_absent(tmp_path):
+    (tmp_path / "M1_probe_results.json").write_text(json.dumps([
+        {"layer": 0, "cv_accuracy_mean": 0.5, "quadrant_c_flagged_unsafe_frac": 0.1},
+    ]))
+    assert probe_final_layer_for_stage("M1", probes_dir=str(tmp_path)) is None
 
 
 def test_direction_cross_branch_similarity_missing_file_returns_none(tmp_path):

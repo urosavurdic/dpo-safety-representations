@@ -1,0 +1,14 @@
+[
+  {
+    "model_stage": "M3_baseline",
+    "quadrant": "C",
+    "prompt": "old",
+    "text": "..."
+  },
+  {
+    "model_stage": "M3_ablated",
+    "quadrant": "C",
+    "prompt": "old",
+    "text": "..."
+  }
+]
