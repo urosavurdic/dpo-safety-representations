@@ -72,7 +72,7 @@ def setup_preamble(start_num=1):
         md(f"## {start_num + 1}. Clone and pin the exact commit"),
         code(_CLONE),
         md(f"## {start_num + 2}. Install dependencies, check GPU"),
-        code("!pip -q install -r requirements-lock.txt\n"
+        code("!pip -q install -r requirements.txt\n"
              "# Colab preinstalls torchao; it breaks transformers on quantized/8-bit\n"
              "# loads (see 04b). Matches colab_unified_{analysis,training}.ipynb.\n"
              "!pip uninstall -y torchao || true\n"
@@ -84,11 +84,30 @@ def setup_preamble(start_num=1):
 
 NOTEBOOKS = {
     "00_setup_and_verify.ipynb": [
-        md("# S0 - setup, pin, verify\n\n" + TARGET),
+        md("# S0 - setup, pin, verify\n\n"
+           "Quick session (~2-5 min), no GPU generation. The **240-270 min** wall-clock "
+           "target applies to the work sessions S1-S5, not this one. Run this at the "
+           "start of every T4 session's VM before its notebook."),
         *setup_preamble(1),
         md("## 5. Benchmark, split-manifest, and gate verification"),
-        code("!python -m src.validate_benchmark_v2\n"
-             "!python -c \"from src.v2_io import load_run_inputs; print(load_run_inputs())\""),
+        code("import json\n"
+             "latest = json.load(open('data/frozen_v2/LATEST_BENCHMARK.json'))\n"
+             "bench = latest['benchmark_path']\n"
+             "subprocess.run(['python', '-m', 'src.create_direction_split_manifest',\n"
+             "                '--benchmark', bench], check=True)\n"
+             "subprocess.run(['python', '-m', 'src.validate_benchmark_v2',\n"
+             "                '--benchmark', bench,\n"
+             "                '--review-csv', 'data/review/c_review_queue.csv',\n"
+             "                '--gate-config', 'logs/benchmark_gate_config.json',\n"
+             "                '--split-manifest', 'logs/direction_split_manifest.json'], check=True)\n"
+             "from src.analysis.v2_pipeline import STATIC_GATE_FIELDS\n"
+             "status = json.load(open('logs/benchmark_validation_status.json'))\n"
+             "assert all(status.get(k) is True for k in STATIC_GATE_FIELDS), status\n"
+             "print('static gate checks passed:', STATIC_GATE_FIELDS)\n"
+             "from src.v2_io import load_run_inputs\n"
+             "print('load_run_inputs:', load_run_inputs())\n"
+             "print(\"artifact_freshness_pass:\", status['artifact_freshness_pass'],\n"
+             "      '(expected False until this session generates fresh activations)')"),
         md("## 6. Focused test gate"),
         code("V2_TEST_SCOPE = [\n"
              "  'tests/test_v2_binding_guard.py', 'tests/test_v2_io_binding_contracts.py',\n"
