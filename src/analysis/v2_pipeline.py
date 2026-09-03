@@ -1056,91 +1056,148 @@ def run_paired_conditions(
     return True
 
 
+def _causal_control_arrays(ctx, stage, direction):
+    """Calibration-RMS random-ablation array + d_AB, from this stage's bound
+    ``_final`` activations (analysis_plan.md §6.1). The random array is built so
+    that ``register_ablation`` (which removes ``(h.d)d``) removes exactly
+    ``gamma^{s,l} (h.r^{s,l}) r^{s,l}`` when fed ``sqrt(gamma) * r``.
+    """
+    import numpy as np
+    from src.analysis.control_directions import (
+        CONTROL_SEED,
+        ab_direction,
+        build_ablation_control,
+        seeded_random_directions,
+    )
+
+    final, _pooled, metadata = load_bound_activation(ctx, stage)
+    quadrants = np.asarray([row.get("quadrant") for row in metadata])
+    splits = np.asarray([row.get("split") for row in metadata])
+    record_ids = [row.get("record_id") for row in metadata]
+
+    n_layers, hidden = direction.shape
+    r_unit = seeded_random_directions(n_layers, hidden, seed=CONTROL_SEED)
+    d_ab = ab_direction(final, quadrants, splits=splits)
+    control = build_ablation_control(
+        final, quadrants, splits, direction, r_unit,
+        record_ids=record_ids, layers=list(ABLATION_LAYERS),
+        seed=CONTROL_SEED, strict_zero=False,
+    )
+
+    random_array = np.zeros_like(direction)
+    for layer in ABLATION_LAYERS:
+        gamma = control.gamma[layer]
+        if gamma == gamma and gamma > 0:  # not nan, positive
+            random_array[layer] = np.sqrt(gamma) * r_unit[layer]
+    return random_array, d_ab, control
+
+
 def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=None) -> bool:
+    """Generate the requested causal conditions (analysis_plan.md §2 CF2, §6).
+
+    ``conditions`` defaults to the frozen required set
+    ``baseline / ablated_AD / ablated_random``. ``ablated_AB`` is generated
+    only when explicitly requested. Resumable: a shard unit already in the
+    causal ShardStore is not regenerated, so adding ``ablated_random`` to an
+    earlier ``baseline + ablated_AD`` run only produces the new condition.
+    """
     from src.analysis.intervention_conditions import parse_conditions_arg
 
-    requested_conditions = parse_conditions_arg(conditions)
+    requested = parse_conditions_arg(conditions)
 
     rows = intervention_rows(ctx.rows)
     if not rows:
         raise RuntimeError("No rows remain for causal ablation.")
 
-    output_path = (
-        ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json"
-    )
-    binding_path = (
-        ctx.paths.raw
-        / f"causal_ablation_v2_{stage}_L24-28_binding.json"
-    )
+    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json"
+    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28_binding.json"
 
+    def _full(cond):
+        return f"{stage}_baseline" if cond == "baseline" else f"{stage}_{cond}"
+
+    requested_full = {_full(c) for c in requested}
+
+    # Skip only if the bound output already covers every requested condition.
     if output_path.exists() and not ctx.force:
         try:
-            assert_binding(
-                binding_path, ctx.benchmark_sha, ctx.split_sha
-            )
-            print(f"  {stage} causal: already bound, skipping")
-            return True
+            existing = assert_binding(binding_path, ctx.benchmark_sha, ctx.split_sha)
+            have = set(existing.get("generated_conditions", []))
+            if requested_full.issubset(have):
+                print(f"  {stage} causal: already bound with {sorted(have)}, skipping")
+                return True
+            print(f"  {stage} causal: have {sorted(have)}, adding {sorted(requested_full - have)}")
         except Exception:
             pass
 
-    if direction.ndim != 2:
-        raise RuntimeError(
-            "Direction must have shape (layers, hidden_dim)."
-        )
-    if max(ABLATION_LAYERS) >= direction.shape[0]:
-        raise RuntimeError(
-            "Direction array does not contain all ablation layers."
-        )
+    if direction.ndim != 2 or max(ABLATION_LAYERS) >= direction.shape[0]:
+        raise RuntimeError("Direction must be (layers, hidden_dim) covering all ablation layers.")
+
+    # condition name -> (shard-unit suffix, hook factory or None). The AD
+    # ablation keeps the historical "_ablated" unit so earlier shards are
+    # reused; its output rows are relabelled "_ablated_AD" on merge.
+    random_array = d_ab = control = None
+    if {"ablated_random", "ablated_AB"} & set(requested):
+        random_array, d_ab, control = _causal_control_arrays(ctx, stage, direction)
+
+    spec = {
+        "baseline": ("_baseline", None),
+        "ablated_AD": ("_ablated", lambda: register_ablation(model, direction, ABLATION_LAYERS)),
+        "ablated_random": ("_ablated_random",
+                           lambda: register_ablation(model, random_array, ABLATION_LAYERS)),
+        "ablated_AB": ("_ablated_AB",
+                       lambda: register_ablation(model, d_ab, ABLATION_LAYERS)),
+    }
 
     store = ctx.store(ctx.paths.causal_shards)
-    baseline_name = f"{stage}_baseline"
-    ablated_name = f"{stage}_ablated"
+    shards = plan_shards(rows, ctx.gen_batch, measure=token_measure(tokenizer))
 
-    if not run_paired_conditions(
-        ctx,
-        stage,
-        model,
-        tokenizer,
-        device,
-        rows,
-        store,
-        baseline_name,
-        ablated_name,
-        lambda: register_ablation(model, direction, ABLATION_LAYERS),
-        f"{stage} causal",
-    ):
-        return False
-
-    merged = store.merge_unit(
-        ShardStore.unit_key(stage, baseline_name), order=ctx.order
-    ) + store.merge_unit(
-        ShardStore.unit_key(stage, ablated_name), order=ctx.order
-    )
+    generated, merged = [], []
+    for cond in requested:
+        suffix, hook_factory = spec[cond]
+        unit_name = f"{stage}{suffix}"
+        unit_key = ShardStore.unit_key(stage, unit_name)
+        handles = hook_factory() if hook_factory else []
+        try:
+            ok = run_sharded(
+                store, unit_key, shards,
+                make_generator(ctx, model, tokenizer, device, stage, unit_name),
+                ctx.deadline, label=f"{stage} causal {cond}",
+            )
+        finally:
+            for handle in handles:
+                handle.remove()
+        if not ok:
+            return False
+        rows_out = store.merge_unit(unit_key, order=ctx.order)
+        if cond == "ablated_AD":
+            for row in rows_out:
+                row["stage"] = f"{stage}_ablated_AD"
+        merged.extend(rows_out)
+        generated.append(_full(cond))
 
     write_json_lf(output_path, merged)
-    write_json_lf(
-        binding_path,
-        {
-            **ctx.bind(),
-            "stage": stage,
-            "conditions": [baseline_name, ablated_name],
-            "generated_conditions": [baseline_name, ablated_name],
-            "requested_conditions": requested_conditions,
-            "intervention_plan_ref": (
-                "src/analysis/intervention_conditions.py - ablated_random / "
-                "ablated_AB generation + the §6.1 seed/gamma/RMS/cos provenance "
-                "block land with the T4 run; execution deferred (analysis_plan.md "
-                "§9 PRE-T4)."
-            ),
-            "layers": ABLATION_LAYERS,
-            "layer_indexing": (
-                "hidden_states index; hook on decoder block index-1"
-            ),
-            "row_count": len(merged),
-            "rows_per_condition": len(rows),
-        },
-    )
-    print(f"  {stage} causal: wrote {output_path}")
+    sidecar = {
+        **ctx.bind(),
+        "stage": stage,
+        "conditions": generated,
+        "generated_conditions": generated,
+        "requested_conditions": sorted(requested_full),
+        "layers": ABLATION_LAYERS,
+        "layer_indexing": "hidden_states index; hook on decoder block index-1",
+        "row_count": len(merged),
+        "rows_per_condition": len(rows),
+    }
+    if control is not None:
+        from src.analysis.control_directions import cosine_per_layer
+        from src.analysis.intervention_conditions import ablation_provenance_block
+        sidecar["ablation_provenance"] = ablation_provenance_block({
+            "d_AB_vs_d_AD_cosine_per_layer": cosine_per_layer(d_ab, direction).tolist(),
+            "d_AB_gate": "NONE - descriptive only (analysis_plan.md §4, correction #8)",
+            "random_direction_seed": control.seed,
+            "ablation_control": control.to_json(),
+        })
+    write_json_lf(binding_path, sidecar)
+    print(f"  {stage} causal: wrote {output_path} ({sorted(generated)})")
     return True
 
 
@@ -1225,98 +1282,95 @@ def stage_steering(
 ) -> bool:
     from src.analysis.intervention_conditions import parse_alpha_coefficients_arg
 
-    requested_alpha_coefficients = parse_alpha_coefficients_arg(alpha_coefficients)
     layers = sorted(set(layers or DEFAULT_STEER_LAYERS))
     quadrants = list(quadrants)
-    tag = tag or steering_tag(
-        stage, layers, alpha_source, alpha_coefficient, quadrants
-    )
+    if alpha_source == "fixed":
+        # a fixed alpha is a single explicit magnitude, no dose-response sweep
+        coefficients = [alpha_coefficient]
+    elif alpha_coefficients is None and tag is not None:
+        # explicit single-tag call (legacy / tests)
+        coefficients = [alpha_coefficient]
+    else:
+        coefficients = parse_alpha_coefficients_arg(alpha_coefficients)
 
-    output_path = ctx.paths.raw / f"steering_v2_{tag}.json"
-    binding_path = ctx.paths.raw / f"steering_v2_{tag}_binding.json"
-
-    if output_path.exists() and not ctx.force:
-        try:
-            assert_binding(
-                binding_path, ctx.benchmark_sha, ctx.split_sha
-            )
-            print(f"  {stage} steering: already bound, skipping")
-            return True
-        except Exception:
-            pass
-
-    rows = quadrant_rows(ctx.rows, quadrants)
-    if not rows:
-        raise RuntimeError("No rows remain for steering.")
-
-    alphas = resolve_alphas(
-        ctx,
-        stage,
-        direction,
-        layers,
-        alpha_source,
-        alpha_value,
-        alpha_coefficient,
-    )
+    # r is the SAME seeded random direction the ablation control uses; steering
+    # controls its magnitude with alpha directly (do NOT reuse the ablation
+    # gamma - analysis_plan.md §6.2).
+    from src.analysis.control_directions import CONTROL_SEED, seeded_random_directions
+    r_unit = seeded_random_directions(direction.shape[0], direction.shape[1], seed=CONTROL_SEED)
 
     store = ctx.store(ctx.paths.steering_shards)
-    baseline_name = f"{tag}_baseline"
-    steered_name = f"{tag}_steered"
+    all_ok = True
+    for coef in coefficients:
+        this_tag = tag or steering_tag(stage, layers, alpha_source, coef, quadrants)
+        output_path = ctx.paths.raw / f"steering_v2_{this_tag}.json"
+        binding_path = ctx.paths.raw / f"steering_v2_{this_tag}_binding.json"
 
-    if not run_paired_conditions(
-        ctx,
-        stage,
-        model,
-        tokenizer,
-        device,
-        rows,
-        store,
-        baseline_name,
-        steered_name,
-        lambda: register_steering(model, direction, alphas),
-        f"{stage} steering",
-    ):
-        return False
+        want = {f"{this_tag}_baseline", f"{this_tag}_steered", f"{this_tag}_steered_random"}
+        if output_path.exists() and not ctx.force:
+            try:
+                existing = assert_binding(binding_path, ctx.benchmark_sha, ctx.split_sha)
+                if want.issubset(set(existing.get("conditions", []))):
+                    print(f"  {stage} steering coef{coef:g}: already bound, skipping")
+                    continue
+            except Exception:
+                pass
 
-    merged = store.merge_unit(
-        ShardStore.unit_key(stage, baseline_name), order=ctx.order
-    ) + store.merge_unit(
-        ShardStore.unit_key(stage, steered_name), order=ctx.order
-    )
+        rows = quadrant_rows(ctx.rows, quadrants)
+        if not rows:
+            raise RuntimeError("No rows remain for steering.")
 
-    write_json_lf(output_path, merged)
-    write_json_lf(
-        binding_path,
-        {
+        alphas = resolve_alphas(
+            ctx, stage, direction, layers, alpha_source, alpha_value, coef,
+        )
+
+        spec = [
+            (f"{this_tag}_baseline", None),
+            (f"{this_tag}_steered", lambda a=alphas: register_steering(model, direction, a)),
+            (f"{this_tag}_steered_random", lambda a=alphas: register_steering(model, r_unit, a)),
+        ]
+        shards = plan_shards(rows, ctx.gen_batch, measure=token_measure(tokenizer))
+        merged = []
+        for name, hook_factory in spec:
+            key = ShardStore.unit_key(stage, name)
+            handles = hook_factory() if hook_factory else []
+            try:
+                ok = run_sharded(
+                    store, key, shards,
+                    make_generator(ctx, model, tokenizer, device, stage, name),
+                    ctx.deadline, label=f"{stage} steering coef{coef:g} {name.split('_')[-1]}",
+                )
+            finally:
+                for handle in handles:
+                    handle.remove()
+            if not ok:
+                all_ok = False
+                break
+            merged.extend(store.merge_unit(key, order=ctx.order))
+        if not all_ok:
+            break
+
+        write_json_lf(output_path, merged)
+        write_json_lf(binding_path, {
             **ctx.bind(),
             "stage": stage,
             "layers": layers,
-            "layer_indexing": (
-                "hidden_states index; hook on decoder block index-1"
-            ),
+            "layer_indexing": "hidden_states index; hook on decoder block index-1",
             "alpha_source": alpha_source,
-            "alpha_coefficient": alpha_coefficient,
-            "requested_alpha_coefficients": requested_alpha_coefficients,
-            "steering_plan_ref": (
-                "src/analysis/intervention_conditions.py - the steered_random "
-                "control and the {0.5,1.0,2.0} dose-response sweep + the §6.2 "
-                "provenance block (alpha_0 / realised additive norm / "
-                "degeneration rate) land with the T4 run; execution deferred."
-            ),
-            "alphas_by_layer": {
-                str(layer): value for layer, value in alphas.items()
-            },
-            "alpha_calibration_rows": (
-                "quadrant_A_direction_estimation_only"
-            ),
+            "alpha_coefficient": coef,
+            "requested_alpha_coefficients": coefficients,
+            "alphas_by_layer": {str(k): v for k, v in alphas.items()},
+            "alpha_calibration_rows": "quadrant_A_direction_estimation_only",
+            "random_direction_seed": CONTROL_SEED,
+            "random_control": "steered_random: same seeded r, same alpha; gamma NOT reused (§6.2)",
             "quadrants": quadrants,
-            "conditions": [baseline_name, steered_name],
+            "conditions": [name for name, _ in spec],
             "row_count": len(merged),
             "rows_per_condition": len(rows),
-        },
-    )
-    print(f"  {stage} steering: wrote {output_path}")
-    return True
+        })
+        print(f"  {stage} steering coef{coef:g}: wrote {output_path}")
+
+    return all_ok
 
 
 # --------------------------------------------------------------------------

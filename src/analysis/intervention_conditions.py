@@ -9,10 +9,11 @@ for ablation; stage / layer / A_est rows / alpha_0 / coef / realised additive
 norm / degeneration rate for steering) that go into each artifact's
 ``*_binding.json``.
 
-**Execution is deferred to the T4 run.** This module defines the plan and the
-records; the GPU generation of ``ablated_random`` / ``ablated_AB`` /
-``steered_random`` cells happens in ``v2_pipeline.stage_causal`` /
-``stage_steering`` at T4.
+The GPU generation of the ``ablated_random`` / ``ablated_AB`` / ``steered_random``
+cells and the ``alpha_coef ∈ {0.5, 1.0, 2.0}`` dose-response sweep is wired into
+``v2_pipeline.stage_causal`` / ``stage_steering`` (driven by ``--conditions`` /
+``--alpha-coefficients``); this module supplies the frozen vocabulary, the
+runtime-capacity planner, and the provenance blocks they record.
 """
 from __future__ import annotations
 
