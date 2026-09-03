@@ -150,37 +150,95 @@ def parse_wildguard_output(raw: str) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# lazy model wrappers - never download; only load if present locally
+# judge model wrapper (loaded one at a time; 4-bit by default to fit a T4)
 # --------------------------------------------------------------------------- #
+# Default checkpoints (analysis_plan.md §10 B3: pin the exact revision at the
+# 04b preflight). StrongREJECT fine-tuned evaluator = the Gemma-2B the
+# `strong_reject` package distils; WildGuard = allenai/wildguard (7B).
+DEFAULT_STRONGREJECT_MODEL = "qylu4156/strongreject-15k-v1"
+DEFAULT_WILDGUARD_MODEL = "allenai/wildguard"
+
+
 @dataclass
 class LazyModelJudge:
     name: str
     model_id: str
-    _pipe: object = field(default=None, repr=False)
+    load_4bit: bool = True
+    allow_download: bool = False
+    max_new_tokens: int = 128
+    _model: object = field(default=None, repr=False)
+    _tok: object = field(default=None, repr=False)
     available: bool = False
+    load_error: str | None = None
 
     def try_load(self) -> bool:  # pragma: no cover - needs real weights / GPU
         try:
-            from huggingface_hub import try_to_load_from_cache
-        except Exception:
+            import torch
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+        except Exception as exc:
+            self.load_error = f"transformers/torch unavailable: {exc}"
             return False
-        # Only proceed if *something* for this repo is already in the local
-        # cache - never trigger a download here.
-        cached = try_to_load_from_cache(self.model_id, "config.json")
-        if cached in (None, "_CACHED_NO_EXIST"):
-            self.available = False
-            return False
-        from transformers import pipeline
 
-        self._pipe = pipeline("text-generation", model=self.model_id, device_map="auto")
+        if not self.allow_download:
+            try:
+                from huggingface_hub import try_to_load_from_cache
+                hit = try_to_load_from_cache(self.model_id, "config.json")
+                if hit in (None, "_CACHED_NO_EXIST"):
+                    self.load_error = (
+                        f"{self.model_id} not in local cache and --allow-download "
+                        "not set"
+                    )
+                    return False
+            except Exception:
+                pass
+
+        kwargs = {"torch_dtype": torch.float16, "device_map": "auto"}
+        if self.load_4bit:
+            try:
+                from transformers import BitsAndBytesConfig
+
+                kwargs["quantization_config"] = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_quant_type="nf4",
+                )
+            except Exception as exc:
+                self.load_error = f"bitsandbytes/4-bit unavailable: {exc}"
+                return False
+        try:
+            self._tok = AutoTokenizer.from_pretrained(self.model_id)
+            self._model = AutoModelForCausalLM.from_pretrained(self.model_id, **kwargs)
+        except Exception as exc:
+            self.load_error = f"load failed: {exc}"
+            return False
         self.available = True
         return True
 
     def raw_generate(self, prompt: str) -> str:  # pragma: no cover
+        import torch
+
         if not self.available:
-            raise RuntimeError(f"{self.name} model not loaded")
-        out = self._pipe(prompt, max_new_tokens=256, do_sample=False)
-        return out[0]["generated_text"]
+            raise RuntimeError(f"{self.name} model not loaded ({self.load_error})")
+        inputs = self._tok(prompt, return_tensors="pt").to(self._model.device)
+        with torch.no_grad():
+            out = self._model.generate(
+                **inputs, max_new_tokens=self.max_new_tokens, do_sample=False,
+            )
+        return self._tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+
+    def unload(self) -> None:  # pragma: no cover
+        import gc
+
+        self._model = self._tok = None
+        self.available = False
+        gc.collect()
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
 
 
 # --------------------------------------------------------------------------- #
@@ -223,6 +281,57 @@ def _binding_for(response_file: str) -> Path:
     return p.with_name(p.stem + "_binding.json")
 
 
+# The response families the T4 run produces (per-command runs write no
+# per-session manifest, so the consolidated one is assembled from these).
+RESPONSE_GLOBS = (
+    "behavioral_eval/v2_raw_*.json",
+    "raw/causal_ablation_v2_*_L24-28.json",
+    "raw/steering_v2_*_Q*.json",
+)
+
+
+def build_consolidated_from_results(results_dir, out_path, *, benchmark_sha256=None,
+                                    split_manifest_sha256=None) -> dict:
+    """Assemble the consolidated response manifest by scanning ``results_dir``
+    for every v2 response file + its ``*_binding.json`` sidecar. Reads the
+    benchmark / split SHA from the first binding if not supplied. This is the
+    path to use when the per-command T4 runs left no per-session manifest."""
+    results_dir = Path(results_dir)
+    entries, seen = [], set()
+    for pattern in RESPONSE_GLOBS:
+        for resp in sorted(results_dir.glob(pattern)):
+            if resp.name.endswith("_binding.json") or resp.stem.endswith("_binding"):
+                continue
+            binding = _binding_for(str(resp))
+            if not binding.exists():
+                print(f"  skip {resp.name}: no {binding.name}")
+                continue
+            key = resp.as_posix()
+            if key in seen:
+                continue
+            seen.add(key)
+            if benchmark_sha256 is None:
+                b = load_json(binding)
+                benchmark_sha256 = b.get("benchmark_sha256")
+                split_manifest_sha256 = split_manifest_sha256 or b.get("split_manifest_sha256")
+            entries.append({"response_file": resp.as_posix(),
+                            "binding_file": binding.as_posix()})
+
+    manifest = {
+        "kind": "consolidated_response_manifest",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "assembled_from": f"glob scan of {results_dir.as_posix()}",
+        "benchmark_sha256": benchmark_sha256,
+        "split_manifest_sha256": split_manifest_sha256,
+        "entries": entries,
+    }
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"consolidated manifest: {len(entries)} response files -> {out_path}")
+    return manifest
+
+
 def verify_manifest_entry(entry: dict, benchmark_sha256: str, split_manifest_sha256: str,
                           *, reject_legacy: bool = True) -> list[dict]:
     """Load + verify one manifest entry's response file. Returns its rows.
@@ -254,45 +363,52 @@ def verify_manifest_entry(entry: dict, benchmark_sha256: str, split_manifest_sha
 # --------------------------------------------------------------------------- #
 # orchestration
 # --------------------------------------------------------------------------- #
-def judge_row(row: dict, *, sr_judge=None, wg_judge=None) -> dict:
-    """One flat judged record for one saved (prompt, response) pair."""
-    prompt = row.get("prompt", "")
+def regex_only_record(row: dict) -> dict:
+    """Base flat record for one saved (prompt, response) pair: regex scores
+    now, model fields marked unscored (filled in later, one model at a time)."""
     response = row.get("response")
-    variant = row.get("judged_prompt_variant", "candidate")
-
-    rec = {
+    return {
         "record_id": row.get("record_id"),
         "stage": row.get("stage"),
         "model_stage": row.get("model_stage"),
         "condition": row.get("condition"),
         "quadrant": row.get("quadrant"),
-        "judged_prompt_variant": variant,
-        "prompt": prompt,
+        "judged_prompt_variant": row.get("judged_prompt_variant", "candidate"),
+        "prompt": row.get("prompt", ""),
         "response": response,
         "benchmark_sha256": row.get("benchmark_sha256"),
         "split_manifest_sha256": row.get("split_manifest_sha256"),
         "judge_versions": dict(JUDGE_VERSIONS),
         "regex": regex_scores(response),
+        "strong_reject": {"score": None, "malformed": None, "judge_status": "not_scored"},
+        "wildguard": {"prompt_harm": None, "response_refusal": None, "response_harm": None,
+                      "malformed": None, "judge_status": "not_scored"},
     }
 
-    if sr_judge is not None and getattr(sr_judge, "available", False):  # pragma: no cover
-        rec["strong_reject"] = parse_strongreject_output(
-            sr_judge.raw_generate(_sr_prompt(prompt, response))
-        )
-        rec["strong_reject"]["judge_status"] = "scored"
-    else:
-        rec["strong_reject"] = {"score": None, "malformed": None,
-                                "judge_status": "model_unavailable"}
 
-    if wg_judge is not None and getattr(wg_judge, "available", False):  # pragma: no cover
-        rec["wildguard"] = parse_wildguard_output(
-            wg_judge.raw_generate(_wg_prompt(prompt, response))
-        )
-        rec["wildguard"]["judge_status"] = "scored"
-    else:
-        rec["wildguard"] = {"prompt_harm": None, "response_refusal": None,
-                            "response_harm": None, "malformed": None,
-                            "judge_status": "model_unavailable"}
+def score_strongreject(rec: dict, judge) -> None:  # pragma: no cover - live only
+    if judge is None or not getattr(judge, "available", False):
+        rec["strong_reject"]["judge_status"] = "model_unavailable"
+        return
+    parsed = parse_strongreject_output(judge.raw_generate(_sr_prompt(rec["prompt"], rec["response"])))
+    parsed["judge_status"] = "scored"
+    rec["strong_reject"] = parsed
+
+
+def score_wildguard(rec: dict, judge) -> None:  # pragma: no cover - live only
+    if judge is None or not getattr(judge, "available", False):
+        rec["wildguard"]["judge_status"] = "model_unavailable"
+        return
+    parsed = parse_wildguard_output(judge.raw_generate(_wg_prompt(rec["prompt"], rec["response"])))
+    parsed["judge_status"] = "scored"
+    rec["wildguard"] = parsed
+
+
+# backward-compat shim
+def judge_row(row: dict, *, sr_judge=None, wg_judge=None) -> dict:
+    rec = regex_only_record(row)
+    score_strongreject(rec, sr_judge)
+    score_wildguard(rec, wg_judge)
     return rec
 
 
@@ -311,8 +427,39 @@ def _wg_prompt(prompt, response):  # pragma: no cover - live-only
     )
 
 
+# Scopes: which rows the model judges actually score. regex always scores all.
+# "confirmatory" = exactly what CF1 (C at M2/M3) and CF2 (held-out A at M3
+# causal, 3 conditions) need - ~300 rows, ~15 min on a T4. "all" = every row.
+def _row_in_scope(rec: dict, scope: str) -> bool:
+    if scope == "all":
+        return True
+    q = rec.get("quadrant")
+    stage = (rec.get("model_stage") or rec.get("stage") or "")
+    cond = (rec.get("condition") or rec.get("stage") or "")
+    if scope == "confirmatory":
+        # CF1: quadrant C, behavioural, at M2 or M3 (no intervention condition)
+        if q == "C" and stage in ("M2", "M3") and "ablat" not in cond and "steer" not in cond:
+            return True
+        # CF2: quadrant A, M3 causal, baseline / ablated_AD / ablated_random
+        if q == "A" and stage.startswith("M3") and (
+            cond.endswith("_baseline") or "ablated_AD" in cond or "ablated_random" in cond
+        ):
+            return True
+        return False
+    if scope == "c_only":
+        return q == "C"
+    return True
+
+
 def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
-               require_binding=True, reject_legacy=True) -> Path:
+               require_binding=True, reject_legacy=True,
+               strongreject_model=DEFAULT_STRONGREJECT_MODEL,
+               wildguard_model=DEFAULT_WILDGUARD_MODEL,
+               load_4bit=True, allow_download=False, scope="confirmatory") -> Path:
+    """Score every response with regex (always), then - if ``run_live`` - with
+    StrongREJECT and WildGuard **one model at a time** (load, score all rows,
+    unload) so peak VRAM is one 7B model, which fits a free-tier T4 (and 4-bit
+    by default keeps well under)."""
     manifest = load_json(manifest_path)
     if manifest.get("kind") != "consolidated_response_manifest":
         raise LegacyArtifactError(
@@ -324,18 +471,42 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
     if require_binding and not (bench_sha and split_sha):
         raise LegacyArtifactError("consolidated manifest missing benchmark/split SHA")
 
-    sr_judge = wg_judge = None
-    if run_live:  # pragma: no cover - needs local weights
-        sr_judge = LazyModelJudge("strong_reject", "dsbowen/strong_reject")
-        sr_judge.try_load()
-        wg_judge = LazyModelJudge("wildguard", "allenai/wildguard")
-        wg_judge.try_load()
-
-    judged = []
+    records = []
     for entry in manifest["entries"]:
         rows = verify_manifest_entry(entry, bench_sha, split_sha, reject_legacy=reject_legacy)
-        for row in rows:
-            judged.append(judge_row(row, sr_judge=sr_judge, wg_judge=wg_judge))
+        records.extend(regex_only_record(row) for row in rows)
+
+    in_scope, in_scope_ids = [], set()
+    for rec in records:
+        rec["model_judge_scope"] = scope
+        if _row_in_scope(rec, scope):
+            in_scope.append(rec)
+            in_scope_ids.add(id(rec))
+        else:
+            for k in ("strong_reject", "wildguard"):
+                rec[k]["judge_status"] = "out_of_scope"
+    print(f"  scope={scope!r}: {len(in_scope)}/{len(records)} rows will get model judging")
+
+    judge_status = {"strong_reject": "not_run", "wildguard": "not_run"}
+    if run_live:  # pragma: no cover - needs GPU + weights
+        for name, model_id, scorer, key in (
+            ("strong_reject", strongreject_model, score_strongreject, "strong_reject"),
+            ("wildguard", wildguard_model, score_wildguard, "wildguard"),
+        ):
+            judge = LazyModelJudge(name, model_id, load_4bit=load_4bit,
+                                   allow_download=allow_download)
+            ok = judge.try_load()
+            judge_status[key] = "scored" if ok else f"unavailable: {judge.load_error}"
+            print(f"  {name}: {judge_status[key]}")
+            if ok:
+                for i, rec in enumerate(in_scope):
+                    scorer(rec, judge)
+                    if (i + 1) % 100 == 0:
+                        print(f"    {name}: {i + 1}/{len(in_scope)}")
+                judge.unload()
+            else:
+                for rec in in_scope:
+                    rec[key]["judge_status"] = "model_unavailable"
 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -346,10 +517,14 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
         "benchmark_sha256": bench_sha,
         "split_manifest_sha256": split_sha,
         "judge_versions": dict(JUDGE_VERSIONS),
-        "n_records": len(judged),
+        "judge_status": judge_status,
+        "models": {"strong_reject": strongreject_model, "wildguard": wildguard_model,
+                   "load_4bit": load_4bit},
+        "n_records": len(records),
         "live_scoring": bool(run_live),
-        "records": judged,
+        "records": records,
     }, indent=2), encoding="utf-8")
+    print(f"wrote {out_path}  ({len(records)} records; {judge_status})")
     return out_path
 
 
@@ -361,12 +536,26 @@ def main():
     parser.add_argument("--require-binding", action="store_true", default=True)
     parser.add_argument("--reject-legacy", action="store_true", default=True)
     parser.add_argument("--run-live", action="store_true",
-                        help="Score with the StrongREJECT / WildGuard models IF "
-                             "they are already cached locally. Never downloads.")
+                        help="Score with the StrongREJECT / WildGuard models "
+                             "(one at a time; 4-bit).")
+    parser.add_argument("--from-results-dir", default=None,
+                        help="Assemble the consolidated manifest by scanning this "
+                             "results/ dir (v2_raw_*, causal_ablation_v2_*, "
+                             "steering_v2_*) + their *_binding.json, write it to "
+                             "--response-manifest, then judge it.")
     parser.add_argument("--build-consolidated", nargs="+", default=None,
-                        help="Instead of judging: assemble a consolidated manifest "
-                             "from these per-session manifest paths and write it to "
-                             "--response-manifest.")
+                        help="Assemble a consolidated manifest from these per-session "
+                             "manifest paths and write it to --response-manifest (no judging).")
+    parser.add_argument("--strongreject-model", default=DEFAULT_STRONGREJECT_MODEL)
+    parser.add_argument("--wildguard-model", default=DEFAULT_WILDGUARD_MODEL)
+    parser.add_argument("--no-4bit", action="store_true", help="Load judges in fp16 instead of 4-bit.")
+    parser.add_argument("--allow-download", action="store_true", default=True,
+                        help="Allow the judge models to download from the Hub (default: yes).")
+    parser.add_argument("--scope", choices=["confirmatory", "c_only", "all"],
+                        default="confirmatory",
+                        help="Which rows get MODEL judging (regex always scores all). "
+                             "confirmatory (default) = CF1 (C @ M2/M3) + CF2 (A @ M3 causal) "
+                             "~300 rows ~15 min; all = every response ~15+ h.")
     parser.add_argument("--benchmark-sha256", default=None)
     parser.add_argument("--split-manifest-sha256", default=None)
     args = parser.parse_args()
@@ -377,12 +566,20 @@ def main():
             benchmark_sha256=args.benchmark_sha256,
             split_manifest_sha256=args.split_manifest_sha256,
         )
-        print(f"wrote consolidated manifest -> {args.response_manifest}")
         return
+
+    if args.from_results_dir:
+        build_consolidated_from_results(
+            args.from_results_dir, args.response_manifest,
+            benchmark_sha256=args.benchmark_sha256,
+            split_manifest_sha256=args.split_manifest_sha256,
+        )
 
     out = run_judges(
         args.response_manifest, args.out_dir, run_live=args.run_live,
         require_binding=args.require_binding, reject_legacy=args.reject_legacy,
+        strongreject_model=args.strongreject_model, wildguard_model=args.wildguard_model,
+        load_4bit=not args.no_4bit, allow_download=args.allow_download, scope=args.scope,
     )
     print(f"wrote {out}")
 
