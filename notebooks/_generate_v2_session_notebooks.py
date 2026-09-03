@@ -63,37 +63,15 @@ assert commit == PINNED_COMMIT, f"wrong commit: {{commit}} != {{PINNED_COMMIT}}"
 print("checked out", commit)"""
 
 
-_PERSIST = r'''import os, shutil
-from pathlib import Path
-
-# One Drive root holds everything that must survive a Colab disconnect / fresh
-# VM: results/ (activations, directions, behavioural output, shard checkpoints)
-# and the HF weight cache. Change DRIVE_ROOT only to run independent attempts
-# side by side. Mirrors colab_unified_analysis.ipynb's persistence plumbing.
-DRIVE_ROOT = Path('/content/drive/MyDrive/dpo_v2')
-DRIVE_RESULTS = DRIVE_ROOT / 'results'
-DRIVE_HF_CACHE = DRIVE_ROOT / 'hf_cache'
-DRIVE_RESULTS.mkdir(parents=True, exist_ok=True)
-DRIVE_HF_CACHE.mkdir(parents=True, exist_ok=True)
-
-# Must be set before any transformers/peft import so the ~3 GB base model +
-# LoRA adapters download ONCE total, not once per session.
-os.environ['HF_HOME'] = str(DRIVE_HF_CACHE)
-
-local_results = Path('results')
-if local_results.is_symlink():
-    pass  # already wired (cell re-run mid-session)
-else:
-    if not (DRIVE_RESULTS / 'activations').exists() and local_results.exists():
-        # first use of this Drive root: seed it with the checkout's committed
-        # results/ so v2 output layers on top instead of starting empty
-        shutil.copytree(local_results, DRIVE_RESULTS, dirs_exist_ok=True)
-    if local_results.exists():
-        shutil.rmtree(local_results)
-    local_results.symlink_to(DRIVE_RESULTS, target_is_directory=True)
-
-print('results/ ->', local_results.resolve())
-print('HF_HOME  ->', os.environ['HF_HOME'])
+_PERSIST = r'''# Bind results/ + the HF weight cache to a persistent Drive folder so this
+# session's work survives a Colab disconnect and a fresh VM resumes it. One
+# line - the logic + tests live in src/colab_persist.py. Idempotent, and safe
+# even if you have already done work on the ephemeral results/ (it merges that
+# into Drive first). Override the Drive root with the DPO_DRIVE_ROOT env var;
+# pass persist_hf_cache=False to keep the ~5 GB HF cache off Drive.
+from src.colab_persist import bind, status_line
+info = bind()                     # or: bind(persist_hf_cache=False)
+print(status_line(info))
 !python -m src.analysis.v2_pipeline status'''
 
 
