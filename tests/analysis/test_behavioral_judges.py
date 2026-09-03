@@ -171,3 +171,95 @@ def test_build_consolidated_manifest(tmp_path):
     assert m["entries"][0]["response_file"] == str(resp)
     assert m["entries"][0]["binding_file"].endswith("v2_raw_M2_binding.json")
     assert out.exists()
+
+
+# --- WP-Judge fixes: assemble-from-results-dir + sequential scoring ---
+def test_build_consolidated_from_results_dir(tmp_path):
+    rdir = tmp_path / "results"
+    (rdir / "behavioral_eval").mkdir(parents=True)
+    (rdir / "raw").mkdir(parents=True)
+    # a v2 behavioral file + its binding
+    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    for r in rows:
+        r["prompt"] = r.get("prompt", "p")
+    (rdir / "behavioral_eval" / "v2_raw_M3.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "behavioral_eval" / "v2_raw_M3_binding.json").write_text(
+        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    # a causal file + its binding
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    # a steering file WITHOUT a binding -> must be skipped, not crash
+    (rdir / "raw" / "steering_v2_M3_L24_x_coef1_QABCD.json").write_text("[]", encoding="utf-8")
+
+    out = tmp_path / "consolidated.json"
+    m = bj.build_consolidated_from_results(rdir, out)
+    assert m["kind"] == "consolidated_response_manifest"
+    assert m["benchmark_sha256"] == BENCH_SHA
+    names = sorted(Path(e["response_file"]).name for e in m["entries"])
+    assert names == ["causal_ablation_v2_M3_L24-28.json", "v2_raw_M3.json"]  # steering (no binding) skipped
+    assert out.exists()
+
+
+def test_run_judges_from_that_manifest_regex_only(tmp_path):
+    rdir = tmp_path / "results"
+    (rdir / "raw").mkdir(parents=True)
+    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    for r in rows:
+        r["prompt"] = "p"
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+
+    manifest = tmp_path / "c.json"
+    bj.build_consolidated_from_results(rdir, manifest)
+    out = bj.run_judges(manifest, out_dir=tmp_path / "o", run_live=False)
+    data = json.loads(out.read_text())
+    assert data["n_records"] == 6
+    assert data["judge_status"] == {"strong_reject": "not_run", "wildguard": "not_run"}
+    for rec in data["records"]:
+        assert rec["regex"] is not None
+        assert rec["strong_reject"]["judge_status"] == "not_scored"
+
+
+def test_lazy_model_judge_reports_unavailable_without_crashing():
+    j = bj.LazyModelJudge("wildguard", "definitely/not-a-real-model", allow_download=False)
+    assert j.try_load() is False
+    assert j.available is False
+    assert j.load_error  # a human-readable reason is recorded
+
+
+# --- WP-Judge: scope filter ---
+def test_row_in_scope_confirmatory_selects_CF1_and_CF2_rows_only():
+    cf1 = {"quadrant": "C", "model_stage": "M3", "condition": "M3_baseline", "stage": "M3"}
+    cf1_m2 = {"quadrant": "C", "model_stage": "M2", "stage": "M2", "condition": "M2"}
+    cf2_base = {"quadrant": "A", "model_stage": "M3", "condition": "M3_baseline"}
+    cf2_ad = {"quadrant": "A", "model_stage": "M3", "condition": "M3_ablated_AD"}
+    cf2_rand = {"quadrant": "A", "model_stage": "M3", "condition": "M3_ablated_random"}
+    out_b = {"quadrant": "B", "model_stage": "M3", "condition": "M3_baseline"}
+    out_c_steer = {"quadrant": "C", "model_stage": "M3", "condition": "M3_steered"}
+    out_a_m1 = {"quadrant": "A", "model_stage": "M1", "condition": "M1_baseline"}
+
+    assert all(bj._row_in_scope(r, "confirmatory") for r in (cf1, cf1_m2, cf2_base, cf2_ad, cf2_rand))
+    assert not any(bj._row_in_scope(r, "confirmatory") for r in (out_b, out_c_steer, out_a_m1))
+    assert bj._row_in_scope(out_b, "all") is True
+    assert bj._row_in_scope(out_c_steer, "c_only") is True
+
+
+def test_run_judges_marks_out_of_scope_rows(tmp_path):
+    rdir = tmp_path / "results"
+    (rdir / "raw").mkdir(parents=True)
+    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    for r in rows:
+        r["prompt"] = "p"  # these fixture rows are quadrant A, M3, baseline/ablated_* -> in CF2 scope
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    manifest = tmp_path / "c.json"
+    bj.build_consolidated_from_results(rdir, manifest)
+
+    out = bj.run_judges(manifest, out_dir=tmp_path / "o1", run_live=False, scope="c_only")
+    data = json.loads(out.read_text())
+    # fixture rows are quadrant A -> c_only excludes them all
+    assert all(r["strong_reject"]["judge_status"] == "out_of_scope" for r in data["records"])
+    assert all(r["model_judge_scope"] == "c_only" for r in data["records"])
