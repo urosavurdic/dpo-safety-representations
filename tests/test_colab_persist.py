@@ -51,15 +51,18 @@ def test_merge_preserves_drive_only_content(tmp_path):
     assert (drive / "README.md").exists()  # local seed merged in
 
 
-def test_merge_local_wins_on_name_clash(tmp_path):
-    drive = tmp_path / "drive" / "results"
+def test_merge_drive_wins_on_name_clash_never_overwrites(tmp_path):
+    # Drive holds a real 654-row session output; local is a fresh checkout
+    # carrying a stale 370-era file of the same name. Drive MUST win.
+    drive = tmp_path / "drive" / "results" / "activations"
     drive.mkdir(parents=True)
-    (drive / "x.json").write_text("old", encoding="utf-8")
-    local = tmp_path / "results"
-    local.mkdir()
-    (local / "x.json").write_text("new", encoding="utf-8")
-    merge_into_drive(local, drive)
-    assert (drive / "x.json").read_text() == "new"
+    (drive / "M3_metadata.json").write_text("654-row-real", encoding="utf-8")
+    local = tmp_path / "results" / "activations"
+    local.mkdir(parents=True)
+    (local / "M3_metadata.json").write_text("370-row-stale", encoding="utf-8")
+    added = merge_into_drive(tmp_path / "results", tmp_path / "drive" / "results")
+    assert (drive / "M3_metadata.json").read_text() == "654-row-real"
+    assert added is False  # nothing new was added
 
 
 def test_merge_no_local_is_noop(tmp_path):

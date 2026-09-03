@@ -42,19 +42,31 @@ def _hf_source_cache() -> Path:
 
 
 def merge_into_drive(local: str | Path, drive_results: str | Path) -> bool:
-    """Copy everything under ``local`` into ``drive_results`` (merge, never
-    delete Drive-only content; local wins on name clashes). Returns True if the
-    merge added any file/dir that Drive did not already have. Symlink-free, so
-    it is unit-testable off Colab."""
+    """Copy files under ``local`` into ``drive_results`` **only when the
+    destination does not already exist** - Drive is authoritative for anything
+    it already holds. This is deliberate: ``local`` is a fresh checkout, and
+    the repo commits stale 370-era files under ``results/`` (metadata, probe
+    results, ...) that must NEVER overwrite a real session's output on Drive.
+    Local only contributes files Drive is genuinely missing (e.g. work done on
+    an ephemeral ``results/`` before it was symlinked). Returns True if
+    anything was added. Symlink-free, so it is unit-testable off Colab."""
     local = Path(local)
     drive_results = Path(drive_results)
     drive_results.mkdir(parents=True, exist_ok=True)
     if not local.exists():
         return False
-    before = {p.relative_to(drive_results).as_posix() for p in drive_results.rglob("*")}
-    shutil.copytree(local, drive_results, dirs_exist_ok=True)
-    after = {p.relative_to(drive_results).as_posix() for p in drive_results.rglob("*")}
-    return bool(after - before)
+
+    added = 0
+    for src in local.rglob("*"):
+        if src.is_dir():
+            continue
+        dst = drive_results / src.relative_to(local)
+        if dst.exists():
+            continue  # Drive wins - never overwrite existing session output
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        added += 1
+    return added > 0
 
 
 HF_CACHE_MIN_FREE_GIB = 6.0
