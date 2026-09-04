@@ -27,12 +27,27 @@ CROSS_BRANCH_PAIRS = [
 ]
 
 
-def load_raw_behavioral(path="results/behavioral_eval/raw.json"):
+# Default is the v2 merged behavioral file ({stage: [rows]}, rows carry
+# "response"); the pre-freeze 370-era name/key ("raw.json" / "completion") is
+# still accepted for the historical appendix.
+DEFAULT_RAW = "results/behavioral_eval/v2_raw.json"
+
+
+def load_raw_behavioral(path=DEFAULT_RAW):
     p = Path(path)
     if not p.exists():
-        return {}
+        # fall back to the 370-era file if the v2 one is not present
+        legacy = Path("results/behavioral_eval/raw.json")
+        if path == DEFAULT_RAW and legacy.exists():
+            p = legacy
+        else:
+            return {}
     with open(p, encoding="utf-8") as f:
         return json.load(f)
+
+
+def _completion(row):
+    return row.get("completion") if row.get("completion") is not None else row.get("response", "")
 
 
 def behavioral_rates_for_stage(raw_rows_by_stage, stage):
@@ -46,9 +61,9 @@ def behavioral_rates_for_stage(raw_rows_by_stage, stage):
         q_rows = [r for r in rows if r["quadrant"] == quadrant]
         if not q_rows:
             continue
-        refused = sum(1 for r in q_rows if classify_refusal(r["completion"]))
-        soft_defl = sum(1 for r in q_rows if is_soft_deflection(r["completion"]))
-        degenerate = sum(1 for r in q_rows if is_degenerate(r["completion"]))
+        refused = sum(1 for r in q_rows if classify_refusal(_completion(r)))
+        soft_defl = sum(1 for r in q_rows if is_soft_deflection(_completion(r)))
+        degenerate = sum(1 for r in q_rows if is_degenerate(_completion(r)))
         out[quadrant] = {
             "refusal": rate_with_ci(refused, len(q_rows)),
             "soft_deflection": rate_with_ci(soft_defl, len(q_rows)),
@@ -145,7 +160,16 @@ def print_comparison(comp):
 
 
 def main():
-    raw_rows_by_stage = load_raw_behavioral()
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--raw", default=DEFAULT_RAW,
+                        help="Merged behavioral file ({stage: [rows]}). "
+                             f"Default {DEFAULT_RAW}; falls back to the 370-era "
+                             "results/behavioral_eval/raw.json if absent.")
+    args = parser.parse_args()
+
+    raw_rows_by_stage = load_raw_behavioral(args.raw)
     print("Cross-branch comparison: original vs. alt (Dolly-initialized M1) branch\n")
 
     all_comparisons = {}

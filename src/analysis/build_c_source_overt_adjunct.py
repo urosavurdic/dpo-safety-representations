@@ -22,10 +22,22 @@ import argparse
 import json
 from pathlib import Path
 
-from src.v2_io import canonical_json, load_jsonl, resolve_benchmark, sha256_bytes, sha256_file
+from src.v2_io import (
+    canonical_json,
+    load_jsonl,
+    resolve_benchmark,
+    sha256_bytes,
+    sha256_file,
+    split_payload,
+)
 
 DEFAULT_OUT = Path("data/frozen_v2/adjunct_c_source_overt.jsonl")
 DEFAULT_POINTER = Path("data/frozen_v2/adjunct_c_source_overt.LATEST.json")
+# LATEST_BENCHMARK-shaped pointer + split manifest so `v2_pipeline extract
+# --latest-pointer ... --split-manifest ... --namespace c_source_overt` binds
+# the companion set the same strict way as the main benchmark.
+DEFAULT_LATEST_BENCHMARK = Path("data/frozen_v2/adjunct_c_source_overt.LATEST_BENCHMARK.json")
+DEFAULT_SPLIT_MANIFEST = Path("data/frozen_v2/adjunct_c_source_overt.split_manifest.json")
 FROZEN_C_COUNT = 104
 CONTROLLED_EVAL = Path("data/processed/controlled_eval.jsonl")
 
@@ -57,7 +69,11 @@ def build_rows(benchmark_rows):
     return rows
 
 
-def run(latest_path=None, out_path=DEFAULT_OUT, pointer_path=DEFAULT_POINTER):
+def run(latest_path=None, out_path=DEFAULT_OUT, pointer_path=DEFAULT_POINTER,
+        latest_benchmark_path=DEFAULT_LATEST_BENCHMARK,
+        split_manifest_path=DEFAULT_SPLIT_MANIFEST):
+    latest_benchmark_path = Path(latest_benchmark_path)
+    split_manifest_path = Path(split_manifest_path)
     bench_path, bench_sha = resolve_benchmark(
         **({"latest_path": latest_path} if latest_path else {})
     )
@@ -93,6 +109,38 @@ def run(latest_path=None, out_path=DEFAULT_OUT, pointer_path=DEFAULT_POINTER):
     }
     Path(pointer_path).write_text(json.dumps(pointer, indent=2), encoding="utf-8")
 
+    # LATEST_BENCHMARK-shaped pointer (so resolve_benchmark accepts it) ------
+    latest_benchmark = {
+        "benchmark_path": str(out_path).replace("\\", "/"),
+        "benchmark_sha256": adjunct_sha,
+        "kind": "c_source_overt_adjunct",
+        "frozen_benchmark_sha256": bench_sha,
+    }
+    latest_benchmark_path.parent.mkdir(parents=True, exist_ok=True)
+    latest_benchmark_path.write_text(json.dumps(latest_benchmark, indent=2), encoding="utf-8")
+
+    # companion split manifest bound to the adjunct sha. matched-pair rep does
+    # NOT use a direction-estimation split, so every row goes in one bucket;
+    # the manifest exists only so load_run_inputs' strict binding passes.
+    ids = [r["record_id"] for r in rows]
+    split_manifest = {
+        "benchmark_sha256": adjunct_sha,
+        "direction_split_seed": None,
+        "direction_train_fraction": None,
+        "split_algorithm": "companion_all_in_direction_estimation (unused for matched-pair rep)",
+        "record_ids_direction_estimation": ids,
+        "record_ids_held_out_behavioral": [],
+        "counts": {"direction_estimation": len(ids), "held_out_behavioral": 0},
+        "split_hash_algorithm": "sha256_canonical_json_without_hash_fields",
+    }
+    split_manifest["split_manifest_sha256"] = sha256_bytes(
+        canonical_json(split_payload(split_manifest))
+    )
+    split_manifest_path.write_text(json.dumps(split_manifest, indent=2), encoding="utf-8")
+
+    pointer["latest_benchmark_pointer"] = str(latest_benchmark_path).replace("\\", "/")
+    pointer["split_manifest"] = str(split_manifest_path).replace("\\", "/")
+
     # assertions: the frozen benchmark and controlled_eval were NOT modified
     assert sha256_file(bench_path) == before_bench, "frozen benchmark changed!"
     if before_controlled is not None:
@@ -111,6 +159,11 @@ def main():
     pointer = run(args.latest_path, args.out, args.pointer)
     print(f"wrote {pointer['n_rows']} source_overt rows -> {pointer['adjunct_path']}")
     print(f"adjunct sha256 = {pointer['adjunct_sha256']}")
+    print("\nextract its activations with:")
+    print(f"  python -m src.analysis.v2_pipeline extract --stage M3 \\")
+    print(f"    --latest-pointer {pointer['latest_benchmark_pointer']} \\")
+    print(f"    --split-manifest {pointer['split_manifest']} \\")
+    print(f"    --namespace c_source_overt")
 
 
 if __name__ == "__main__":
