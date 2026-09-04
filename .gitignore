@@ -21,3 +21,10 @@ outputs/smoke_test_m1/
 # git-am patch outputs (per release-hardening rules: patches themselves
 # are never committed to the repo, only their SHA-256 is recorded)
 artifacts/patches/*.patch
+
+# crossbranch extension: delta/control arrays are large and regenerable from
+# bound activations, same rule as results/activations/*.npy above
+results/crossbranch/deltas/*.npz
+results/crossbranch/raw/shards/
+# private research notes (onboarding doc etc.) - never committed
+private/

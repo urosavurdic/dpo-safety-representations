@@ -1,0 +1,11 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "stage": "M3",
+  "adoption": "v2_binding",
+  "v2_binding_path": "results/activations/M3_metadata_binding.json",
+  "final_path": "results/activations/M3_final.npy",
+  "n_rows": 654
+}
