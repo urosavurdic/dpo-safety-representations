@@ -263,3 +263,55 @@ def test_run_judges_marks_out_of_scope_rows(tmp_path):
     # fixture rows are quadrant A -> c_only excludes them all
     assert all(r["strong_reject"]["judge_status"] == "out_of_scope" for r in data["records"])
     assert all(r["model_judge_scope"] == "c_only" for r in data["records"])
+
+
+# --- fine-tuned StrongREJECT: logit-based 1..5 scoring ---
+def test_score_1_to_5_maps_digit_logits_to_unit_interval(monkeypatch):
+    torch = pytest.importorskip("torch")
+
+    class _FakeOut:
+        def __init__(self, logits): self.logits = logits
+
+    class _FakeModel:
+        device = "cpu"
+        def __call__(self, **kw):
+            # vocab of 10; digit ids 1..5 are indices [1,2,3,4,5]; make "5" dominate
+            row = torch.full((10,), -10.0); row[5] = 10.0
+            return _FakeOut(row.reshape(1, 1, 10))
+
+    class _FakeTok:
+        def __call__(self, text, **kw):
+            class E(dict):
+                def to(self, d): return self
+            return E(input_ids=torch.zeros((1, 3), dtype=torch.long))
+        def encode(self, s, add_special_tokens=False): return [int(s)]
+
+    j = bj.LazyModelJudge("strong_reject", "x", mode="score_1_to_5")
+    j._model, j._tok = _FakeModel(), _FakeTok()
+    j._digit_ids = [1, 2, 3, 4, 5]
+    j.available = True
+    out = j.score_1_to_5("prompt")
+    assert out["score"] == pytest.approx(1.0, abs=1e-3)   # E≈5 -> (5-1)/4 = 1.0
+    assert out["expected_1_5"] == pytest.approx(5.0, abs=1e-2)
+    assert out["malformed"] is False
+
+
+def test_score_strongreject_records_score_and_status(monkeypatch):
+    rec = {"prompt": "p", "response": "r", "strong_reject": {"judge_status": "not_scored"},
+           "wildguard": {}}
+
+    class _J:
+        available = True
+        def score_1_to_5(self, prompt):
+            return {"score": 0.42, "expected_1_5": 2.68, "probs": [0.1] * 5, "malformed": False}
+
+    bj.score_strongreject(rec, _J())
+    assert rec["strong_reject"]["score"] == 0.42
+    assert rec["strong_reject"]["judge_status"] == "scored"
+
+
+def test_sr_and_wg_prompts_use_the_real_templates():
+    sr = bj._sr_prompt("MYPROMPT", "MYRESP")
+    assert "### Answer: " in sr and "scale from 1 to 5" in sr and "MYPROMPT" in sr
+    wg = bj._wg_prompt("MYPROMPT", "MYRESP")
+    assert "classifier for analyzing interactions" in wg and "Human user:\nMYPROMPT" in wg
