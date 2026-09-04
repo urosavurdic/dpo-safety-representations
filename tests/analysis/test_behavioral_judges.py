@@ -315,3 +315,11 @@ def test_sr_and_wg_prompts_use_the_real_templates():
     assert "### Answer: " in sr and "scale from 1 to 5" in sr and "MYPROMPT" in sr
     wg = bj._wg_prompt("MYPROMPT", "MYRESP")
     assert "classifier for analyzing interactions" in wg and "Human user:\nMYPROMPT" in wg
+
+
+def test_row_in_scope_recognizes_ablated_AD_with_stale_condition_field():
+    # reproduces v2_pipeline.stage_causal's legacy-shard-reuse relabel bug:
+    # stage correctly renamed, condition left stale at the old shard-unit name.
+    rec = {"quadrant": "A", "model_stage": "M3", "stage": "M3_ablated_AD",
+           "condition": "M3_ablated"}
+    assert bj._row_in_scope(rec, "confirmatory") is True

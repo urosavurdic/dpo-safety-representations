@@ -504,7 +504,12 @@ def _row_in_scope(rec: dict, scope: str) -> bool:
         return True
     q = rec.get("quadrant")
     stage = (rec.get("model_stage") or rec.get("stage") or "")
-    cond = (rec.get("condition") or rec.get("stage") or "")
+    # `stage` is the schema's authoritative condition field per result_row()'s
+    # own convention ("stage" carries the CONDITION, "model_stage" the
+    # checkpoint) - prefer it over the secondary `condition` field, which a
+    # post-merge relabel (e.g. the legacy-shard-reuse "_ablated" -> "_ablated_AD"
+    # rename in v2_pipeline.stage_causal) can leave stale.
+    cond = (rec.get("stage") or rec.get("condition") or "")
     if scope == "confirmatory":
         # CF1: quadrant C, behavioural, at M2 or M3 (no intervention condition)
         if q == "C" and stage in ("M2", "M3") and "ablat" not in cond and "steer" not in cond:

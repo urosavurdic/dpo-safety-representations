@@ -67,3 +67,11 @@ def test_joint_resample_indices_preserves_group_sizes_and_is_seeded():
     np.testing.assert_array_equal(idx1, idx2)
     assert (lab1 == 0).sum() == 6 and (lab1 == 1).sum() == 4
     assert set(idx1[lab1 == 0]).issubset(set(a_idx.tolist()))
+
+
+def test_paired_bootstrap_ci_empty_input_has_mean_key():
+    # regression: confirmatory_behavioral_endpoints indexes boot["mean"]
+    # unconditionally; the empty-input branch must include it (as None).
+    out = paired_bootstrap_ci([], b=10)
+    assert out["mean"] is None
+    assert "mean" in out

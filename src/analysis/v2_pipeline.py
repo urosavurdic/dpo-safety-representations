@@ -1170,8 +1170,13 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
             return False
         rows_out = store.merge_unit(unit_key, order=ctx.order)
         if cond == "ablated_AD":
+            # this unit is generated under the legacy "_ablated" name so its
+            # shards are reused; relabel BOTH fields consumers read - stage
+            # (mcnemar_/summarize_causal_ablation.py) AND condition
+            # (confirmatory_behavioral_endpoints.py reads condition first).
             for row in rows_out:
                 row["stage"] = f"{stage}_ablated_AD"
+                row["condition"] = f"{stage}_ablated_AD"
         merged.extend(rows_out)
         generated.append(_full(cond))
 

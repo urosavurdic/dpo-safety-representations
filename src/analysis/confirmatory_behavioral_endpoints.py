@@ -70,7 +70,12 @@ def _stage(rec: dict) -> str:
 
 
 def _condition(rec: dict) -> str:
-    return str(rec.get("condition") or rec.get("stage") or "")
+    # `stage` is the schema's authoritative condition field (result_row()'s own
+    # convention: "stage" carries the CONDITION, "model_stage" the checkpoint).
+    # Prefer it over the secondary `condition` field, which a post-merge
+    # relabel (e.g. v2_pipeline.stage_causal's legacy-shard-reuse rename) can
+    # leave stale - see behavioral_judges._row_in_scope's matching comment.
+    return str(rec.get("stage") or rec.get("condition") or "")
 
 
 def _is_intervention(rec: dict) -> bool:
@@ -118,7 +123,7 @@ def compute_cf1(records: list) -> dict:
         "delta_c": boot["point"],
         "ci_low": boot["ci_low"],
         "ci_high": boot["ci_high"],
-        "bootstrap": {k: boot[k] for k in ("b", "seed", "interval", "mean")},
+        "bootstrap": {k: boot.get(k) for k in ("b", "seed", "interval", "mean")},
         "mean_SR_M2": (sum(v["M2"] for v in complete.values()) / len(complete)) if complete else None,
         "mean_SR_M3": (sum(v["M3"] for v in complete.values()) / len(complete)) if complete else None,
         "dropped": {"unusable_sr_rows": dropped_unusable,
@@ -130,30 +135,43 @@ def compute_cf1(records: list) -> dict:
 # CF2
 # --------------------------------------------------------------------------- #
 def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict:
+    from collections import Counter
+
     by_id = {}  # record_id -> {condition -> sr}
     wg_by_id = {}
     dropped_unusable = 0
+    # diagnostics so a zero-triple result explains itself instead of a bare 0
+    diag = {"n_A_records": 0, "conditions_seen": Counter(),
+            "n_after_M3_filter": 0, "n_after_condition_filter": 0,
+            "n_after_split_filter": 0, "n_with_usable_sr": 0}
     for rec in records:
         if rec.get("quadrant") != "A":
             continue
+        diag["n_A_records"] += 1
+        diag["conditions_seen"][_condition(rec)] += 1
         if _stage(rec) and not _stage(rec).startswith("M3"):
             continue
+        diag["n_after_M3_filter"] += 1
         cond = _condition(rec)
         if cond not in CF2_CONDITIONS:
             continue
+        diag["n_after_condition_filter"] += 1
         rid = rec.get("record_id")
         if rid is None:
             continue
         if held_out_only and id_to_split.get(rid) != "held_out_behavioral":
             continue
+        diag["n_after_split_filter"] += 1
         sr = usable_sr(rec)
         if sr is None:
             dropped_unusable += 1
             continue
+        diag["n_with_usable_sr"] += 1
         by_id.setdefault(rid, {})[cond] = sr
         wg = usable_wg_harm(rec)
         if wg is not None:
             wg_by_id.setdefault(rid, {})[cond] = wg
+    diag["conditions_seen"] = dict(diag["conditions_seen"])
 
     complete = {rid: v for rid, v in by_id.items() if all(c in v for c in CF2_CONDITIONS)}
     dropped_incomplete = len(by_id) - len(complete)
@@ -172,9 +190,10 @@ def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict
         "cf2": boot["point"],
         "ci_low": boot["ci_low"],
         "ci_high": boot["ci_high"],
-        "bootstrap": {k: boot[k] for k in ("b", "seed", "interval", "mean")},
+        "bootstrap": {k: boot.get(k) for k in ("b", "seed", "interval", "mean")},
         "dropped": {"unusable_sr_rows": dropped_unusable,
                     "incomplete_triples": dropped_incomplete},
+        "diagnostics": diag,
     }
 
     wg_complete = {rid: v for rid, v in wg_by_id.items() if all(c in v for c in CF2_CONDITIONS)}
