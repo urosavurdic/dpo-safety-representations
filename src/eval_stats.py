@@ -62,8 +62,9 @@ def paired_bootstrap_ci(
     values = values[~np.isnan(values)]
     n = values.size
     if n == 0:
-        return {"n_effective": 0, "point": None, "ci_low": None, "ci_high": None,
-                "b": b, "seed": seed, "interval": BOOTSTRAP_INTERVAL}
+        return {"n_effective": 0, "point": None, "mean": None, "ci_low": None,
+                "ci_high": None, "b": b, "seed": seed,
+                "interval": BOOTSTRAP_INTERVAL}
     rng = np.random.default_rng(seed)
     reps = np.empty(b)
     for i in range(b):

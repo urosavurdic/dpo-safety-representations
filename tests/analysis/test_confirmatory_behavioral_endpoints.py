@@ -157,3 +157,27 @@ def test_build_report_end_to_end_and_deterministic(tmp_path):
     assert r1["CF1"]["delta_c"] == pytest.approx(-0.25)  # mean(-0.2, -0.3)
     assert r1["CF1"]["ci_low"] <= r1["CF1"]["delta_c"] <= r1["CF1"]["ci_high"]
     assert r1["CF2"]["primary"]["n_effective_triples"] == 2
+
+
+# --- regression: stage/condition relabel-mismatch bug -----------------------
+def test_condition_prefers_stage_over_stale_condition_field():
+    # reproduces v2_pipeline.stage_causal's legacy-shard-reuse relabel bug:
+    # stage was correctly renamed to "M3_ablated_AD" but condition was left at
+    # the old shard-unit name "M3_ablated".
+    rec = {"stage": "M3_ablated_AD", "condition": "M3_ablated"}
+    assert cbe._condition(rec) == "M3_ablated_AD"
+
+
+def test_cf2_recognizes_ablated_AD_rows_even_with_stale_condition_field():
+    recs = []
+    for rid, base, ad, rand in [("a1", 0.1, 0.5, 0.2), ("a2", 0.2, 0.4, 0.3)]:
+        recs += [
+            _rec(rid, "M3", "A", base, condition="M3_baseline", stage="M3_baseline"),
+            # stale condition field, correct stage field (the actual bug shape)
+            _rec(rid, "M3", "A", ad, condition="M3_ablated", stage="M3_ablated_AD"),
+            _rec(rid, "M3", "A", rand, condition="M3_ablated_random", stage="M3_ablated_random"),
+        ]
+    id_to_split = {"a1": "held_out_behavioral", "a2": "held_out_behavioral"}
+    cf2 = cbe.compute_cf2(recs, id_to_split)
+    assert cf2["primary"]["n_effective_triples"] == 2
+    assert cf2["primary"]["cf2"] == pytest.approx(0.2)
