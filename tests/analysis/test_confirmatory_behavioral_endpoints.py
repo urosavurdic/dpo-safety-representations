@@ -181,3 +181,28 @@ def test_cf2_recognizes_ablated_AD_rows_even_with_stale_condition_field():
     cf2 = cbe.compute_cf2(recs, id_to_split)
     assert cf2["primary"]["n_effective_triples"] == 2
     assert cf2["primary"]["cf2"] == pytest.approx(0.2)
+
+
+# --- regression: main() must not crash when CF2 has zero triples -----------
+def test_main_prints_unavailable_instead_of_crashing_when_cf2_is_empty(tmp_path, monkeypatch, capsys):
+    recs = [
+        _rec("c1", "M2", "C", 0.5), _rec("c1", "M3", "C", 0.2),
+        # quadrant A present but incomplete (missing ablated_random) -> CF2 empty
+        _rec("a1", "M3", "A", 0.1, condition="M3_baseline"),
+        _rec("a1", "M3", "A", 0.4, condition="M3_ablated_AD"),
+    ]
+    judged = tmp_path / "j.json"
+    judged.write_text(json.dumps({"records": recs}), encoding="utf-8")
+    bench = tmp_path / "b.jsonl"
+    bench.write_text("\n".join(json.dumps({"record_id": r, "split": s}) for r, s in [
+        ("c1", None), ("a1", "held_out_behavioral"),
+    ]), encoding="utf-8")
+    out = tmp_path / "out.json"
+
+    monkeypatch.setattr("sys.argv", [
+        "x", "--judged", str(judged), "--benchmark", str(bench), "--out", str(out),
+    ])
+    cbe.main()  # must not raise
+    printed = capsys.readouterr().out
+    assert "CF2  = UNAVAILABLE" in printed
+    assert "CF1  Delta_C" in printed
