@@ -295,8 +295,12 @@ def main():
         cf1, cf2 = report["CF1"], report["CF2"]["primary"]
         print(f"CF1  Delta_C = {cf1['delta_c']:+.4f}  95% CI [{cf1['ci_low']:+.4f}, "
               f"{cf1['ci_high']:+.4f}]  (n={cf1['n_effective_pairs']} pairs)")
-        print(f"CF2  = {cf2['cf2']:+.4f}  95% CI [{cf2['ci_low']:+.4f}, "
-              f"{cf2['ci_high']:+.4f}]  (n={cf2['n_effective_triples']} held-out-A triples)")
+        if cf2["n_effective_triples"] > 0:
+            print(f"CF2  = {cf2['cf2']:+.4f}  95% CI [{cf2['ci_low']:+.4f}, "
+                  f"{cf2['ci_high']:+.4f}]  (n={cf2['n_effective_triples']} held-out-A triples)")
+        else:
+            print(f"CF2  = UNAVAILABLE (0 complete held-out-A triples; "
+                  f"dropped={cf2['dropped']}; see report['CF2']['primary']['diagnostics'])")
     print(f"-> {out}")
 
 
