@@ -90,18 +90,30 @@ python -m src.analysis.subspace_geometry
 python -m src.analysis.projection_trajectory
 python -m src.analysis.direction_decodability        # CF3 (secondary)
 
-# statistics -> CF1, CF2 CIs
+# CF1 + CF2 continuous endpoints from the judge output (frozen paired bootstrap)
+python -m src.analysis.confirmatory_behavioral_endpoints \
+  --judged results/behavioral_judges_v2/behavioral_judges_v2_<ts>.json \
+  --benchmark data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl \
+  --out results/summaries/confirmatory_endpoints.json
+
+# descriptive regex-category causal/steering summaries (complement CF2)
 python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_v2_M3_L24-28.json
 python -m src.analysis.mcnemar_causal_ablation  --file results/raw/causal_ablation_v2_M3_L24-28.json \
   --conditions M3_baseline M3_ablated_AD
 python -m src.analysis.bootstrap_causal_effect  --file results/raw/causal_ablation_v2_M3_L24-28.json \
   --quadrant A --category refusal
-#   CF1 / CF2 continuous endpoints from the SR scores in the judge output
-#   (src/eval_stats.paired_bootstrap_ci)
+for f in results/raw/steering_v2_*_QABCD.json; do python -m src.analysis.summarize_steering --file "$f"; done
 
-# adjunct / robustness
-python -m src.analysis.matched_pair_representation      # matched C-pair deltas
-python -m src.analysis.representation_robustness        # _pooled sensitivity
+# _pooled sensitivity (needs {stage}_final.npy AND {stage}_pooled.npy)
+python -m src.analysis.representation_robustness
+
+# matched C-pair deltas (SECONDARY - needs the source_overt adjunct extracted):
+python -m src.analysis.build_c_source_overt_adjunct
+python -m src.analysis.v2_pipeline extract --stage M3 \
+  --latest-pointer data/frozen_v2/adjunct_c_source_overt.LATEST_BENCHMARK.json \
+  --split-manifest data/frozen_v2/adjunct_c_source_overt.split_manifest.json \
+  --namespace c_source_overt          # ~2 min GPU
+python -m src.analysis.matched_pair_representation
 
 # human audit
 python -m src.analysis.build_human_review_packet --responses results/behavioral_judges_v2/<judge>.json \

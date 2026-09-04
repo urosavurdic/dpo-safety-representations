@@ -69,3 +69,52 @@ def summarize(comparison, *, cos_threshold=0.95):
             "pooling choice moves the direction - disclose as a limitation"
         ),
     }
+
+
+STAGES = ["M0", "M1", "M2", "M3", "M3_direct", "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt"]
+
+
+def _load_stage_pair(stage, act_dir):
+    import json
+
+    final = np.load(act_dir / f"{stage}_final.npy")
+    pooled = np.load(act_dir / f"{stage}_pooled.npy")
+    meta = json.loads((act_dir / f"{stage}_metadata.json").read_text(encoding="utf-8"))
+    quadrants = np.array([r["quadrant"] for r in meta])
+    splits = np.array([r.get("split") or "" for r in meta])
+    return final, pooled, quadrants, splits
+
+
+def main():  # pragma: no cover - CLI over on-disk activations; logic tested via compare_poolings/summarize
+    import argparse
+    import json
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--act-dir", default="results/activations")
+    parser.add_argument("--stages", nargs="+", default=STAGES)
+    parser.add_argument("--out", default="results/summaries/representation_robustness.json")
+    args = parser.parse_args()
+
+    act_dir = Path(args.act_dir)
+    out = {"reference": "analysis_plan.md §2 (exploratory: _pooled sensitivity)", "per_stage": {}}
+    for stage in args.stages:
+        if not (act_dir / f"{stage}_pooled.npy").exists() or not (act_dir / f"{stage}_final.npy").exists():
+            print(f"  {stage}: skipped (need both _final.npy and _pooled.npy)")
+            continue
+        final, pooled, quadrants, splits = _load_stage_pair(stage, act_dir)
+        cmp = compare_poolings(final, pooled, quadrants, splits)
+        out["per_stage"][stage] = {**summarize(cmp), "detail": cmp}
+        print(f"  {stage}: cos(final,pooled) mean = "
+              f"{cmp['cos_dAD_final_vs_pooled_mean_excl_layer0']:.4f} -> "
+              f"{out['per_stage'][stage]['verdict']}")
+
+    agree = [v["poolings_agree"] for v in out["per_stage"].values()]
+    out["all_stages_agree"] = bool(agree) and all(agree)
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps(out, indent=2), encoding="utf-8")
+    print(f"wrote {args.out}  (all stages agree: {out['all_stages_agree']})")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

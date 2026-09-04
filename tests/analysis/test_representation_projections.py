@@ -1,4 +1,5 @@
 """Toy tests for WP-Repr / WP-ReprRobust / WP-Adjunct."""
+import pathlib
 import json
 from pathlib import Path
 
@@ -104,25 +105,107 @@ def test_matched_pair_deltas_and_aggregate():
 
 
 # --- WP-Adjunct: source_overt companion set ------------------------------
-def test_build_c_source_overt_adjunct_from_fixture(tmp_path):
-    pointer = adj.run(
+def _adj_kw(tmp_path):
+    """All output paths under tmp_path so the real data/frozen_v2/ is untouched."""
+    return dict(
         latest_path=str(FIX / "benchmark_654.LATEST_BENCHMARK.json"),
         out_path=tmp_path / "adjunct.jsonl",
         pointer_path=tmp_path / "adjunct.LATEST.json",
+        latest_benchmark_path=tmp_path / "adjunct.LATEST_BENCHMARK.json",
+        split_manifest_path=tmp_path / "adjunct.split_manifest.json",
     )
+
+
+def test_build_c_source_overt_adjunct_from_fixture(tmp_path):
+    pointer = adj.run(**_adj_kw(tmp_path))
     assert pointer["n_rows"] == 4  # 4 C rows in the fixture
     rows = [json.loads(l) for l in (tmp_path / "adjunct.jsonl").read_text().splitlines()]
     assert all(r["judged_prompt_variant"] == "source_overt" for r in rows)
     assert all(r["record_id"].endswith("__source_overt") for r in rows)
-    # prompt is the OVERT source_prompt, not the candidate
     assert any("bot network" in r["prompt"] for r in rows)
 
 
 def test_adjunct_is_idempotent(tmp_path):
-    kw = dict(latest_path=str(FIX / "benchmark_654.LATEST_BENCHMARK.json"),
-              out_path=tmp_path / "a.jsonl", pointer_path=tmp_path / "a.LATEST.json")
+    kw = _adj_kw(tmp_path)
     p1 = adj.run(**kw)
-    b1 = (tmp_path / "a.jsonl").read_bytes()
+    b1 = (tmp_path / "adjunct.jsonl").read_bytes()
     p2 = adj.run(**kw)
-    assert (tmp_path / "a.jsonl").read_bytes() == b1
+    assert (tmp_path / "adjunct.jsonl").read_bytes() == b1
     assert p1["adjunct_sha256"] == p2["adjunct_sha256"]
+
+
+# --- WP-Adjunct/ReprRobust: main() smoke tests ---
+import numpy as _np
+import json as _json
+
+
+def _write_stage_acts(act_dir, stage, quads, splits, n_layers=3, hidden=6, seed=0):
+    act_dir.mkdir(parents=True, exist_ok=True)
+    rng = _np.random.default_rng(seed)
+    n = len(quads)
+    final = rng.standard_normal((n, n_layers, hidden))
+    pooled = final + rng.standard_normal((n, n_layers, hidden)) * 0.01
+    final[_np.array(quads) == "A", 1, 0] += 2.0
+    final[_np.array(quads) == "D", 1, 0] -= 2.0
+    _np.save(act_dir / f"{stage}_final.npy", final)
+    _np.save(act_dir / f"{stage}_pooled.npy", pooled)
+    (act_dir / f"{stage}_metadata.json").write_text(_json.dumps(
+        [{"quadrant": q, "split": s, "record_id": f"{stage}_{i}"}
+         for i, (q, s) in enumerate(zip(quads, splits))]
+    ), encoding="utf-8")
+
+
+def test_representation_robustness_main_writes_report(tmp_path, monkeypatch, capsys):
+    from src.analysis import representation_robustness as rrmod
+    act = tmp_path / "acts"
+    quads = ["A"] * 5 + ["D"] * 5 + ["B"] * 3 + ["C"] * 3
+    splits = ["direction_estimation"] * 10 + [""] * 6
+    _write_stage_acts(act, "M2", quads, splits)
+    out = tmp_path / "rr.json"
+    monkeypatch.setattr("sys.argv", ["x", "--act-dir", str(act), "--stages", "M2", "--out", str(out)])
+    rrmod.main()
+    data = _json.loads(out.read_text())
+    assert "M2" in data["per_stage"]
+    assert "poolings_agree" in data["per_stage"]["M2"]
+
+
+def test_matched_pair_representation_main_prints_hint_when_companion_absent(tmp_path, monkeypatch, capsys):
+    from src.analysis import matched_pair_representation as mpr
+    monkeypatch.setattr("sys.argv", [
+        "x", "--act-dir", str(tmp_path / "a"),
+        "--companion-act-dir", str(tmp_path / "missing"),
+        "--out", str(tmp_path / "mp.json"),
+    ])
+    mpr.main()
+    assert "source_overt" in capsys.readouterr().out
+
+
+def test_matched_pair_paired_deltas_from_two_arrays_math():
+    from src.analysis.matched_pair_representation import paired_deltas_from_two_arrays
+    direction = _np.zeros((3, 4)); direction[:, 0] = 1.0
+    cand = _np.zeros((2, 3, 4)); cand[:, 2, 0] = [1.0, 2.0]
+    overt = _np.zeros((2, 3, 4)); overt[:, 2, 0] = [0.0, 0.5]
+    rows = paired_deltas_from_two_arrays(cand, ["p1", "p2"], overt, ["p2", "p1"], direction, layer=2)
+    by = {r["record_id"]: r for r in rows}
+    assert by["p1"]["proj_delta_candidate_minus_overt"] == pytest.approx(1.0 - 0.5)
+    assert by["p2"]["proj_delta_candidate_minus_overt"] == pytest.approx(2.0 - 0.0)
+
+
+def test_adjunct_emits_bindable_pointer_and_split_manifest(tmp_path):
+    """The LATEST_BENCHMARK-shaped pointer + companion split manifest the
+    adjunct writes must satisfy src.v2_io.load_run_inputs (strict binding)."""
+    from src.analysis import build_c_source_overt_adjunct as a2
+    from src.v2_io import load_run_inputs
+    fix = pathlib.Path(__file__).resolve().parents[1] / "fixtures"
+    a2.run(
+        latest_path=str(fix / "benchmark_654.LATEST_BENCHMARK.json"),
+        out_path=tmp_path / "adj.jsonl",
+        pointer_path=tmp_path / "adj.LATEST.json",
+        latest_benchmark_path=tmp_path / "adj.LATEST_BENCHMARK.json",
+        split_manifest_path=tmp_path / "adj.split_manifest.json",
+    )
+    b_path, b_sha, s_path, s_sha = load_run_inputs(
+        split_manifest=str(tmp_path / "adj.split_manifest.json"),
+        latest_path=str(tmp_path / "adj.LATEST_BENCHMARK.json"),
+    )
+    assert b_path.name == "adj.jsonl" and b_sha and s_sha

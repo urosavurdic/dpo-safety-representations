@@ -79,3 +79,100 @@ def aggregate_paired(rows, *, seed=20260904, n_boot=10000):
         "seed": seed, "interval": "percentile",
         "honest_limit": HONEST_LIMIT,
     }
+
+
+ADJUNCT_EXTRACT_HINT = (
+    "companion 'source_overt' activations are absent. Build + extract them:\n"
+    "  python -m src.analysis.build_c_source_overt_adjunct\n"
+    "  python -m src.analysis.v2_pipeline extract --stage M3 \\\n"
+    "    --latest-pointer data/frozen_v2/adjunct_c_source_overt.LATEST_BENCHMARK.json \\\n"
+    "    --split-manifest data/frozen_v2/adjunct_c_source_overt.split_manifest.json \\\n"
+    "    --namespace c_source_overt"
+)
+
+
+def _load_meta(path):
+    import json
+
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def paired_deltas_from_two_arrays(cand_arr, cand_ids, overt_arr, overt_ids, direction, *, layer):
+    """cand_ids[i] / overt_ids[j] are C record_ids (overt with any
+    '__source_overt' suffix already stripped). Pairs by shared record_id."""
+    overt_ix = {rid: j for j, rid in enumerate(overt_ids)}
+    rows = []
+    for i, rid in enumerate(cand_ids):
+        j = overt_ix.get(rid)
+        if j is None:
+            continue
+        h_cand = cand_arr[i, layer]
+        h_overt = overt_arr[j, layer]
+        rows.append({
+            "record_id": rid,
+            "proj_overt": float(h_overt @ direction[layer]),
+            "proj_candidate": float(h_cand @ direction[layer]),
+            "proj_delta_candidate_minus_overt": float((h_cand - h_overt) @ direction[layer]),
+            "l2_activation_distance": float(np.linalg.norm(h_cand - h_overt)),
+        })
+    return rows
+
+
+def main():  # pragma: no cover - CLI over on-disk activations; math tested above
+    import argparse
+    import json
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stage", default="M3")
+    parser.add_argument("--act-dir", default="results/activations")
+    parser.add_argument("--companion-act-dir", default="results/companions/c_source_overt/activations")
+    parser.add_argument("--direction", default=None,
+                        help="{stage}_direction_final.npy (default: results/refusal_direction/)")
+    parser.add_argument("--layer", type=int, default=28)
+    parser.add_argument("--out", default="results/summaries/matched_pair_representation.json")
+    args = parser.parse_args()
+
+    cand_final = Path(args.act_dir) / f"{args.stage}_final.npy"
+    overt_final = Path(args.companion_act_dir) / f"{args.stage}_final.npy"
+    if not overt_final.exists():
+        print(ADJUNCT_EXTRACT_HINT)
+        return
+    direction_path = Path(args.direction) if args.direction else \
+        Path("results/refusal_direction") / f"{args.stage}_direction_final.npy"
+
+    cand_arr = np.load(cand_final)
+    cand_meta = _load_meta(Path(args.act_dir) / f"{args.stage}_metadata.json")
+    overt_arr = np.load(overt_final)
+    overt_meta = _load_meta(Path(args.companion_act_dir) / f"{args.stage}_metadata.json")
+    direction = np.load(direction_path)
+
+    cand_ids = [
+        r.get("record_id") for r in cand_meta if r.get("quadrant") == "C"
+    ]
+    cand_rows_idx = [i for i, r in enumerate(cand_meta) if r.get("quadrant") == "C"]
+    cand_arr = cand_arr[cand_rows_idx]
+
+    overt_ids = [str(r.get("record_id", "")).replace("__source_overt", "") for r in overt_meta]
+
+    rows = paired_deltas_from_two_arrays(
+        cand_arr, cand_ids, overt_arr, overt_ids, direction, layer=args.layer,
+    )
+    agg = aggregate_paired(rows)
+    report = {
+        "stage": args.stage, "layer": args.layer,
+        "direction_file": str(direction_path),
+        "per_pair": rows,
+        "aggregate": agg,
+    }
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if agg["n_pairs"]:
+        print(f"{agg['n_pairs']} matched pairs; mean proj delta (candidate - overt) = "
+              f"{agg['mean_proj_delta']:+.4f} 95% CI "
+              f"[{agg['proj_delta_ci_low']:+.4f}, {agg['proj_delta_ci_high']:+.4f}]")
+    print(f"-> {args.out}")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
