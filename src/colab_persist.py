@@ -71,6 +71,17 @@ def merge_into_drive(local: str | Path, drive_results: str | Path) -> bool:
 
 HF_CACHE_MIN_FREE_GIB = 6.0
 
+# WARNING (measured, not theoretical): the auto-decision below calls
+# shutil.disk_usage() on the Drive mount path, which reports the COLAB VM's
+# local filesystem (typically 100+ GiB free), NOT the Google Drive storage
+# quota. On an account near its Drive quota the check therefore passes and
+# the cache is persisted anyway, and the session dies with "Google Drive
+# storage quota has been exceeded" partway through the first large download.
+# The judge models alone are ~20 GB (google/gemma-2b + allenai/wildguard-7B).
+# Pass persist_hf_cache=False explicitly whenever Drive is anywhere near
+# full; there is no reliable way to read the real quota from inside Colab
+# without the Drive API.
+
 
 def bind(
     drive_root: str | None = None,
