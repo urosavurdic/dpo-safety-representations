@@ -141,6 +141,28 @@ def cf3(
         "layer": layer, "n_rows": int(len(idx)),
         "n_A": int((quad == "A").sum()), "n_C": int((quad == "C").sum()),
     }
+
+    # Not enough labeled A u C rows to run the frozen 5-fold grouped CV at
+    # all -> record the failure and downgrade, rather than crashing inside
+    # StratifiedGroupKFold (analysis_plan.md 4.4: "on failure ... record").
+    from collections import Counter
+    per_cat = Counter(labels.tolist())
+    if len(idx) == 0:
+        report["status"] = "downgraded_no_labeled_rows"
+        report["downgrade_reason"] = (
+            "no A u C rows carry a project_category in "
+            f"{list(CF3_CATEGORIES)} - the metadata join produced 0 labeled "
+            "rows (check that the benchmark category labels were merged in)."
+        )
+        return report
+    if any(c < N_SPLITS for c in per_cat.values()) or len(per_cat) < 2:
+        report["status"] = "downgraded_too_few_per_category"
+        report["downgrade_reason"] = (
+            f"per-category counts {dict(per_cat)} - need >= {N_SPLITS} in each "
+            f"of >= 2 categories for {N_SPLITS}-fold StratifiedGroupKFold."
+        )
+        return report
+
     try:
         report["categories"] = check_ac_category_compat(labels, quad)
     except ACCompatError as exc:
@@ -214,18 +236,50 @@ def main():  # pragma: no cover - [exec:T4], needs regenerated 654-row activatio
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--act-dir", default="results/activations")
     parser.add_argument("--direction-dir", default="results/refusal_direction")
+    parser.add_argument("--benchmark",
+                        default="data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+                        help="Frozen benchmark JSONL - the category labels "
+                             "(project_category) live here, not in the "
+                             "activation metadata, and are joined by record_id.")
     parser.add_argument("--out", default="results/interpretability/direction_decodability_cf3.json")
     args = parser.parse_args()
 
     act = Path(args.act_dir)
     ddir = Path(args.direction_dir)
     meta = json.loads((act / "M2_metadata.json").read_text(encoding="utf-8"))
+
+    # {stage}_metadata.json (identity_snapshot) carries record_id but NOT
+    # project_category / source_id / pair_id - join those from the frozen
+    # benchmark so select_ac_rows has something to select.
+    bench_by_id = {}
+    with open(args.benchmark, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            r = json.loads(line)
+            if r.get("record_id"):
+                bench_by_id[r["record_id"]] = r
+    for row in meta:
+        b = bench_by_id.get(row.get("record_id"), {})
+        for k in ("project_category", "source_category", "source_id", "pair_id"):
+            row.setdefault(k, b.get(k))
+
     m2 = np.load(act / "M2_final.npy")
     m3 = np.load(act / "M3_final.npy")
-    directions = {
-        "M2": np.load(ddir / "M2_direction_final.npy"),
-        "M3": np.load(ddir / "M3_direction_final.npy"),
-    }
+
+    def _load_dir(stage):
+        for name in (f"{stage}_direction_final.npy", f"{stage}_v2_direction.npy",
+                     f"{stage}_direction.npy"):
+            p = ddir / name
+            if p.exists():
+                return np.load(p)
+        raise FileNotFoundError(
+            f"no direction array for {stage} in {ddir} "
+            f"(looked for *_direction_final / *_v2_direction / *_direction .npy)"
+        )
+
+    directions = {"M2": _load_dir("M2"), "M3": _load_dir("M3")}
     report = cf3(m2, m3, meta, directions)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(report, indent=2), encoding="utf-8")
