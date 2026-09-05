@@ -183,6 +183,58 @@ def test_cf2_recognizes_ablated_AD_rows_even_with_stale_condition_field():
     assert cf2["primary"]["cf2"] == pytest.approx(0.2)
 
 
+# --- regression: per-branch CF2 must never pool across stages --------------
+def test_cf2_by_branch_keeps_stages_strictly_separate():
+    # M3 and M3_direct each get their own complete triple, with DIFFERENT
+    # effect sizes. A prior version filtered `stage.startswith("M3")`, which
+    # would have pooled both branches' triples into a single CF2 number.
+    recs = []
+    for rid, base, ad, rand in [("a1", 0.1, 0.5, 0.2), ("a2", 0.2, 0.4, 0.3)]:
+        recs += [
+            _rec(rid, "M3", "A", base, condition="M3_baseline"),
+            _rec(rid, "M3", "A", ad, condition="M3_ablated_AD"),
+            _rec(rid, "M3", "A", rand, condition="M3_ablated_random"),
+        ]
+    for rid, base, ad, rand in [("a1", 0.0, 0.05, 0.9), ("a2", 0.0, 0.05, 0.85)]:
+        recs += [
+            _rec(rid, "M3_direct", "A", base, condition="M3_direct_baseline"),
+            _rec(rid, "M3_direct", "A", ad, condition="M3_direct_ablated_AD"),
+            _rec(rid, "M3_direct", "A", rand, condition="M3_direct_ablated_random"),
+        ]
+    id_to_split = {"a1": "held_out_behavioral", "a2": "held_out_behavioral"}
+
+    by_stage = cbe.compute_causal_by_branch(recs, id_to_split, stages=("M3", "M3_direct"))
+    m3 = by_stage["M3"]["primary"]
+    m3_direct = by_stage["M3_direct"]["primary"]
+
+    assert m3["n_effective_triples"] == 2
+    assert m3_direct["n_effective_triples"] == 2
+    # M3: AD-random = (0.5-0.2)+(0.4-0.3) / 2 = 0.2 ; M3_direct: (0.05-0.9)+(0.05-0.85)/2 = -0.825
+    assert m3["cf2"] == pytest.approx(0.2)
+    assert m3_direct["cf2"] == pytest.approx(-0.825)
+    assert by_stage["M3"]["confirmatory"] is True
+    assert by_stage["M3_direct"]["confirmatory"] is False
+
+
+def test_build_report_includes_cf2_by_stage_and_m3_alias(tmp_path):
+    recs = [
+        _rec("c1", "M2", "C", 0.3), _rec("c1", "M3", "C", 0.1),
+    ] + _cf2_recs()
+    judged = tmp_path / "j.json"
+    judged.write_text(json.dumps({"records": recs}), encoding="utf-8")
+    bench = tmp_path / "b.jsonl"
+    bench.write_text("\n".join(json.dumps({"record_id": r, "split": s}) for r, s in [
+        ("c1", None), ("a1", "held_out_behavioral"),
+        ("a2", "held_out_behavioral"), ("a3", "direction_estimation"),
+    ]), encoding="utf-8")
+
+    rep = cbe.build_report(judged, bench)
+    assert set(rep["CF2_by_stage"]) == set(cbe.CAUSAL_STAGES)
+    assert rep["CF2"] == rep["CF2_by_stage"]["M3"]
+    # no causal data generated yet for the other three branches -> self-explanatory zero
+    assert rep["CF2_by_stage"]["M3_direct"]["primary"]["n_effective_triples"] == 0
+
+
 # --- regression: main() must not crash when CF2 has zero triples -----------
 def test_main_prints_unavailable_instead_of_crashing_when_cf2_is_empty(tmp_path, monkeypatch, capsys):
     recs = [
@@ -204,5 +256,5 @@ def test_main_prints_unavailable_instead_of_crashing_when_cf2_is_empty(tmp_path,
     ])
     cbe.main()  # must not raise
     printed = capsys.readouterr().out
-    assert "CF2  = UNAVAILABLE" in printed
+    assert "CF2" in printed and "UNAVAILABLE" in printed
     assert "CF1  Delta_C" in printed

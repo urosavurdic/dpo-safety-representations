@@ -23,6 +23,17 @@ into the two confirmatory endpoints of `docs/audit/analysis_plan.md` §2 /
   (all A, not just held-out) and, iff any usable WildGuard `response_harm`, a
   `secondary_binary_wildguard` block.
 
+* **Secondary per-branch causal cells (M3_direct / M3_alt / M3_direct_alt).**
+  Same CF2 statistic, computed separately for each of the other three DPO
+  endpoints (analysis_plan.md §6.3's four intervention stages). NOT
+  confirmatory (endpoint_table.md: "Not confirmatory: M3_direct/M3_alt/
+  M3_direct_alt causal cells (secondary)") - reported under `CF2_by_stage`,
+  never pooled with M3's triples into one number. An earlier version of
+  `_cf2_block` filtered by `stage.startswith("M3")`, which would have
+  silently merged all four branches' held-out-A triples together the moment
+  causal ablation was run on more than just M3 - fixed by filtering on the
+  exact stage name.
+
 Split lookup: judge records do not carry `split`; it is joined from the frozen
 benchmark by `record_id`.
 """
@@ -35,7 +46,17 @@ from pathlib import Path
 from src.eval_stats import paired_bootstrap_ci
 from src.v2_io import load_json, load_jsonl
 
+# The four DPO endpoints causal ablation runs on (analysis_plan.md §6.3). M3
+# is the confirmatory CF2 cell; the other three are secondary per
+# endpoint_table.md. Order matters only for the printed report.
+CAUSAL_STAGES = ("M3", "M3_direct", "M3_alt", "M3_direct_alt")
+
+# Back-compat alias: the confirmatory CF2 conditions at M3.
 CF2_CONDITIONS = ("M3_baseline", "M3_ablated_AD", "M3_ablated_random")
+
+
+def _cf2_conditions_for_stage(stage: str) -> tuple:
+    return (f"{stage}_baseline", f"{stage}_ablated_AD", f"{stage}_ablated_random")
 
 
 # --------------------------------------------------------------------------- #
@@ -134,26 +155,27 @@ def compute_cf1(records: list) -> dict:
 # --------------------------------------------------------------------------- #
 # CF2
 # --------------------------------------------------------------------------- #
-def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict:
+def _cf2_block(records: list, id_to_split: dict, *, stage: str, held_out_only: bool) -> dict:
     from collections import Counter
 
+    conditions = _cf2_conditions_for_stage(stage)
     by_id = {}  # record_id -> {condition -> sr}
     wg_by_id = {}
     dropped_unusable = 0
     # diagnostics so a zero-triple result explains itself instead of a bare 0
     diag = {"n_A_records": 0, "conditions_seen": Counter(),
-            "n_after_M3_filter": 0, "n_after_condition_filter": 0,
+            "n_after_stage_filter": 0, "n_after_condition_filter": 0,
             "n_after_split_filter": 0, "n_with_usable_sr": 0}
     for rec in records:
         if rec.get("quadrant") != "A":
             continue
         diag["n_A_records"] += 1
         diag["conditions_seen"][_condition(rec)] += 1
-        if _stage(rec) and not _stage(rec).startswith("M3"):
+        if _stage(rec) != stage:
             continue
-        diag["n_after_M3_filter"] += 1
+        diag["n_after_stage_filter"] += 1
         cond = _condition(rec)
-        if cond not in CF2_CONDITIONS:
+        if cond not in conditions:
             continue
         diag["n_after_condition_filter"] += 1
         rid = rec.get("record_id")
@@ -173,16 +195,18 @@ def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict
             wg_by_id.setdefault(rid, {})[cond] = wg
     diag["conditions_seen"] = dict(diag["conditions_seen"])
 
-    complete = {rid: v for rid, v in by_id.items() if all(c in v for c in CF2_CONDITIONS)}
+    complete = {rid: v for rid, v in by_id.items() if all(c in v for c in conditions)}
     dropped_incomplete = len(by_id) - len(complete)
 
-    e_ad = [v["M3_ablated_AD"] - v["M3_baseline"] for v in complete.values()]
-    e_rand = [v["M3_ablated_random"] - v["M3_baseline"] for v in complete.values()]
+    base_c, ad_c, rand_c = conditions
+    e_ad = [v[ad_c] - v[base_c] for v in complete.values()]
+    e_rand = [v[rand_c] - v[base_c] for v in complete.values()]
     # CF2 per-prompt contribution: (SR_AD - SR_base) - (SR_rand - SR_base) = SR_AD - SR_rand
-    contribs = [v["M3_ablated_AD"] - v["M3_ablated_random"] for v in complete.values()]
+    contribs = [v[ad_c] - v[rand_c] for v in complete.values()]
 
     boot = paired_bootstrap_ci(contribs)
     block = {
+        "stage": stage,
         "population": "held_out_behavioral A only" if held_out_only else "ALL quadrant A (sensitivity)",
         "n_effective_triples": boot["n_effective"],
         "E_AD": (sum(e_ad) / len(e_ad)) if e_ad else None,
@@ -196,11 +220,10 @@ def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict
         "diagnostics": diag,
     }
 
-    wg_complete = {rid: v for rid, v in wg_by_id.items() if all(c in v for c in CF2_CONDITIONS)}
+    wg_complete = {rid: v for rid, v in wg_by_id.items() if all(c in v for c in conditions)}
     if wg_complete:
         wg_contribs = [
-            (int(v["M3_ablated_AD"]) - int(v["M3_baseline"]))
-            - (int(v["M3_ablated_random"]) - int(v["M3_baseline"]))
+            (int(v[ad_c]) - int(v[base_c])) - (int(v[rand_c]) - int(v[base_c]))
             for v in wg_complete.values()
         ]
         wg_boot = paired_bootstrap_ci(wg_contribs)
@@ -214,18 +237,38 @@ def _cf2_block(records: list, id_to_split: dict, *, held_out_only: bool) -> dict
     return block
 
 
-def compute_cf2(records: list, id_to_split: dict) -> dict:
+def compute_cf2_for_stage(records: list, id_to_split: dict, stage: str) -> dict:
     return {
-        "name": "CF2 - direction-specific causal effect",
+        "name": (f"CF2 - direction-specific causal effect" if stage == "M3"
+                 else f"Secondary causal effect ({stage}) - direction-specific"),
+        "stage": stage,
+        "confirmatory": stage == "M3",
         "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
         "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises "
                            "harmful assistance more than a matched random ablation",
-        "conditions": list(CF2_CONDITIONS),
-        "primary": _cf2_block(records, id_to_split, held_out_only=True),
-        "full_A_sensitivity": _cf2_block(records, id_to_split, held_out_only=False),
+        "conditions": list(_cf2_conditions_for_stage(stage)),
+        "primary": _cf2_block(records, id_to_split, stage=stage, held_out_only=True),
+        "full_A_sensitivity": _cf2_block(records, id_to_split, stage=stage, held_out_only=False),
         "note": "n~30 limitation: report the CI width; a non-significant result "
                 "does not prove absence of an effect (analysis_plan.md §3).",
     }
+
+
+def compute_cf2(records: list, id_to_split: dict) -> dict:
+    """Confirmatory CF2 (M3 only). Kept as a thin M3-specific wrapper for
+    backward compatibility - see compute_causal_by_branch for the full
+    per-branch (M3/M3_direct/M3_alt/M3_direct_alt) breakdown."""
+    return compute_cf2_for_stage(records, id_to_split, "M3")
+
+
+def compute_causal_by_branch(records: list, id_to_split: dict,
+                              stages=CAUSAL_STAGES) -> dict:
+    """CF2 (M3, confirmatory) plus the secondary per-branch causal cells,
+    kept STRICTLY SEPARATE per stage - never pooled across branches into one
+    number. A stage with no causal-ablation data yet still gets an entry
+    (n_effective_triples=0, self-explanatory via ['primary']['diagnostics'])
+    rather than being silently omitted."""
+    return {stage: compute_cf2_for_stage(records, id_to_split, stage) for stage in stages}
 
 
 # --------------------------------------------------------------------------- #
@@ -272,7 +315,10 @@ def build_report(judged_path, benchmark_path) -> dict:
         return report
     report["status"] = "ok"
     report["CF1"] = compute_cf1(records)
-    report["CF2"] = compute_cf2(records, id_to_split)
+    report["CF2_by_stage"] = compute_causal_by_branch(records, id_to_split)
+    # Back-compat: "CF2" is the confirmatory M3 cell, unchanged in shape from
+    # before per-branch support existed.
+    report["CF2"] = report["CF2_by_stage"]["M3"]
     return report
 
 
@@ -292,15 +338,18 @@ def main():
 
     print(f"status: {report['status']}")
     if report.get("status") == "ok":
-        cf1, cf2 = report["CF1"], report["CF2"]["primary"]
+        cf1 = report["CF1"]
         print(f"CF1  Delta_C = {cf1['delta_c']:+.4f}  95% CI [{cf1['ci_low']:+.4f}, "
               f"{cf1['ci_high']:+.4f}]  (n={cf1['n_effective_pairs']} pairs)")
-        if cf2["n_effective_triples"] > 0:
-            print(f"CF2  = {cf2['cf2']:+.4f}  95% CI [{cf2['ci_low']:+.4f}, "
-                  f"{cf2['ci_high']:+.4f}]  (n={cf2['n_effective_triples']} held-out-A triples)")
-        else:
-            print(f"CF2  = UNAVAILABLE (0 complete held-out-A triples; "
-                  f"dropped={cf2['dropped']}; see report['CF2']['primary']['diagnostics'])")
+        for stage, block in report["CF2_by_stage"].items():
+            cf2 = block["primary"]
+            label = "CF2" if block["confirmatory"] else f"secondary causal ({stage})"
+            if cf2["n_effective_triples"] > 0:
+                print(f"{label:24s} = {cf2['cf2']:+.4f}  95% CI [{cf2['ci_low']:+.4f}, "
+                      f"{cf2['ci_high']:+.4f}]  (n={cf2['n_effective_triples']} held-out-A triples)")
+            else:
+                print(f"{label:24s} = UNAVAILABLE (0 complete held-out-A triples for {stage}; "
+                      f"dropped={cf2['dropped']}; see report['CF2_by_stage']['{stage}']['primary']['diagnostics'])")
     print(f"-> {out}")
 
 
