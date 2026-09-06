@@ -211,3 +211,82 @@ def test_compute_cf2_for_stage_reports_cross_fitted_as_zero_when_not_run():
 def test_population_must_be_a_known_key():
     with pytest.raises(ValueError):
         cbe._cf2_block([], {}, stage="M3", population="nonsense")
+
+
+# --- the fold actually reaches the random control's calibration ----------------
+class _FakeCtx:
+    """Minimal stand-in: _causal_control_arrays only needs load_bound_activation
+    to hand back (final, pooled, metadata)."""
+    force = False
+
+
+def _fake_activations(n_layers=29, hidden=16, n_a=8, n_d=8):
+    import numpy as np
+    rng = np.random.default_rng(0)
+    meta = ([{"record_id": f"a{i}", "quadrant": "A", "split": "direction_estimation"}
+             for i in range(n_a)]
+            + [{"record_id": f"d{i}", "quadrant": "D", "split": "direction_estimation"}
+               for i in range(n_d)]
+            + [{"record_id": "b0", "quadrant": "B", "split": None}])
+    final = rng.normal(size=(len(meta), n_layers, hidden))
+    return final, final, meta
+
+
+def test_exclude_ids_removes_the_fold_from_the_random_control_calibration(monkeypatch):
+    """The direction and the matched random control must be built from the SAME
+    reduced row set. If only the direction folds and the control does not, the
+    fold's rows are back in the intervention's own magnitude calibration and
+    the cross-fit is silently a no-op for the control arm."""
+    import numpy as np
+
+    final, pooled, meta = _fake_activations()
+    monkeypatch.setattr(vp, "load_bound_activation",
+                        lambda ctx, stage: (final, pooled, meta))
+    direction = np.zeros((29, 16))
+    direction[24:29] = 1.0 / np.sqrt(16)
+
+    _, _, full = vp._causal_control_arrays(_FakeCtx(), "M3", direction)
+    _, _, folded = vp._causal_control_arrays(
+        _FakeCtx(), "M3", direction, exclude_ids=["a0", "a1"])
+
+    assert full.n_calibration_rows == 16
+    assert folded.n_calibration_rows == 14
+    assert {"a0", "a1"} <= set(full.calibration_record_ids)
+    assert not ({"a0", "a1"} & set(folded.calibration_record_ids)), (
+        "the folded-out rows are still calibrating the random control"
+    )
+
+
+def test_exclude_ids_accepts_non_string_record_ids(monkeypatch):
+    """crossfit_folds normalises ids to str; metadata may carry ints. A silent
+    type mismatch would leave the fold in the calibration set and fail nothing."""
+    import numpy as np
+
+    final, pooled, meta = _fake_activations()
+    for i, row in enumerate(meta):
+        row["record_id"] = i           # ints, not strings
+    monkeypatch.setattr(vp, "load_bound_activation",
+                        lambda ctx, stage: (final, pooled, meta))
+    direction = np.zeros((29, 16))
+    direction[24:29] = 1.0 / np.sqrt(16)
+
+    _, _, folded = vp._causal_control_arrays(
+        _FakeCtx(), "M3", direction, exclude_ids=["0", "1"])
+    assert folded.n_calibration_rows == 14
+
+
+def test_no_exclude_ids_leaves_the_control_exactly_as_before(monkeypatch):
+    """The ordinary (non-cross-fit) path must be untouched by this change."""
+    import numpy as np
+
+    final, pooled, meta = _fake_activations()
+    monkeypatch.setattr(vp, "load_bound_activation",
+                        lambda ctx, stage: (final, pooled, meta))
+    direction = np.zeros((29, 16))
+    direction[24:29] = 1.0 / np.sqrt(16)
+
+    a, _, ctrl_a = vp._causal_control_arrays(_FakeCtx(), "M3", direction)
+    b, _, ctrl_b = vp._causal_control_arrays(_FakeCtx(), "M3", direction, exclude_ids=None)
+    assert np.array_equal(a, b)
+    assert ctrl_a.calibration_record_ids == ctrl_b.calibration_record_ids
+    assert ctrl_a.n_calibration_rows == 16
