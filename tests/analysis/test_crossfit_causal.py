@@ -290,3 +290,36 @@ def test_no_exclude_ids_leaves_the_control_exactly_as_before(monkeypatch):
     assert np.array_equal(a, b)
     assert ctrl_a.calibration_record_ids == ctrl_b.calibration_record_ids
     assert ctrl_a.n_calibration_rows == 16
+
+
+# --- the preregistered CF2 number must not move when a re-run duplicates rows --
+def test_duplicate_condition_rows_keep_the_first_not_the_last():
+    """Job A regenerates the 30 held-out A rows that the frozen confirmatory
+    file already holds, under the same condition names. The manifest is a
+    sorted glob and "..._L24-28.json" sorts before "..._L24-28_fullAD.json",
+    so first-wins pins CF2's preregistered number to the frozen file rather
+    than letting a re-run silently move it."""
+    b, a, r = cbe._cf2_conditions_for_stage("M3")
+    frozen = [_rec("h1", "M3", "A", 0.10, stage=b),
+              _rec("h1", "M3", "A", 0.40, stage=a),
+              _rec("h1", "M3", "A", 0.20, stage=r)]      # contribution +0.20
+    rerun = [_rec("h1", "M3", "A", 0.10, stage=b),
+             _rec("h1", "M3", "A", 0.90, stage=a),
+             _rec("h1", "M3", "A", 0.10, stage=r)]       # contribution +0.80
+
+    block = cbe._cf2_block(frozen + rerun, {"h1": "held_out_behavioral"},
+                           stage="M3", population="held_out")
+    assert block["cf2"] == pytest.approx(0.20), "the re-run overwrote the frozen row"
+    assert block["n_effective_triples"] == 1
+    assert block["diagnostics"]["duplicate_condition_rows"] == 3
+
+
+def test_no_duplicates_reported_when_there_are_none():
+    b, a, r = cbe._cf2_conditions_for_stage("M3")
+    recs = [_rec("h1", "M3", "A", 0.1, stage=b),
+            _rec("h1", "M3", "A", 0.4, stage=a),
+            _rec("h1", "M3", "A", 0.2, stage=r)]
+    block = cbe._cf2_block(recs, {"h1": "held_out_behavioral"},
+                           stage="M3", population="held_out")
+    assert block["diagnostics"]["duplicate_condition_rows"] == 0
+    assert block["cf2"] == pytest.approx(0.2)
