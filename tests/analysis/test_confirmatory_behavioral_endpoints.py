@@ -301,3 +301,40 @@ def test_main_prints_unavailable_instead_of_crashing_when_cf2_is_empty(tmp_path,
     printed = capsys.readouterr().out
     assert "CF2" in printed and "UNAVAILABLE" in printed
     assert "CF1  Delta_C" in printed
+
+
+# --- circularity check: three-way split population ---------------------------
+def test_cf2_reports_held_out_estimation_and_all_separately():
+    # a1/a2 held-out (contribution +0.3 each), e1/e2 estimation (+0.9 each,
+    # i.e. an inflated "self-influence" effect). The three blocks must not mix.
+    recs = []
+    for rid, base, ad, rand in [("a1", 0.1, 0.5, 0.2), ("a2", 0.2, 0.6, 0.3)]:
+        recs += [
+            _rec(rid, "M3", "A", base, condition="M3_baseline"),
+            _rec(rid, "M3", "A", ad, condition="M3_ablated_AD"),
+            _rec(rid, "M3", "A", rand, condition="M3_ablated_random"),
+        ]
+    for rid, base, ad, rand in [("e1", 0.0, 0.9, 0.0), ("e2", 0.0, 0.9, 0.0)]:
+        recs += [
+            _rec(rid, "M3", "A", base, condition="M3_baseline"),
+            _rec(rid, "M3", "A", ad, condition="M3_ablated_AD"),
+            _rec(rid, "M3", "A", rand, condition="M3_ablated_random"),
+        ]
+    id_to_split = {"a1": "held_out_behavioral", "a2": "held_out_behavioral",
+                   "e1": "direction_estimation", "e2": "direction_estimation"}
+    cf2 = cbe.compute_cf2(recs, id_to_split)
+
+    assert cf2["primary"]["n_effective_triples"] == 2
+    assert cf2["primary"]["cf2"] == pytest.approx(0.3)
+    assert cf2["estimation_split_only"]["n_effective_triples"] == 2
+    assert cf2["estimation_split_only"]["cf2"] == pytest.approx(0.9)
+    assert cf2["full_A_sensitivity"]["n_effective_triples"] == 4
+    assert cf2["full_A_sensitivity"]["cf2"] == pytest.approx(0.6)
+    assert cf2["primary"]["population_key"] == "held_out"
+    assert cf2["estimation_split_only"]["population_key"] == "estimation"
+    assert cf2["full_A_sensitivity"]["population_key"] == "all"
+
+
+def test_cf2_block_rejects_unknown_population():
+    with pytest.raises(ValueError):
+        cbe._cf2_block([], {}, stage="M3", population="nonsense")

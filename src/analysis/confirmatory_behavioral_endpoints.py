@@ -155,8 +155,38 @@ def compute_cf1(records: list) -> dict:
 # --------------------------------------------------------------------------- #
 # CF2
 # --------------------------------------------------------------------------- #
-def _cf2_block(records: list, id_to_split: dict, *, stage: str, held_out_only: bool) -> dict:
+POPULATIONS = ("held_out", "estimation", "all")
+
+
+def _split_ok(rid, id_to_split, population) -> bool:
+    """Which A rows a CF2 block may use.
+
+    ``held_out``   - the preregistered confirmatory population (split ==
+                     held_out_behavioral). The direction never saw these.
+    ``estimation`` - the direction_estimation half. These rows CONTRIBUTED to
+                     the centroids that define d, so each contributes ~1/n of
+                     its group's mean (~0.8% at n=120). Ablating d from such a
+                     row removes a sliver of the row itself, which biases the
+                     effect UPWARD. Reported separately, never pooled silently,
+                     so the size of that bias can be read off directly.
+    ``all``        - held_out + estimation, the full-A sensitivity analysis.
+    """
+    split = id_to_split.get(rid)
+    if population == "held_out":
+        return split == "held_out_behavioral"
+    if population == "estimation":
+        return split == "direction_estimation"
+    return True
+
+
+def _cf2_block(records: list, id_to_split: dict, *, stage: str,
+               held_out_only: bool = None, population: str = None) -> dict:
     from collections import Counter
+
+    if population is None:
+        population = "held_out" if (held_out_only or held_out_only is None) else "all"
+    if population not in POPULATIONS:
+        raise ValueError(f"population must be one of {POPULATIONS}, got {population!r}")
 
     conditions = _cf2_conditions_for_stage(stage)
     by_id = {}  # record_id -> {condition -> sr}
@@ -181,7 +211,7 @@ def _cf2_block(records: list, id_to_split: dict, *, stage: str, held_out_only: b
         rid = rec.get("record_id")
         if rid is None:
             continue
-        if held_out_only and id_to_split.get(rid) != "held_out_behavioral":
+        if not _split_ok(rid, id_to_split, population):
             continue
         diag["n_after_split_filter"] += 1
         sr = usable_sr(rec)
@@ -207,7 +237,13 @@ def _cf2_block(records: list, id_to_split: dict, *, stage: str, held_out_only: b
     boot = paired_bootstrap_ci(contribs)
     block = {
         "stage": stage,
-        "population": "held_out_behavioral A only" if held_out_only else "ALL quadrant A (sensitivity)",
+        "population": {
+            "held_out": "held_out_behavioral A only (preregistered confirmatory)",
+            "estimation": "direction_estimation A only (rows that DEFINED d - "
+                          "effect biased upward by ~1/n self-influence)",
+            "all": "ALL quadrant A (full-A sensitivity)",
+        }[population],
+        "population_key": population,
         "n_effective_triples": boot["n_effective"],
         "E_AD": (sum(e_ad) / len(e_ad)) if e_ad else None,
         "E_random": (sum(e_rand) / len(e_rand)) if e_rand else None,
@@ -247,10 +283,21 @@ def compute_cf2_for_stage(records: list, id_to_split: dict, stage: str) -> dict:
         "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises "
                            "harmful assistance more than a matched random ablation",
         "conditions": list(_cf2_conditions_for_stage(stage)),
-        "primary": _cf2_block(records, id_to_split, stage=stage, held_out_only=True),
-        "full_A_sensitivity": _cf2_block(records, id_to_split, stage=stage, held_out_only=False),
-        "note": "n~30 limitation: report the CI width; a non-significant result "
-                "does not prove absence of an effect (analysis_plan.md §3).",
+        "primary": _cf2_block(records, id_to_split, stage=stage, population="held_out"),
+        "full_A_sensitivity": _cf2_block(records, id_to_split, stage=stage, population="all"),
+        "estimation_split_only": _cf2_block(records, id_to_split, stage=stage,
+                                            population="estimation"),
+        "circularity_check": (
+            "Compare primary (held-out; d never saw these) against "
+            "estimation_split_only (rows that contributed ~1/n each to the "
+            "centroids defining d). Similar effects => the self-influence bias "
+            "is negligible and full_A_sensitivity can be read at face value. A "
+            "larger estimation-split effect quantifies the bias. The held-out "
+            "block remains the preregistered confirmatory number either way."
+        ),
+        "note": "n~30 limitation on the held-out block: report the CI width; a "
+                "non-significant result does not prove absence of an effect "
+                "(analysis_plan.md §3).",
     }
 
 
