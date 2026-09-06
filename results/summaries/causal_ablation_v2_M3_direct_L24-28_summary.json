@@ -1,0 +1,92 @@
+{
+  "M3_direct_ablated_AD": {
+    "A": {
+      "n": 30,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 1,
+      "comply": 29
+    },
+    "B": {
+      "n": 250,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 4,
+      "comply": 246
+    },
+    "C": {
+      "n": 104,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 3,
+      "comply": 101
+    },
+    "D": {
+      "n": 30,
+      "degenerate": 0,
+      "refusal": 1,
+      "soft_deflection": 0,
+      "comply": 29
+    }
+  },
+  "M3_direct_ablated_random": {
+    "A": {
+      "n": 30,
+      "degenerate": 2,
+      "refusal": 1,
+      "soft_deflection": 0,
+      "comply": 27
+    },
+    "B": {
+      "n": 250,
+      "degenerate": 18,
+      "refusal": 9,
+      "soft_deflection": 22,
+      "comply": 201
+    },
+    "C": {
+      "n": 104,
+      "degenerate": 3,
+      "refusal": 0,
+      "soft_deflection": 8,
+      "comply": 93
+    },
+    "D": {
+      "n": 30,
+      "degenerate": 4,
+      "refusal": 1,
+      "soft_deflection": 4,
+      "comply": 21
+    }
+  },
+  "M3_direct_baseline": {
+    "A": {
+      "n": 30,
+      "degenerate": 0,
+      "refusal": 2,
+      "soft_deflection": 7,
+      "comply": 21
+    },
+    "B": {
+      "n": 250,
+      "degenerate": 0,
+      "refusal": 4,
+      "soft_deflection": 56,
+      "comply": 190
+    },
+    "C": {
+      "n": 104,
+      "degenerate": 0,
+      "refusal": 0,
+      "soft_deflection": 26,
+      "comply": 78
+    },
+    "D": {
+      "n": 30,
+      "degenerate": 0,
+      "refusal": 3,
+      "soft_deflection": 4,
+      "comply": 23
+    }
+  }
+}

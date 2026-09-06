@@ -216,6 +216,49 @@ def test_cf2_by_branch_keeps_stages_strictly_separate():
     assert by_stage["M3_direct"]["confirmatory"] is False
 
 
+def test_branch_interaction_is_paired_difference_of_differences():
+    # M3: AD-random contribution = +0.3 per prompt.  M3_direct_alt: -0.1 per prompt.
+    # Interaction (M3 - M3_direct_alt) should be a tight +0.4, CI excluding zero.
+    recs = []
+    for rid in ("a1", "a2", "a3"):
+        recs += [
+            _rec(rid, "M3", "A", 0.1, condition="M3_baseline"),
+            _rec(rid, "M3", "A", 0.5, condition="M3_ablated_AD"),
+            _rec(rid, "M3", "A", 0.2, condition="M3_ablated_random"),
+            _rec(rid, "M3_direct_alt", "A", 0.1, condition="M3_direct_alt_baseline"),
+            _rec(rid, "M3_direct_alt", "A", 0.2, condition="M3_direct_alt_ablated_AD"),
+            _rec(rid, "M3_direct_alt", "A", 0.3, condition="M3_direct_alt_ablated_random"),
+        ]
+    id_to_split = {r: "held_out_behavioral" for r in ("a1", "a2", "a3")}
+    bi = cbe.compute_branch_interactions(recs, id_to_split,
+                                         stages=("M3", "M3_direct_alt"))
+    p = bi["pairs"]["M3_vs_M3_direct_alt"]
+    assert p["n_shared_prompts"] == 3
+    assert p["delta_reference"] == pytest.approx(0.3)
+    assert p["delta_branch"] == pytest.approx(-0.1)
+    assert p["interaction"] == pytest.approx(0.4)
+    assert p["ci_excludes_zero"] is True
+    assert bi["status"].startswith("EXPLORATORY")
+
+
+def test_branch_interaction_only_uses_prompts_scored_in_both_branches():
+    recs = [
+        _rec("a1", "M3", "A", 0.1, condition="M3_baseline"),
+        _rec("a1", "M3", "A", 0.5, condition="M3_ablated_AD"),
+        _rec("a1", "M3", "A", 0.2, condition="M3_ablated_random"),
+        # a2 only has M3 data, not M3_alt -> must be dropped from the pair
+        _rec("a2", "M3", "A", 0.0, condition="M3_baseline"),
+        _rec("a2", "M3", "A", 0.9, condition="M3_ablated_AD"),
+        _rec("a2", "M3", "A", 0.1, condition="M3_ablated_random"),
+        _rec("a1", "M3_alt", "A", 0.1, condition="M3_alt_baseline"),
+        _rec("a1", "M3_alt", "A", 0.3, condition="M3_alt_ablated_AD"),
+        _rec("a1", "M3_alt", "A", 0.2, condition="M3_alt_ablated_random"),
+    ]
+    id_to_split = {"a1": "held_out_behavioral", "a2": "held_out_behavioral"}
+    bi = cbe.compute_branch_interactions(recs, id_to_split, stages=("M3", "M3_alt"))
+    assert bi["pairs"]["M3_vs_M3_alt"]["n_shared_prompts"] == 1
+
+
 def test_build_report_includes_cf2_by_stage_and_m3_alias(tmp_path):
     recs = [
         _rec("c1", "M2", "C", 0.3), _rec("c1", "M3", "C", 0.1),

@@ -272,6 +272,84 @@ def compute_causal_by_branch(records: list, id_to_split: dict,
 
 
 # --------------------------------------------------------------------------- #
+# Branch-interaction (difference-of-differences): NOT preregistered -> exploratory
+# --------------------------------------------------------------------------- #
+def _cf2_contribs_by_id(records: list, id_to_split: dict, stage: str,
+                        *, held_out_only: bool = True) -> dict:
+    """{record_id -> (SR_ablated_AD - SR_ablated_random)} for one branch's
+    held-out quadrant-A triples. Same filters as _cf2_block; returned keyed
+    by record_id so contributions can be aligned across branches."""
+    base_c, ad_c, rand_c = _cf2_conditions_for_stage(stage)
+    by_id = {}
+    for rec in records:
+        if rec.get("quadrant") != "A" or _stage(rec) != stage:
+            continue
+        cond = _condition(rec)
+        if cond not in (base_c, ad_c, rand_c):
+            continue
+        rid = rec.get("record_id")
+        if rid is None:
+            continue
+        if held_out_only and id_to_split.get(rid) != "held_out_behavioral":
+            continue
+        sr = usable_sr(rec)
+        if sr is None:
+            continue
+        by_id.setdefault(rid, {})[cond] = sr
+    return {rid: v[ad_c] - v[rand_c]
+            for rid, v in by_id.items() if ad_c in v and rand_c in v}
+
+
+def compute_branch_interactions(records: list, id_to_split: dict, *,
+                                 reference: str = "M3",
+                                 stages=CAUSAL_STAGES,
+                                 held_out_only: bool = True) -> dict:
+    """For each non-reference branch b: the paired difference-of-differences
+    (Delta_reference - Delta_b), where Delta = mean_i(SR_AD - SR_random) on
+    the prompts scored in BOTH branches. Prompt-level paired bootstrap
+    (same frozen seed/B). This is the correct estimand for "the
+    direction-specific effect differs across adaptation paths" - comparing
+    whether each branch's own CI excludes zero is the significance-pattern
+    fallacy and does NOT test heterogeneity.
+
+    NOT part of the preregistered analysis plan -> report as EXPLORATORY.
+    A CI excluding zero => the reference branch's direction-specific effect
+    is larger than branch b's on the shared held-out-A prompts. A CI
+    spanning zero does NOT establish the effects are equal."""
+    ref_contribs = _cf2_contribs_by_id(records, id_to_split, reference,
+                                       held_out_only=held_out_only)
+    out = {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md fixes CF1/CF2 "
+                  "only; this difference-of-differences was added post hoc)",
+        "reference": reference,
+        "statistic": "Delta_ref - Delta_b ; Delta_s = mean_i(SR_AD^s - SR_random^s) "
+                     "over prompts scored in both s and ref",
+        "held_out_only": held_out_only,
+        "pairs": {},
+    }
+    for b in stages:
+        if b == reference:
+            continue
+        b_contribs = _cf2_contribs_by_id(records, id_to_split, b,
+                                         held_out_only=held_out_only)
+        shared = sorted(set(ref_contribs) & set(b_contribs))
+        diffs = [ref_contribs[r] - b_contribs[r] for r in shared]
+        boot = paired_bootstrap_ci(diffs)
+        out["pairs"][f"{reference}_vs_{b}"] = {
+            "n_shared_prompts": len(shared),
+            "delta_reference": (sum(ref_contribs[r] for r in shared) / len(shared)) if shared else None,
+            "delta_branch": (sum(b_contribs[r] for r in shared) / len(shared)) if shared else None,
+            "interaction": boot["point"],
+            "ci_low": boot["ci_low"],
+            "ci_high": boot["ci_high"],
+            "ci_excludes_zero": (boot["ci_low"] is not None
+                                 and (boot["ci_low"] > 0 or boot["ci_high"] < 0)),
+            "bootstrap": {k: boot.get(k) for k in ("b", "seed", "interval", "mean")},
+        }
+    return out
+
+
+# --------------------------------------------------------------------------- #
 # driver
 # --------------------------------------------------------------------------- #
 def load_judge_records(judged_path):
@@ -319,6 +397,7 @@ def build_report(judged_path, benchmark_path) -> dict:
     # Back-compat: "CF2" is the confirmatory M3 cell, unchanged in shape from
     # before per-branch support existed.
     report["CF2"] = report["CF2_by_stage"]["M3"]
+    report["CF2_branch_interactions"] = compute_branch_interactions(records, id_to_split)
     return report
 
 
@@ -350,6 +429,17 @@ def main():
             else:
                 print(f"{label:24s} = UNAVAILABLE (0 complete held-out-A triples for {stage}; "
                       f"dropped={cf2['dropped']}; see report['CF2_by_stage']['{stage}']['primary']['diagnostics'])")
+        bi = report.get("CF2_branch_interactions", {})
+        if bi.get("pairs"):
+            print("branch interaction (EXPLORATORY, not preregistered; "
+                  f"reference={bi['reference']}):")
+            for name, p in bi["pairs"].items():
+                if p["interaction"] is None:
+                    print(f"  {name:28s} = n/a (0 shared prompts)")
+                    continue
+                mark = "  <-- CI excludes 0" if p["ci_excludes_zero"] else ""
+                print(f"  {name:28s} = {p['interaction']:+.4f}  95% CI [{p['ci_low']:+.4f}, "
+                      f"{p['ci_high']:+.4f}]  (n={p['n_shared_prompts']}){mark}")
     print(f"-> {out}")
 
 

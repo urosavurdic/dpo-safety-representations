@@ -28,3 +28,4 @@ results/crossbranch/deltas/*.npz
 results/crossbranch/raw/shards/
 # private research notes (onboarding doc etc.) - never committed
 private/
+results/behavioral_judges_v2/*.json
