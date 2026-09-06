@@ -1092,7 +1092,8 @@ def _causal_control_arrays(ctx, stage, direction):
     return random_array, d_ab, control
 
 
-def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=None) -> bool:
+def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=None,
+                 all_ad=False) -> bool:
     """Generate the requested causal conditions (analysis_plan.md §2 CF2, §6).
 
     ``conditions`` defaults to the frozen required set
@@ -1100,17 +1101,42 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
     only when explicitly requested. Resumable: a shard unit already in the
     causal ShardStore is not regenerated, so adding ``ablated_random`` to an
     earlier ``baseline + ablated_AD`` run only produces the new condition.
+
+    ``all_ad=True`` runs the **predeclared full-A/D sensitivity analysis**
+    (analysis_plan.md §2: "full-A only as a predeclared sensitivity
+    analysis"): quadrants A and D in FULL (direction_estimation half
+    included), B/C skipped (identical to the confirmatory file). Writes to a
+    separate ``*_fullAD.json`` so the frozen held-out CF2 file is never
+    touched, and its shard units carry a ``_fullAD`` suffix so they do not
+    collide with the confirmatory run's shards. The random-control magnitude
+    calibration and the direction are unchanged - only the generation row
+    set expands. This is a SENSITIVITY artifact, not the confirmatory
+    endpoint; the held-out-30 CF2 remains the pre-registered anchor.
     """
     from src.analysis.intervention_conditions import parse_conditions_arg
 
     requested = parse_conditions_arg(conditions)
 
-    rows = intervention_rows(ctx.rows)
+    if all_ad:
+        rows = [r for r in ctx.rows if r.get("quadrant") in ("A", "D")]
+        tag = "_fullAD"
+    else:
+        rows = intervention_rows(ctx.rows)
+        tag = ""
     if not rows:
         raise RuntimeError("No rows remain for causal ablation.")
 
-    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json"
-    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28_binding.json"
+    # cross-branch direction transfer (EXPLORATORY, not preregistered): the
+    # direction array passed in may have been estimated on a DIFFERENT stage
+    # than `stage`. `ctx` records it in `direction_source`; when it differs
+    # from `stage`, tag the output so a transfer cell never overwrites the
+    # native (diagonal) causal file.
+    dir_src = getattr(ctx, "direction_source", stage) or stage
+    if dir_src != stage:
+        tag += f"_dirfrom_{dir_src}"
+
+    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
+    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
 
     def _full(cond):
         return f"{stage}_baseline" if cond == "baseline" else f"{stage}_{cond}"
@@ -1154,7 +1180,7 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
     generated, merged = [], []
     for cond in requested:
         suffix, hook_factory = spec[cond]
-        unit_name = f"{stage}{suffix}"
+        unit_name = f"{stage}{suffix}{tag}".replace("/", "-")
         unit_key = ShardStore.unit_key(stage, unit_name)
         handles = hook_factory() if hook_factory else []
         try:
@@ -2580,12 +2606,16 @@ def cmd_probes(args) -> None:
 
 def cmd_causal(args) -> None:
     ctx = build_context(args)
-    direction = stage_direction(ctx, args.stage)
+    dir_from = getattr(args, "direction_from", None) or args.stage
+    direction = stage_direction(ctx, dir_from)
+    ctx.direction_source = dir_from  # picked up by stage_causal for the output tag
+    all_ad = getattr(args, "all_ad_sensitivity", False)
     for_each_stage(
         ctx,
         [args.stage],
         lambda c, s, m, t, d: stage_causal(
-            c, s, m, t, d, direction, conditions=getattr(args, "conditions", None)
+            c, s, m, t, d, direction,
+            conditions=getattr(args, "conditions", None), all_ad=all_ad,
         ),
     )
 
@@ -2728,6 +2758,22 @@ def build_parser() -> argparse.ArgumentParser:
              "the frozen required set (baseline ablated_AD ablated_random). "
              "ablated_AB is a high-priority secondary that runs only if the "
              "calibrated wall-time projection shows it fits.",
+    )
+    causal.add_argument(
+        "--all-ad-sensitivity", action="store_true",
+        help="Predeclared full-A/D sensitivity analysis (analysis_plan.md §2): "
+             "generate quadrants A and D in FULL (direction_estimation half "
+             "included), B/C skipped. Writes causal_ablation_v2_{stage}_L24-28"
+             "_fullAD.json; the frozen held-out CF2 file is untouched. This is a "
+             "sensitivity artifact - the held-out-30 CF2 stays the anchor.",
+    )
+    causal.add_argument(
+        "--direction-from", default=None, choices=ALL_STAGES,
+        help="EXPLORATORY (not preregistered) cross-branch direction transfer: "
+             "ablate the --stage model using the A-D direction estimated on THIS "
+             "stage instead. Output is tagged _dirfrom_<stage> so a transfer cell "
+             "never overwrites the native (diagonal) causal file. Use with "
+             "--all-ad-sensitivity for the n=150 version.",
     )
 
     steering = subparsers.add_parser("steering")

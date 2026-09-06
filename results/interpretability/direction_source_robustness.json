@@ -1,0 +1,94 @@
+{
+  "layer": 24,
+  "independent_source": "OASST1",
+  "per_stage": {
+    "M2": {
+      "stage": "M2",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.65976881980896,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9022024891206196,
+          "cos_vs_full_at_L24": 0.9319988489151001,
+          "z_C_at_L24": 0.625522255897522
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.9383086115121841,
+          "cos_vs_full_at_L24": 0.9271683692932129,
+          "z_C_at_L24": 0.6003046631813049
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.8937659689358303,
+          "cos_vs_full_at_L24": 0.8790383338928223,
+          "z_C_at_L24": 0.7797317504882812
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.8790383338928223,
+      "headline_z_C_shift_full_to_OASST1": 0.12
+    },
+    "M3": {
+      "stage": "M3",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.905778169631958,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9042932859488896,
+          "cos_vs_full_at_L24": 0.9482272863388062,
+          "z_C_at_L24": 0.9072260856628418
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.9400006979703903,
+          "cos_vs_full_at_L24": 0.9348346590995789,
+          "z_C_at_L24": 0.8366129994392395
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.9023980498313904,
+          "cos_vs_full_at_L24": 0.90012526512146,
+          "z_C_at_L24": 0.9893178343772888
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.90012526512146,
+      "headline_z_C_shift_full_to_OASST1": 0.0835
+    },
+    "M3_alt": {
+      "stage": "M3_alt",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.8023354411125183,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9117097215993064,
+          "cos_vs_full_at_L24": 0.9472866058349609,
+          "z_C_at_L24": 0.7948085069656372
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.9435242137738636,
+          "cos_vs_full_at_L24": 0.9409735202789307,
+          "z_C_at_L24": 0.7384970188140869
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.9090979056698936,
+          "cos_vs_full_at_L24": 0.8869857788085938,
+          "z_C_at_L24": 0.895375669002533
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.8869857788085938,
+      "headline_z_C_shift_full_to_OASST1": 0.093
+    },
+    "M3_direct_alt": {
+      "stage": "M3_direct_alt",
+      "error": "no direction_estimation A/D rows in metadata"
+    }
+  }
+}
