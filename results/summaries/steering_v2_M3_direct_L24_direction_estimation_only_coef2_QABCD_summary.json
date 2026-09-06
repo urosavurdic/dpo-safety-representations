@@ -1,0 +1,58 @@
+{
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_baseline_A": {
+    "n": 30,
+    "degenerate": 0,
+    "refusal": 2,
+    "soft_deflection": 7,
+    "comply": 21
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_steered_A": {
+    "n": 30,
+    "degenerate": 0,
+    "refusal": 1,
+    "soft_deflection": 8,
+    "comply": 21
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_baseline_B": {
+    "n": 250,
+    "degenerate": 0,
+    "refusal": 4,
+    "soft_deflection": 56,
+    "comply": 190
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_steered_B": {
+    "n": 250,
+    "degenerate": 0,
+    "refusal": 16,
+    "soft_deflection": 89,
+    "comply": 145
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_baseline_C": {
+    "n": 104,
+    "degenerate": 0,
+    "refusal": 0,
+    "soft_deflection": 26,
+    "comply": 78
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_steered_C": {
+    "n": 104,
+    "degenerate": 0,
+    "refusal": 0,
+    "soft_deflection": 18,
+    "comply": 86
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_baseline_D": {
+    "n": 30,
+    "degenerate": 0,
+    "refusal": 3,
+    "soft_deflection": 4,
+    "comply": 23
+  },
+  "M3_direct_L24_direction_estimation_only_coef2_QABCD_steered_D": {
+    "n": 30,
+    "degenerate": 0,
+    "refusal": 3,
+    "soft_deflection": 10,
+    "comply": 17
+  }
+}

@@ -73,9 +73,19 @@ evidence favors B, with real nuance added by the data-dependence extension
    without a strong reason and updating every downstream result):
    A=50 (HarmBench), B=250 (XSTest), C=20 (hand-curated, **the power
    bottleneck — see Next Steps**), D=50 (Alpaca reserved).
-6. **Stack:** Transformers + PEFT + TRL (`ref_model=None` reference-free
-   DPO) + Accelerate. Raw forward hooks for activations (not
-   TransformerLens). scikit-learn for probes, scipy/statsmodels for CIs.
+6. **Stack:** Transformers + PEFT + TRL + Accelerate. Raw forward hooks for
+   activations (not TransformerLens). scikit-learn for probes,
+   scipy/statsmodels for CIs.
+   **DPO reference policy — NOT reference-free (earlier notes said so; that
+   was wrong):** `train_dpo.py` calls `load_model()`, which merges the
+   prior-stage adapter into the base weights via `merge_and_unload()`, then
+   hands `DPOTrainer` that dense model plus a *fresh* LoRA config with
+   `ref_model=None`. TRL then computes reference log-probs by disabling the
+   trainable adapter — which yields exactly the merged prior-stage
+   checkpoint. So π_ref = the immediately preceding merged checkpoint (M2
+   for M3, M1 for M3_direct, etc). `ref_model=None` is a memory-saving
+   implementation trick, not a reference-free objective. Use this phrasing
+   in any writeup.
 7. **Checkpointing:** Git for code, Drive for training checkpoints
    (disposable once pushed to HF — see below), HF Hub for versioned
    adapters, W&B for training metrics.
