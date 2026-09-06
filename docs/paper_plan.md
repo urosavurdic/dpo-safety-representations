@@ -34,37 +34,46 @@ change in the submission comment field if one exists.
 
 ---
 
-## Saturday Sept 6 — GPU + your time in parallel
+## The one GPU run: `notebooks/08_final_gpu_run.ipynb`
 
-### GPU session (~1.5 h): notebook `07_full_ad_and_robustness.ipynb`, Run all
+Runtime -> Run all, overnight, ~3-5 h. **After this nothing needs a GPU.**
+Three jobs in dependency order; the judge goes last because it is the only
+non-resumable step (jobs A and B resume from their shard stores).
 
-Re-open from GitHub so it pulls the latest pinned commit.
+| job | what | ~time |
+|---|---|---|
+| **A** | full-A/D causal ablation, 4 branches (`--all-ad-sensitivity`) | ~1.5 h |
+| **B** | cross-fitted causal ablation, 4 branches (`--cross-fit 5`) | ~40 min |
+| **C** | re-judge everything + recompute CF1/CF2 | ~1.5-2.5 h |
 
-1. **Step 3 — full-A/D causal, M3 FIRST.** Smoke-test cell asserts 900 rows
-   (300 A/D x 3 conditions) and stops if wrong — `--all-ad-sensitivity`
-   has never touched a real model. Verify row count, `_fullAD.json`
-   written, binding sidecar present, BEFORE the other three branches launch.
-2. **Step 3 cont. — M3_direct / M3_alt / M3_direct_alt** full-A/D. Writes
-   `causal_ablation_v2_{stage}_L24-28_fullAD.json`; the frozen held-out-30
-   files are untouched.
-3. **Step 4 — McNemar at n=150** (CPU, ~2 min). Quadrant A (refusal) and
+Guards, in order, each stopping the run rather than producing plausible
+nonsense: a preflight on 654-row metadata / the 240-60 split / the four
+frozen held-out files; a 900-row assert after job A's M3 smoke run; a
+360-row + disjoint-cover assert on job B's fold sidecar; and a manifest
+assert between B and C that every new response file is actually in the judge
+manifest. That last one exists because `RESPONSE_GLOBS` was anchored to
+`_L24-28.json` and silently excluded every `_fullAD` / `_xfit` file - fixed
+in `3c15eb4`, and the assert is placed *before* the two-hour judge rather
+than after it.
+
+### Then, CPU only (no GPU, runs on the results above)
+
+`notebooks/07_full_ad_and_robustness.ipynb` steps 4, 6, 7 - or the same
+commands locally:
+
+1. **n=150 McNemar** on the `_fullAD` files. Quadrant A (refusal) and
    quadrant D (over-refusal side-effect), AD-vs-random, all 4 branches,
    plus `summarize_causal_ablation` and `bootstrap_causal_effect`. Label
-   every n=150 number "sensitivity", never "confirmation".
-4. **Step 5 — re-judge (OPTIONAL, ~90-120 min).** Only if the session
-   holds. Produces the continuous-StrongREJECT CF2 at n=150 and fills
-   `CF2_by_stage[*].estimation_split_only` (currently n=0). Skippable —
-   step 4 already gives regex direction-specificity at n=150.
-5. **Step 6 — D-source robustness, all 9 stages** (CPU, ~1 min).
-   PRECONDITION: every stage must use 654-row metadata. `v2_pipeline
-   status` must show 9/9 bound first; do not let stale 370-row metadata
-   into the all-stage table.
-6. **Step 7 — factorial direction audit, all 9 stages** (CPU, ~1 min).
-   Same 654-metadata precondition. Runs `--ad-rows est` and `--ad-rows all`.
+   every n=150 number "sensitivity", never "confirmation", and carry the
+   discordant counts b/c, not just the p-value.
+2. **D-source robustness, all 9 stages** (~1 min). PRECONDITION: every stage
+   on 654-row metadata; `v2_pipeline status` must show 9/9 first.
+3. **Factorial direction audit, all 9 stages** (~1 min), same precondition,
+   both `--ad-rows est` and `--ad-rows all`.
 
-**Send back:** step 4 p-values (A and D, all branches); step 6 cosine
-table; step 7 alignment table + held-out A/D separation; step 5 printout
-if run.
+**Send back from the GPU run:** the final summary cell (it prints artifact
+row counts, the per-fold cos(d_fold, d_full) table, and every CF2 block
+including `cross_fitted`).
 
 ### Your time (starts now, independent of GPU)
 
@@ -86,20 +95,22 @@ if run.
    (CPU, minutes).
 2. I fold steps 4-7 into `findings_654_synthesis.md` -> one results table +
    one figure list.
-3. **Cross-fitting - LAST PRIORITY, in scope, with an abort rule.** The
-   project owner's call, overriding external review's advice to skip it
-   entirely: include it, run it last, and drop it the moment it costs time.
-   Build the leave-fold-out direction flag (out-of-fold n=120 causal
-   estimate) only once the n=150 sensitivity table, the human-audit chain,
-   and Sections 1-9 of the draft are done.
-   **ABORT and move it to Future Work** if: the fold-1 smoke test gives the
-   wrong row count or non-disjoint fold sets; the pooled out-of-fold estimate
-   disagrees with the held-out-30 CF2 in a way not explainable by the
-   sampling difference (opposite sign, or a CI excluding the held-out point
-   estimate); or it costs more than one GPU session plus one debugging round.
-   Record the abort and its reason in `findings_654_synthesis.md` - do not
-   drop it silently. Nothing depends on it: CF2's preregistered anchor is the
-   held-out 30.
+3. **Cross-fitting - BUILT AND IN THE MAIN RUN** (owner's call, superseding
+   both external review's "skip it" and the earlier last-priority framing).
+   `v2_pipeline causal --cross-fit 5`, job B of notebook 08. Each of the 120
+   quadrant-A `direction_estimation` rows is generated under a direction
+   estimated without it, so the ~1/120 self-influence is removed on the same
+   rows `estimation_split_only` uses. Only the A rows fold: a quadrant-A test
+   row contributes to `mean(A_est)` and nothing else, so the D centroid keeps
+   all 120 and `d_k` stays close to the full direction. The random control's
+   RMS gamma is calibrated on the same reduced set.
+   Lands in `CF2_by_stage[*].cross_fitted`. Report as an **out-of-fold n=120
+   estimate**, never "independent n=120" - the 5 training portions overlap by
+   3/4. Post hoc, not preregistered; the held-out 30 stays the anchor.
+   The one thing that still kills it: a result nobody can explain. If the
+   pooled out-of-fold estimate contradicts the held-out CF2 in a way the
+   sampling difference does not account for, report it in the deviations
+   table and move it to Future Work rather than spend the week on it.
 
 ---
 
@@ -134,7 +145,7 @@ Section map (numbers current as of `findings_654_synthesis.md`):
    `full_A_sensitivity` block (post hoc, response to review on circularity -
    held-out stays the anchor); factorial direction audit (post hoc
    diagnostic); D sub-source robustness (post hoc external validity);
-   cross-fitting if it survives its abort rule (post hoc). Plus the two
+   cross-fitting (post hoc, built and run - out-of-fold n=120). Plus the two
    corrections carried openly: the "7-layer harm-vs-surface" walk-back to
    argmax noise, and the McNemar correction (baseline-vs-AD had been misread
    as AD-vs-random). An undisclosed deviation a reviewer finds is what sinks
@@ -162,7 +173,13 @@ Section map (numbers current as of `findings_654_synthesis.md`):
      M3_direct p = 0.23, M3_direct_alt p = 1.00.
      Correction: the p ~ 2e-6 cited in earlier drafts for M3_direct was
      baseline-vs-AD, NOT AD-vs-random.
-   - n=150 McNemar from Saturday — labelled sensitivity.
+   - n=150 McNemar from the `_fullAD` files — labelled sensitivity.
+   - **cross_fitted** (out-of-fold n=120, job B): the three-way circularity
+     read. `estimation_split_only` minus `cross_fitted` estimates the
+     self-influence bias on the SAME rows, instead of bounding it by
+     argument. If `cross_fitted` sits near `primary`, `full_A_sensitivity`
+     can be read at face value; if it sits near `estimation_split_only`, the
+     self-influence was never the explanation.
    - **REPORTING RULE (external review, adopted): every McNemar enters the
      table as discordant counts b/c plus a paired effect estimate with CI,
      never as a bare p-value.** M3_direct_alt's p = 1.00 rests on 7/7
@@ -236,5 +253,6 @@ treatment convincing.
    vector".
 4. D-source audit all-stages (step 6) — keep, cheap.
 5. Re-judge for continuous n=150 (step 5) — drop first if GPU-tight.
-6. Cross-fitting - LAST. In scope per the owner's call, but abort on the
-   first unexplained result or bug rather than spend the week on it.
+6. Cross-fitting - built, and part of the single overnight GPU run, so it
+   costs no extra session. Drop it only if the out-of-fold estimate turns out
+   inexplicable.
