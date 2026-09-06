@@ -1079,9 +1079,13 @@ def _causal_control_arrays(ctx, stage, direction, exclude_ids=None):
 
     final, _pooled, metadata = load_bound_activation(ctx, stage)
     quadrants = np.asarray([row.get("quadrant") for row in metadata])
-    excluded = set(exclude_ids or ())
+    # str() on both sides: crossfit_folds normalises ids to str, metadata may
+    # not. A silent type mismatch here would leave the fold's rows in the
+    # calibration set and undo the fold without failing anything.
+    excluded = {str(r) for r in (exclude_ids or ())}
     splits = np.asarray([
-        (CROSSFIT_TEST_SPLIT if row.get("record_id") in excluded else row.get("split"))
+        (CROSSFIT_TEST_SPLIT if str(row.get("record_id")) in excluded
+         else row.get("split"))
         for row in metadata
     ])
     record_ids = [row.get("record_id") for row in metadata]
