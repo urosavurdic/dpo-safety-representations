@@ -24,10 +24,13 @@ file is the *evidence ledger*.
 | "out-of-fold n=120 estimate" (if cross-fitting is run) | "independent n=120" |
 | "the direction is source-sensitive (cos with OASST1-only approx 0.88-0.90) and pooling-sensitive (cos final vs pooled approx 0.59-0.74)" | anything implying the vector is construction-invariant |
 
-Paper title may differ from the abstract registration. Candidates:
-**"Preserved but Uncoupled"** (matches abstract) or **"Preserved but
-Path-Dependent"** (more accurate now the positive and null branches form a
-structured pattern, not a global uncoupling). Decide at draft time.
+**Paper title: "Preserved but Path-Dependent"** (DECIDED - external review
+recommended it, adopted). The abstract registered as "Preserved but
+Uncoupled"; the workshop is non-archival and the registration does not bind
+the paper title. The positive branches (M3, M3_alt) and the null branches
+(M3_direct, M3_direct_alt) form a structured pattern, so "path-dependent"
+describes the result and "uncoupled" no longer does. Same subtitle. Note the
+change in the submission comment field if one exists.
 
 ---
 
@@ -83,15 +86,33 @@ if run.
    (CPU, minutes).
 2. I fold steps 4-7 into `findings_654_synthesis.md` -> one results table +
    one figure list.
-3. **Cross-fitting decision gate.** If annotation is fully done Sunday
-   night, I build the leave-fold-out direction flag (out-of-fold n=120
-   causal estimate) and you run it Monday AM. Otherwise it is the first
-   Future Work item — held-out 30 + full-A sensitivity + factorial audit
-   is already a defensible package.
+3. **Cross-fitting - LAST PRIORITY, in scope, with an abort rule.** The
+   project owner's call, overriding external review's advice to skip it
+   entirely: include it, run it last, and drop it the moment it costs time.
+   Build the leave-fold-out direction flag (out-of-fold n=120 causal
+   estimate) only once the n=150 sensitivity table, the human-audit chain,
+   and Sections 1-9 of the draft are done.
+   **ABORT and move it to Future Work** if: the fold-1 smoke test gives the
+   wrong row count or non-disjoint fold sets; the pooled out-of-fold estimate
+   disagrees with the held-out-30 CF2 in a way not explainable by the
+   sampling difference (opposite sign, or a CI excluding the held-out point
+   estimate); or it costs more than one GPU session plus one debugging round.
+   Record the abort and its reason in `findings_654_synthesis.md` - do not
+   drop it silently. Nothing depends on it: CF2's preregistered anchor is the
+   held-out 30.
 
 ---
 
 ## Monday Sept 8 — draft for internal review
+
+**Start drafting before the pending analyses land** (external review's
+scheduling advice, adopted): writing is the critical path, not computation.
+Sections 1-5, 7-9, 11 and 12 can be written to final quality now - none of
+them depend on anything still running. Use explicit placeholders for the
+rest, each naming the artifact that will fill it, so a gap stays visibly a
+gap: `[PENDING nb07 step 4: n=150 McNemar]`, `[PENDING nb07 steps 6-7:
+all-9-stage D-source + factorial]`, `[PENDING annotation: agreement report
+-> sec 10]`, `[PENDING/OPTIONAL: cross-fitted out-of-fold n=120]`.
 
 Section map (numbers current as of `findings_654_synthesis.md`):
 
@@ -102,6 +123,22 @@ Section map (numbers current as of `findings_654_synthesis.md`):
    chain, direct-DPO} = 9 checkpoints. Matched preference data M2/M3.
    pi_ref = merged preceding checkpoint (not "reference-free"). Frozen
    preregistration; A/D held-out split (240 est / 60 held-out).
+   **PREREGISTRATION-DEVIATIONS TABLE goes here** (or an appendix table
+   referenced from here) - external review's recommendation, adopted. One
+   row per departure from `docs/audit/analysis_plan.md` secs 1-7, each
+   labelled *preregistered* / *predeclared secondary* / *exploratory (post
+   hoc)*: CF1+CF2 preregistered unchanged; CF3 predeclared secondary; CF2
+   extended from M3 to all four DPO endpoints (exploratory); branch-
+   interaction difference-of-differences (exploratory, added after seeing
+   the per-branch results); the three-way population split and
+   `full_A_sensitivity` block (post hoc, response to review on circularity -
+   held-out stays the anchor); factorial direction audit (post hoc
+   diagnostic); D sub-source robustness (post hoc external validity);
+   cross-fitting if it survives its abort rule (post hoc). Plus the two
+   corrections carried openly: the "7-layer harm-vs-surface" walk-back to
+   argmax noise, and the McNemar correction (baseline-vs-AD had been misread
+   as AD-vs-random). An undisclosed deviation a reviewer finds is what sinks
+   a preregistered paper.
 3. **The contrast forms early.** Adjacent cosine M0->M1 0.654, M1->M2
    0.958, M2->M3 0.930. Base-model Cohen's d = 4.19. z_C trajectory
    0.33 -> 0.72 -> 0.65 -> 0.90 (Hypothesis B, one figure).
@@ -126,6 +163,12 @@ Section map (numbers current as of `findings_654_synthesis.md`):
      Correction: the p ~ 2e-6 cited in earlier drafts for M3_direct was
      baseline-vs-AD, NOT AD-vs-random.
    - n=150 McNemar from Saturday — labelled sensitivity.
+   - **REPORTING RULE (external review, adopted): every McNemar enters the
+     table as discordant counts b/c plus a paired effect estimate with CI,
+     never as a bare p-value.** M3_direct_alt's p = 1.00 rests on 7/7
+     discordant pairs - a near-total absence of evidence, not evidence of
+     absence, and only the counts make that legible.
+     `mcnemar_causal_ablation.py` already prints the contingency table.
 7. **Path dependence.** Cosine 0.870-0.910 across matched branches
    (bootstrap CIs in `bootstrap_cross_branch_difference.json`). Effects
    detected in M3, M3_alt; not detected in M3_direct, M3_direct_alt.
@@ -137,7 +180,10 @@ Section map (numbers current as of `findings_654_synthesis.md`):
    (the same-corpus M3 vs M3_direct interval spans zero).
 8. **No added orthogonal decodable structure.** CF3 = -0.016,
    [-0.038, +0.005] (macro-F1 M3 minus M2 after residualizing each stage's
-   own direction). H1 not supported.
+   own direction). Exact wording: "the preregistered H1 endpoint showed no
+   evidence that DPO increased linearly decodable safety-category structure
+   orthogonal to the existing contrast." Never "H1 is false" - a null on one
+   decodability endpoint at one layer is not proof of absence.
 9. **Geometry is a mixture.** Contrast norm grows M2->M3 x1.15 (L24) to
    x1.49 (L28); participation ratio ~ flat; rho_AD-perp 0.80-0.97;
    principal angles mean 20-26 deg. Report all four analysis_plan.md sec 4
@@ -153,8 +199,9 @@ Section map (numbers current as of `findings_654_synthesis.md`):
     the "7-layer harm-vs-surface" claim from earlier work was walked back
     to argmax noise — keep visible.
 12. **Future work.** Multiple seeds per branch (biggest single upgrade);
-    cross-fitted causal estimate; cross-branch direction / delta transfer
-    (separate paper); full fine-tuning.
+    cross-fitted causal estimate (if it was aborted - say so plainly and
+    why); cross-branch direction / delta transfer (separate paper); full
+    fine-tuning.
 
 **Double-blind hygiene:** no repo URL, no GitHub handle, no
 acknowledgements. Scrub PDF metadata (author field, doc properties). Do not
@@ -189,4 +236,5 @@ treatment convincing.
    vector".
 4. D-source audit all-stages (step 6) — keep, cheap.
 5. Re-judge for continuous n=150 (step 5) — drop first if GPU-tight.
-6. Cross-fitting — drop unless annotation finishes early.
+6. Cross-fitting - LAST. In scope per the owner's call, but abort on the
+   first unexplained result or bug rather than spend the week on it.
