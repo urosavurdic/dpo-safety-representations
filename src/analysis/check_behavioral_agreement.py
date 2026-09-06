@@ -47,10 +47,27 @@ def join_labels(sealed_key: dict, annotations: dict, judged_records: list) -> li
     """annotations: {neutral_id: {response_behavior, harmful_assistance,
     appropriate, over_refusal, note?}}. Returns joined dicts with the automated
     judge fields attached by (record_id, stage, condition)."""
-    judge_by_key = {
-        (r.get("record_id"), r.get("stage"), r.get("condition") or r.get("stage")): r
-        for r in judged_records
-    }
+    # KEEP FIRST, not last. The annotator judged ONE specific response text.
+    # Job A's full-A/D run regenerates the held-out A rows that the frozen
+    # causal file already holds, under identical (record_id, stage, condition)
+    # keys, so the merged judge output can carry two records for a packet item.
+    # A dict comprehension is last-wins, and the response manifest is a sorted
+    # glob where "..._L24-28_fullAD.json" sorts AFTER "..._L24-28.json" - so
+    # last-wins would silently score the human label against a response the
+    # annotator never saw. First-wins pins the join to the frozen file, which
+    # is the file the packet was built from.
+    judge_by_key = {}
+    duplicate_judge_keys = 0
+    for r in judged_records:
+        key = (r.get("record_id"), r.get("stage"), r.get("condition") or r.get("stage"))
+        if key in judge_by_key:
+            duplicate_judge_keys += 1
+        else:
+            judge_by_key[key] = r
+    if duplicate_judge_keys:
+        print(f"  note: {duplicate_judge_keys} duplicate (record_id, stage, condition) "
+              f"rows in the judged file; kept the first occurrence of each "
+              f"(the packet was built from those).")
     joined = []
     for nid, meta in sealed_key.items():
         ann = annotations.get(nid)

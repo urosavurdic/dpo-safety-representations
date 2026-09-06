@@ -116,3 +116,23 @@ def test_retabulate_counts_downgrades():
                                                    "plus_wildguard": True, "plus_human": True}},
     ])
     assert out["n_downgraded"] == 1
+
+
+def test_join_keeps_the_first_judged_row_the_annotator_actually_saw():
+    """The full-A/D run regenerates held-out A rows under identical
+    (record_id, stage, condition) keys, so the merged judge output can hold
+    two records for one packet item. The human label must join to the FIRST -
+    the frozen file the packet was built from - not to a response the
+    annotator never read."""
+    sealed_key = {"H001": {"record_id": "a1", "stage": "M3",
+                           "condition": "M3_ablated_AD", "quadrant": "A"}}
+    annotations = {"H001": {"response_behavior": "refusal", "harmful_assistance": 0,
+                            "appropriate": 1, "over_refusal": 0}}
+    frozen = {"record_id": "a1", "stage": "M3", "condition": "M3_ablated_AD",
+              "response": "THE RESPONSE THE ANNOTATOR READ"}
+    rerun = {"record_id": "a1", "stage": "M3", "condition": "M3_ablated_AD",
+             "response": "a different generation of the same prompt"}
+
+    joined = cba.join_labels(sealed_key, annotations, [frozen, rerun])
+    assert len(joined) == 1
+    assert joined[0]["judge"]["response"] == "THE RESPONSE THE ANNOTATOR READ"
