@@ -62,6 +62,20 @@ def _cf2_conditions_for_stage(stage: str) -> tuple:
 # --------------------------------------------------------------------------- #
 # record helpers
 # --------------------------------------------------------------------------- #
+def _cf2_crossfit_conditions_for_stage(stage: str) -> tuple:
+    """Cross-fitted rows carry ``{stage}_xfit_*`` condition names.
+
+    They MUST differ from the ordinary ones: a cross-fitted row and an
+    ordinary _fullAD row share the same record_id, and ``_cf2_block`` keys its
+    triples by record_id. Identical condition names would let one silently
+    overwrite the other inside the merged judge output - the cross-fitted
+    estimate would then be computed from whichever file the judge happened to
+    read last, with no error.
+    """
+    return (f"{stage}_xfit_baseline", f"{stage}_xfit_ablated_AD",
+            f"{stage}_xfit_ablated_random")
+
+
 def usable_sr(rec: dict):
     """Return the StrongREJECT score if it is a usable number, else None."""
     sr = rec.get("strong_reject") or {}
@@ -155,7 +169,7 @@ def compute_cf1(records: list) -> dict:
 # --------------------------------------------------------------------------- #
 # CF2
 # --------------------------------------------------------------------------- #
-POPULATIONS = ("held_out", "estimation", "all")
+POPULATIONS = ("held_out", "estimation", "all", "crossfit")
 
 
 def _split_ok(rid, id_to_split, population) -> bool:
@@ -170,17 +184,24 @@ def _split_ok(rid, id_to_split, population) -> bool:
                      effect UPWARD. Reported separately, never pooled silently,
                      so the size of that bias can be read off directly.
     ``all``        - held_out + estimation, the full-A sensitivity analysis.
+    ``crossfit``   - the same direction_estimation rows as ``estimation``, but
+                     paired with the ``{stage}_xfit_*`` conditions, where each
+                     row was generated under a direction estimated WITHOUT it.
+                     Same rows, no self-influence: the difference between this
+                     and ``estimation`` is the bias, measured rather than
+                     argued about.
     """
     split = id_to_split.get(rid)
     if population == "held_out":
         return split == "held_out_behavioral"
-    if population == "estimation":
+    if population in ("estimation", "crossfit"):
         return split == "direction_estimation"
     return True
 
 
 def _cf2_block(records: list, id_to_split: dict, *, stage: str,
-               held_out_only: bool = None, population: str = None) -> dict:
+               held_out_only: bool = None, population: str = None,
+               conditions: tuple = None) -> dict:
     from collections import Counter
 
     if population is None:
@@ -188,7 +209,8 @@ def _cf2_block(records: list, id_to_split: dict, *, stage: str,
     if population not in POPULATIONS:
         raise ValueError(f"population must be one of {POPULATIONS}, got {population!r}")
 
-    conditions = _cf2_conditions_for_stage(stage)
+    if conditions is None:
+        conditions = _cf2_conditions_for_stage(stage)
     by_id = {}  # record_id -> {condition -> sr}
     wg_by_id = {}
     dropped_unusable = 0
@@ -242,6 +264,9 @@ def _cf2_block(records: list, id_to_split: dict, *, stage: str,
             "estimation": "direction_estimation A only (rows that DEFINED d - "
                           "effect biased upward by ~1/n self-influence)",
             "all": "ALL quadrant A (full-A sensitivity)",
+            "crossfit": "direction_estimation A only, each row generated under "
+                        "a direction estimated WITHOUT it (out-of-fold; NOT "
+                        "'independent' - the K training portions overlap)",
         }[population],
         "population_key": population,
         "n_effective_triples": boot["n_effective"],
@@ -287,13 +312,30 @@ def compute_cf2_for_stage(records: list, id_to_split: dict, stage: str) -> dict:
         "full_A_sensitivity": _cf2_block(records, id_to_split, stage=stage, population="all"),
         "estimation_split_only": _cf2_block(records, id_to_split, stage=stage,
                                             population="estimation"),
+        "cross_fitted": _cf2_block(
+            records, id_to_split, stage=stage, population="crossfit",
+            conditions=_cf2_crossfit_conditions_for_stage(stage),
+        ),
+        "cross_fitted_note": (
+            "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). "
+            "Same direction_estimation rows as estimation_split_only, but each "
+            "generated under a direction built without it. Report as an "
+            "'out-of-fold n=120 estimate', NEVER 'independent n=120': the K "
+            "training portions overlap by (K-2)/(K-1), so the fold directions "
+            "are correlated. n_effective_triples = 0 means the cross-fit run "
+            "has not been judged yet, NOT a null result."
+        ),
         "circularity_check": (
-            "Compare primary (held-out; d never saw these) against "
-            "estimation_split_only (rows that contributed ~1/n each to the "
-            "centroids defining d). Similar effects => the self-influence bias "
-            "is negligible and full_A_sensitivity can be read at face value. A "
-            "larger estimation-split effect quantifies the bias. The held-out "
-            "block remains the preregistered confirmatory number either way."
+            "Three-way read. primary (held-out; d never saw these) is the "
+            "preregistered anchor. estimation_split_only uses rows that each "
+            "contributed ~1/n to the centroids defining d, so its effect is "
+            "biased upward. cross_fitted uses THE SAME ROWS with that "
+            "self-influence removed, so estimation_split_only minus "
+            "cross_fitted estimates the bias directly instead of bounding it "
+            "by argument. If cross_fitted sits near primary, full_A_sensitivity "
+            "can be read at face value; if it sits near estimation_split_only, "
+            "the self-influence was never the explanation. The held-out block "
+            "remains the confirmatory number either way."
         ),
         "note": "n~30 limitation on the held-out block: report the CI width; a "
                 "non-significant result does not prove absence of an effect "
@@ -476,6 +518,15 @@ def main():
             else:
                 print(f"{label:24s} = UNAVAILABLE (0 complete held-out-A triples for {stage}; "
                       f"dropped={cf2['dropped']}; see report['CF2_by_stage']['{stage}']['primary']['diagnostics'])")
+            for key, tag in (("estimation_split_only", "est-split (biased up)"),
+                             ("cross_fitted", "cross-fitted out-of-fold")):
+                blk = block.get(key) or {}
+                if blk.get("n_effective_triples"):
+                    print(f"{'  ' + tag:24s} = {blk['cf2']:+.4f}  95% CI "
+                          f"[{blk['ci_low']:+.4f}, {blk['ci_high']:+.4f}]  "
+                          f"(n={blk['n_effective_triples']})")
+                elif key == "cross_fitted":
+                    print(f"{'  ' + tag:24s} = not run / not judged yet (n=0)")
         bi = report.get("CF2_branch_interactions", {})
         if bi.get("pairs"):
             print("branch interaction (EXPLORATORY, not preregistered; "

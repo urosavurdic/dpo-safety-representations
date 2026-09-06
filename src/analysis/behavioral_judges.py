@@ -358,7 +358,14 @@ def _binding_for(response_file: str) -> Path:
 # per-session manifest, so the consolidated one is assembled from these).
 RESPONSE_GLOBS = (
     "behavioral_eval/v2_raw_*.json",
-    "raw/causal_ablation_v2_*_L24-28.json",
+    # NOT "..._L24-28.json": that trailing anchor silently excluded every
+    # tagged causal variant the pipeline writes next to the confirmatory file
+    # - _fullAD (the full-A/D sensitivity run), _xfit<K> (cross-fitted), and
+    # _dirfrom_<stage>. A scan that skips them produces a judged file that
+    # LOOKS complete while CF2's estimation_split_only / full_A_sensitivity /
+    # cross_fitted blocks stay at n=0, with no error anywhere. The explicit
+    # `_binding.json` skip in the loop below keeps sidecars out.
+    "raw/causal_ablation_v2_*.json",
     "raw/steering_v2_*_Q*.json",
 )
 

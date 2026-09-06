@@ -1056,11 +1056,18 @@ def run_paired_conditions(
     return True
 
 
-def _causal_control_arrays(ctx, stage, direction):
+def _causal_control_arrays(ctx, stage, direction, exclude_ids=None):
     """Calibration-RMS random-ablation array + d_AB, from this stage's bound
     ``_final`` activations (analysis_plan.md §6.1). The random array is built so
     that ``register_ablation`` (which removes ``(h.d)d``) removes exactly
     ``gamma^{s,l} (h.r^{s,l}) r^{s,l}`` when fed ``sqrt(gamma) * r``.
+
+    ``exclude_ids`` (cross-fitting only): record_ids to drop from the gamma
+    calibration rows. Their ``split`` is rewritten to a sentinel that
+    ``build_ablation_control``'s ``calibration_split`` filter never matches, so
+    a fold's test rows set neither the direction NOR the matched random
+    control's magnitude. Leaving them in would put the tested rows back into
+    the intervention's own calibration and quietly undo the point of the fold.
     """
     import numpy as np
     from src.analysis.control_directions import (
@@ -1072,7 +1079,11 @@ def _causal_control_arrays(ctx, stage, direction):
 
     final, _pooled, metadata = load_bound_activation(ctx, stage)
     quadrants = np.asarray([row.get("quadrant") for row in metadata])
-    splits = np.asarray([row.get("split") for row in metadata])
+    excluded = set(exclude_ids or ())
+    splits = np.asarray([
+        (CROSSFIT_TEST_SPLIT if row.get("record_id") in excluded else row.get("split"))
+        for row in metadata
+    ])
     record_ids = [row.get("record_id") for row in metadata]
 
     n_layers, hidden = direction.shape
@@ -1229,6 +1240,265 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
         })
     write_json_lf(binding_path, sidecar)
     print(f"  {stage} causal: wrote {output_path} ({sorted(generated)})")
+    return True
+
+
+# --------------------------------------------------------------------------
+# cross-fitted causal ablation
+# --------------------------------------------------------------------------
+
+CROSSFIT_SEED = 20260907
+CROSSFIT_TEST_SPLIT = "crossfit_test"
+
+
+def crossfit_folds(record_ids, k: int, seed: int = CROSSFIT_SEED):
+    """Deterministic K-way partition of ``record_ids`` into near-equal folds.
+
+    Sorted before shuffling so the partition depends only on the id SET and
+    the seed, never on the order the caller happened to load rows in - two
+    machines running the same K must produce the same folds or the pooled
+    out-of-fold estimate is not reproducible.
+
+    Returns a list of K lists. Folds are disjoint and their union is the full
+    input; sizes differ by at most 1.
+    """
+    import numpy as np
+
+    ids = sorted({str(r) for r in record_ids if r is not None})
+    if k < 2:
+        raise ValueError(f"--cross-fit needs K >= 2, got {k}")
+    if len(ids) < k:
+        raise ValueError(
+            f"cannot build {k} folds from {len(ids)} distinct record_ids"
+        )
+    order = np.random.default_rng(seed).permutation(len(ids))
+    folds = [[] for _ in range(k)]
+    for position, idx in enumerate(order):
+        folds[position % k].append(ids[int(idx)])
+    return [sorted(f) for f in folds]
+
+
+def stage_direction_crossfit(ctx, stage, exclude_ids, *, fold=None, k=None):
+    """``d_k = unit(mean(A_est \\ exclude_ids) - mean(D_est))``.
+
+    Only quadrant-A estimation rows are folded out. A quadrant-A test row
+    contributes to ``mean(A_est)`` and to nothing else, so dropping it from the
+    A centroid is exactly and only what makes its own evaluation
+    out-of-sample; the D centroid keeps all 120 rows, which holds ``d_k`` as
+    close to the full direction as the design allows.
+
+    Deliberately does NOT write to the canonical
+    ``{stage}_v2_direction.npy`` - that file is the preregistered direction and
+    every other component reads it. Fold directions get their own filenames.
+    """
+    import numpy as np
+
+    _, pooled, metadata = load_bound_activation(ctx, stage)
+    quadrants = np.asarray([row.get("quadrant") for row in metadata])
+    splits = np.asarray([row.get("split") for row in metadata])
+    record_ids = np.asarray([row.get("record_id") for row in metadata])
+
+    excluded = {str(r) for r in exclude_ids}
+    in_est = splits == "direction_estimation"
+    keep_a = (quadrants == "A") & in_est & np.array(
+        [str(r) not in excluded for r in record_ids]
+    )
+    keep_d = (quadrants == "D") & in_est
+
+    if not keep_a.any() or not keep_d.any():
+        raise RuntimeError(
+            f"{stage} fold {fold}: no A (or no D) estimation rows left for the "
+            f"direction (A={int(keep_a.sum())}, D={int(keep_d.sum())})."
+        )
+
+    delta = pooled[keep_a].mean(axis=0) - pooled[keep_d].mean(axis=0)
+    norms = np.linalg.norm(delta, axis=-1, keepdims=True)
+    direction = delta / np.where(norms == 0, 1.0, norms)
+
+    if fold is not None and k is not None:
+        save_array(
+            ctx.paths.refusal_direction / f"{stage}_v2_direction_xfit{k}_fold{fold}.npy",
+            direction,
+        )
+    return direction, int(keep_a.sum()), int(keep_d.sum())
+
+
+def stage_causal_crossfit(ctx, stage, model, tokenizer, device, k,
+                          conditions=None, seed=CROSSFIT_SEED) -> bool:
+    """Cross-fitted CF2: every quadrant-A estimation row evaluated under a
+    direction estimated WITHOUT it (analysis_plan.md deviation - post hoc).
+
+    Why this exists: the preregistered CF2 anchor is the 30 held-out A rows,
+    which is honest but small. The other 120 A rows cannot simply be added,
+    because each contributed ~1/120 of the centroid that defines d, so
+    ablating d from such a row removes a sliver of the row itself and biases
+    the effect upward. K-fold cross-fitting removes that self-influence: fold
+    j's rows are generated under ``d_j``, built from the A estimation rows NOT
+    in fold j. Pooling the K folds' per-prompt contributions gives an
+    out-of-fold estimate at n=120.
+
+    Report it as an "out-of-fold n=120 estimate", NEVER as "independent
+    n=120": the K training portions overlap heavily (each pair shares
+    (K-2)/(K-1) of its rows), so the fold directions are correlated and the
+    rows are not independent draws. It is a bias fix, not a power miracle.
+
+    Writes ``causal_ablation_v2_{stage}_L24-28_xfit{K}.json`` - a separate
+    file with separate shard units, so neither the frozen held-out CF2 file
+    nor the _fullAD sensitivity file is touched. Conditions are named
+    ``{stage}_xfit_{cond}`` so the cross-fitted rows can never collide with
+    the same record_id's ordinary rows inside the merged judge output.
+    """
+    import numpy as np
+    from src.analysis.intervention_conditions import parse_conditions_arg
+
+    requested = parse_conditions_arg(conditions)
+    tag = f"_xfit{k}"
+    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
+    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
+
+    def _full(cond):
+        return f"{stage}_xfit_baseline" if cond == "baseline" else f"{stage}_xfit_{cond}"
+
+    requested_full = {_full(c) for c in requested}
+
+    if output_path.exists() and not ctx.force:
+        try:
+            existing = assert_binding(binding_path, ctx.benchmark_sha, ctx.split_sha)
+            have = set(existing.get("generated_conditions", []))
+            if requested_full.issubset(have):
+                print(f"  {stage} cross-fit: already bound with {sorted(have)}, skipping")
+                return True
+            print(f"  {stage} cross-fit: have {sorted(have)}, adding "
+                  f"{sorted(requested_full - have)}")
+        except Exception:
+            pass
+
+    a_est = [
+        row for row in ctx.rows
+        if row.get("quadrant") == "A" and row.get("split") == "direction_estimation"
+    ]
+    if not a_est:
+        raise RuntimeError(
+            f"{stage} cross-fit: no quadrant-A direction_estimation rows in the "
+            f"benchmark - nothing to cross-fit."
+        )
+
+    folds = crossfit_folds([row.get("record_id") for row in a_est], k, seed)
+    by_id = {str(row.get("record_id")): row for row in a_est}
+
+    # sanity: the folds must partition the tested rows exactly. A silent
+    # overlap would double-count a prompt in the pooled estimate; a silent gap
+    # would quietly shrink n below the reported 120.
+    flat = [rid for f in folds for rid in f]
+    if len(flat) != len(set(flat)) or set(flat) != set(by_id):
+        raise RuntimeError(
+            f"{stage} cross-fit: fold partition is not a clean cover of the "
+            f"{len(by_id)} quadrant-A estimation rows (got {len(flat)} entries, "
+            f"{len(set(flat))} distinct)."
+        )
+
+    full_direction = stage_direction(ctx, stage)
+    store = ctx.store(ctx.paths.causal_shards)
+    merged, generated, fold_report = [], set(), []
+
+    for j, fold_ids in enumerate(folds):
+        fold_rows = [by_id[rid] for rid in fold_ids]
+        direction_j, n_a, n_d = stage_direction_crossfit(
+            ctx, stage, fold_ids, fold=j, k=k
+        )
+        random_array = d_ab = control = None
+        if {"ablated_random", "ablated_AB"} & set(requested):
+            random_array, d_ab, control = _causal_control_arrays(
+                ctx, stage, direction_j, exclude_ids=fold_ids
+            )
+
+        spec = {
+            "baseline": ("_xfit_baseline", None),
+            "ablated_AD": ("_xfit_ablated_AD",
+                           lambda: register_ablation(model, direction_j, ABLATION_LAYERS)),
+            "ablated_random": ("_xfit_ablated_random",
+                               lambda: register_ablation(model, random_array, ABLATION_LAYERS)),
+            "ablated_AB": ("_xfit_ablated_AB",
+                           lambda: register_ablation(model, d_ab, ABLATION_LAYERS)),
+        }
+
+        shards = plan_shards(fold_rows, ctx.gen_batch, measure=token_measure(tokenizer))
+        for cond in requested:
+            suffix, hook_factory = spec[cond]
+            unit_name = f"{stage}{suffix}{tag}f{j}".replace("/", "-")
+            unit_key = ShardStore.unit_key(stage, unit_name)
+            handles = hook_factory() if hook_factory else []
+            try:
+                ok = run_sharded(
+                    store, unit_key, shards,
+                    make_generator(ctx, model, tokenizer, device, stage, _full(cond)),
+                    ctx.deadline, label=f"{stage} cross-fit {cond} fold {j + 1}/{k}",
+                )
+            finally:
+                for handle in handles:
+                    handle.remove()
+            if not ok:
+                return False
+            rows_out = store.merge_unit(unit_key, order=ctx.order)
+            for row in rows_out:
+                row["stage"] = _full(cond)
+                row["condition"] = _full(cond)
+                row["model_stage"] = stage
+                row["xfit_k"] = k
+                row["xfit_fold"] = j
+            merged.extend(rows_out)
+            generated.add(_full(cond))
+
+        cos = cosine_per_layer(direction_j, full_direction)
+        fold_report.append({
+            "fold": j,
+            "n_test_rows": len(fold_rows),
+            "n_direction_A_rows": n_a,
+            "n_direction_D_rows": n_d,
+            "test_record_ids": fold_ids,
+            "cos_with_full_direction_per_layer": cos,
+            "cos_with_full_direction_at_L24": cos[24] if len(cos) > 24 else None,
+        })
+        print(f"  {stage} cross-fit fold {j + 1}/{k}: {len(fold_rows)} test rows, "
+              f"d from {n_a} A + {n_d} D, cos(d_fold, d_full)@L24="
+              f"{fold_report[-1]['cos_with_full_direction_at_L24']}")
+
+    write_json_lf(output_path, merged)
+    write_json_lf(binding_path, {
+        **ctx.bind(),
+        "stage": stage,
+        "analysis": "cross_fitted_causal_ablation",
+        "preregistered": False,
+        "deviation_note": (
+            "POST HOC (not in analysis_plan.md §§1-7). Bias fix for the "
+            "direction_estimation half's self-influence, not a replacement for "
+            "the preregistered held-out-30 CF2 anchor."
+        ),
+        "conditions": sorted(generated),
+        "generated_conditions": sorted(generated),
+        "requested_conditions": sorted(requested_full),
+        "cross_fit_k": k,
+        "cross_fit_seed": seed,
+        "folded_quadrant": "A",
+        "fold_design": (
+            "K-fold over the quadrant-A direction_estimation rows only. Fold "
+            "j's direction = unit(mean(A_est minus fold_j) - mean(D_est)); the "
+            "D centroid is never folded because a quadrant-A test row does not "
+            "contribute to it. The matched random control's RMS gamma is "
+            "calibrated on the same reduced row set."
+        ),
+        "reporting_rule": (
+            "out-of-fold n=%d estimate; NEVER 'independent n=%d' - the K "
+            "training portions overlap by (K-2)/(K-1)." % (len(by_id), len(by_id))
+        ),
+        "layers": ABLATION_LAYERS,
+        "layer_indexing": "hidden_states index; hook on decoder block index-1",
+        "row_count": len(merged),
+        "n_test_rows_total": len(by_id),
+        "folds": fold_report,
+    })
+    print(f"  {stage} cross-fit: wrote {output_path} "
+          f"({len(merged)} rows, {len(by_id)} prompts x {len(generated)} conditions)")
     return True
 
 
@@ -2606,10 +2876,38 @@ def cmd_probes(args) -> None:
 
 def cmd_causal(args) -> None:
     ctx = build_context(args)
+    cross_fit = getattr(args, "cross_fit", None)
+    all_ad = getattr(args, "all_ad_sensitivity", False)
     dir_from = getattr(args, "direction_from", None) or args.stage
+
+    if cross_fit:
+        # The whole point is a per-fold direction, so a fixed --direction-from
+        # or the full-A/D row set would silently defeat it. Refuse rather than
+        # produce a file that looks cross-fitted and is not.
+        if all_ad:
+            raise SystemExit(
+                "--cross-fit and --all-ad-sensitivity are different analyses "
+                "(one removes the estimation half's self-influence, the other "
+                "accepts it and reports it as a sensitivity). Run them "
+                "separately; they write separate files."
+            )
+        if dir_from != args.stage:
+            raise SystemExit(
+                "--cross-fit builds its own per-fold direction; "
+                "--direction-from would override it. Pick one."
+            )
+        for_each_stage(
+            ctx,
+            [args.stage],
+            lambda c, s, m, t, d: stage_causal_crossfit(
+                c, s, m, t, d, int(cross_fit),
+                conditions=getattr(args, "conditions", None),
+            ),
+        )
+        return
+
     direction = stage_direction(ctx, dir_from)
     ctx.direction_source = dir_from  # picked up by stage_causal for the output tag
-    all_ad = getattr(args, "all_ad_sensitivity", False)
     for_each_stage(
         ctx,
         [args.stage],
@@ -2766,6 +3064,17 @@ def build_parser() -> argparse.ArgumentParser:
              "included), B/C skipped. Writes causal_ablation_v2_{stage}_L24-28"
              "_fullAD.json; the frozen held-out CF2 file is untouched. This is a "
              "sensitivity artifact - the held-out-30 CF2 stays the anchor.",
+    )
+    causal.add_argument(
+        "--cross-fit", type=int, default=None, metavar="K",
+        help="POST HOC (not preregistered): K-fold cross-fitted causal "
+             "ablation. Every quadrant-A direction_estimation row is generated "
+             "under a direction estimated WITHOUT it, removing the ~1/n "
+             "self-influence that makes the estimation half unusable at face "
+             "value. Writes causal_ablation_v2_{stage}_L24-28_xfit{K}.json with "
+             "conditions named {stage}_xfit_*; the frozen held-out CF2 file and "
+             "the _fullAD file are untouched. Report as an 'out-of-fold n=120 "
+             "estimate', never 'independent n=120'. K=5 is the default choice.",
     )
     causal.add_argument(
         "--direction-from", default=None, choices=ALL_STAGES,
