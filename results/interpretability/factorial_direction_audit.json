@@ -1,0 +1,172 @@
+{
+  "layer": 24,
+  "ad_rows": "est",
+  "factor_map": {
+    "A": {
+      "harmful": 1,
+      "cue_strong": 1
+    },
+    "B": {
+      "harmful": 0,
+      "cue_strong": 1
+    },
+    "C": {
+      "harmful": 1,
+      "cue_strong": 0
+    },
+    "D": {
+      "harmful": 0,
+      "cue_strong": 0
+    }
+  },
+  "per_stage": {
+    "M2": {
+      "stage": "M2",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 1.8981259017891716e-06,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.7701321244239807,
+        "cos_with_d_S_surface_cue": 0.46933385729789734,
+        "cos_with_d_HS_interaction": 0.042277853935956955
+      },
+      "magnitudes": {
+        "norm_d_AD": 36.2243537902832,
+        "norm_d_H": 32.65886688232422,
+        "norm_d_S": 23.5924015045166,
+        "norm_d_HS": 29.612321853637695,
+        "cos_d_H_vs_d_S": -0.2018161416053772,
+        "sq_norm_share": {
+          "d_H": 1066.6016845703125,
+          "d_S": 556.6014404296875,
+          "cross_term": -310.9991149902344
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.291250705718994,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.6381648182868958,
+        "d_H__harmful(AC)_vs_benign(BD)": 2.841324806213379,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.2160283327102661,
+        "d_S__harmful(AC)_vs_benign(BD)": -0.31997597217559814,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.016747236251831
+      }
+    },
+    "M3": {
+      "stage": "M3",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 1.8346260048929253e-06,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8422244191169739,
+        "cos_with_d_S_surface_cue": 0.4342503547668457,
+        "cos_with_d_HS_interaction": -0.1971311718225479
+      },
+      "magnitudes": {
+        "norm_d_AD": 41.54416275024414,
+        "norm_d_H": 37.69461441040039,
+        "norm_d_S": 22.56035804748535,
+        "norm_d_HS": 29.84038543701172,
+        "cos_d_H_vs_d_S": -0.119905486702919,
+        "sq_norm_share": {
+          "d_H": 1420.884033203125,
+          "d_S": 508.9697570800781,
+          "cross_term": -203.9362030029297
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.4110093116760254,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.5337631702423096,
+        "d_H__harmful(AC)_vs_benign(BD)": 2.769038200378418,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.06455335021018982,
+        "d_S__harmful(AC)_vs_benign(BD)": -0.2535867393016815,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088387966156006
+      }
+    },
+    "M2_alt": {
+      "stage": "M2_alt",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 1.7012109765346395e-06,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.7679005861282349,
+        "cos_with_d_S_surface_cue": 0.4902041554450989,
+        "cos_with_d_HS_interaction": 0.07263171672821045
+      },
+      "magnitudes": {
+        "norm_d_AD": 36.521873474121094,
+        "norm_d_H": 32.372798919677734,
+        "norm_d_S": 23.79168128967285,
+        "norm_d_HS": 30.020368576049805,
+        "cos_d_H_vs_d_S": -0.1818966567516327,
+        "sq_norm_share": {
+          "d_H": 1047.998046875,
+          "d_S": 566.0440673828125,
+          "cross_term": -280.19482421875
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.2006642818450928,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.6597627997398376,
+        "d_H__harmful(AC)_vs_benign(BD)": 2.8620216846466064,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.20152805745601654,
+        "d_S__harmful(AC)_vs_benign(BD)": -0.25784868001937866,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.0105955600738525
+      }
+    },
+    "M3_alt": {
+      "stage": "M3_alt",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 2.023731212830171e-06,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8220003843307495,
+        "cos_with_d_S_surface_cue": 0.4990380108356476,
+        "cos_with_d_HS_interaction": -0.12297996133565903
+      },
+      "magnitudes": {
+        "norm_d_AD": 42.505126953125,
+        "norm_d_H": 36.96254348754883,
+        "norm_d_S": 24.29052734375,
+        "norm_d_HS": 30.249975204467773,
+        "cos_d_H_vs_d_S": -0.08329659700393677,
+        "sq_norm_share": {
+          "d_H": 1366.229736328125,
+          "d_S": 590.0297241210938,
+          "cross_term": -149.573974609375
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.204996347427368,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.6399632096290588,
+        "d_H__harmful(AC)_vs_benign(BD)": 2.893810987472534,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.05146210640668869,
+        "d_S__harmful(AC)_vs_benign(BD)": -0.1337026208639145,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088531970977783
+      }
+    }
+  }
+}
