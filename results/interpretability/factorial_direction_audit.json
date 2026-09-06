@@ -54,7 +54,13 @@
         "d_H__harmful(AC)_vs_benign(BD)": 2.841324806213379,
         "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.2160283327102661,
         "d_S__harmful(AC)_vs_benign(BD)": -0.31997597217559814,
-        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.016747236251831
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.016747236251831,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.6197359561920166,
+        "d_H__A_vs_D_HELD_OUT": 2.9345479011535645,
+        "d_S__A_vs_D_HELD_OUT": 2.2434048652648926
       }
     },
     "M3": {
@@ -91,7 +97,13 @@
         "d_H__harmful(AC)_vs_benign(BD)": 2.769038200378418,
         "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.06455335021018982,
         "d_S__harmful(AC)_vs_benign(BD)": -0.2535867393016815,
-        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088387966156006
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088387966156006,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.388007402420044,
+        "d_H__A_vs_D_HELD_OUT": 3.0549192428588867,
+        "d_S__A_vs_D_HELD_OUT": 1.9746609926223755
       }
     },
     "M2_alt": {
@@ -128,7 +140,13 @@
         "d_H__harmful(AC)_vs_benign(BD)": 2.8620216846466064,
         "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.20152805745601654,
         "d_S__harmful(AC)_vs_benign(BD)": -0.25784868001937866,
-        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.0105955600738525
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.0105955600738525,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.747972011566162,
+        "d_H__A_vs_D_HELD_OUT": 3.021660566329956,
+        "d_S__A_vs_D_HELD_OUT": 2.389137029647827
       }
     },
     "M3_alt": {
@@ -165,7 +183,13 @@
         "d_H__harmful(AC)_vs_benign(BD)": 2.893810987472534,
         "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.05146210640668869,
         "d_S__harmful(AC)_vs_benign(BD)": -0.1337026208639145,
-        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088531970977783
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 2.088531970977783,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.4318161010742188,
+        "d_H__A_vs_D_HELD_OUT": 3.2413055896759033,
+        "d_S__A_vs_D_HELD_OUT": 2.201171636581421
       }
     }
   }

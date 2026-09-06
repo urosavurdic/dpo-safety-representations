@@ -13,7 +13,11 @@ decomposes exactly:
     d_H  = 1/2[(mu_A - mu_B) + (mu_C - mu_D)]     harmfulness main effect
     d_S  = 1/2[(mu_A - mu_C) + (mu_B - mu_D)]     surface-cue main effect
     d_HS = 1/2[(mu_A - mu_C) - (mu_B - mu_D)]     interaction
-    d_AD = d_H + d_S                              (exact; asserted below)
+
+    d_AD = d_H + d_S  is EXACT for the UNNORMALIZED vectors only (residual
+    asserted ~1e-6 below). The intervention uses the unit-normalized
+    d_AD / ||d_AD||, for which no such additive identity holds - never write
+    "unit(d_AD) = unit(d_H) + unit(d_S)".
 
 If d_AD aligns mostly with d_H it is a harmfulness contrast; if mostly with
 d_S it is largely a cue/register detector that happens to correlate with
@@ -113,6 +117,21 @@ def audit_stage(stage, ad_rows="est", layer=LAYER):
         return cohens_d(np.concatenate([p[c] for c in pos]),
                         np.concatenate([p[c] for c in neg]))
 
+    # Held-out A/D separation: cell means (hence d_H/d_S/d_AD) come from the
+    # direction_estimation half; project the held_out_behavioral A/D rows the
+    # direction never saw. B/C have no split so cannot get a held-out version
+    # - this is A-vs-D only, but it is genuine out-of-sample evidence rather
+    # than a construction diagnostic.
+    ho = {}
+    if ad_rows == "est":
+        a_ho = np.where((q == "A") & (sp == "held_out_behavioral"))[0]
+        d_ho = np.where((q == "D") & (sp == "held_out_behavioral"))[0]
+        if len(a_ho) >= 2 and len(d_ho) >= 2:
+            for name, d in (("d_AD", d_AD), ("d_H", d_H), ("d_S", d_S)):
+                u = _unit(d)
+                ho[f"{name}__A_vs_D_HELD_OUT"] = cohens_d(
+                    arr[a_ho, L, :] @ u, arr[d_ho, L, :] @ u)
+
     return {
         "stage": stage,
         "layer": L,
@@ -140,7 +159,13 @@ def audit_stage(stage, ad_rows="est", layer=LAYER):
             "d_H__cuestrong(AB)_vs_cuereduced(CD)": sep("d_H", "AB", "CD"),
             "d_S__harmful(AC)_vs_benign(BD)": sep("d_S", "AC", "BD"),
             "d_S__cuestrong(AB)_vs_cuereduced(CD)": sep("d_S", "AB", "CD"),
+            "_note": "computed on the SAME activations used to build the cell "
+                     "means -> construction diagnostic, NOT generalization "
+                     "evidence. The independent evidence is the held-out "
+                     "behavioral intervention.",
         },
+        "separation_cohens_d_HELD_OUT_AD_only": ho or {
+            "_note": "held-out A/D separation only available with --ad-rows est"},
     }
 
 
