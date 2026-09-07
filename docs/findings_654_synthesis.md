@@ -94,17 +94,51 @@ corroboration; lead with the n=120 cross-fitted contrasts.
 
 `--conditions {stage}_ablated_AD {stage}_ablated_random --quadrant C --category soft_deflection`
 
-| Branch | discordant (AD→rand) | McNemar exact p | direction-specific? |
+Authoritative counts (re-run 2026-09-07 against the frozen held-out files,
+which the re-judge did **not** touch — regex classifier, not judge scores).
+`b` = discordant where AD-ablation flagged `soft_deflection` and random did
+not; `c` = the reverse. Full JSON: `results/summaries/mcnemar_direction_specificity.json`.
+
+| Branch | b / c | McNemar exact p | reaches p<0.05? |
 |---|---|---|---|
-| M3 | 0 / 29 | **< 0.000001** | yes |
-| M3_alt | 3 / 18 | **0.013** | yes |
-| M3_direct | 3 / 8 | 0.227 | no |
-| M3_direct_alt | 7 / 7 | **1.000** | no (perfectly random-equivalent) |
+| M3 | 0 / 29 | **8.9e−7** | yes |
+| M3_alt | 3 / 14 | **0.0127** | yes |
+| M3_direct | 3 / 8 | 0.2266 | no (11 discordant, underpowered) |
+| M3_direct_alt | 7 / 7 | **1.0000** | no (14 discordant, split evenly → random-equivalent) |
+
+### n=150 quadrant A/D McNemar (SENSITIVITY — category `refusal`, coarse flag)
+
+`_fullAD` files. Noisier than the continuous endpoint; label "sensitivity".
+
+| | M3 | M3_alt | M3_direct | M3_direct_alt |
+|---|---|---|---|---|
+| **quad A** b/c (p) | 1/13 (0.0018) | 8/20 (0.036) | 6/7 (1.00) | 12/27 (0.024) |
+| **quad D** b/c (p) | 1/1 (1.00) | 0/4 (0.125) | 4/8 (0.39) | 12/10 (0.83) |
+
+Quadrant A: M3 clean, M3_alt marginal, M3_direct null; **M3_direct_alt's
+p=0.024 rests on 39 discordant pairs of a binary flag flipping both ways
+under both ablations** — classifier instability on the least-stable branch,
+not a clean directional effect (its continuous cross-fitted effect is the
+smallest at +0.012). Quadrant D: **no over-refusal side effect anywhere**
+(all p ≥ 0.125). The continuous full-A + cross-fitted estimates carry the
+power argument; this regex check neither helps nor hurts it.
 
 **IMPORTANT correction:** the earlier-cited `p = 0.000002` for M3_direct was
 `baseline` vs `ablated_AD` (a generic-ablation effect), NOT `ablated_AD` vs
 `ablated_random`. On the correct test, M3_direct's large quadrant-C drop is
 **not** direction-specific.
+
+### Duplicate-row verification (keep-first merge)
+
+The `_fullAD` run regenerated the 30 held-out A rows already in the frozen
+`causal_ablation_v2_{stage}_L24-28.json`, under identical
+`(record_id, stage, condition)` keys → 660 duplicate keys in the merged
+judged file, **123 with divergent response text** and 48 with divergent SR
+score (fp16 non-determinism across batch compositions; greedy decode).
+Verified: the sorted-glob manifest puts the frozen file first, keep-first
+skips **90 duplicate rows** for M3's held-out triples, and recomputed CF2
+primary = **+0.113623**, byte-identical to the pre-run anchor. The
+preregistered number is provably reading the frozen generation.
 
 **Synthesis (updated after the cross-fitted run):** the quadrant-C McNemar
 reaches significance for the two branches with the *largest* cross-fitted

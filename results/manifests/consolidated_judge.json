@@ -1,0 +1,141 @@
+{
+  "kind": "consolidated_response_manifest",
+  "created_utc": "2026-09-07T01:15:13.155660+00:00",
+  "assembled_from": "glob scan of results",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "entries": [
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M0.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M0_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M1.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M1_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M1_alt.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M1_alt_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M2.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M2_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M2_alt.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M2_alt_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M3.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M3_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M3_alt.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M3_alt_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M3_direct.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M3_direct_binding.json"
+    },
+    {
+      "response_file": "results/behavioral_eval/v2_raw_M3_direct_alt.json",
+      "binding_file": "results/behavioral_eval/v2_raw_M3_direct_alt_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28_fullAD.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_fullAD_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28_xfit5.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_xfit5_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_fullAD.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_fullAD_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_xfit5.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_xfit5_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_fullAD.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_fullAD_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_xfit5.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_xfit5_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_fullAD.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_fullAD_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_xfit5.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_xfit5_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef0.5_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef0.5_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef1_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef1_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef2_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_L24_direction_estimation_only_coef2_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef0.5_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef0.5_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef1_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef1_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef2_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_alt_L24_direction_estimation_only_coef2_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef0.5_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef0.5_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef1_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef1_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef2_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_L24_direction_estimation_only_coef2_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef0.5_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef0.5_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef1_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef1_QABCD_binding.json"
+    },
+    {
+      "response_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef2_QABCD.json",
+      "binding_file": "results/raw/steering_v2_M3_direct_alt_L24_direction_estimation_only_coef2_QABCD_binding.json"
+    }
+  ]
+}
