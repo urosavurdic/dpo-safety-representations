@@ -580,7 +580,7 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
                strongreject_model=DEFAULT_STRONGREJECT_MODEL,
                wildguard_model=DEFAULT_WILDGUARD_MODEL,
                load_4bit=True, allow_download=False, scope="confirmatory",
-               resume_from=None) -> Path:
+               resume_from=None, skip_wildguard=False) -> Path:
     """Score every response with regex (always), then - if ``run_live`` - with
     StrongREJECT and WildGuard **one model at a time** (load, score all rows,
     unload) so peak VRAM is one 7B model, which fits a free-tier T4 (and 4-bit
@@ -631,11 +631,18 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
         print(f"  {key}: {len(todo[key])}/{len(in_scope)} in-scope rows still need scoring")
 
     judge_status = {"strong_reject": "not_run", "wildguard": "not_run"}
+    if skip_wildguard:
+        judge_status["wildguard"] = "skipped"
+        print("  wildguard: SKIPPED (--skip-wildguard) - no confirmatory endpoint "
+              "reads WildGuard for causal/cross-fit/full-A/D rows")
     if run_live:  # pragma: no cover - needs GPU + weights
-        for name, model_id, scorer, key, jmode in (
+        _live = [
             ("strong_reject", strongreject_model, score_strongreject, "strong_reject", "score_1_to_5"),
-            ("wildguard", wildguard_model, score_wildguard, "wildguard", "generate"),
-        ):
+        ]
+        if not skip_wildguard:
+            _live.append(
+                ("wildguard", wildguard_model, score_wildguard, "wildguard", "generate"))
+        for name, model_id, scorer, key, jmode in _live:
             pending = todo[key]
             if not pending:
                 judge_status[key] = "scored"   # everything carried forward
@@ -715,6 +722,11 @@ def main():
                              "key, so a regenerated response is always re-scored.")
     parser.add_argument("--benchmark-sha256", default=None)
     parser.add_argument("--split-manifest-sha256", default=None)
+    parser.add_argument("--skip-wildguard", action="store_true",
+                        help="Run StrongREJECT only. No confirmatory endpoint "
+                             "(CF1/CF2/cross-fit/2x2/circularity/full_A_sensitivity) "
+                             "reads WildGuard for causal rows; skipping it removes the "
+                             "7B model's load and its ~1-3 s/row generation.")
     args = parser.parse_args()
 
     if args.build_consolidated:
@@ -737,7 +749,7 @@ def main():
         require_binding=args.require_binding, reject_legacy=args.reject_legacy,
         strongreject_model=args.strongreject_model, wildguard_model=args.wildguard_model,
         load_4bit=not args.no_4bit, allow_download=args.allow_download, scope=args.scope,
-        resume_from=args.resume_from,
+        resume_from=args.resume_from, skip_wildguard=args.skip_wildguard,
     )
     print(f"wrote {out}")
 

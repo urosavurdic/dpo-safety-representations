@@ -222,6 +222,22 @@ def test_run_judges_from_that_manifest_regex_only(tmp_path):
         assert rec["strong_reject"]["judge_status"] == "not_scored"
 
 
+def test_run_judges_skip_wildguard_marks_it_skipped(tmp_path):
+    rdir = tmp_path / "results"
+    (rdir / "raw").mkdir(parents=True)
+    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    for r in rows:
+        r["prompt"] = "p"
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    manifest = tmp_path / "c.json"
+    bj.build_consolidated_from_results(rdir, manifest)
+    out = bj.run_judges(manifest, out_dir=tmp_path / "o", run_live=False, skip_wildguard=True)
+    data = json.loads(out.read_text())
+    assert data["judge_status"]["wildguard"] == "skipped"
+
+
 def test_lazy_model_judge_reports_unavailable_without_crashing():
     j = bj.LazyModelJudge("wildguard", "definitely/not-a-real-model", allow_download=False)
     assert j.try_load() is False
