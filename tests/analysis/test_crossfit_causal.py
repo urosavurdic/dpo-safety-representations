@@ -323,3 +323,78 @@ def test_no_duplicates_reported_when_there_are_none():
                            stage="M3", population="held_out")
     assert block["diagnostics"]["duplicate_condition_rows"] == 0
     assert block["cf2"] == pytest.approx(0.2)
+
+
+# --- cross-fitted branch contrasts + paired circularity -----------------------
+def _branch_xfit_recs(per_branch_effects, n=12):
+    """per_branch_effects: {stage: mean per-prompt (SR_AD - SR_rand)}. Builds
+    xfit triples on shared record_ids a0..a{n-1}, all on the estimation split."""
+    recs = []
+    for st, eff in per_branch_effects.items():
+        b, a, r = cbe._cf2_crossfit_conditions_for_stage(st)
+        for i in range(n):
+            recs += [_rec(f"a{i}", st, "A", 0.1, stage=b),
+                     _rec(f"a{i}", st, "A", 0.1 + eff, stage=a),
+                     _rec(f"a{i}", st, "A", 0.1, stage=r)]
+    return recs, {f"a{i}": "direction_estimation" for i in range(n)}
+
+
+def test_crossfit_branch_contrast_is_the_paired_difference():
+    recs, splits = _branch_xfit_recs({"M3": 0.15, "M3_alt": 0.04,
+                                      "M3_direct": 0.02, "M3_direct_alt": 0.01})
+    out = cbe.compute_crossfit_branch_contrasts(recs, splits)
+
+    assert out["per_branch_point_estimate"]["M3"] == pytest.approx(0.15)
+    p = out["pairwise"]["M3_vs_M3_alt"]
+    assert p["estimate"] == pytest.approx(0.11)          # 0.15 - 0.04
+    assert p["n_shared_prompts"] == 12
+    # zero variance across prompts -> CI collapses on the point, excludes 0
+    assert p["ci_excludes_zero"]
+
+
+def test_crossfit_2x2_interaction():
+    # interaction = (M3 - M3_alt) - (M3_direct - M3_direct_alt)
+    recs, splits = _branch_xfit_recs({"M3": 0.15, "M3_alt": 0.04,
+                                      "M3_direct": 0.03, "M3_direct_alt": 0.01})
+    out = cbe.compute_crossfit_branch_contrasts(recs, splits)
+    inter = out["factorial_2x2"]["corpus_x_history_interaction"]
+    assert inter["estimate"] == pytest.approx((0.15 - 0.04) - (0.03 - 0.01))
+    hist = out["factorial_2x2"]["history_main_effect_mediated_minus_direct"]
+    assert hist["estimate"] == pytest.approx(0.5 * (0.15 + 0.04) - 0.5 * (0.03 + 0.01))
+
+
+def test_circularity_bias_is_estimation_minus_crossfit_on_the_same_rows():
+    recs = []
+    # ordinary estimation-split conditions: per-prompt effect +0.17
+    b, a, r = cbe._cf2_conditions_for_stage("M3")
+    for i in range(10):
+        recs += [_rec(f"a{i}", "M3", "A", 0.1, stage=b),
+                 _rec(f"a{i}", "M3", "A", 0.27, stage=a),
+                 _rec(f"a{i}", "M3", "A", 0.1, stage=r)]
+    # cross-fitted conditions on the SAME rows: per-prompt effect +0.15
+    xb, xa, xr = cbe._cf2_crossfit_conditions_for_stage("M3")
+    for i in range(10):
+        recs += [_rec(f"a{i}", "M3", "A", 0.1, stage=xb),
+                 _rec(f"a{i}", "M3", "A", 0.25, stage=xa),
+                 _rec(f"a{i}", "M3", "A", 0.1, stage=xr)]
+    splits = {f"a{i}": "direction_estimation" for i in range(10)}
+
+    out = cbe.compute_circularity_bias(recs, splits, stages=("M3",))
+    m3 = out["per_branch"]["M3"]
+    assert m3["delta_estimation"] == pytest.approx(0.17)
+    assert m3["delta_crossfit"] == pytest.approx(0.15)
+    assert m3["bias_estimation_minus_crossfit"] == pytest.approx(0.02)
+    assert m3["n_shared_prompts"] == 10
+
+
+def test_circularity_bias_needs_both_condition_sets():
+    """A branch with only ordinary rows (cross-fit not run) reports n=0, not a
+    spurious bias."""
+    b, a, r = cbe._cf2_conditions_for_stage("M3")
+    recs = [_rec("a0", "M3", "A", 0.1, stage=b),
+            _rec("a0", "M3", "A", 0.3, stage=a),
+            _rec("a0", "M3", "A", 0.1, stage=r)]
+    out = cbe.compute_circularity_bias(recs, {"a0": "direction_estimation"},
+                                       stages=("M3",))
+    assert out["per_branch"]["M3"]["n_shared_prompts"] == 0
+    assert out["per_branch"]["M3"]["bias_estimation_minus_crossfit"] is None
