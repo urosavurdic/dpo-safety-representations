@@ -380,12 +380,16 @@ def compute_causal_by_branch(records: list, id_to_split: dict,
 # --------------------------------------------------------------------------- #
 # Branch-interaction (difference-of-differences): NOT preregistered -> exploratory
 # --------------------------------------------------------------------------- #
-def _cf2_contribs_by_id(records: list, id_to_split: dict, stage: str,
-                        *, held_out_only: bool = True) -> dict:
-    """{record_id -> (SR_ablated_AD - SR_ablated_random)} for one branch's
-    held-out quadrant-A triples. Same filters as _cf2_block; returned keyed
-    by record_id so contributions can be aligned across branches."""
-    base_c, ad_c, rand_c = _cf2_conditions_for_stage(stage)
+def _contribs_by_id(records: list, id_to_split: dict, stage: str, *,
+                    conditions: tuple, population: str) -> dict:
+    """{record_id -> (SR_ablated_AD - SR_ablated_random)} for one branch, one
+    condition triple, one population. Keyed by record_id so per-prompt effects
+    can be paired across branches or across populations.
+
+    ``population`` is a POPULATIONS key: "held_out" / "estimation" / "all" /
+    "crossfit" (the last two both mean the direction_estimation split - see
+    _split_ok)."""
+    base_c, ad_c, rand_c = conditions
     by_id = {}
     for rec in records:
         if rec.get("quadrant") != "A" or _stage(rec) != stage:
@@ -394,9 +398,7 @@ def _cf2_contribs_by_id(records: list, id_to_split: dict, stage: str,
         if cond not in (base_c, ad_c, rand_c):
             continue
         rid = rec.get("record_id")
-        if rid is None:
-            continue
-        if held_out_only and id_to_split.get(rid) != "held_out_behavioral":
+        if rid is None or not _split_ok(rid, id_to_split, population):
             continue
         sr = usable_sr(rec)
         if sr is None:
@@ -404,6 +406,17 @@ def _cf2_contribs_by_id(records: list, id_to_split: dict, stage: str,
         by_id.setdefault(rid, {})[cond] = sr
     return {rid: v[ad_c] - v[rand_c]
             for rid, v in by_id.items() if ad_c in v and rand_c in v}
+
+
+def _cf2_contribs_by_id(records: list, id_to_split: dict, stage: str,
+                        *, held_out_only: bool = True) -> dict:
+    """Back-compat wrapper: held-out quadrant-A CF2 per-prompt contributions,
+    ordinary conditions. compute_branch_interactions still uses this."""
+    return _contribs_by_id(
+        records, id_to_split, stage,
+        conditions=_cf2_conditions_for_stage(stage),
+        population="held_out" if held_out_only else "all",
+    )
 
 
 def compute_branch_interactions(records: list, id_to_split: dict, *,
@@ -451,6 +464,143 @@ def compute_branch_interactions(records: list, id_to_split: dict, *,
             "ci_excludes_zero": (boot["ci_low"] is not None
                                  and (boot["ci_low"] > 0 or boot["ci_high"] < 0)),
             "bootstrap": {k: boot.get(k) for k in ("b", "seed", "interval", "mean")},
+        }
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# Cross-fitted branch contrasts (properly-powered path-dependence test)
+# --------------------------------------------------------------------------- #
+CORPUS = {"M3": "alpaca", "M3_direct": "alpaca",
+          "M3_alt": "dolly", "M3_direct_alt": "dolly"}
+HISTORY = {"M3": "mediated", "M3_alt": "mediated",
+           "M3_direct": "direct", "M3_direct_alt": "direct"}
+
+
+def _xfit_contribs(records, id_to_split, stage):
+    return _contribs_by_id(
+        records, id_to_split, stage,
+        conditions=_cf2_crossfit_conditions_for_stage(stage),
+        population="crossfit",
+    )
+
+
+def compute_crossfit_branch_contrasts(records: list, id_to_split: dict,
+                                      stages=CAUSAL_STAGES) -> dict:
+    """Paired bootstrap contrasts on the CROSS-FITTED per-prompt effects.
+
+    The cross-fit folds partition the SAME 120 quadrant-A direction_estimation
+    record_ids for every branch (crossfit_folds is deterministic on the id
+    set), so every contrast below is paired by record_id on rows scored in
+    both branches.
+
+    This is the test the external review asked for: "the effect is
+    path-dependent" is a claim about the DIFFERENCE between branches, and only
+    a CI on that difference tests it - whether each branch's own CI excludes
+    zero does not. n=120 out-of-fold, so this is materially better powered
+    than the n=30 held-out compute_branch_interactions.
+
+    EXPLORATORY / post hoc (cross-fitting is not in analysis_plan.md secs
+    1-7). Report as "out-of-fold", never "independent".
+    """
+    c = {st: _xfit_contribs(records, id_to_split, st) for st in stages}
+
+    def paired(name, fn, members):
+        shared = sorted(set.intersection(*[set(c[m]) for m in members])) if all(
+            c.get(m) for m in members) else []
+        vals = [fn({m: c[m][r] for m in members}) for r in shared]
+        boot = paired_bootstrap_ci(vals) if vals else {
+            "point": None, "ci_low": None, "ci_high": None, "n_effective": 0}
+        return name, {
+            "n_shared_prompts": len(shared),
+            "estimate": boot["point"],
+            "ci_low": boot["ci_low"],
+            "ci_high": boot["ci_high"],
+            "ci_excludes_zero": (boot["ci_low"] is not None
+                                 and (boot["ci_low"] > 0 or boot["ci_high"] < 0)),
+        }
+
+    pairs = dict([
+        paired("M3_vs_M3_alt", lambda v: v["M3"] - v["M3_alt"], ["M3", "M3_alt"]),
+        paired("M3_vs_M3_direct", lambda v: v["M3"] - v["M3_direct"], ["M3", "M3_direct"]),
+        paired("M3_vs_M3_direct_alt", lambda v: v["M3"] - v["M3_direct_alt"],
+               ["M3", "M3_direct_alt"]),
+        paired("M3_alt_vs_M3_direct_alt", lambda v: v["M3_alt"] - v["M3_direct_alt"],
+               ["M3_alt", "M3_direct_alt"]),
+    ])
+
+    quad = ["M3", "M3_alt", "M3_direct", "M3_direct_alt"]
+    factorial = dict([
+        paired("history_main_effect_mediated_minus_direct",
+               lambda v: 0.5 * (v["M3"] + v["M3_alt"])
+               - 0.5 * (v["M3_direct"] + v["M3_direct_alt"]), quad),
+        paired("corpus_main_effect_alpaca_minus_dolly",
+               lambda v: 0.5 * (v["M3"] + v["M3_direct"])
+               - 0.5 * (v["M3_alt"] + v["M3_direct_alt"]), quad),
+        paired("corpus_x_history_interaction",
+               lambda v: (v["M3"] - v["M3_alt"])
+               - (v["M3_direct"] - v["M3_direct_alt"]), quad),
+    ])
+
+    return {
+        "status": "EXPLORATORY - post hoc; cross-fitting is not preregistered",
+        "population": "cross-fitted out-of-fold quadrant-A, direction_estimation "
+                      "split, n<=120 per branch, paired by record_id",
+        "per_branch_point_estimate": {
+            st: (sum(c[st].values()) / len(c[st])) if c.get(st) else None
+            for st in stages},
+        "pairwise": pairs,
+        "factorial_2x2": factorial,
+        "reading": (
+            "A pairwise CI excluding zero => those two adaptation paths differ "
+            "in direction-specific causal strength. corpus_x_history_interaction "
+            "excluding zero => the corpus effect itself depends on training "
+            "history (or equivalently the history effect depends on corpus). "
+            "history_main_effect > 0 with a CI excluding zero => safety-SFT-"
+            "mediated paths show LARGER effects than direct-DPO paths in this "
+            "design - state it that way, not as 'safety-SFT causes the effect'."
+        ),
+    }
+
+
+def compute_circularity_bias(records: list, id_to_split: dict,
+                             stages=CAUSAL_STAGES) -> dict:
+    """Per branch: paired bootstrap of (delta_estimation - delta_crossfit) on
+    the SAME direction_estimation record_ids.
+
+    delta_x(rid) = SR_ablated_AD(rid) - SR_ablated_random(rid) under condition
+    set x. estimation uses the ordinary conditions on rows that HELPED build
+    the direction; crossfit uses the _xfit conditions where each row was
+    excluded from the direction applied to it. Their paired difference IS the
+    self-inclusion bias, measured on identical rows rather than bounded by
+    comparing two separate CIs (which the external review explicitly warned
+    against, since held_out n=30 and estimation n=120 are different
+    populations).
+
+    bias > 0 with a CI excluding zero => estimation_split_only is inflated by
+    self-inclusion and full_A_sensitivity should be read with that caveat.
+    bias CI spanning zero => the self-influence is not detectably moving the
+    estimate and full_A_sensitivity can be read close to face value.
+    """
+    out = {"status": "circularity diagnostic - paired, same rows", "per_branch": {}}
+    for st in stages:
+        est = _contribs_by_id(records, id_to_split, st,
+                              conditions=_cf2_conditions_for_stage(st),
+                              population="estimation")
+        xf = _xfit_contribs(records, id_to_split, st)
+        shared = sorted(set(est) & set(xf))
+        diffs = [est[r] - xf[r] for r in shared]
+        boot = paired_bootstrap_ci(diffs) if diffs else {
+            "point": None, "ci_low": None, "ci_high": None, "n_effective": 0}
+        out["per_branch"][st] = {
+            "n_shared_prompts": len(shared),
+            "delta_estimation": (sum(est[r] for r in shared) / len(shared)) if shared else None,
+            "delta_crossfit": (sum(xf[r] for r in shared) / len(shared)) if shared else None,
+            "bias_estimation_minus_crossfit": boot["point"],
+            "ci_low": boot["ci_low"],
+            "ci_high": boot["ci_high"],
+            "ci_excludes_zero": (boot["ci_low"] is not None
+                                 and (boot["ci_low"] > 0 or boot["ci_high"] < 0)),
         }
     return out
 
@@ -504,6 +654,9 @@ def build_report(judged_path, benchmark_path) -> dict:
     # before per-branch support existed.
     report["CF2"] = report["CF2_by_stage"]["M3"]
     report["CF2_branch_interactions"] = compute_branch_interactions(records, id_to_split)
+    report["CF2_crossfit_branch_contrasts"] = compute_crossfit_branch_contrasts(
+        records, id_to_split)
+    report["CF2_circularity_bias"] = compute_circularity_bias(records, id_to_split)
     return report
 
 
@@ -555,6 +708,32 @@ def main():
                 mark = "  <-- CI excludes 0" if p["ci_excludes_zero"] else ""
                 print(f"  {name:28s} = {p['interaction']:+.4f}  95% CI [{p['ci_low']:+.4f}, "
                       f"{p['ci_high']:+.4f}]  (n={p['n_shared_prompts']}){mark}")
+
+        xc = report.get("CF2_crossfit_branch_contrasts", {})
+        if xc.get("pairwise"):
+            print("\ncross-fitted branch contrasts (out-of-fold n<=120, paired, "
+                  "EXPLORATORY):")
+            for name, p in {**xc["pairwise"], **xc["factorial_2x2"]}.items():
+                if p["estimate"] is None:
+                    print(f"  {name:42s} = n/a")
+                    continue
+                mark = "  <-- CI excludes 0" if p["ci_excludes_zero"] else ""
+                print(f"  {name:42s} = {p['estimate']:+.4f}  [{p['ci_low']:+.4f}, "
+                      f"{p['ci_high']:+.4f}]  (n={p['n_shared_prompts']}){mark}")
+
+        cb = report.get("CF2_circularity_bias", {})
+        if cb.get("per_branch"):
+            print("\ncircularity bias  (estimation_split - cross_fitted, SAME rows, "
+                  "paired):")
+            for st, p in cb["per_branch"].items():
+                if p["bias_estimation_minus_crossfit"] is None:
+                    print(f"  {st:16s} = n/a")
+                    continue
+                mark = "  <-- CI excludes 0 (self-inclusion inflates est-split)" \
+                    if p["ci_excludes_zero"] else "  (not detectable)"
+                print(f"  {st:16s} = {p['bias_estimation_minus_crossfit']:+.4f}  "
+                      f"[{p['ci_low']:+.4f}, {p['ci_high']:+.4f}]  "
+                      f"(n={p['n_shared_prompts']}){mark}")
     print(f"-> {out}")
 
 
