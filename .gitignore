@@ -30,5 +30,5 @@ results/crossbranch/raw/shards/
 private/
 results/behavioral_judges_v2/*.json
 
-# final-token repair: regenerable CPU direction arrays (bindings + summaries ARE committed)
-results/final_token_repair/directions/*.npy
+# final-token repair: large Colab judged files (in the Drive archive; regenerable)
+results/final_token_repair/judges/*.json
