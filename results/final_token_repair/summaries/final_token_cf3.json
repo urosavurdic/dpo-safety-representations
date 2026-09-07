@@ -43,7 +43,7 @@
     "M3_activation_path": "results/activations/M3_final.npy",
     "M3_activation_sha256": "f006c9bd09833e89f994ee8b5c31aab16e95f0fa72aa2e4166a2ac38ef7b120b",
     "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
-    "code_commit": "781dde9210ee903787b3c63d72e28b141fdaeeb7",
+    "code_commit": "883f37394bb1a710c7919f5a0aa560e69f5dac92",
     "note": "REPAIR of audit RED-2: the committed direction_decodability_cf3.json could not be reproduced from the repo (no committed M2_v2_direction.npy). This run uses the explicit final-token M2/M3 directions built by final_token_repair and is fully reproducible on CPU."
   }
 }
