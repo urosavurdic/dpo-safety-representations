@@ -1,0 +1,45 @@
+{
+  "code_commit": "781dde9210ee903787b3c63d72e28b141fdaeeb7",
+  "rows": [
+    {
+      "metric": "CF3 macroF1(M3)-macroF1(M2)",
+      "committed": -0.015554345329697239,
+      "final_token": 0.004031631685970649,
+      "mean_last5": null,
+      "abs_diff_committed_vs_final_token": 0.019585977015667888,
+      "qualitative_conclusion_change": "NO - both CIs span zero (null); point estimate sign flips committed -0.016 (slightly negative) -> final-token +0.004 (slightly positive). Manuscript 'point estimate is slightly negative' must change."
+    },
+    {
+      "metric": "factorial cos(d_AD,d_H) M2 L24",
+      "committed": 0.7701321244239807,
+      "final_token": 0.7701321244239807,
+      "mean_last5": 0.8365979790687561,
+      "abs_diff_committed_vs_final_token": 0.0,
+      "qualitative_conclusion_change": "NO - committed factorial already uses _final.npy; final-token value reproduces it."
+    },
+    {
+      "metric": "factorial cos(d_AD,d_H) M3 L24",
+      "committed": 0.8422244191169739,
+      "final_token": 0.8422244191169739,
+      "mean_last5": 0.8963744044303894,
+      "abs_diff_committed_vs_final_token": 0.0,
+      "qualitative_conclusion_change": "NO - committed factorial already uses _final.npy; final-token value reproduces it."
+    },
+    {
+      "metric": "factorial cos(d_AD,d_H) M2_alt L24",
+      "committed": 0.7679005861282349,
+      "final_token": 0.7679005861282349,
+      "mean_last5": 0.8164982199668884,
+      "abs_diff_committed_vs_final_token": 0.0,
+      "qualitative_conclusion_change": "NO - committed factorial already uses _final.npy; final-token value reproduces it."
+    },
+    {
+      "metric": "factorial cos(d_AD,d_H) M3_alt L24",
+      "committed": 0.8220003843307495,
+      "final_token": 0.8220003843307495,
+      "mean_last5": 0.8603059649467468,
+      "abs_diff_committed_vs_final_token": 0.0,
+      "qualitative_conclusion_change": "NO - committed factorial already uses _final.npy; final-token value reproduces it."
+    }
+  ]
+}

@@ -54,16 +54,26 @@ CAUSAL_STAGES = ("M3", "M3_direct", "M3_alt", "M3_direct_alt")
 # Back-compat alias: the confirmatory CF2 conditions at M3.
 CF2_CONDITIONS = ("M3_baseline", "M3_ablated_AD", "M3_ablated_random")
 
+# Condition-name infix. "" = the committed pooled run ({stage}_baseline,
+# {stage}_xfit_baseline). "ft_" = the final-token repair run (v2_pipeline
+# --pooling final_token writes {stage}_ft_baseline / {stage}_ft_xfit_baseline).
+# Set by build_report(condition_infix=...) / main()'s --condition-infix so the
+# final-token endpoints can be computed from the SAME script without ever
+# matching the pooled condition names.
+CONDITION_INFIX = ""
+
 
 def _cf2_conditions_for_stage(stage: str) -> tuple:
-    return (f"{stage}_baseline", f"{stage}_ablated_AD", f"{stage}_ablated_random")
+    p = CONDITION_INFIX
+    return (f"{stage}_{p}baseline", f"{stage}_{p}ablated_AD",
+            f"{stage}_{p}ablated_random")
 
 
 # --------------------------------------------------------------------------- #
 # record helpers
 # --------------------------------------------------------------------------- #
 def _cf2_crossfit_conditions_for_stage(stage: str) -> tuple:
-    """Cross-fitted rows carry ``{stage}_xfit_*`` condition names.
+    """Cross-fitted rows carry ``{stage}_[infix]xfit_*`` condition names.
 
     They MUST differ from the ordinary ones: a cross-fitted row and an
     ordinary _fullAD row share the same record_id, and ``_cf2_block`` keys its
@@ -72,8 +82,9 @@ def _cf2_crossfit_conditions_for_stage(stage: str) -> tuple:
     estimate would then be computed from whichever file the judge happened to
     read last, with no error.
     """
-    return (f"{stage}_xfit_baseline", f"{stage}_xfit_ablated_AD",
-            f"{stage}_xfit_ablated_random")
+    p = CONDITION_INFIX
+    return (f"{stage}_{p}xfit_baseline", f"{stage}_{p}xfit_ablated_AD",
+            f"{stage}_{p}xfit_ablated_random")
 
 
 def usable_sr(rec: dict):
@@ -628,7 +639,9 @@ def benchmark_split_map(benchmark_path) -> dict:
     }
 
 
-def build_report(judged_path, benchmark_path) -> dict:
+def build_report(judged_path, benchmark_path, condition_infix: str = "") -> dict:
+    global CONDITION_INFIX
+    CONDITION_INFIX = condition_infix
     records, meta = load_judge_records(judged_path)
     id_to_split = benchmark_split_map(benchmark_path)
     n_scored = sum(1 for r in records if usable_sr(r) is not None)
@@ -667,9 +680,19 @@ def main():
     parser.add_argument("--benchmark",
                         default="data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl")
     parser.add_argument("--out", default="results/summaries/confirmatory_endpoints.json")
+    parser.add_argument(
+        "--condition-infix", default="",
+        help="Condition-name infix. '' (default) = the committed pooled run "
+             "({stage}_baseline / {stage}_xfit_baseline). 'ft_' = the final-token "
+             "repair run (v2_pipeline --pooling final_token). CF1 is unaffected "
+             "(no intervention).",
+    )
     args = parser.parse_args()
 
-    report = build_report(args.judged, args.benchmark)
+    report = build_report(args.judged, args.benchmark,
+                          condition_infix=args.condition_infix)
+    report["condition_infix"] = args.condition_infix
+    report["pooling"] = "final_token" if args.condition_infix == "ft_" else "mean_last5"
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
