@@ -4,9 +4,10 @@ Numbers verified against `results/` JSONs. The causal endpoints (CF2 and
 below) are from the **2026-09-07 Colab run** — judge file
 `behavioral_judges_v2_20260907T043919Z.json`, which added the full-A/D and
 5-fold cross-fitted causal generations and re-scored them (see the
-"cross-fitted" session in CLAUDE.md / the git log around `c5a16ec`). CF1,
-CF3, geometry and the interpretability findings are unchanged from the
-2026-09-05 run. Every claim here has a file behind it — no 370-era numbers.
+"cross-fitted" session in CLAUDE.md / the git log around `c5a16ec`). CF1 is unchanged from the 2026-09-05 run. CF3 was re-pinned on CPU
+(audit RED-2) and the geometry/factorial were recomputed on `_pooled`
+(audit RED-1 optional, done) — see those sections. Every claim here has a
+file behind it — no 370-era numbers.
 
 ## Confirmatory endpoints
 
@@ -97,11 +98,13 @@ corroboration; lead with the n=120 cross-fitted contrasts.
 Authoritative counts (re-run 2026-09-07 against the frozen held-out files,
 which the re-judge did **not** touch — regex classifier, not judge scores).
 `b` = discordant where AD-ablation flagged `soft_deflection` and random did
-not; `c` = the reverse. Full JSON: `results/summaries/mcnemar_direction_specificity.json`.
+not; `c` = the reverse. Full JSON + binding: `results/summaries/mcnemar_direction_specificity.json`
+(producer `src/analysis/mcnemar_direction_specificity.py`, p = two-sided
+exact binomial; the old unattributable 8.9e-7 is replaced).
 
 | Branch | b / c | McNemar exact p | reaches p<0.05? |
 |---|---|---|---|
-| M3 | 0 / 29 | **8.9e−7** | yes |
+| M3 | 0 / 29 | **3.7e−9** | yes |
 | M3_alt | 3 / 14 | **0.0127** | yes |
 | M3_direct | 3 / 8 | 0.2266 | no (11 discordant, underpowered) |
 | M3_direct_alt | 7 / 7 | **1.0000** | no (14 discordant, split evenly → random-equivalent) |
@@ -189,6 +192,35 @@ was wrong and is corrected throughout; deviations-table row added. Geometry
 `_final.npy` → those describe the final-token direction, cos ~0.86 with the
 causal one. `eval_refusal_direction.py`'s adjacent cosines (Finding 1) are
 also `_pooled`-derived.
+
+**Optional CPU recompute DONE (user asked for full internal consistency).**
+`--pooling {final,pooled}` flag added to `factorial_direction_audit.py`,
+`subspace_geometry.py`, `direction_source_robustness.py` (`--pooling final`
+reproduces the committed JSON byte-for-byte; verified). Re-run on `_pooled`
+for M2/M3/M2_alt/M3_alt -> `results/interpretability/*_pooled.json`. The
+qualitative story holds under both poolings; the numbers that move:
+
+| metric | final-token (committed) | mean-pooled (causal dir) |
+|---|---|---|
+| cos(d_AD, d_H) M2->M3 | 0.770 -> 0.842 | 0.837 -> 0.896 |
+| cos(d_AD, d_H) M2_alt->M3_alt | 0.768 -> 0.822 | 0.816 -> 0.860 |
+| cos(d_AD, d_S) | 0.43-0.50 | 0.57-0.65 |
+| d_H sq-norm share (M3 L24) | ~82%, cross-term -204 | ~69%, d_S ~20%, cross-term **+44** |
+| held-out A/D sep M3 (d_AD/d_H/d_S) | 3.39 / 3.05 / 1.97 | 3.74 / 3.66 / 2.75 |
+| contrast-norm M2->M3 (L24 / L28) | x1.15 / x1.49 | x1.41 / x1.67 |
+| participation ratio M2->M3 (L24) | 33.6 -> 33.8 (flat) | 25.0 -> 20.7 (**contracts**) |
+| effective rank M2->M3 (L24) | 77 -> 79 (rises) | 62 -> 56 (**contracts**) |
+| rho_AD_perp L20-27 | 0.80-0.97 | 0.77-0.93 |
+| principal angle mean (L24) | 26 deg (max 63) | 23 deg (max 40) |
+| cos(d_full, d_OASST1) @L24 | 0.88-0.90 | 0.89-0.93 |
+
+**Both poolings:** d_AD aligns more with d_H than d_S and more so after
+M2->M3; d_H carries most of the held-out separation; large orthogonal
+update; CF3 null. **Difference:** on the mean-pooled direction (the causal
+one) the geometry leans harder toward amplification — norm grows more, PR
+and effective rank *contract* M2->M3 rather than staying flat / rising. §4
+and §9 of the paper now report both.
+
 
 ## McNemar — committed producer added (audit P14)
 

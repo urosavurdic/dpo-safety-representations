@@ -31,9 +31,13 @@ def _unit(v):
     return v / n if n > 0 else v
 
 
+POOLING = "final"  # "final" (_final.npy, analysis_plan.md sec 4) | "pooled" (_pooled.npy, last-5 mean)
+
+
 def load_stage(stage):
     meta = json.loads((ACT_DIR / f"{stage}_metadata.json").read_text(encoding="utf-8", errors="replace"))
-    arr = np.load(ACT_DIR / f"{stage}_final.npy")  # (n, n_layers, hidden)
+    suffix = "pooled" if POOLING == "pooled" else "final"
+    arr = np.load(ACT_DIR / f"{stage}_{suffix}.npy")  # (n, n_layers, hidden)
     return meta, arr
 
 
@@ -102,7 +106,10 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--stages", nargs="+", default=STAGES, choices=STAGES)
     ap.add_argument("--out", default="results/interpretability/direction_source_robustness.json")
+    ap.add_argument("--pooling", default="final", choices=["final", "pooled"])
     args = ap.parse_args()
+    global POOLING
+    POOLING = args.pooling
 
     report = {"layer": LAYER, "independent_source": INDEP_SOURCE, "per_stage": {}}
     for st in args.stages:

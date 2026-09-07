@@ -1,0 +1,197 @@
+{
+  "layer": 24,
+  "ad_rows": "est",
+  "pooling": "pooled",
+  "factor_map": {
+    "A": {
+      "harmful": 1,
+      "cue_strong": 1
+    },
+    "B": {
+      "harmful": 0,
+      "cue_strong": 1
+    },
+    "C": {
+      "harmful": 1,
+      "cue_strong": 0
+    },
+    "D": {
+      "harmful": 0,
+      "cue_strong": 0
+    }
+  },
+  "per_stage": {
+    "M2": {
+      "stage": "M2",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 3.9729832224111306e-07,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8365979790687561,
+        "cos_with_d_S_surface_cue": 0.5767064690589905,
+        "cos_with_d_HS_interaction": 0.22530515491962433
+      },
+      "magnitudes": {
+        "norm_d_AD": 14.201254844665527,
+        "norm_d_H": 11.608819961547852,
+        "norm_d_S": 7.784442901611328,
+        "norm_d_HS": 10.720772743225098,
+        "cos_d_H_vs_d_S": 0.03493136540055275,
+        "sq_norm_share": {
+          "d_H": 134.76470947265625,
+          "d_S": 60.59755325317383,
+          "cross_term": 6.313368797302246
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.437419891357422,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.6019490361213684,
+        "d_H__harmful(AC)_vs_benign(BD)": 3.212860584259033,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.0006866382900625467,
+        "d_S__harmful(AC)_vs_benign(BD)": 0.21835066378116608,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 1.94416081905365,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 4.157373905181885,
+        "d_H__A_vs_D_HELD_OUT": 3.6998705863952637,
+        "d_S__A_vs_D_HELD_OUT": 2.815141439437866
+      }
+    },
+    "M3": {
+      "stage": "M3",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 7.097735306160757e-07,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8963744044303894,
+        "cos_with_d_S_surface_cue": 0.5712020397186279,
+        "cos_with_d_HS_interaction": -0.10837222635746002
+      },
+      "magnitudes": {
+        "norm_d_AD": 20.07338523864746,
+        "norm_d_H": 16.660268783569336,
+        "norm_d_S": 8.997775077819824,
+        "norm_d_HS": 13.69458293914795,
+        "cos_d_H_vs_d_S": 0.14814774692058563,
+        "sq_norm_share": {
+          "d_H": 277.5645446777344,
+          "d_S": 80.9599609375,
+          "cross_term": 44.41627883911133
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.4841153621673584,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.5684386491775513,
+        "d_H__harmful(AC)_vs_benign(BD)": 2.9580609798431396,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": 0.17161306738853455,
+        "d_S__harmful(AC)_vs_benign(BD)": 0.4815722405910492,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 1.839117407798767,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.735252618789673,
+        "d_H__A_vs_D_HELD_OUT": 3.6637520790100098,
+        "d_S__A_vs_D_HELD_OUT": 2.750333547592163
+      }
+    },
+    "M2_alt": {
+      "stage": "M2_alt",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 4.172449905581743e-07,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8164982199668884,
+        "cos_with_d_S_surface_cue": 0.5806373357772827,
+        "cos_with_d_HS_interaction": 0.27466464042663574
+      },
+      "magnitudes": {
+        "norm_d_AD": 13.779461860656738,
+        "norm_d_H": 11.218810081481934,
+        "norm_d_S": 7.955606937408447,
+        "norm_d_HS": 11.245661735534668,
+        "cos_d_H_vs_d_S": 0.004034601151943207,
+        "sq_norm_share": {
+          "d_H": 125.8616943359375,
+          "d_S": 63.291683197021484,
+          "cross_term": 0.720196008682251
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.4516077041625977,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.6328190565109253,
+        "d_H__harmful(AC)_vs_benign(BD)": 3.3335421085357666,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": -0.04560739919543266,
+        "d_S__harmful(AC)_vs_benign(BD)": 0.1669406294822693,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 1.890045166015625,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 4.6395463943481445,
+        "d_H__A_vs_D_HELD_OUT": 3.751659393310547,
+        "d_S__A_vs_D_HELD_OUT": 2.9805898666381836
+      }
+    },
+    "M3_alt": {
+      "stage": "M3_alt",
+      "layer": 24,
+      "ad_rows": "est",
+      "cell_counts": {
+        "A": 120,
+        "B": 250,
+        "C": 104,
+        "D": 120
+      },
+      "decomposition_residual_should_be_0": 5.023248945690284e-07,
+      "alignment_of_preregistered_d_AD": {
+        "cos_with_d_H_harmfulness": 0.8603059649467468,
+        "cos_with_d_S_surface_cue": 0.6476833820343018,
+        "cos_with_d_HS_interaction": 0.0461154542863369
+      },
+      "magnitudes": {
+        "norm_d_AD": 16.987037658691406,
+        "norm_d_H": 13.13101577758789,
+        "norm_d_S": 8.785696983337402,
+        "norm_d_HS": 12.661553382873535,
+        "cos_d_H_vs_d_S": 0.16880065202713013,
+        "sq_norm_share": {
+          "d_H": 172.423583984375,
+          "d_S": 77.1884765625,
+          "cross_term": 38.947418212890625
+        }
+      },
+      "separation_cohens_d": {
+        "d_AD__harmful(AC)_vs_benign(BD)": 2.1500778198242188,
+        "d_AD__cuestrong(AB)_vs_cuereduced(CD)": 0.7265189290046692,
+        "d_H__harmful(AC)_vs_benign(BD)": 3.1310062408447266,
+        "d_H__cuestrong(AB)_vs_cuereduced(CD)": 0.17891283333301544,
+        "d_S__harmful(AC)_vs_benign(BD)": 0.4174138605594635,
+        "d_S__cuestrong(AB)_vs_cuereduced(CD)": 1.7528983354568481,
+        "_note": "computed on the SAME activations used to build the cell means -> construction diagnostic, NOT generalization evidence. The independent evidence is the held-out behavioral intervention."
+      },
+      "separation_cohens_d_HELD_OUT_AD_only": {
+        "d_AD__A_vs_D_HELD_OUT": 3.8330118656158447,
+        "d_H__A_vs_D_HELD_OUT": 3.91402530670166,
+        "d_S__A_vs_D_HELD_OUT": 2.5284652709960938
+      }
+    }
+  }
+}
