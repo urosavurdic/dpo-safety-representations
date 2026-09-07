@@ -239,13 +239,18 @@ def test_real_fold_partition_matches_committed_pooled_xfit5():
 
 
 @pytest.mark.skipif(not _HAVE_REAL, reason="needs real 654-row activations")
-def test_real_cf3_final_token_is_null_and_reproducible(tmp_path):
+def test_real_cf3_final_token_is_null_and_reproducible(tmp_path, monkeypatch):
     """CF3 on the final-token M2/M3 directions: CI must span zero (null), and a
-    second run must reproduce the point estimate bit-for-bit."""
+    second run must reproduce the point estimate bit-for-bit.
+
+    Redirects the repair output dirs to tmp_path so the test never clobbers the
+    committed results/final_token_repair/ artifacts."""
+    monkeypatch.setattr(ftr, "DIRECTIONS_DIR", tmp_path / "dirs")
+    monkeypatch.setattr(ftr, "BINDINGS_DIR", tmp_path / "binds")
     for st in ("M2", "M3"):
         ftr.build_stage(ACT, st, "final_token", k=5)
-    m2p = ftr.DIRECTIONS_DIR / "M2_final_token_L0-28.npy"
-    m3p = ftr.DIRECTIONS_DIR / "M3_final_token_L0-28.npy"
+    m2p = tmp_path / "dirs" / "M2_final_token_L0-28.npy"
+    m3p = tmp_path / "dirs" / "M3_final_token_L0-28.npy"
     r1 = ftr.recompute_cf3(ACT, "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
                            m2p, m3p, tmp_path / "cf3a.json", n_boot=2000)
     r2 = ftr.recompute_cf3(ACT, "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",

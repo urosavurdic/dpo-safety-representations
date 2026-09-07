@@ -31,7 +31,7 @@
   "coefficient": null,
   "control_seed": 20260904,
   "model_checkpoint_hint": "urosavurdic/qwen2.5-1.5b-m2-safety",
-  "code_commit": "781dde9210ee903787b3c63d72e28b141fdaeeb7",
+  "code_commit": "883f37394bb1a710c7919f5a0aa560e69f5dac92",
   "preregistered": true,
   "deviation_note": "REPAIR of audit RED-1: the committed v2 pipeline built this direction from _pooled (mean of last 5 tokens). analysis_plan.md 4 fixes the canonical direction on _final (final prompt token). This artifact is the preregistered final-token direction; it does NOT overwrite results/refusal_direction/{stage}_v2_direction.npy (the pooled one, kept for the disclosed deviation)."
 }
