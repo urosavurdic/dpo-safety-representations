@@ -1210,14 +1210,21 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
         if not ok:
             return False
         rows_out = store.merge_unit(unit_key, order=ctx.order)
-        if cond == "ablated_AD":
-            # this unit is generated under the legacy "_ablated" name so its
-            # shards are reused; relabel BOTH fields consumers read - stage
-            # (mcnemar_/summarize_causal_ablation.py) AND condition
-            # (confirmatory_behavioral_endpoints.py reads condition first).
-            for row in rows_out:
-                row["stage"] = f"{stage}_ablated_AD"
-                row["condition"] = f"{stage}_ablated_AD"
+        # Relabel EVERY condition, not just ablated_AD. `unit_name` is a
+        # SHARD-STORE key - it carries the legacy "_ablated" spelling so old
+        # shards are reused, and the `tag` so a _fullAD / _dirfrom run cannot
+        # collide with the confirmatory one. It is not the condition name any
+        # consumer expects. Relabelling only ablated_AD left the other two as
+        # "{stage}_baseline_fullAD" / "{stage}_ablated_random_fullAD", which
+        # (a) fell outside behavioral_judges' confirmatory scope, so they were
+        # never scored, and (b) never matched CF2's expected condition tuple,
+        # so every full-A triple was dropped as incomplete and
+        # estimation_split_only / full_A_sensitivity silently stayed at n=0.
+        # Both fields are relabelled: `stage` is what mcnemar_ /
+        # summarize_causal_ablation.py read, `condition` is the secondary field.
+        for row in rows_out:
+            row["stage"] = _full(cond)
+            row["condition"] = _full(cond)
         merged.extend(rows_out)
         generated.append(_full(cond))
 
