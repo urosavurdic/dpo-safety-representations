@@ -220,18 +220,23 @@ def main():  # pragma: no cover - [exec:T4], needs regenerated 654-row activatio
     parser.add_argument("--act-dir", default="results/activations")
     parser.add_argument("--out", default="results/interpretability/subspace_geometry.json")
     parser.add_argument("--layers", nargs="+", type=int, default=None)
+    parser.add_argument("--pooling", default="final", choices=["final", "pooled"],
+                        help="final = _final.npy (analysis_plan.md sec 4); "
+                             "pooled = _pooled.npy (last-5 mean, the causal direction).")
     args = parser.parse_args()
 
     act = Path(args.act_dir)
+    _suffix = "pooled" if args.pooling == "pooled" else "final"
     def _load(stage):
-        arr = np.load(act / f"{stage}_final.npy")
+        arr = np.load(act / f"{stage}_{_suffix}.npy")
         meta = json.loads((act / f"{stage}_metadata.json").read_text(encoding="utf-8"))
         return arr, np.array([r["quadrant"] for r in meta]), np.array([r.get("split") or "" for r in meta])
 
     m2, quads, splits = _load("M2")
     m3, _q, _s = _load("M3")
     layers = args.layers or list(range(m2.shape[1]))
-    out = {"r_primary": R_PRIMARY, "r_sensitivity": R_SENSITIVITY, "per_layer": {}}
+    out = {"r_primary": R_PRIMARY, "r_sensitivity": R_SENSITIVITY,
+           "pooling": args.pooling, "per_layer": {}}
     for r in (R_PRIMARY, R_SENSITIVITY):
         out["per_layer"][f"r{r}"] = [
             layer_report(m2, m3, quads, splits, l, r=r) for l in layers

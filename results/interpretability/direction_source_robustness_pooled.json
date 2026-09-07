@@ -1,0 +1,90 @@
+{
+  "layer": 24,
+  "independent_source": "OASST1",
+  "per_stage": {
+    "M2": {
+      "stage": "M2",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.5137906074523926,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9301171068634305,
+          "cos_vs_full_at_L24": 0.9418362975120544,
+          "z_C_at_L24": 0.49366113543510437
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.942422873207501,
+          "cos_vs_full_at_L24": 0.9413321018218994,
+          "z_C_at_L24": 0.4509574770927429
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.8976961033684867,
+          "cos_vs_full_at_L24": 0.8899452686309814,
+          "z_C_at_L24": 0.6217948198318481
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.8899452686309814,
+      "headline_z_C_shift_full_to_OASST1": 0.108
+    },
+    "M3": {
+      "stage": "M3",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.8178966045379639,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9399836148534503,
+          "cos_vs_full_at_L24": 0.9622737169265747,
+          "z_C_at_L24": 0.8183124661445618
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.946962126663753,
+          "cos_vs_full_at_L24": 0.9518413543701172,
+          "z_C_at_L24": 0.7310830354690552
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.9162841205086026,
+          "cos_vs_full_at_L24": 0.9256447553634644,
+          "z_C_at_L24": 0.9188550710678101
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.9256447553634644,
+      "headline_z_C_shift_full_to_OASST1": 0.101
+    },
+    "M3_alt": {
+      "stage": "M3_alt",
+      "n_A_est": 120,
+      "n_D_est": 120,
+      "z_C_full_at_L24": 0.630645215511322,
+      "per_source": {
+        "Alpaca": {
+          "n_D_rows": 43,
+          "cos_vs_full_mean_L1_28": 0.9460171567542213,
+          "cos_vs_full_at_L24": 0.960991621017456,
+          "z_C_at_L24": 0.636847198009491
+        },
+        "Dolly-15k": {
+          "n_D_rows": 37,
+          "cos_vs_full_mean_L1_28": 0.9514633842876979,
+          "cos_vs_full_at_L24": 0.9506562948226929,
+          "z_C_at_L24": 0.5717158913612366
+        },
+        "OASST1": {
+          "n_D_rows": 40,
+          "cos_vs_full_mean_L1_28": 0.9197704025677272,
+          "cos_vs_full_at_L24": 0.9120078682899475,
+          "z_C_at_L24": 0.6944289803504944
+        }
+      },
+      "headline_cos_full_vs_OASST1_at_L24": 0.9120078682899475,
+      "headline_z_C_shift_full_to_OASST1": 0.0638
+    }
+  }
+}

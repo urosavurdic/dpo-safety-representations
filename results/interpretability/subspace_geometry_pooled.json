@@ -1,0 +1,2588 @@
+{
+  "r_primary": 5,
+  "r_sensitivity": 10,
+  "pooling": "pooled",
+  "per_layer": {
+    "r5": [
+      {
+        "layer": 0,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": null,
+          "delta_norm": 0.0
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 5.395417913916396e-14,
+          "max_deg": 1.4769356224412532e-13,
+          "per_component_deg": [
+            1.4769356224412532e-13,
+            5.5928392678158427e-14,
+            3.1984703786249995e-14,
+            2.24093328595142e-14,
+            1.1754904127771848e-14
+          ]
+        },
+        "participation_ratio": {
+          "M2": 1.0,
+          "M3": 1.0
+        },
+        "effective_rank": {
+          "M2": 1.0,
+          "M3": 1.0
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.0,
+          "leading_var_fraction": null
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 0.0,
+          "drift_orthogonal_fraction": null
+        },
+        "contrast_norm": {
+          "M2": 0.0,
+          "M3": 0.0
+        }
+      },
+      {
+        "layer": 1,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7171357903343232,
+          "delta_norm": 0.15227439108443275,
+          "delta_perp_norm": 0.12895184797512718
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 6.961051030785595,
+          "max_deg": 10.492320402687554,
+          "per_component_deg": [
+            10.492320402687554,
+            7.621127526278537,
+            6.620605961802769,
+            5.250148366276537,
+            4.821052896882577
+          ]
+        },
+        "participation_ratio": {
+          "M2": 17.527654042324905,
+          "M3": 17.64483483145673
+        },
+        "effective_rank": {
+          "M2": 46.81019586301554,
+          "M3": 46.99901432316149
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9757170510022859,
+          "d_out_of_subspace_norm": 0.21903476018383605,
+          "leading_var_fraction": 0.2782950014171774
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 2.3870104222863198,
+          "drift_orthogonal_fraction": 0.8278911097265175
+        },
+        "contrast_norm": {
+          "M2": 1.0511308908462524,
+          "M3": 1.0070526599884033
+        }
+      },
+      {
+        "layer": 2,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.97558559672664,
+          "delta_norm": 0.29523562485328625,
+          "delta_perp_norm": 0.29160935397286125
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 11.383060667225323,
+          "max_deg": 20.697414438891062,
+          "per_component_deg": [
+            20.697414438891062,
+            11.334731779746567,
+            9.211515032805917,
+            8.29552276796846,
+            7.376119316714605
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.87375514020206,
+          "M3": 14.919837646356935
+        },
+        "effective_rank": {
+          "M2": 43.30675699693972,
+          "M3": 42.84755715415813
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9909361226613722,
+          "d_out_of_subspace_norm": 0.1343332714274042,
+          "leading_var_fraction": 0.41125170497269703
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 4.322662542143102,
+          "drift_orthogonal_fraction": 0.8086560471183597
+        },
+        "contrast_norm": {
+          "M2": 2.0964558124542236,
+          "M3": 2.1224193572998047
+        }
+      },
+      {
+        "layer": 3,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9614599745715094,
+          "delta_norm": 0.5255628679273998,
+          "delta_perp_norm": 0.5153357583494829
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 18.443914206370046,
+          "max_deg": 37.01967270131122,
+          "per_component_deg": [
+            37.01967270131122,
+            18.448714625939093,
+            13.965704970108549,
+            12.888983269772705,
+            9.896495464718656
+          ]
+        },
+        "participation_ratio": {
+          "M2": 12.920297612342075,
+          "M3": 13.255599517232273
+        },
+        "effective_rank": {
+          "M2": 37.870177551922616,
+          "M3": 38.73915300039376
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9927315716658195,
+          "d_out_of_subspace_norm": 0.12034975847270861,
+          "leading_var_fraction": 0.430721358172937
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.290951457713524,
+          "drift_orthogonal_fraction": 0.8586035544295548
+        },
+        "contrast_norm": {
+          "M2": 2.5960099697113037,
+          "M3": 2.6894407272338867
+        }
+      },
+      {
+        "layer": 4,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9459592313836008,
+          "delta_norm": 0.8192269544901808,
+          "delta_perp_norm": 0.7967837036783848
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 14.292540888611176,
+          "max_deg": 19.74053060987479,
+          "per_component_deg": [
+            19.74053060987479,
+            14.383073871596098,
+            13.394258053334696,
+            12.70412783423564,
+            11.240714074014658
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.978109194393861,
+          "M3": 13.13863194089991
+        },
+        "effective_rank": {
+          "M2": 38.55603713594148,
+          "M3": 37.32223575775961
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.993384765609128,
+          "d_out_of_subspace_norm": 0.11483341332498108,
+          "leading_var_fraction": 0.40594136315011964
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.900886805209081,
+          "drift_orthogonal_fraction": 0.8542622902960076
+        },
+        "contrast_norm": {
+          "M2": 3.475339412689209,
+          "M3": 3.667705774307251
+        }
+      },
+      {
+        "layer": 5,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9637186951701514,
+          "delta_norm": 0.9461996471256009,
+          "delta_perp_norm": 0.9288763889551777
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 16.200150153101767,
+          "max_deg": 22.572894629983324,
+          "per_component_deg": [
+            22.572894629983324,
+            16.624544397947304,
+            16.30120788163924,
+            13.292887364767502,
+            12.209216491171441
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.604353358024778,
+          "M3": 12.723020416339459
+        },
+        "effective_rank": {
+          "M2": 36.88987972474529,
+          "M3": 35.3139576791742
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.993249346354859,
+          "d_out_of_subspace_norm": 0.11599926869087358,
+          "leading_var_fraction": 0.37831934350386087
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.296291882798054,
+          "drift_orthogonal_fraction": 0.7890516976234491
+        },
+        "contrast_norm": {
+          "M2": 3.6091372966766357,
+          "M3": 3.795809507369995
+        }
+      },
+      {
+        "layer": 6,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9674647103778078,
+          "delta_norm": 0.8996737723381449,
+          "delta_perp_norm": 0.8849171789592805
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 16.63025429844003,
+          "max_deg": 22.345029301242725,
+          "per_component_deg": [
+            22.345029301242725,
+            19.982756263751526,
+            15.39841116220304,
+            12.976556665651419,
+            12.44851809935144
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.995243107458068,
+          "M3": 12.727979771403586
+        },
+        "effective_rank": {
+          "M2": 38.492652321656124,
+          "M3": 36.06872837582757
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9920941290539462,
+          "d_out_of_subspace_norm": 0.125496377740161,
+          "leading_var_fraction": 0.3772816783894155
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.965405231022658,
+          "drift_orthogonal_fraction": 0.7743588177308641
+        },
+        "contrast_norm": {
+          "M2": 3.4478847980499268,
+          "M3": 3.649813652038574
+        }
+      },
+      {
+        "layer": 7,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9666518133987856,
+          "delta_norm": 0.8821132557592452,
+          "delta_perp_norm": 0.8672801037950676
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 17.76633948735747,
+          "max_deg": 24.2009480073068,
+          "per_component_deg": [
+            24.2009480073068,
+            23.396382786762718,
+            15.253107397152197,
+            13.852410664285436,
+            12.128848581280188
+          ]
+        },
+        "participation_ratio": {
+          "M2": 12.375181920975399,
+          "M3": 11.503288981830226
+        },
+        "effective_rank": {
+          "M2": 32.82655327195582,
+          "M3": 31.228860791582235
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9925778892611806,
+          "d_out_of_subspace_norm": 0.12161030879676381,
+          "leading_var_fraction": 0.3584635052460864
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.743693002577813,
+          "drift_orthogonal_fraction": 0.7427748724507781
+        },
+        "contrast_norm": {
+          "M2": 3.327908754348755,
+          "M3": 3.5252442359924316
+        }
+      },
+      {
+        "layer": 8,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9284747103788178,
+          "delta_norm": 1.0698287316091775,
+          "delta_perp_norm": 1.0308590707932184
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 17.995675440265572,
+          "max_deg": 27.061163351984188,
+          "per_component_deg": [
+            27.061163351984188,
+            23.798895140573762,
+            14.937439015744562,
+            13.487908469133744,
+            10.6929712238916
+          ]
+        },
+        "participation_ratio": {
+          "M2": 10.405919827602377,
+          "M3": 9.83484204865188
+        },
+        "effective_rank": {
+          "M2": 28.367640039836274,
+          "M3": 27.3505712773546
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9929944797482274,
+          "d_out_of_subspace_norm": 0.11816137241657854,
+          "leading_var_fraction": 0.35763277024211704
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.862005269012114,
+          "drift_orthogonal_fraction": 0.7384896543343119
+        },
+        "contrast_norm": {
+          "M2": 3.936612606048584,
+          "M3": 4.271125793457031
+        }
+      },
+      {
+        "layer": 9,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9348926662779219,
+          "delta_norm": 1.1399366313488244,
+          "delta_perp_norm": 1.1022029935842061
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 15.639836362654219,
+          "max_deg": 20.428545035351554,
+          "per_component_deg": [
+            20.428545035351554,
+            18.93848852307995,
+            14.484608763052009,
+            13.058779997379887,
+            11.288759494407703
+          ]
+        },
+        "participation_ratio": {
+          "M2": 11.750801972882961,
+          "M3": 11.543393432865244
+        },
+        "effective_rank": {
+          "M2": 31.688223880857507,
+          "M3": 31.980513796748696
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9950097394110694,
+          "d_out_of_subspace_norm": 0.09977795502632002,
+          "leading_var_fraction": 0.35077608215537076
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.672995716692489,
+          "drift_orthogonal_fraction": 0.7754289732416912
+        },
+        "contrast_norm": {
+          "M2": 4.4012837409973145,
+          "M3": 4.774290084838867
+        }
+      },
+      {
+        "layer": 10,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8900291013245308,
+          "delta_norm": 1.2143597389946783,
+          "delta_perp_norm": 1.1456434162526692
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 15.075632540718322,
+          "max_deg": 21.39883350900036,
+          "per_component_deg": [
+            21.39883350900036,
+            15.473967208363211,
+            13.054744759218837,
+            12.901647587972004,
+            12.548969639037198
+          ]
+        },
+        "participation_ratio": {
+          "M2": 11.973613285362227,
+          "M3": 11.780844741362753
+        },
+        "effective_rank": {
+          "M2": 31.625053231891012,
+          "M3": 32.0717697806406
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9941766186859213,
+          "d_out_of_subspace_norm": 0.10776292395725377,
+          "leading_var_fraction": 0.34233771430379006
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.378426812329599,
+          "drift_orthogonal_fraction": 0.83001141722947
+        },
+        "contrast_norm": {
+          "M2": 4.631875991821289,
+          "M3": 5.1126017570495605
+        }
+      },
+      {
+        "layer": 11,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9088429755653616,
+          "delta_norm": 1.2342359247206727,
+          "delta_perp_norm": 1.1766372973889183
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 13.557925353232502,
+          "max_deg": 18.59730982891755,
+          "per_component_deg": [
+            18.59730982891755,
+            12.995858244318951,
+            12.946903775407513,
+            11.821118363695645,
+            11.428436553822857
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.669880771615999,
+          "M3": 14.46515411855981
+        },
+        "effective_rank": {
+          "M2": 36.97376568022584,
+          "M3": 37.57561570596343
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9943267062372929,
+          "d_out_of_subspace_norm": 0.10636861166081661,
+          "leading_var_fraction": 0.34576830990976476
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.066661490052908,
+          "drift_orthogonal_fraction": 0.8744817815700695
+        },
+        "contrast_norm": {
+          "M2": 4.991109371185303,
+          "M3": 5.432704925537109
+        }
+      },
+      {
+        "layer": 12,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9342907379474336,
+          "delta_norm": 1.22410609658743,
+          "delta_perp_norm": 1.183205235483814
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.944961919817032,
+          "max_deg": 17.202031946558893,
+          "per_component_deg": [
+            17.202031946558893,
+            13.32847401606012,
+            11.732921057878313,
+            11.430775089497043,
+            11.030607489090798
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.909654656127605,
+          "M3": 15.260179582520545
+        },
+        "effective_rank": {
+          "M2": 36.68536900060745,
+          "M3": 37.97830418880589
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.994488770894487,
+          "d_out_of_subspace_norm": 0.1048428164763997,
+          "leading_var_fraction": 0.32512052670400565
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.262634333619858,
+          "drift_orthogonal_fraction": 0.8867717348711253
+        },
+        "contrast_norm": {
+          "M2": 4.9707722663879395,
+          "M3": 5.390129089355469
+        }
+      },
+      {
+        "layer": 13,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9350019403383125,
+          "delta_norm": 1.2851527251685135,
+          "delta_perp_norm": 1.2426848323083768
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.739925503807124,
+          "max_deg": 16.076459351022326,
+          "per_component_deg": [
+            16.076459351022326,
+            13.93103025355797,
+            12.0684930869716,
+            11.259667084313543,
+            10.363977743170175
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.122603774521968,
+          "M3": 14.262698397082096
+        },
+        "effective_rank": {
+          "M2": 34.350269857638374,
+          "M3": 35.20009979692314
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9951861367417663,
+          "d_out_of_subspace_norm": 0.09800336245223983,
+          "leading_var_fraction": 0.32093041094822145
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.611335772978168,
+          "drift_orthogonal_fraction": 0.8940654344825637
+        },
+        "contrast_norm": {
+          "M2": 5.229101181030273,
+          "M3": 5.656561851501465
+        }
+      },
+      {
+        "layer": 14,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8807064029201009,
+          "delta_norm": 1.550546239154205,
+          "delta_perp_norm": 1.4551249885807853
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 11.837122569107922,
+          "max_deg": 14.796547864969192,
+          "per_component_deg": [
+            14.796547864969192,
+            13.21487352762086,
+            11.547207317598703,
+            9.949165236308227,
+            9.677818899042624
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.173161980977868,
+          "M3": 14.970654723530028
+        },
+        "effective_rank": {
+          "M2": 37.13308452824368,
+          "M3": 37.190451048661416
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9949968862348918,
+          "d_out_of_subspace_norm": 0.0999057966750763,
+          "leading_var_fraction": 0.33290184526261773
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.023068902875765,
+          "drift_orthogonal_fraction": 0.9497750284881428
+        },
+        "contrast_norm": {
+          "M2": 6.0916242599487305,
+          "M3": 6.756289482116699
+        }
+      },
+      {
+        "layer": 15,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8934791756863681,
+          "delta_norm": 1.6151049191906688,
+          "delta_perp_norm": 1.5266622164355035
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 11.421817785935886,
+          "max_deg": 14.42449289480239,
+          "per_component_deg": [
+            14.42449289480239,
+            12.605981431930834,
+            10.849984099356156,
+            9.999166512867786,
+            9.22946399072227
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.582654767560339,
+          "M3": 14.29349089387
+        },
+        "effective_rank": {
+          "M2": 34.89274822557245,
+          "M3": 34.83239244999424
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9952088064833885,
+          "d_out_of_subspace_norm": 0.09777277647385116,
+          "leading_var_fraction": 0.3244132899569781
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.065127088657129,
+          "drift_orthogonal_fraction": 0.9658194552920325
+        },
+        "contrast_norm": {
+          "M2": 6.016565799713135,
+          "M3": 6.690275192260742
+        }
+      },
+      {
+        "layer": 16,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8951009944128548,
+          "delta_norm": 1.6911643474173603,
+          "delta_perp_norm": 1.6000068213825078
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 10.525672595769839,
+          "max_deg": 14.003564760955824,
+          "per_component_deg": [
+            14.003564760955824,
+            11.194810178926144,
+            10.112275898740933,
+            8.879482386390688,
+            8.438229753835612
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.963792682731194,
+          "M3": 16.142735710464507
+        },
+        "effective_rank": {
+          "M2": 38.62604324969186,
+          "M3": 39.70355303263511
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9950731339575293,
+          "d_out_of_subspace_norm": 0.0991437735136995,
+          "leading_var_fraction": 0.32320686993196335
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.283016430918465,
+          "drift_orthogonal_fraction": 0.9464336292130517
+        },
+        "contrast_norm": {
+          "M2": 6.755023002624512,
+          "M3": 7.4409050941467285
+        }
+      },
+      {
+        "layer": 17,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8576357614252944,
+          "delta_norm": 2.2126918343176496,
+          "delta_perp_norm": 2.0491435059306937
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.261859792636255,
+          "max_deg": 19.245670504703135,
+          "per_component_deg": [
+            19.245670504703135,
+            13.738408146602085,
+            10.367986510386519,
+            9.040888942583608,
+            8.916344858905926
+          ]
+        },
+        "participation_ratio": {
+          "M2": 16.4911297595196,
+          "M3": 16.665711777017616
+        },
+        "effective_rank": {
+          "M2": 40.70053677418951,
+          "M3": 42.016333021703666
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9931035268966555,
+          "d_out_of_subspace_norm": 0.11724046706022785,
+          "leading_var_fraction": 0.3459029842449586
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.8027699831288855,
+          "drift_orthogonal_fraction": 0.9586390989707098
+        },
+        "contrast_norm": {
+          "M2": 7.436018943786621,
+          "M3": 8.411491394042969
+        }
+      },
+      {
+        "layer": 18,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8595356182397298,
+          "delta_norm": 3.458983272162444,
+          "delta_perp_norm": 3.2068629550421104
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 15.451338218115927,
+          "max_deg": 31.037073749764325,
+          "per_component_deg": [
+            31.037073749764325,
+            14.955585752833437,
+            11.01776670900345,
+            10.274439824313427,
+            9.971825054664993
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.97511160343201,
+          "M3": 15.48734062141993
+        },
+        "effective_rank": {
+          "M2": 39.18102319882516,
+          "M3": 39.223785547100626
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9933109107394714,
+          "d_out_of_subspace_norm": 0.11547063200983397,
+          "leading_var_fraction": 0.3567437193160843
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 7.909626959529509,
+          "drift_orthogonal_fraction": 0.9284335925511467
+        },
+        "contrast_norm": {
+          "M2": 7.908435344696045,
+          "M3": 9.655770301818848
+        }
+      },
+      {
+        "layer": 19,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8246576091840798,
+          "delta_norm": 5.8392659491541545,
+          "delta_perp_norm": 5.302675986872068
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.385429281577576,
+          "max_deg": 43.227329702744164,
+          "per_component_deg": [
+            43.227329702744164,
+            20.407630676901174,
+            11.553662976358286,
+            11.10824924961679,
+            10.63027380226747
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.221545532334748,
+          "M3": 12.649019850108887
+        },
+        "effective_rank": {
+          "M2": 37.41028786769158,
+          "M3": 34.11502457092103
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9918156733392924,
+          "d_out_of_subspace_norm": 0.12767799975501642,
+          "leading_var_fraction": 0.40823924153269353
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 9.560790463891236,
+          "drift_orthogonal_fraction": 0.9195280683921713
+        },
+        "contrast_norm": {
+          "M2": 8.639644622802734,
+          "M3": 11.970100402832031
+        }
+      },
+      {
+        "layer": 20,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7743495044953895,
+          "delta_norm": 6.8453857696589475,
+          "delta_perp_norm": 6.023743075684152
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.50653130150652,
+          "max_deg": 38.35986279406493,
+          "per_component_deg": [
+            38.35986279406493,
+            22.294494253009525,
+            13.49175345103501,
+            11.905390065020775,
+            11.481155944402348
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.891541325216206,
+          "M3": 12.357198144898899
+        },
+        "effective_rank": {
+          "M2": 36.002273872387185,
+          "M3": 32.85777030154247
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9933611917976497,
+          "d_out_of_subspace_norm": 0.11503709261534634,
+          "leading_var_fraction": 0.3887997355175535
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 10.946637505675616,
+          "drift_orthogonal_fraction": 0.8908096736363341
+        },
+        "contrast_norm": {
+          "M2": 8.757468223571777,
+          "M3": 12.667009353637695
+        }
+      },
+      {
+        "layer": 21,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8475982824758251,
+          "delta_norm": 7.201971462338347,
+          "delta_perp_norm": 6.630502301816986
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 20.589901700782466,
+          "max_deg": 38.97002060490981,
+          "per_component_deg": [
+            38.97002060490981,
+            22.853494712065654,
+            14.904092955659285,
+            13.393751480378622,
+            12.828148750898945
+          ]
+        },
+        "participation_ratio": {
+          "M2": 18.71584438555983,
+          "M3": 16.535811164479995
+        },
+        "effective_rank": {
+          "M2": 45.826564442653634,
+          "M3": 43.66580945818908
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9905758890022162,
+          "d_out_of_subspace_norm": 0.13696494596707967,
+          "leading_var_fraction": 0.36805851609483636
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 12.353004096375834,
+          "drift_orthogonal_fraction": 0.9184817144226042
+        },
+        "contrast_norm": {
+          "M2": 10.2734956741333,
+          "M3": 13.923036575317383
+        }
+      },
+      {
+        "layer": 22,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.785824668731294,
+          "delta_norm": 8.748361052560476,
+          "delta_perp_norm": 7.755137949600175
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 20.429023577411506,
+          "max_deg": 36.47437025144724,
+          "per_component_deg": [
+            36.47437025144724,
+            24.32898200148636,
+            15.149139597579335,
+            13.780225601535179,
+            12.412400435009436
+          ]
+        },
+        "participation_ratio": {
+          "M2": 21.51857529873986,
+          "M3": 18.011464246207566
+        },
+        "effective_rank": {
+          "M2": 53.55895354264095,
+          "M3": 49.63847897879513
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9914354454561127,
+          "d_out_of_subspace_norm": 0.13059801257389397,
+          "leading_var_fraction": 0.3915597993457907
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 14.386491245995103,
+          "drift_orthogonal_fraction": 0.913026315138551
+        },
+        "contrast_norm": {
+          "M2": 11.97726821899414,
+          "M3": 16.8388729095459
+        }
+      },
+      {
+        "layer": 23,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8302689522061537,
+          "delta_norm": 9.438797817298548,
+          "delta_perp_norm": 8.60054717509238
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 21.093130994278283,
+          "max_deg": 36.62348317882275,
+          "per_component_deg": [
+            36.62348317882275,
+            25.84911823353991,
+            15.667488401515827,
+            14.426755664819712,
+            12.898809492693214
+          ]
+        },
+        "participation_ratio": {
+          "M2": 22.722801551744475,
+          "M3": 19.559990046306606
+        },
+        "effective_rank": {
+          "M2": 57.0407578510842,
+          "M3": 53.09823326551682
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9902167075910987,
+          "d_out_of_subspace_norm": 0.1395380866023206,
+          "leading_var_fraction": 0.37659920570836514
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 16.184076013361096,
+          "drift_orthogonal_fraction": 0.9358407093312734
+        },
+        "contrast_norm": {
+          "M2": 12.805428504943848,
+          "M3": 17.820148468017578
+        }
+      },
+      {
+        "layer": 24,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8348831171848661,
+          "delta_norm": 11.053312290234508,
+          "delta_perp_norm": 10.09962572413563
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 22.895526208965713,
+          "max_deg": 39.85193011118957,
+          "per_component_deg": [
+            39.85193011118957,
+            28.27837956003287,
+            16.69667837021822,
+            16.229552737918315,
+            13.421090265469592
+          ]
+        },
+        "participation_ratio": {
+          "M2": 24.970117952536476,
+          "M3": 20.72909492526258
+        },
+        "effective_rank": {
+          "M2": 62.42108112806437,
+          "M3": 56.398656780550716
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9908400088040314,
+          "d_out_of_subspace_norm": 0.13504085491661158,
+          "leading_var_fraction": 0.3808770134288596
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 19.02698728430719,
+          "drift_orthogonal_fraction": 0.9370533405937098
+        },
+        "contrast_norm": {
+          "M2": 14.201254844665527,
+          "M3": 20.07338523864746
+        }
+      },
+      {
+        "layer": 25,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8175982217422564,
+          "delta_norm": 13.007008937266885,
+          "delta_perp_norm": 11.761085515372601
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 24.12358131476663,
+          "max_deg": 40.60056077537493,
+          "per_component_deg": [
+            40.60056077537493,
+            31.186425176869836,
+            18.00771442674251,
+            16.524325514774155,
+            14.298880680071715
+          ]
+        },
+        "participation_ratio": {
+          "M2": 26.406640543973374,
+          "M3": 21.45237584599799
+        },
+        "effective_rank": {
+          "M2": 66.7201876549696,
+          "M3": 59.38622062311084
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9913161254244092,
+          "d_out_of_subspace_norm": 0.13149999887051592,
+          "leading_var_fraction": 0.38918385119803034
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 21.355682031471083,
+          "drift_orthogonal_fraction": 0.913055577926068
+        },
+        "contrast_norm": {
+          "M2": 16.01774024963379,
+          "M3": 23.089427947998047
+        }
+      },
+      {
+        "layer": 26,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8624435025339994,
+          "delta_norm": 14.366938976235508,
+          "delta_perp_norm": 13.342265374641647
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 27.004040388646253,
+          "max_deg": 51.97631263698368,
+          "per_component_deg": [
+            51.97631263698368,
+            33.59090805914296,
+            18.127590607543123,
+            17.315593990524647,
+            14.009796649036854
+          ]
+        },
+        "participation_ratio": {
+          "M2": 27.423838337540168,
+          "M3": 22.10868148918265
+        },
+        "effective_rank": {
+          "M2": 68.7915614777979,
+          "M3": 60.12439174333178
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9908360131264844,
+          "d_out_of_subspace_norm": 0.1350704014330131,
+          "leading_var_fraction": 0.37780446756619285
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 24.593681752208354,
+          "drift_orthogonal_fraction": 0.9702673910332419
+        },
+        "contrast_norm": {
+          "M2": 17.121158599853516,
+          "M3": 24.920454025268555
+        }
+      },
+      {
+        "layer": 27,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9313379588712803,
+          "delta_norm": 16.08929227553948,
+          "delta_perp_norm": 15.527108690032566
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 29.074388754856034,
+          "max_deg": 58.90122949966332,
+          "per_component_deg": [
+            58.90122949966332,
+            34.635086551962736,
+            18.588608092803195,
+            17.954919606177558,
+            15.29210002367336
+          ]
+        },
+        "participation_ratio": {
+          "M2": 29.668693475503616,
+          "M3": 23.20479598069136
+        },
+        "effective_rank": {
+          "M2": 75.73436324137415,
+          "M3": 64.39307683810132
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9909647690238235,
+          "d_out_of_subspace_norm": 0.1341221126315366,
+          "leading_var_fraction": 0.3726944874335605
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 27.315711070537088,
+          "drift_orthogonal_fraction": 0.9701385039143327
+        },
+        "contrast_norm": {
+          "M2": 19.3470458984375,
+          "M3": 27.581974029541016
+        }
+      },
+      {
+        "layer": 28,
+        "r": 5,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.6131758470012582,
+          "delta_norm": 14.414725171081567,
+          "delta_perp_norm": 11.287529190390238
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 30.126309046492803,
+          "max_deg": 61.05488647925411,
+          "per_component_deg": [
+            61.05488647925411,
+            36.33344888509972,
+            22.124459342851967,
+            17.645172089583884,
+            13.473578435674334
+          ]
+        },
+        "participation_ratio": {
+          "M2": 20.50020288235822,
+          "M3": 21.34491355690878
+        },
+        "effective_rank": {
+          "M2": 59.446441386869466,
+          "M3": 59.7734849112016
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9920039924538622,
+          "d_out_of_subspace_norm": 0.1262067626421386,
+          "leading_var_fraction": 0.3525387464886074
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 25.609115217565844,
+          "drift_orthogonal_fraction": 0.7061842566169095
+        },
+        "contrast_norm": {
+          "M2": 14.344882011413574,
+          "M3": 23.888410568237305
+        }
+      }
+    ],
+    "r10": [
+      {
+        "layer": 0,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": null,
+          "delta_norm": 0.0
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 9.49527784828505e-14,
+          "max_deg": 2.6181812196738737e-13,
+          "per_component_deg": [
+            2.6181812196738737e-13,
+            1.4867415191646394e-13,
+            1.472993743845937e-13,
+            1.2632197854744652e-13,
+            1.0743589552545069e-13,
+            5.70389498912524e-14,
+            4.935866884491603e-14,
+            3.283654128291268e-14,
+            1.1787368896267386e-14,
+            6.9567335718141e-15
+          ]
+        },
+        "participation_ratio": {
+          "M2": 1.0,
+          "M3": 1.0
+        },
+        "effective_rank": {
+          "M2": 1.0,
+          "M3": 1.0
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.0,
+          "leading_var_fraction": null
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 0.0,
+          "drift_orthogonal_fraction": null
+        },
+        "contrast_norm": {
+          "M2": 0.0,
+          "M3": 0.0
+        }
+      },
+      {
+        "layer": 1,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.6625401566245859,
+          "delta_norm": 0.15227439108443275,
+          "delta_perp_norm": 0.12394613094275085
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 6.8691314591518875,
+          "max_deg": 16.4147886749203,
+          "per_component_deg": [
+            16.4147886749203,
+            8.7226070432573,
+            7.596281545825114,
+            6.715742963131386,
+            6.24647207365702,
+            5.70844190087302,
+            4.769414631537858,
+            4.562186134008792,
+            4.424821720358566,
+            3.5305579039495107
+          ]
+        },
+        "participation_ratio": {
+          "M2": 17.527654042324905,
+          "M3": 17.64483483145673
+        },
+        "effective_rank": {
+          "M2": 46.81019586301554,
+          "M3": 46.99901432316149
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9902849355317496,
+          "d_out_of_subspace_norm": 0.13905299796935855,
+          "leading_var_fraction": 0.21366430659131533
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 2.3870104222863198,
+          "drift_orthogonal_fraction": 0.820499493734139
+        },
+        "contrast_norm": {
+          "M2": 1.0511308908462524,
+          "M3": 1.0070526599884033
+        }
+      },
+      {
+        "layer": 2,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9476159159145437,
+          "delta_norm": 0.29523562485328625,
+          "delta_perp_norm": 0.28739878912636846
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 18.006993055922326,
+          "max_deg": 88.73151197670163,
+          "per_component_deg": [
+            88.73151197670163,
+            17.691055309081708,
+            13.026815032209099,
+            11.93609493914451,
+            9.871331865596995,
+            9.718589344061087,
+            8.24499589460154,
+            7.63940189582931,
+            7.2687893523161815,
+            5.941344949681195
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.87375514020206,
+          "M3": 14.919837646356935
+        },
+        "effective_rank": {
+          "M2": 43.30675699693972,
+          "M3": 42.84755715415813
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.994215448067802,
+          "d_out_of_subspace_norm": 0.10740330456220663,
+          "leading_var_fraction": 0.32585936261093656
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 4.322662542143102,
+          "drift_orthogonal_fraction": 0.7309961899945514
+        },
+        "contrast_norm": {
+          "M2": 2.0964558124542236,
+          "M3": 2.1224193572998047
+        }
+      },
+      {
+        "layer": 3,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.94566973346683,
+          "delta_norm": 0.5255628679273998,
+          "delta_perp_norm": 0.5110865106957847
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 14.498962755224621,
+          "max_deg": 25.5272502910421,
+          "per_component_deg": [
+            25.5272502910421,
+            20.717673638501118,
+            16.16242337388225,
+            15.339604782862374,
+            13.297679394101689,
+            13.04428539138583,
+            12.618746765687055,
+            11.18987552830052,
+            9.216978708359761,
+            7.875109678123527
+          ]
+        },
+        "participation_ratio": {
+          "M2": 12.920297612342075,
+          "M3": 13.255599517232273
+        },
+        "effective_rank": {
+          "M2": 37.870177551922616,
+          "M3": 38.73915300039376
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9938935604418234,
+          "d_out_of_subspace_norm": 0.11034322932922987,
+          "leading_var_fraction": 0.34381485459777245
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.290951457713524,
+          "drift_orthogonal_fraction": 0.6903779888213969
+        },
+        "contrast_norm": {
+          "M2": 2.5960099697113037,
+          "M3": 2.6894407272338867
+        }
+      },
+      {
+        "layer": 4,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9091295883269405,
+          "delta_norm": 0.8192269544901808,
+          "delta_perp_norm": 0.7811188698723718
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 15.547219405068905,
+          "max_deg": 27.44885773817167,
+          "per_component_deg": [
+            27.44885773817167,
+            21.151947502867518,
+            18.52934457163101,
+            16.551914360026633,
+            14.095451242402477,
+            13.020623867598186,
+            12.404817947254482,
+            11.252950848117536,
+            10.869173765876543,
+            10.147112206742962
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.978109194393861,
+          "M3": 13.13863194089991
+        },
+        "effective_rank": {
+          "M2": 38.55603713594148,
+          "M3": 37.32223575775961
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9956503712763064,
+          "d_out_of_subspace_norm": 0.09316836124737532,
+          "leading_var_fraction": 0.32985066440029254
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.900886805209081,
+          "drift_orthogonal_fraction": 0.7344992879309569
+        },
+        "contrast_norm": {
+          "M2": 3.475339412689209,
+          "M3": 3.667705774307251
+        }
+      },
+      {
+        "layer": 5,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9105893596797918,
+          "delta_norm": 0.9461996471256009,
+          "delta_perp_norm": 0.9029091774767117
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.063234937410073,
+          "max_deg": 45.87890950969778,
+          "per_component_deg": [
+            45.87890950969778,
+            22.80296058162437,
+            21.98043730681232,
+            18.116015124774044,
+            16.592650411204602,
+            15.038255711217065,
+            13.95828978497837,
+            12.874124993321097,
+            12.160460435351172,
+            11.230245515119925
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.604353358024778,
+          "M3": 12.723020416339459
+        },
+        "effective_rank": {
+          "M2": 36.88987972474529,
+          "M3": 35.3139576791742
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9956844365277994,
+          "d_out_of_subspace_norm": 0.09280407979981546,
+          "leading_var_fraction": 0.31144122547093506
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.296291882798054,
+          "drift_orthogonal_fraction": 0.6937041557822023
+        },
+        "contrast_norm": {
+          "M2": 3.6091372966766357,
+          "M3": 3.795809507369995
+        }
+      },
+      {
+        "layer": 6,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9428137922896375,
+          "delta_norm": 0.8996737723381449,
+          "delta_perp_norm": 0.8735706282853372
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 18.744391817280707,
+          "max_deg": 35.61441254644859,
+          "per_component_deg": [
+            35.61441254644859,
+            25.13441190747395,
+            21.847218786636127,
+            19.67349325562308,
+            16.936459952575383,
+            15.705952375747811,
+            14.754593732799947,
+            13.879212946260807,
+            12.413854357492822,
+            11.484308311748562
+          ]
+        },
+        "participation_ratio": {
+          "M2": 13.995243107458068,
+          "M3": 12.727979771403586
+        },
+        "effective_rank": {
+          "M2": 38.492652321656124,
+          "M3": 36.06872837582757
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9960887481793596,
+          "d_out_of_subspace_norm": 0.0883589694353984,
+          "leading_var_fraction": 0.31217202194592697
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.965405231022658,
+          "drift_orthogonal_fraction": 0.7084449990555928
+        },
+        "contrast_norm": {
+          "M2": 3.4478847980499268,
+          "M3": 3.649813652038574
+        }
+      },
+      {
+        "layer": 7,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9345960067573588,
+          "delta_norm": 0.8821132557592452,
+          "delta_perp_norm": 0.8527786304144571
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 18.316528603689857,
+          "max_deg": 31.13546723887304,
+          "per_component_deg": [
+            31.13546723887304,
+            25.638625790674183,
+            20.693713210837217,
+            19.958156451028735,
+            17.51044770745129,
+            15.844639734220847,
+            14.466318185939535,
+            13.898179453558893,
+            12.496174961057655,
+            11.523563303257198
+          ]
+        },
+        "participation_ratio": {
+          "M2": 12.375181920975399,
+          "M3": 11.503288981830226
+        },
+        "effective_rank": {
+          "M2": 32.82655327195582,
+          "M3": 31.228860791582235
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.996405682471267,
+          "d_out_of_subspace_norm": 0.08470920490001999,
+          "leading_var_fraction": 0.29862857793791564
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.743693002577813,
+          "drift_orthogonal_fraction": 0.6690232749667089
+        },
+        "contrast_norm": {
+          "M2": 3.327908754348755,
+          "M3": 3.5252442359924316
+        }
+      },
+      {
+        "layer": 8,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8891836020495962,
+          "delta_norm": 1.0698287316091775,
+          "delta_perp_norm": 1.008811396403357
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 21.32959198632079,
+          "max_deg": 61.35052759767561,
+          "per_component_deg": [
+            61.35052759767561,
+            28.141564678854856,
+            22.094732037176453,
+            20.80322624203352,
+            16.556372732787583,
+            15.134673086910933,
+            14.110742617840664,
+            12.557686788708187,
+            12.236222532002815,
+            10.310171549217282
+          ]
+        },
+        "participation_ratio": {
+          "M2": 10.405919827602377,
+          "M3": 9.83484204865188
+        },
+        "effective_rank": {
+          "M2": 28.367640039836274,
+          "M3": 27.3505712773546
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9974850454163217,
+          "d_out_of_subspace_norm": 0.07087828237634398,
+          "leading_var_fraction": 0.3024413949802922
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.862005269012114,
+          "drift_orthogonal_fraction": 0.6904782109039862
+        },
+        "contrast_norm": {
+          "M2": 3.936612606048584,
+          "M3": 4.271125793457031
+        }
+      },
+      {
+        "layer": 9,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9325188355826656,
+          "delta_norm": 1.1399366313488244,
+          "delta_perp_norm": 1.1008027760035866
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 16.947109845448814,
+          "max_deg": 26.089009691881543,
+          "per_component_deg": [
+            26.089009691881543,
+            25.13894057796025,
+            20.47097718124589,
+            18.247630705160898,
+            15.037303845315247,
+            14.679753499160023,
+            13.637093194632016,
+            13.226701357881188,
+            12.16524660688346,
+            10.778441794367573
+          ]
+        },
+        "participation_ratio": {
+          "M2": 11.750801972882961,
+          "M3": 11.543393432865244
+        },
+        "effective_rank": {
+          "M2": 31.688223880857507,
+          "M3": 31.980513796748696
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9973243540693115,
+          "d_out_of_subspace_norm": 0.0731037250237573,
+          "leading_var_fraction": 0.2960807167045371
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.672995716692489,
+          "drift_orthogonal_fraction": 0.7657170874104265
+        },
+        "contrast_norm": {
+          "M2": 4.4012837409973145,
+          "M3": 4.774290084838867
+        }
+      },
+      {
+        "layer": 10,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8837985307406633,
+          "delta_norm": 1.2143597389946783,
+          "delta_perp_norm": 1.1416263856112736
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 16.287522305199126,
+          "max_deg": 25.494767195606865,
+          "per_component_deg": [
+            25.494767195606865,
+            21.894282045000303,
+            19.117466352634796,
+            16.828396198920338,
+            15.11651722227864,
+            14.066023707251206,
+            13.69004127727297,
+            12.497899055328615,
+            12.379064517345356,
+            11.790765480352217
+          ]
+        },
+        "participation_ratio": {
+          "M2": 11.973613285362227,
+          "M3": 11.780844741362753
+        },
+        "effective_rank": {
+          "M2": 31.625053231891012,
+          "M3": 32.0717697806406
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9972147453648744,
+          "d_out_of_subspace_norm": 0.0745838357049122,
+          "leading_var_fraction": 0.28481992462502553
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.378426812329599,
+          "drift_orthogonal_fraction": 0.8185822239678842
+        },
+        "contrast_norm": {
+          "M2": 4.631875991821289,
+          "M3": 5.1126017570495605
+        }
+      },
+      {
+        "layer": 11,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8922050738577987,
+          "delta_norm": 1.2342359247206727,
+          "delta_perp_norm": 1.1658173855311105
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 13.615445958657157,
+          "max_deg": 20.33238417421146,
+          "per_component_deg": [
+            20.33238417421146,
+            16.308634914626204,
+            14.942688720744588,
+            14.21237606685538,
+            12.901522021452065,
+            12.325541021688194,
+            12.112972217700488,
+            11.714868352561563,
+            11.079152738962197,
+            10.22431935776941
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.669880771615999,
+          "M3": 14.46515411855981
+        },
+        "effective_rank": {
+          "M2": 36.97376568022584,
+          "M3": 37.57561570596343
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.996254558454394,
+          "d_out_of_subspace_norm": 0.08646811575484833,
+          "leading_var_fraction": 0.2773988250727285
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.066661490052908,
+          "drift_orthogonal_fraction": 0.8630140174314611
+        },
+        "contrast_norm": {
+          "M2": 4.991109371185303,
+          "M3": 5.432704925537109
+        }
+      },
+      {
+        "layer": 12,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9317547382163813,
+          "delta_norm": 1.22410609658743,
+          "delta_perp_norm": 1.1815983228887756
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 13.593919369822322,
+          "max_deg": 23.495761014031014,
+          "per_component_deg": [
+            23.495761014031014,
+            17.86320334229677,
+            14.941211343206962,
+            14.361572423915003,
+            12.684828722054782,
+            11.881407339295468,
+            11.278641951578573,
+            10.338265410603183,
+            9.609616284747041,
+            9.484685866494418
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.909654656127605,
+          "M3": 15.260179582520545
+        },
+        "effective_rank": {
+          "M2": 36.68536900060745,
+          "M3": 37.97830418880589
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9962540594768465,
+          "d_out_of_subspace_norm": 0.08647416133062608,
+          "leading_var_fraction": 0.25743659225876814
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.262634333619858,
+          "drift_orthogonal_fraction": 0.8668334057105533
+        },
+        "contrast_norm": {
+          "M2": 4.9707722663879395,
+          "M3": 5.390129089355469
+        }
+      },
+      {
+        "layer": 13,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.9290697483763648,
+          "delta_norm": 1.2851527251685135,
+          "delta_perp_norm": 1.2387364046605593
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 13.005408031395712,
+          "max_deg": 20.423254030228925,
+          "per_component_deg": [
+            20.423254030228925,
+            16.19119906198798,
+            14.41533620471052,
+            13.894987386189422,
+            13.645704418399982,
+            11.773647348637988,
+            10.947217565347962,
+            10.248737492227873,
+            9.408034732545891,
+            9.105962073680566
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.122603774521968,
+          "M3": 14.262698397082096
+        },
+        "effective_rank": {
+          "M2": 34.350269857638374,
+          "M3": 35.20009979692314
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9961498388507918,
+          "d_out_of_subspace_norm": 0.0876675787990531,
+          "leading_var_fraction": 0.25754672442451626
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 5.611335772978168,
+          "drift_orthogonal_fraction": 0.8688987884603241
+        },
+        "contrast_norm": {
+          "M2": 5.229101181030273,
+          "M3": 5.656561851501465
+        }
+      },
+      {
+        "layer": 14,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8620232353153648,
+          "delta_norm": 1.550546239154205,
+          "delta_perp_norm": 1.4396078562116985
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.212907056896267,
+          "max_deg": 20.46061061476247,
+          "per_component_deg": [
+            20.46061061476247,
+            16.095140982852367,
+            14.717070406300959,
+            13.085903827187359,
+            12.079716073624555,
+            10.439619804403202,
+            9.756155883453332,
+            9.312052882279673,
+            8.415116703223317,
+            7.767683390875432
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.173161980977868,
+          "M3": 14.970654723530028
+        },
+        "effective_rank": {
+          "M2": 37.13308452824368,
+          "M3": 37.190451048661416
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.995858203599363,
+          "d_out_of_subspace_norm": 0.09091980065014256,
+          "leading_var_fraction": 0.2643790909859718
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.023068902875765,
+          "drift_orthogonal_fraction": 0.8901655811550802
+        },
+        "contrast_norm": {
+          "M2": 6.0916242599487305,
+          "M3": 6.756289482116699
+        }
+      },
+      {
+        "layer": 15,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8705778677324284,
+          "delta_norm": 1.6151049191906688,
+          "delta_perp_norm": 1.5069698065656372
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.117716375797736,
+          "max_deg": 19.010434842963456,
+          "per_component_deg": [
+            19.010434842963456,
+            15.382284871130839,
+            14.90732195556116,
+            13.980650262083559,
+            12.262516687210978,
+            10.455887682953941,
+            9.832782117785898,
+            9.551150949348683,
+            8.251906206854967,
+            7.542228182083873
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.582654767560339,
+          "M3": 14.29349089387
+        },
+        "effective_rank": {
+          "M2": 34.89274822557245,
+          "M3": 34.83239244999424
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9957302987523158,
+          "d_out_of_subspace_norm": 0.09231065197538273,
+          "leading_var_fraction": 0.2598062200080055
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.065127088657129,
+          "drift_orthogonal_fraction": 0.9046025597415207
+        },
+        "contrast_norm": {
+          "M2": 6.016565799713135,
+          "M3": 6.690275192260742
+        }
+      },
+      {
+        "layer": 16,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8833955288257871,
+          "delta_norm": 1.6911643474173603,
+          "delta_perp_norm": 1.5895105427600726
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 14.124745524904123,
+          "max_deg": 47.013570222357416,
+          "per_component_deg": [
+            47.013570222357416,
+            14.993240208750858,
+            13.642273411991765,
+            11.749733858420496,
+            11.178344722394183,
+            9.92403814270495,
+            9.22569264338481,
+            8.62070304802418,
+            8.011649648539581,
+            6.888209342472987
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.963792682731194,
+          "M3": 16.142735710464507
+        },
+        "effective_rank": {
+          "M2": 38.62604324969186,
+          "M3": 39.70355303263511
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9970614972454231,
+          "d_out_of_subspace_norm": 0.07660548584344154,
+          "leading_var_fraction": 0.2515854433004719
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.283016430918465,
+          "drift_orthogonal_fraction": 0.9113699712922566
+        },
+        "contrast_norm": {
+          "M2": 6.755023002624512,
+          "M3": 7.4409050941467285
+        }
+      },
+      {
+        "layer": 17,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.8326355329716133,
+          "delta_norm": 2.2126918343176496,
+          "delta_perp_norm": 2.019056180631469
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 12.548237423509178,
+          "max_deg": 31.00199358517938,
+          "per_component_deg": [
+            31.00199358517938,
+            15.457598576409618,
+            13.152811013412558,
+            11.836405773419276,
+            10.399353766143731,
+            10.102201223587159,
+            9.727820398964438,
+            8.463365801787113,
+            8.136813502369371,
+            7.204010593819142
+          ]
+        },
+        "participation_ratio": {
+          "M2": 16.4911297595196,
+          "M3": 16.665711777017616
+        },
+        "effective_rank": {
+          "M2": 40.70053677418951,
+          "M3": 42.016333021703666
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9973381696378042,
+          "d_out_of_subspace_norm": 0.07291445422267788,
+          "leading_var_fraction": 0.26491542952153063
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 6.8027699831288855,
+          "drift_orthogonal_fraction": 0.9310398718194738
+        },
+        "contrast_norm": {
+          "M2": 7.436018943786621,
+          "M3": 8.411491394042969
+        }
+      },
+      {
+        "layer": 18,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7703811689704787,
+          "delta_norm": 3.458983272162444,
+          "delta_perp_norm": 3.0359966706825614
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 14.429089716654437,
+          "max_deg": 36.59140218070109,
+          "per_component_deg": [
+            36.59140218070109,
+            18.153147927710556,
+            15.323786595256196,
+            13.015894357309035,
+            12.461658966574491,
+            11.433226167248078,
+            10.397186137792097,
+            9.853383804908743,
+            9.184665671261959,
+            7.876545357782109
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.97511160343201,
+          "M3": 15.48734062141993
+        },
+        "effective_rank": {
+          "M2": 39.18102319882516,
+          "M3": 39.223785547100626
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9972338910923177,
+          "d_out_of_subspace_norm": 0.07432764430347553,
+          "leading_var_fraction": 0.2751750495542702
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 7.909626959529509,
+          "drift_orthogonal_fraction": 0.9115025854890114
+        },
+        "contrast_norm": {
+          "M2": 7.908435344696045,
+          "M3": 9.655770301818848
+        }
+      },
+      {
+        "layer": 19,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7231774331993728,
+          "delta_norm": 5.8392659491541545,
+          "delta_perp_norm": 4.965702401372675
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 22.535281370108034,
+          "max_deg": 80.54400946976281,
+          "per_component_deg": [
+            80.54400946976281,
+            46.11034301630165,
+            18.02056574087837,
+            13.78670405535616,
+            13.627119627035965,
+            12.73700317243597,
+            11.76291789010642,
+            10.694560012532964,
+            9.905526351128568,
+            8.1640643655415
+          ]
+        },
+        "participation_ratio": {
+          "M2": 15.221545532334748,
+          "M3": 12.649019850108887
+        },
+        "effective_rank": {
+          "M2": 37.41028786769158,
+          "M3": 34.11502457092103
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.997304109420057,
+          "d_out_of_subspace_norm": 0.07337925344934171,
+          "leading_var_fraction": 0.322679717031234
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 9.560790463891236,
+          "drift_orthogonal_fraction": 0.8912464090234846
+        },
+        "contrast_norm": {
+          "M2": 8.639644622802734,
+          "M3": 11.970100402832031
+        }
+      },
+      {
+        "layer": 20,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.6479929149380624,
+          "delta_norm": 6.8453857696589475,
+          "delta_perp_norm": 5.510399123864201
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.029163578567662,
+          "max_deg": 45.01556731692428,
+          "per_component_deg": [
+            45.01556731692428,
+            31.986550170105115,
+            20.893949983461916,
+            16.349856557719324,
+            15.529550085811197,
+            14.395496611546973,
+            13.359641844964107,
+            12.643951857249117,
+            10.237840754167973,
+            9.879230603726617
+          ]
+        },
+        "participation_ratio": {
+          "M2": 14.891541325216206,
+          "M3": 12.357198144898899
+        },
+        "effective_rank": {
+          "M2": 36.002273872387185,
+          "M3": 32.85777030154247
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9970223698119691,
+          "d_out_of_subspace_norm": 0.07711280141172255,
+          "leading_var_fraction": 0.3106938595164789
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 10.946637505675616,
+          "drift_orthogonal_fraction": 0.8517546934225985
+        },
+        "contrast_norm": {
+          "M2": 8.757468223571777,
+          "M3": 12.667009353637695
+        }
+      },
+      {
+        "layer": 21,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7294103497925286,
+          "delta_norm": 7.201971462338347,
+          "delta_perp_norm": 6.150881452337088
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 18.148903093369448,
+          "max_deg": 40.62734107957562,
+          "per_component_deg": [
+            40.62734107957562,
+            23.321681764946554,
+            22.079185267486945,
+            17.633560648976975,
+            16.005886432185992,
+            14.44558776504023,
+            13.6583178268922,
+            11.669561674317496,
+            11.493092618322486,
+            10.554815855949974
+          ]
+        },
+        "participation_ratio": {
+          "M2": 18.71584438555983,
+          "M3": 16.535811164479995
+        },
+        "effective_rank": {
+          "M2": 45.826564442653634,
+          "M3": 43.66580945818908
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9952236921707126,
+          "d_out_of_subspace_norm": 0.09762064760280294,
+          "leading_var_fraction": 0.28753401798441003
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 12.353004096375834,
+          "drift_orthogonal_fraction": 0.8803584817915243
+        },
+        "contrast_norm": {
+          "M2": 10.2734956741333,
+          "M3": 13.923036575317383
+        }
+      },
+      {
+        "layer": 22,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.6753397081173522,
+          "delta_norm": 8.748361052560476,
+          "delta_perp_norm": 7.189320441238008
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.899222211918264,
+          "max_deg": 41.05366472388706,
+          "per_component_deg": [
+            41.05366472388706,
+            36.24921329240416,
+            24.28516540932471,
+            18.30503540737605,
+            16.273472833237413,
+            14.29770996322708,
+            13.33761987716914,
+            12.257991487646178,
+            12.07258772972118,
+            10.859761395189647
+          ]
+        },
+        "participation_ratio": {
+          "M2": 21.51857529873986,
+          "M3": 18.011464246207566
+        },
+        "effective_rank": {
+          "M2": 53.55895354264095,
+          "M3": 49.63847897879513
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9947102981063709,
+          "d_out_of_subspace_norm": 0.10272052490201912,
+          "leading_var_fraction": 0.3062927341389064
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 14.386491245995103,
+          "drift_orthogonal_fraction": 0.9006694112230521
+        },
+        "contrast_norm": {
+          "M2": 11.97726821899414,
+          "M3": 16.8388729095459
+        }
+      },
+      {
+        "layer": 23,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7188904752712925,
+          "delta_norm": 9.438797817298548,
+          "delta_perp_norm": 8.002912125498574
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 19.121396461401712,
+          "max_deg": 39.8777397936144,
+          "per_component_deg": [
+            39.8777397936144,
+            28.939139187096096,
+            21.29984985700246,
+            18.995801868014034,
+            17.635803992004178,
+            15.561659439116937,
+            13.334553673019778,
+            12.396127316343588,
+            12.286771562889216,
+            10.886517924916443
+          ]
+        },
+        "participation_ratio": {
+          "M2": 22.722801551744475,
+          "M3": 19.559990046306606
+        },
+        "effective_rank": {
+          "M2": 57.0407578510842,
+          "M3": 53.09823326551682
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9931730233722122,
+          "d_out_of_subspace_norm": 0.11665055186706719,
+          "leading_var_fraction": 0.29213865227743346
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 16.184076013361096,
+          "drift_orthogonal_fraction": 0.9054966107902301
+        },
+        "contrast_norm": {
+          "M2": 12.805428504943848,
+          "M3": 17.820148468017578
+        }
+      },
+      {
+        "layer": 24,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7322618899763793,
+          "delta_norm": 11.053312290234508,
+          "delta_perp_norm": 9.458573793497198
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 22.51258449181384,
+          "max_deg": 50.77422343785151,
+          "per_component_deg": [
+            50.77422343785151,
+            36.14439920766854,
+            27.068071673875156,
+            20.87876740956917,
+            19.01176620161534,
+            16.906259712306063,
+            15.328675132275801,
+            14.296222761504932,
+            13.158464893286325,
+            11.55899448818555
+          ]
+        },
+        "participation_ratio": {
+          "M2": 24.970117952536476,
+          "M3": 20.72909492526258
+        },
+        "effective_rank": {
+          "M2": 62.42108112806437,
+          "M3": 56.398656780550716
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9927746740959714,
+          "d_out_of_subspace_norm": 0.11999334155285629,
+          "leading_var_fraction": 0.29554633484535575
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 19.02698728430719,
+          "drift_orthogonal_fraction": 0.9104147866142946
+        },
+        "contrast_norm": {
+          "M2": 14.201254844665527,
+          "M3": 20.07338523864746
+        }
+      },
+      {
+        "layer": 25,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7159939749049368,
+          "delta_norm": 13.007008937266885,
+          "delta_perp_norm": 11.00606624596071
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 23.25257573737297,
+          "max_deg": 56.42634995865087,
+          "per_component_deg": [
+            56.42634995865087,
+            37.44781738305487,
+            25.447856083893775,
+            22.149420061162147,
+            18.086021756754125,
+            17.228838729515356,
+            16.070664981812897,
+            14.360722301737148,
+            13.091590467765581,
+            12.216475649382925
+          ]
+        },
+        "participation_ratio": {
+          "M2": 26.406640543973374,
+          "M3": 21.45237584599799
+        },
+        "effective_rank": {
+          "M2": 66.7201876549696,
+          "M3": 59.38622062311084
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9927139355788605,
+          "d_out_of_subspace_norm": 0.12049461538566177,
+          "leading_var_fraction": 0.3011536949675418
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 21.355682031471083,
+          "drift_orthogonal_fraction": 0.8932904108220482
+        },
+        "contrast_norm": {
+          "M2": 16.01774024963379,
+          "M3": 23.089427947998047
+        }
+      },
+      {
+        "layer": 26,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7580206910838048,
+          "delta_norm": 14.366938976235508,
+          "delta_perp_norm": 12.508486877680877
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 23.266811193222452,
+          "max_deg": 52.71229694165385,
+          "per_component_deg": [
+            52.71229694165385,
+            35.60242976150935,
+            27.560350295902328,
+            22.392184150001054,
+            18.914956046602423,
+            17.398113437907757,
+            16.210460334766456,
+            15.402603205410195,
+            13.661419808814067,
+            12.81329794965706
+          ]
+        },
+        "participation_ratio": {
+          "M2": 27.423838337540168,
+          "M3": 22.10868148918265
+        },
+        "effective_rank": {
+          "M2": 68.7915614777979,
+          "M3": 60.12439174333178
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9916573816646694,
+          "d_out_of_subspace_norm": 0.12890172862159102,
+          "leading_var_fraction": 0.29196196278892106
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 24.593681752208354,
+          "drift_orthogonal_fraction": 0.8993927112284529
+        },
+        "contrast_norm": {
+          "M2": 17.121158599853516,
+          "M3": 24.920454025268555
+        }
+      },
+      {
+        "layer": 27,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.7700615477308006,
+          "delta_norm": 16.08929227553948,
+          "delta_perp_norm": 14.118860915022475
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 23.524821748141925,
+          "max_deg": 52.31236171682811,
+          "per_component_deg": [
+            52.31236171682811,
+            35.665684319972044,
+            26.28576890699093,
+            22.697924024056352,
+            19.74657187186672,
+            18.275892026898024,
+            16.611520664333675,
+            15.989922134253662,
+            14.52200265476758,
+            13.140569161452147
+          ]
+        },
+        "participation_ratio": {
+          "M2": 29.668693475503616,
+          "M3": 23.20479598069136
+        },
+        "effective_rank": {
+          "M2": 75.73436324137415,
+          "M3": 64.39307683810132
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9919345253479428,
+          "d_out_of_subspace_norm": 0.12675098408271915,
+          "leading_var_fraction": 0.28901277481311455
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 27.315711070537088,
+          "drift_orthogonal_fraction": 0.8706685978481377
+        },
+        "contrast_norm": {
+          "M2": 19.3470458984375,
+          "M3": 27.581974029541016
+        }
+      },
+      {
+        "layer": 28,
+        "r": 10,
+        "orthogonal_update": {
+          "rho_AD_perp": 0.5674063644437979,
+          "delta_norm": 14.414725171081567,
+          "delta_perp_norm": 10.858090773653231
+        },
+        "principal_angles_M2_vs_M3": {
+          "mean_deg": 27.227675545366782,
+          "max_deg": 73.73554257448532,
+          "per_component_deg": [
+            73.73554257448532,
+            45.22863237992828,
+            29.70814573568793,
+            25.228870434884044,
+            22.247704497435876,
+            18.87575479505065,
+            17.396010481167384,
+            14.918698531117581,
+            12.75643896509979,
+            12.180957058810975
+          ]
+        },
+        "participation_ratio": {
+          "M2": 20.50020288235822,
+          "M3": 21.34491355690878
+        },
+        "effective_rank": {
+          "M2": 59.446441386869466,
+          "M3": 59.7734849112016
+        },
+        "leading_vs_orthogonal_variance_M3": {
+          "d_in_subspace_norm": 0.9937921385508205,
+          "d_out_of_subspace_norm": 0.11125310483576654,
+          "leading_var_fraction": 0.2755639138564855
+        },
+        "global_drift_diagnostic": {
+          "note": "SECONDARY - not H1/H2 evidence (analysis_plan.md \u00a74)",
+          "drift_norm": 25.609115217565844,
+          "drift_orthogonal_fraction": 0.64889814011916
+        },
+        "contrast_norm": {
+          "M2": 14.344882011413574,
+          "M3": 23.888410568237305
+        }
+      }
+    ]
+  }
+}

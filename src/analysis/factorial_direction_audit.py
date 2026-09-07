@@ -64,10 +64,18 @@ def cohens_d(x, y):
     return float((x.mean() - y.mean()) / s) if s > 0 else None
 
 
+# Which prompt-token pooling to read. "final" = the frozen analysis_plan.md
+# sec 4 canonical (_final.npy, last prompt token). "pooled" = the mean of the
+# last 5 tokens (_pooled.npy) - the direction v2_pipeline's causal core
+# actually ablates. Module-level so audit_stage/main share it.
+POOLING = "final"
+
+
 def load_stage(stage):
     meta = json.loads((ACT_DIR / f"{stage}_metadata.json").read_text(
         encoding="utf-8", errors="replace"))
-    arr = np.load(ACT_DIR / f"{stage}_final.npy")
+    suffix = "pooled" if POOLING == "pooled" else "final"
+    arr = np.load(ACT_DIR / f"{stage}_{suffix}.npy")
     return meta, arr
 
 
@@ -174,11 +182,18 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--stages", nargs="+", default=STAGES, choices=STAGES)
     ap.add_argument("--ad-rows", default="est", choices=["est", "all"])
+    ap.add_argument("--pooling", default="final", choices=["final", "pooled"],
+                    help="final = analysis_plan.md sec 4 canonical (_final.npy); "
+                         "pooled = mean of last 5 tokens (_pooled.npy), the "
+                         "direction the causal core ablates.")
     ap.add_argument("--layer", type=int, default=LAYER)
     ap.add_argument("--out", default="results/interpretability/factorial_direction_audit.json")
     args = ap.parse_args()
 
-    report = {"layer": args.layer, "ad_rows": args.ad_rows,
+    global POOLING
+    POOLING = args.pooling
+
+    report = {"layer": args.layer, "ad_rows": args.ad_rows, "pooling": args.pooling,
               "factor_map": {k: {"harmful": v[0], "cue_strong": v[1]}
                              for k, v in FACTORS.items()},
               "per_stage": {}}
