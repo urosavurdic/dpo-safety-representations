@@ -156,11 +156,49 @@ cause (M3-vs-M3_direct also varies the full downstream trajectory).
 
 ## CF3 — orthogonal benchmark-category decodability (H1 test)
 
-macro-F1: M2 = 0.893 → M3 = 0.878. `cf3 = M3 − M2 = −0.016`, bootstrap over
-independent groups CI **[−0.038, +0.005]** (spans 0, point estimate
-slightly negative). n_A=150, n_C=104, 4 categories. **No evidence DPO adds
-linearly-decodable structure orthogonal to the A–D contrast.**
-Source: `interpretability/direction_decodability_cf3.json`.
+**RE-PINNED 2026-09-07 (audit RED-2).** The prior committed
+`direction_decodability_cf3.json` (M2 F1 0.893 → M3 0.878, cf3 −0.016) was
+**not reproducible** — `M2_v2_direction.npy` was never committed and no
+direction/activation combo in the repo reproduced it. Rebuilt on CPU from
+the fresh 654-row `_final.npy` activations via the `stage_direction`
+diff-in-means, both poolings:
+
+| residualization direction | M2 F1 | M3 F1 | cf3 | 95% CI | spans 0? |
+|---|---|---|---|---|---|
+| final-token (frozen plan §4) | 0.886 | 0.890 | **+0.004** | [−0.018, +0.027] | yes |
+| mean-pooled last-5 (causal core) | 0.886 | 0.894 | +0.008 | [−0.013, +0.030] | yes |
+
+layer 28, n=254 (A 150 + C 104), 4 categories, B=10000, seed 20260904.
+**NULL under both** — no evidence DPO adds linearly-decodable structure
+orthogonal to the A–D contrast. Point estimate is essentially zero (very
+slightly positive), NOT "slightly negative" as the old artifact had it.
+Producer: the CPU harness in this session; `interpretability/direction_decodability_cf3.json`.
+
+## Direction pooling — DISCLOSED DEVIATION (audit RED-1)
+
+`analysis_plan.md` §4 fixes the canonical direction on the **final** prompt
+token. `v2_pipeline.stage_direction` / `stage_direction_crossfit` build the
+intervention direction from **`_pooled.npy` = mean of the last 5 tokens**
+(`POOL_WINDOW=5`). Proven: `M3_v2_direction.npy` == `unit(mean(pooled[A_est])
+− mean(pooled[D_est]))` to cos 1.0000 every layer; cos with the final-token
+diff-in-means is only **0.76–0.87 at L24–28** (0.82–0.87 original chain,
+0.76–0.81 alt). **No number changes** — every causal result is a valid
+analysis of the mean-pooled contrast — but the paper's "final-token" label
+was wrong and is corrected throughout; deviations-table row added. Geometry
+(`subspace_geometry.py`) and factorial (`factorial_direction_audit.py`) use
+`_final.npy` → those describe the final-token direction, cos ~0.86 with the
+causal one. `eval_refusal_direction.py`'s adjacent cosines (Finding 1) are
+also `_pooled`-derived.
+
+## McNemar — committed producer added (audit P14)
+
+`mcnemar_direction_specificity.json` had no producer/binding (uncommitted
+Colab bundle). New producer `src/analysis/mcnemar_direction_specificity.py`
+regenerates every cell from the committed raw causal files with the in-repo
+regex classifier, p = two-sided exact binomial on discordant pairs. b/c
+counts **all match the paper**; M3 quad-C p is now **3.7e-9** (exact
+binomial) not the old unattributable 8.9e-7 — still `<10⁻⁶`, no paper
+change. Binding pins raw-file sha256 + classifier commit.
 
 ## Subspace geometry (H1/H2) — MIXED, report all four §4 outcomes
 
