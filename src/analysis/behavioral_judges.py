@@ -532,11 +532,55 @@ def _row_in_scope(rec: dict, scope: str) -> bool:
     return True
 
 
+JUDGE_KEYS = ("strong_reject", "wildguard")
+
+
+def _judge_key(rec: dict) -> tuple:
+    """Identity of a scored response. Includes the RESPONSE TEXT, not just
+    (record_id, stage, condition): a re-run can regenerate the same prompt
+    under the same condition, and attaching an old score to a new response
+    would be a silent mislabel. Different text => re-score."""
+    return (rec.get("record_id"),
+            rec.get("stage"),
+            rec.get("condition") or rec.get("stage"),
+            rec.get("response"))
+
+
+def carry_forward_scores(records: list, previous_records: list) -> dict:
+    """Copy already-good judge scores from ``previous_records`` onto matching
+    rows in ``records``. Per judge, not per row: if StrongREJECT scored a row
+    but WildGuard failed on it, only StrongREJECT is carried and the row still
+    goes to WildGuard.
+
+    Keeps the FIRST previous record for a key, matching the read-side
+    convention everywhere else (the response manifest is a sorted glob, so the
+    frozen confirmatory file precedes its _fullAD / _xfit companions).
+
+    Returns per-judge carried counts.
+    """
+    previous_by_key = {}
+    for rec in previous_records:
+        previous_by_key.setdefault(_judge_key(rec), rec)
+
+    carried = {k: 0 for k in JUDGE_KEYS}
+    for rec in records:
+        prev = previous_by_key.get(_judge_key(rec))
+        if prev is None:
+            continue
+        for key in JUDGE_KEYS:
+            block = prev.get(key) or {}
+            if block.get("judge_status") == "scored" and not block.get("malformed"):
+                rec[key] = dict(block)
+                carried[key] += 1
+    return carried
+
+
 def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
                require_binding=True, reject_legacy=True,
                strongreject_model=DEFAULT_STRONGREJECT_MODEL,
                wildguard_model=DEFAULT_WILDGUARD_MODEL,
-               load_4bit=True, allow_download=False, scope="confirmatory") -> Path:
+               load_4bit=True, allow_download=False, scope="confirmatory",
+               resume_from=None) -> Path:
     """Score every response with regex (always), then - if ``run_live`` - with
     StrongREJECT and WildGuard **one model at a time** (load, score all rows,
     unload) so peak VRAM is one 7B model, which fits a free-tier T4 (and 4-bit
@@ -564,9 +608,27 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
             in_scope.append(rec)
             in_scope_ids.add(id(rec))
         else:
-            for k in ("strong_reject", "wildguard"):
+            for k in JUDGE_KEYS:
                 rec[k]["judge_status"] = "out_of_scope"
-    print(f"  scope={scope!r}: {len(in_scope)}/{len(records)} rows will get model judging")
+    print(f"  scope={scope!r}: {len(in_scope)}/{len(records)} rows are in scope")
+
+    # --resume-from: reuse scores from a previous judged file so a re-run
+    # after a labelling repair pays only for the rows that were never scored.
+    carried = {k: 0 for k in JUDGE_KEYS}
+    if resume_from:
+        prev = load_json(resume_from)
+        prev_records = prev if isinstance(prev, list) else prev.get("records", [])
+        carried = carry_forward_scores(records, prev_records)
+        print(f"  resume: carried {carried} score(s) forward from "
+              f"{Path(resume_from).name} ({len(prev_records)} previous records)")
+
+    todo = {
+        key: [r for r in in_scope
+              if (r.get(key) or {}).get("judge_status") != "scored"]
+        for key in JUDGE_KEYS
+    }
+    for key in JUDGE_KEYS:
+        print(f"  {key}: {len(todo[key])}/{len(in_scope)} in-scope rows still need scoring")
 
     judge_status = {"strong_reject": "not_run", "wildguard": "not_run"}
     if run_live:  # pragma: no cover - needs GPU + weights
@@ -574,19 +636,25 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
             ("strong_reject", strongreject_model, score_strongreject, "strong_reject", "score_1_to_5"),
             ("wildguard", wildguard_model, score_wildguard, "wildguard", "generate"),
         ):
+            pending = todo[key]
+            if not pending:
+                judge_status[key] = "scored"   # everything carried forward
+                print(f"  {name}: nothing to score (all {len(in_scope)} rows "
+                      f"carried forward)")
+                continue
             judge = LazyModelJudge(name, model_id, load_4bit=load_4bit,
                                    allow_download=allow_download, mode=jmode)
             ok = judge.try_load()
             judge_status[key] = "scored" if ok else f"unavailable: {judge.load_error}"
             print(f"  {name}: {judge_status[key]}")
             if ok:
-                for i, rec in enumerate(in_scope):
+                for i, rec in enumerate(pending):
                     scorer(rec, judge)
                     if (i + 1) % 100 == 0:
-                        print(f"    {name}: {i + 1}/{len(in_scope)}")
+                        print(f"    {name}: {i + 1}/{len(pending)}")
                 judge.unload()
             else:
-                for rec in in_scope:
+                for rec in pending:
                     rec[key]["judge_status"] = "model_unavailable"
 
     out_dir = Path(out_dir)
@@ -602,6 +670,8 @@ def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
         "models": {"strong_reject": strongreject_model, "wildguard": wildguard_model,
                    "load_4bit": load_4bit},
         "n_records": len(records),
+        "resumed_from": str(resume_from) if resume_from else None,
+        "carried_forward": carried,
         "live_scoring": bool(run_live),
         "records": records,
     }, indent=2), encoding="utf-8")
@@ -637,6 +707,12 @@ def main():
                         help="Which rows get MODEL judging (regex always scores all). "
                              "confirmatory (default) = CF1 (C @ M2/M3) + CF2 (A @ M3 causal) "
                              "~300 rows ~15 min; all = every response ~15+ h.")
+    parser.add_argument("--resume-from", default=None,
+                        help="A previous behavioral_judges_v2_*.json. Rows whose "
+                             "(record_id, stage, condition, response) already "
+                             "carry a good score for a judge are copied instead of "
+                             "re-scored, per judge. Response text is part of the "
+                             "key, so a regenerated response is always re-scored.")
     parser.add_argument("--benchmark-sha256", default=None)
     parser.add_argument("--split-manifest-sha256", default=None)
     args = parser.parse_args()
@@ -661,6 +737,7 @@ def main():
         require_binding=args.require_binding, reject_legacy=args.reject_legacy,
         strongreject_model=args.strongreject_model, wildguard_model=args.wildguard_model,
         load_4bit=not args.no_4bit, allow_download=args.allow_download, scope=args.scope,
+        resume_from=args.resume_from,
     )
     print(f"wrote {out}")
 
