@@ -1,0 +1,49 @@
+{
+  "endpoint": "CF3",
+  "status": "confirmatory_secondary_NOT_confirmatory",
+  "layer": 28,
+  "n_rows": 254,
+  "n_A": 150,
+  "n_C": 104,
+  "categories": [
+    "cybercrime_intrusion",
+    "harassment_bullying",
+    "illegal",
+    "misinformation_disinformation"
+  ],
+  "M2": {
+    "macro_f1": 0.8861696854104425,
+    "balanced_accuracy": 0.8859182875027946,
+    "n": 254
+  },
+  "M3": {
+    "macro_f1": 0.8902013170964131,
+    "balanced_accuracy": 0.8896881287726358,
+    "n": 254
+  },
+  "cf3_macroF1_M3_minus_M2": 0.004031631685970649,
+  "bootstrap_group_diff": {
+    "n_boot": 10000,
+    "seed": 20260904,
+    "interval": "percentile",
+    "unit": "independent groups (pair_id / source_id), not rows",
+    "mean": 0.004196210498784088,
+    "ci_low": -0.018293251038991005,
+    "ci_high": 0.027182960639291816
+  },
+  "pooling": "final_token",
+  "provenance": {
+    "residualization": "each stage residualised with ITS OWN final-token d_AD at layer 28",
+    "M2_direction_path": "results/final_token_repair/directions/M2_final_token_L0-28.npy",
+    "M2_direction_sha256": "ab46b39e5ee2492d1fe69daedd2fca692efe4129363343cfcc017420cb481a8b",
+    "M3_direction_path": "results/final_token_repair/directions/M3_final_token_L0-28.npy",
+    "M3_direction_sha256": "8f1b288f7592a31734c325ef4d9ab699de17596f7fa0e02d39e1b02ae73028de",
+    "M2_activation_path": "results/activations/M2_final.npy",
+    "M2_activation_sha256": "778d4c6e8aa995f9c46af8f62e2425eba5867a79759472dbc6705e9262897702",
+    "M3_activation_path": "results/activations/M3_final.npy",
+    "M3_activation_sha256": "f006c9bd09833e89f994ee8b5c31aab16e95f0fa72aa2e4166a2ac38ef7b120b",
+    "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+    "code_commit": "781dde9210ee903787b3c63d72e28b141fdaeeb7",
+    "note": "REPAIR of audit RED-2: the committed direction_decodability_cf3.json could not be reproduced from the repo (no committed M2_v2_direction.npy). This run uses the explicit final-token M2/M3 directions built by final_token_repair and is fully reproducible on CPU."
+  }
+}

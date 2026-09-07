@@ -239,6 +239,16 @@ class RunContext:
     gen_batch: int = DEFAULT_GEN_BATCH
     max_new_tokens: int = MAX_NEW_TOKENS
     force: bool = False
+    # Which prompt-token pooling the A-D direction is built from.
+    #   "mean_last5"  = the CURRENT/committed implementation (mean of the last 5
+    #                   non-padding tokens, from *_pooled.npy);
+    #   "final_token" = the preregistered analysis_plan.md 4 choice (final
+    #                   non-padding prompt token, from *_final.npy).
+    # Default preserves existing behaviour byte-for-byte. "final_token" writes to
+    # a separate {stage}_v2_direction_final_token.npy namespace and tags every
+    # causal output "_finaltoken" with "_ft_" condition names, so it can never
+    # collide with or overwrite the pooled results.
+    pooling: str = "mean_last5"
     stage_seconds: list[float] = field(default_factory=list)
 
     @property
@@ -359,6 +369,7 @@ def build_context(args) -> RunContext:
         ),
         max_new_tokens=getattr(args, "max_new_tokens", MAX_NEW_TOKENS),
         force=bool(getattr(args, "force", False)),
+        pooling=getattr(args, "pooling", None) or "mean_last5",
     )
 
 
@@ -815,12 +826,14 @@ def stage_direction(ctx, stage) -> np.ndarray:
     stage-major loop and the intervention components that need it do not
     have to wait for every other stage.
     """
+    pooling = getattr(ctx, "pooling", "mean_last5")
+    suffix = "_final_token" if pooling == "final_token" else ""
     direction_path = (
-        ctx.paths.refusal_direction / f"{stage}_v2_direction.npy"
+        ctx.paths.refusal_direction / f"{stage}_v2_direction{suffix}.npy"
     )
     binding_path = (
         ctx.paths.refusal_direction
-        / f"{stage}_v2_direction_binding.json"
+        / f"{stage}_v2_direction{suffix}_binding.json"
     )
 
     if direction_path.exists() and not ctx.force:
@@ -834,15 +847,18 @@ def stage_direction(ctx, stage) -> np.ndarray:
         except Exception:
             pass
 
-    _, pooled, metadata = load_bound_activation(ctx, stage)
+    final, pooled, metadata = load_bound_activation(ctx, stage)
+    # "final_token" reads the final non-padding prompt token (analysis_plan.md 4);
+    # "mean_last5" keeps the committed behaviour (mean of the last 5 tokens).
+    acts = final if pooling == "final_token" else pooled
 
     quadrants = np.asarray([row.get("quadrant") for row in metadata])
     splits = np.asarray([row.get("split") for row in metadata])
 
-    positive = pooled[
+    positive = acts[
         (quadrants == "A") & (splits == "direction_estimation")
     ]
-    negative = pooled[
+    negative = acts[
         (quadrants == "D") & (splits == "direction_estimation")
     ]
 
@@ -861,17 +877,30 @@ def stage_direction(ctx, stage) -> np.ndarray:
         {
             **ctx.bind(),
             "stage": stage,
+            "pooling": pooling,
+            "pool_window": None if pooling == "final_token" else POOL_WINDOW,
+            "activation_source": (
+                f"{stage}_final.npy" if pooling == "final_token"
+                else f"{stage}_pooled.npy"
+            ),
             "direction_shape": list(direction.shape),
             "construction": (
-                "mean(A_direction_estimation) - "
-                "mean(D_direction_estimation)"
+                "mean(A_direction_estimation) - mean(D_direction_estimation); "
+                "RAW, no centering; normalised per layer after the mean difference"
             ),
             "n_positive": int(len(positive)),
             "n_negative": int(len(negative)),
+            "preregistered": pooling == "final_token",
+            "deviation_note": (
+                None if pooling == "final_token" else
+                "POOLED (mean of last 5 tokens). analysis_plan.md 4 fixes the "
+                "canonical direction on the FINAL prompt token; run with "
+                "--pooling final_token for the preregistered direction."
+            ),
         },
     )
 
-    print(f"  {stage} direction: {direction.shape}")
+    print(f"  {stage} direction ({pooling}): {direction.shape}")
     return direction
 
 
@@ -1150,11 +1179,19 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
     if dir_src != stage:
         tag += f"_dirfrom_{dir_src}"
 
+    # final-token repair (audit RED-1): a distinct file + condition namespace so
+    # a final-token run can never collide with or overwrite the pooled results.
+    pooling = getattr(ctx, "pooling", "mean_last5")
+    cprefix = "ft_" if pooling == "final_token" else ""
+    if pooling == "final_token":
+        tag += "_finaltoken"
+
     output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
     binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
 
     def _full(cond):
-        return f"{stage}_baseline" if cond == "baseline" else f"{stage}_{cond}"
+        return (f"{stage}_{cprefix}baseline" if cond == "baseline"
+                else f"{stage}_{cprefix}{cond}")
 
     requested_full = {_full(c) for c in requested}
 
@@ -1232,6 +1269,9 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
     sidecar = {
         **ctx.bind(),
         "stage": stage,
+        "pooling": pooling,
+        "pool_window": None if pooling == "final_token" else POOL_WINDOW,
+        "direction_source_stage": dir_src,
         "conditions": generated,
         "generated_conditions": generated,
         "requested_conditions": sorted(requested_full),
@@ -1239,6 +1279,7 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
         "layer_indexing": "hidden_states index; hook on decoder block index-1",
         "row_count": len(merged),
         "rows_per_condition": len(rows),
+        "preregistered_direction_pooling": pooling == "final_token",
     }
     if control is not None:
         from src.analysis.control_directions import cosine_per_layer
@@ -1304,7 +1345,9 @@ def stage_direction_crossfit(ctx, stage, exclude_ids, *, fold=None, k=None):
     """
     import numpy as np
 
-    _, pooled, metadata = load_bound_activation(ctx, stage)
+    pooling = getattr(ctx, "pooling", "mean_last5")
+    final, pooled, metadata = load_bound_activation(ctx, stage)
+    acts = final if pooling == "final_token" else pooled
     quadrants = np.asarray([row.get("quadrant") for row in metadata])
     splits = np.asarray([row.get("split") for row in metadata])
     record_ids = np.asarray([row.get("record_id") for row in metadata])
@@ -1322,13 +1365,15 @@ def stage_direction_crossfit(ctx, stage, exclude_ids, *, fold=None, k=None):
             f"direction (A={int(keep_a.sum())}, D={int(keep_d.sum())})."
         )
 
-    delta = pooled[keep_a].mean(axis=0) - pooled[keep_d].mean(axis=0)
+    delta = acts[keep_a].mean(axis=0) - acts[keep_d].mean(axis=0)
     norms = np.linalg.norm(delta, axis=-1, keepdims=True)
     direction = delta / np.where(norms == 0, 1.0, norms)
 
     if fold is not None and k is not None:
+        dsuffix = "_final_token" if pooling == "final_token" else ""
         save_array(
-            ctx.paths.refusal_direction / f"{stage}_v2_direction_xfit{k}_fold{fold}.npy",
+            ctx.paths.refusal_direction
+            / f"{stage}_v2_direction{dsuffix}_xfit{k}_fold{fold}.npy",
             direction,
         )
     return direction, int(keep_a.sum()), int(keep_d.sum())
@@ -1363,12 +1408,16 @@ def stage_causal_crossfit(ctx, stage, model, tokenizer, device, k,
     from src.analysis.intervention_conditions import parse_conditions_arg
 
     requested = parse_conditions_arg(conditions)
-    tag = f"_xfit{k}"
+    pooling = getattr(ctx, "pooling", "mean_last5")
+    # final-token repair: distinct file + condition namespace ({stage}_ft_xfit_*)
+    tag = f"_xfit{k}" + ("_finaltoken" if pooling == "final_token" else "")
+    xinfix = "ft_xfit" if pooling == "final_token" else "xfit"
     output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
     binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
 
     def _full(cond):
-        return f"{stage}_xfit_baseline" if cond == "baseline" else f"{stage}_xfit_{cond}"
+        return (f"{stage}_{xinfix}_baseline" if cond == "baseline"
+                else f"{stage}_{xinfix}_{cond}")
 
     requested_full = {_full(c) for c in requested}
 
@@ -1479,11 +1528,17 @@ def stage_causal_crossfit(ctx, stage, model, tokenizer, device, k,
         **ctx.bind(),
         "stage": stage,
         "analysis": "cross_fitted_causal_ablation",
+        "pooling": pooling,
+        "pool_window": None if pooling == "final_token" else POOL_WINDOW,
         "preregistered": False,
         "deviation_note": (
             "POST HOC (not in analysis_plan.md §§1-7). Bias fix for the "
             "direction_estimation half's self-influence, not a replacement for "
             "the preregistered held-out-30 CF2 anchor."
+            + ("" if pooling != "final_token" else
+               " Direction pooling = final_token (analysis_plan.md 4); separate "
+               "file + {stage}_ft_xfit_* condition names, does not touch the "
+               "pooled xfit5 outputs.")
         ),
         "conditions": sorted(generated),
         "generated_conditions": sorted(generated),
@@ -3086,6 +3141,16 @@ def build_parser() -> argparse.ArgumentParser:
              "conditions named {stage}_xfit_*; the frozen held-out CF2 file and "
              "the _fullAD file are untouched. Report as an 'out-of-fold n=120 "
              "estimate', never 'independent n=120'. K=5 is the default choice.",
+    )
+    causal.add_argument(
+        "--pooling", choices=("mean_last5", "final_token"), default="mean_last5",
+        help="Which prompt-token pooling the A-D direction is built from. "
+             "'mean_last5' (default) = the committed implementation (mean of the "
+             "last 5 non-padding tokens, *_pooled.npy). 'final_token' = the "
+             "preregistered analysis_plan.md 4 choice (final non-padding prompt "
+             "token, *_final.npy); writes a separate "
+             "{stage}_v2_direction_final_token.npy and tags outputs '_finaltoken' "
+             "with '_ft_' condition names so it cannot collide with pooled results.",
     )
     causal.add_argument(
         "--direction-from", default=None, choices=ALL_STAGES,

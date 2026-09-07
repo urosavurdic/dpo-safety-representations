@@ -1,0 +1,308 @@
+{
+  "pooling": "final_token",
+  "k": 5,
+  "code_commit": "781dde9210ee903787b3c63d72e28b141fdaeeb7",
+  "stages": {
+    "M2": {
+      "stage": "M2",
+      "pooling": "final_token",
+      "n_A_direction_estimation": 120,
+      "n_D_direction_estimation": 120,
+      "n_A_held_out": 30,
+      "n_D_held_out": 30,
+      "full_direction_path": "results/final_token_repair/directions/M2_final_token_L0-28.npy",
+      "full_direction_sha256": "ab46b39e5ee2492d1fe69daedd2fca692efe4129363343cfcc017420cb481a8b",
+      "cross_fit_folds": [
+        {
+          "fold": 0,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9972537159919739
+        },
+        {
+          "fold": 1,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9975268840789795
+        },
+        {
+          "fold": 2,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9971356987953186
+        },
+        {
+          "fold": 3,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9950177669525146
+        },
+        {
+          "fold": 4,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9971377849578857
+        }
+      ],
+      "control_summary": {
+        "n_calibration_rows": 240,
+        "gamma_per_layer": {
+          "24": 19.614347264739756,
+          "25": 12.824154851908602,
+          "26": 4.6214826240770135,
+          "27": 19.013785610426993,
+          "28": 4.270751678573981
+        }
+      },
+      "vs_committed_pooled_v2_direction": null
+    },
+    "M3": {
+      "stage": "M3",
+      "pooling": "final_token",
+      "n_A_direction_estimation": 120,
+      "n_D_direction_estimation": 120,
+      "n_A_held_out": 30,
+      "n_D_held_out": 30,
+      "full_direction_path": "results/final_token_repair/directions/M3_final_token_L0-28.npy",
+      "full_direction_sha256": "8f1b288f7592a31734c325ef4d9ab699de17596f7fa0e02d39e1b02ae73028de",
+      "cross_fit_folds": [
+        {
+          "fold": 0,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9979760050773621
+        },
+        {
+          "fold": 1,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.997772753238678
+        },
+        {
+          "fold": 2,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9976173639297485
+        },
+        {
+          "fold": 3,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9960860013961792
+        },
+        {
+          "fold": 4,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9974842071533203
+        }
+      ],
+      "control_summary": {
+        "n_calibration_rows": 240,
+        "gamma_per_layer": {
+          "24": 15.273628472551692,
+          "25": 12.754062405768416,
+          "26": 5.132595165548666,
+          "27": 16.206126124860916,
+          "28": 4.575914018870959
+        }
+      },
+      "vs_committed_pooled_v2_direction": {
+        "pooled_v2_path": "results/refusal_direction/M3_v2_direction.npy",
+        "pooled_v2_sha256": "2126e68616c25ba41251cf02285ab86cfe8a3e47affa9b0081a5c2885579375f",
+        "cos_final_token_vs_pooled_v2_per_layer": [
+          0.0,
+          0.44919416308403015,
+          0.5301721096038818,
+          0.5648711323738098,
+          0.6016262769699097,
+          0.5826544761657715,
+          0.6272181272506714,
+          0.5663391351699829,
+          0.5464045405387878,
+          0.645190954208374,
+          0.640006422996521,
+          0.7100924253463745,
+          0.706037700176239,
+          0.7125403881072998,
+          0.7409623265266418,
+          0.739260196685791,
+          0.8004835844039917,
+          0.8380067348480225,
+          0.8548807501792908,
+          0.8802440762519836,
+          0.8751315474510193,
+          0.876082181930542,
+          0.897111177444458,
+          0.8802343010902405,
+          0.8674150705337524,
+          0.8540367484092712,
+          0.8284814357757568,
+          0.816530704498291,
+          0.8581093549728394
+        ]
+      }
+    },
+    "M2_alt": {
+      "stage": "M2_alt",
+      "pooling": "final_token",
+      "n_A_direction_estimation": 120,
+      "n_D_direction_estimation": 120,
+      "n_A_held_out": 30,
+      "n_D_held_out": 30,
+      "full_direction_path": "results/final_token_repair/directions/M2_alt_final_token_L0-28.npy",
+      "full_direction_sha256": "6e3030418852877964189a1dea47d602d3f751328ad8d72b11a13b37b0a3272e",
+      "cross_fit_folds": [
+        {
+          "fold": 0,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9974245429039001
+        },
+        {
+          "fold": 1,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9977580904960632
+        },
+        {
+          "fold": 2,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9970912933349609
+        },
+        {
+          "fold": 3,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9953692555427551
+        },
+        {
+          "fold": 4,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9973151087760925
+        }
+      ],
+      "control_summary": {
+        "n_calibration_rows": 240,
+        "gamma_per_layer": {
+          "24": 18.076497770650484,
+          "25": 10.675030054475435,
+          "26": 4.1517575489487335,
+          "27": 19.75079442022641,
+          "28": 4.502105352878253
+        }
+      },
+      "vs_committed_pooled_v2_direction": null
+    },
+    "M3_alt": {
+      "stage": "M3_alt",
+      "pooling": "final_token",
+      "n_A_direction_estimation": 120,
+      "n_D_direction_estimation": 120,
+      "n_A_held_out": 30,
+      "n_D_held_out": 30,
+      "full_direction_path": "results/final_token_repair/directions/M3_alt_final_token_L0-28.npy",
+      "full_direction_sha256": "3b185a6caadd8bbaface29c30b513f58d4583727e0e1b78f54fe3e417c844f6c",
+      "cross_fit_folds": [
+        {
+          "fold": 0,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9978844523429871
+        },
+        {
+          "fold": 1,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9978668689727783
+        },
+        {
+          "fold": 2,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.997489869594574
+        },
+        {
+          "fold": 3,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9962500929832458
+        },
+        {
+          "fold": 4,
+          "n_test_rows": 24,
+          "n_A": 96,
+          "n_D": 120,
+          "cos_with_full_direction_at_L24": 0.9976024627685547
+        }
+      ],
+      "control_summary": {
+        "n_calibration_rows": 240,
+        "gamma_per_layer": {
+          "24": 12.550953601819327,
+          "25": 10.967921588910782,
+          "26": 4.8558590577663905,
+          "27": 15.220764426310746,
+          "28": 4.625021797616473
+        }
+      },
+      "vs_committed_pooled_v2_direction": {
+        "pooled_v2_path": "results/refusal_direction/M3_alt_v2_direction.npy",
+        "pooled_v2_sha256": "829b76f428fc700ff242b37989c68e1ba7cbeede9893eb8a6be0bb9efdc9ccf3",
+        "cos_final_token_vs_pooled_v2_per_layer": [
+          0.0,
+          0.46667855978012085,
+          0.540497362613678,
+          0.5625743269920349,
+          0.6034602522850037,
+          0.5770570635795593,
+          0.6281552314758301,
+          0.6279155611991882,
+          0.6224828362464905,
+          0.6870928406715393,
+          0.6820265054702759,
+          0.7352320551872253,
+          0.7206721901893616,
+          0.7015615701675415,
+          0.7127165794372559,
+          0.7035737633705139,
+          0.7660257816314697,
+          0.8025357127189636,
+          0.834321141242981,
+          0.8632389307022095,
+          0.8407166004180908,
+          0.8190129995346069,
+          0.8411925435066223,
+          0.826255202293396,
+          0.8112257122993469,
+          0.8037897348403931,
+          0.7681506872177124,
+          0.7637991905212402,
+          0.7550032138824463
+        ]
+      }
+    }
+  },
+  "skipped": {}
+}
