@@ -700,8 +700,16 @@ def main():
     print(f"status: {report['status']}")
     if report.get("status") == "ok":
         cf1 = report["CF1"]
-        print(f"CF1  Delta_C = {cf1['delta_c']:+.4f}  95% CI [{cf1['ci_low']:+.4f}, "
-              f"{cf1['ci_high']:+.4f}]  (n={cf1['n_effective_pairs']} pairs)")
+        if cf1.get("delta_c") is None:
+            # e.g. a --condition-infix ft_ run: the judged file holds only the
+            # final-token causal rows, no behavioural quadrant-C -> CF1 is not
+            # (re)computed here (it is unaffected by the direction pooling and is
+            # preserved from the pooled run).
+            print(f"CF1  not in this judged file (n={cf1.get('n_effective_pairs', 0)} "
+                  f"pairs) - preserved from the pooled run")
+        else:
+            print(f"CF1  Delta_C = {cf1['delta_c']:+.4f}  95% CI [{cf1['ci_low']:+.4f}, "
+                  f"{cf1['ci_high']:+.4f}]  (n={cf1['n_effective_pairs']} pairs)")
         for stage, block in report["CF2_by_stage"].items():
             cf2 = block["primary"]
             label = "CF2" if block["confirmatory"] else f"secondary causal ({stage})"
