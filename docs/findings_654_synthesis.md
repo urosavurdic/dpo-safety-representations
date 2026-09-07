@@ -221,6 +221,18 @@ one) the geometry leans harder toward amplification — norm grows more, PR
 and effective rank *contract* M2->M3 rather than staying flat / rising. §4
 and §9 of the paper now report both.
 
+**Final-token vs mean-pooled — decision doc: `docs/finaltoken_decision.md`.**
+Final-token is the field-standard + preregistered choice. Already final-token
+(no rerun): z_C trajectory / Fig 1 (`projection_trajectory.py` loads
+`_final.npy`; committed M3 z_C@L24 0.897 reproduces), factorial, geometry,
+source. Pooling-invariant: CF1 (behavioral, no direction). Mean-pooled and
+matters: CF2 / cross-fit / 2×2 / circularity / quad-C McNemar → GPU run
+`notebooks/10_finaltoken_causal.ipynb` (SCOPE `m3_anchor` ~1h for the anchor,
+`full` ~4-5h). Mean-pooled and minor (disclosed, no rerun): Finding-1
+adjacent cosines (committed 0.930 M2→M3 layer-mean; **final-token 0.947 /
+0.928** for the two chains, CPU-computed from `_final.npy`), base Cohen's
+d=4.19.
+
 
 ## McNemar — committed producer added (audit P14)
 
