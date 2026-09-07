@@ -1,0 +1,18 @@
+{
+  "produced_by": "src/analysis/mcnemar_direction_specificity.py",
+  "producer_commit": "uncommitted",
+  "classifier_module": "src/analysis/eval_refusal_classifier.py",
+  "classifier_commit": "68b15124e2092f7c12293a4d5303ce76da47747b",
+  "summarize_module_commit": "37c22f4fa0d8a1098017f5518cdeb0b7ad4cf5dd",
+  "raw_files_sha256": {
+    "causal_ablation_v2_M3_L24-28.json": "0f0f53d0459dc9e857313d84fc8a65dd5035b9a04bbdba4cb01ae42f57b106f8",
+    "causal_ablation_v2_M3_L24-28_fullAD.json": "6808373ae1017430e5f023a30499082551c41e8fd092c265c9adaba8aeef3d75",
+    "causal_ablation_v2_M3_alt_L24-28.json": "edf719062f720de775b9e8e62152442a2618c964d300729457ebd8ee9f3a14e5",
+    "causal_ablation_v2_M3_alt_L24-28_fullAD.json": "4368577b18507ed67b62e0a4ebbac2c4f538fbf5beaeb79350520532ab1acdd0",
+    "causal_ablation_v2_M3_direct_L24-28.json": "dc34220d43cbe968679acab67e7409549dd1005766ea87bbe7e3db6fd22469ec",
+    "causal_ablation_v2_M3_direct_L24-28_fullAD.json": "1e2921ed6bbf0c77ae69b3e059eab352623519c99ccab2abe2b6577707f39ac7",
+    "causal_ablation_v2_M3_direct_alt_L24-28.json": "ecf3f3b01a2e60cb664e740629f562f1c07fbc25c3984e1fd45c2039cee72706",
+    "causal_ablation_v2_M3_direct_alt_L24-28_fullAD.json": "9eb0f8483f83434cdf995365c3a02d07f7f91c88576eef1ad20ca1e26696b162"
+  },
+  "test_variant": "scipy.stats.binomtest(min(b,c), b+c, 0.5, 'two-sided')"
+}

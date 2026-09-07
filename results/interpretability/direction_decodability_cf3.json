@@ -1,34 +1,46 @@
 {
   "endpoint": "CF3",
-  "status": "confirmatory_secondary_NOT_confirmatory",
   "layer": 28,
-  "n_rows": 254,
-  "n_A": 150,
-  "n_C": 104,
-  "categories": [
-    "cybercrime_intrusion",
-    "harassment_bullying",
-    "illegal",
-    "misinformation_disinformation"
-  ],
-  "M2": {
-    "macro_f1": 0.8933305031682314,
-    "balanced_accuracy": 0.8925637156270959,
-    "n": 254
+  "provenance": {
+    "note": "RE-PIN (audit RED-2). The committed direction_decodability_cf3.json (M2 F1 0.8933, cf3 -0.0156) did not reproduce - M2_v2_direction.npy was never committed. This rebuilds M2/M3 A-D directions on CPU from the fresh 654-row activations via the stage_direction diff-in-means, and reports CF3 residualising against BOTH the final-token direction (frozen analysis_plan sec 4) and the mean-pooled (last-5) direction the causal core ablates.",
+    "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+    "M2_final_sha256": "778d4c6e8aa995f9",
+    "M3_final_sha256": "f006c9bd09833e89"
   },
-  "M3": {
-    "macro_f1": 0.8777761578385341,
-    "balanced_accuracy": 0.8767410015649453,
-    "n": 254
-  },
-  "cf3_macroF1_M3_minus_M2": -0.015554345329697239,
-  "bootstrap_group_diff": {
-    "n_boot": 10000,
-    "seed": 20260904,
-    "interval": "percentile",
-    "unit": "independent groups (pair_id / source_id), not rows",
-    "mean": -0.015460307835184475,
-    "ci_low": -0.03780474489458424,
-    "ci_high": 0.004741040813336392
+  "variants": {
+    "final_token_direction": {
+      "residualization_direction": "final-token diff-in-means, per layer",
+      "M2_macro_f1": 0.8861696854104425,
+      "M3_macro_f1": 0.8902013170964131,
+      "cf3": 0.004031631685970649,
+      "ci_low": -0.018293251038991005,
+      "ci_high": 0.027182960639291816,
+      "ci_mean": 0.004196210498784088,
+      "n_rows": 254,
+      "categories": [
+        "cybercrime_intrusion",
+        "harassment_bullying",
+        "illegal",
+        "misinformation_disinformation"
+      ],
+      "spans_zero": true
+    },
+    "pooled_token_direction": {
+      "residualization_direction": "pooled-token diff-in-means, per layer",
+      "M2_macro_f1": 0.8861696854104425,
+      "M3_macro_f1": 0.8940635071019337,
+      "cf3": 0.00789382169149122,
+      "ci_low": -0.012632516067143423,
+      "ci_high": 0.02993674868871749,
+      "ci_mean": 0.008082267539448091,
+      "n_rows": 254,
+      "categories": [
+        "cybercrime_intrusion",
+        "harassment_bullying",
+        "illegal",
+        "misinformation_disinformation"
+      ],
+      "spans_zero": true
+    }
   }
 }
