@@ -1,0 +1,56 @@
+{
+  "kind": "consolidated_response_manifest",
+  "pooling": "final_token",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "entries": [
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28_fullAD_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_fullAD_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_L24-28_xfit5_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_L24-28_xfit5_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_fullAD_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_fullAD_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_xfit5_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_alt_L24-28_xfit5_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_fullAD_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_fullAD_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_xfit5_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_L24-28_xfit5_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_fullAD_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_fullAD_finaltoken_binding.json"
+    },
+    {
+      "response_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_xfit5_finaltoken.json",
+      "binding_file": "results/raw/causal_ablation_v2_M3_direct_alt_L24-28_xfit5_finaltoken_binding.json"
+    }
+  ]
+}

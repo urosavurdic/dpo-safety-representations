@@ -1,0 +1,37 @@
+{
+  "analysis": "final_token_repair::full_direction",
+  "stage": "M3_direct_alt",
+  "pooling": "final_token",
+  "pool_window": null,
+  "direction_construction": "unit(mean(final[A_direction_estimation]) - mean(final[D_direction_estimation])); RAW, no centering; normalised per layer AFTER the mean difference",
+  "activation_source_path": "results/activations/M3_direct_alt_final.npy",
+  "activation_source_sha256": "5e4427538d3a5a4bc1ceef172038812db41de3c621ccae53c3a931c56b42ae1b",
+  "direction_path": "results/final_token_repair/directions/M3_direct_alt_final_token_L0-28.npy",
+  "direction_sha256": "44f39252e3737deb8629101812ba1cfb785d7525746210dd6db5b83949f5b8b6",
+  "direction_shape": [
+    29,
+    1536
+  ],
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "direction_split_seed": 45,
+  "cross_fit_seed": null,
+  "cross_fit_k": null,
+  "cross_fit_fold": null,
+  "split_name": "direction_estimation",
+  "n_A_rows": 120,
+  "n_D_rows": 120,
+  "layers": [
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "coefficient": null,
+  "control_seed": 20260904,
+  "model_checkpoint_hint": "urosavurdic/qwen2.5-1.5b-m3-direct-alt-dpo",
+  "code_commit": "983caac322efd26cc3f235eca5bb85cbf008dad0",
+  "preregistered": true,
+  "deviation_note": "REPAIR of audit RED-1: the committed v2 pipeline built this direction from _pooled (mean of last 5 tokens). analysis_plan.md 4 fixes the canonical direction on _final (final prompt token). This artifact is the preregistered final-token direction; it does NOT overwrite results/refusal_direction/{stage}_v2_direction.npy (the pooled one, kept for the disclosed deviation)."
+}
