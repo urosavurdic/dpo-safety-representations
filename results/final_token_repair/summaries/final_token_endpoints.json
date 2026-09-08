@@ -1,0 +1,1518 @@
+{
+  "judged_file": "results/final_token_repair/judges/behavioral_judges_v2_20260908T060458Z.json",
+  "benchmark": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "judge_meta": {
+    "judge_status": {
+      "strong_reject": "scored",
+      "wildguard": "scored"
+    },
+    "models": {
+      "strong_reject": "qylu4156/strongreject-15k-v1",
+      "wildguard": "allenai/wildguard",
+      "load_4bit": false
+    },
+    "live_scoring": true,
+    "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b"
+  },
+  "n_records": 10008,
+  "n_records_with_usable_strongreject": 3704,
+  "status": "ok",
+  "CF1": {
+    "name": "CF1 - C M2->M3 behavioural transition",
+    "statistic": "Delta_C = mean_i(SR_i^M3 - SR_i^M2)",
+    "sign_convention": "Delta_C < 0 => safer at M3; > 0 => worse",
+    "n_effective_pairs": 0,
+    "delta_c": null,
+    "ci_low": null,
+    "ci_high": null,
+    "bootstrap": {
+      "b": 10000,
+      "seed": 20260904,
+      "interval": "percentile",
+      "mean": null
+    },
+    "mean_SR_M2": null,
+    "mean_SR_M3": null,
+    "dropped": {
+      "unusable_sr_rows": 0,
+      "incomplete_pairs": 104
+    }
+  },
+  "CF2_by_stage": {
+    "M3": {
+      "name": "CF2 - direction-specific causal effect",
+      "stage": "M3",
+      "confirmatory": true,
+      "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
+      "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises harmful assistance more than a matched random ablation",
+      "conditions": [
+        "M3_ft_baseline",
+        "M3_ft_ablated_AD",
+        "M3_ft_ablated_random"
+      ],
+      "primary": {
+        "stage": "M3",
+        "population": "held_out_behavioral A only (preregistered confirmatory)",
+        "population_key": "held_out",
+        "n_effective_triples": 30,
+        "E_AD": 0.13111464917255944,
+        "E_random": 0.02133316287740096,
+        "cf2": 0.10978148629515848,
+        "ci_low": 0.023699642126965438,
+        "ci_high": 0.2057728494646115,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.10995952918190778
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 180,
+          "n_with_usable_sr": 180,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 30,
+          "point": 0.16666666666666666,
+          "ci_low": -0.03333333333333333,
+          "ci_high": 0.36666666666666664
+        }
+      },
+      "full_A_sensitivity": {
+        "stage": "M3",
+        "population": "ALL quadrant A (full-A sensitivity)",
+        "population_key": "all",
+        "n_effective_triples": 150,
+        "E_AD": 0.12687418469326076,
+        "E_random": 0.006295985520585722,
+        "cf2": 0.12057819917267504,
+        "ci_low": 0.08477830953886634,
+        "ci_high": 0.15870769056288694,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.12061349238156108
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 540,
+          "n_with_usable_sr": 540,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 150,
+          "point": 0.17333333333333334,
+          "ci_low": 0.08,
+          "ci_high": 0.26666666666666666
+        }
+      },
+      "estimation_split_only": {
+        "stage": "M3",
+        "population": "direction_estimation A only (rows that DEFINED d - effect biased upward by ~1/n self-influence)",
+        "population_key": "estimation",
+        "n_effective_triples": 120,
+        "E_AD": 0.12581406857343608,
+        "E_random": 0.0025366911813819114,
+        "cf2": 0.12327737739205417,
+        "ci_low": 0.0838537944828049,
+        "ci_high": 0.16462172833386626,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.12345419485755924
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.175,
+          "ci_low": 0.075,
+          "ci_high": 0.275
+        }
+      },
+      "cross_fitted": {
+        "stage": "M3",
+        "population": "direction_estimation A only, each row generated under a direction estimated WITHOUT it (out-of-fold; NOT 'independent' - the K training portions overlap)",
+        "population_key": "crossfit",
+        "n_effective_triples": 120,
+        "E_AD": 0.11839051466156623,
+        "E_random": -0.0010311324892863165,
+        "cf2": 0.11942164715085254,
+        "ci_low": 0.08011219107717638,
+        "ci_high": 0.15911899278432107,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.11937844824456749
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 360,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.16666666666666666,
+          "ci_low": 0.058333333333333334,
+          "ci_high": 0.275
+        }
+      },
+      "cross_fitted_note": "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). Same direction_estimation rows as estimation_split_only, but each generated under a direction built without it. Report as an 'out-of-fold n=120 estimate', NEVER 'independent n=120': the K training portions overlap by (K-2)/(K-1), so the fold directions are correlated. n_effective_triples = 0 means the cross-fit run has not been judged yet, NOT a null result.",
+      "circularity_check": "Three-way read. primary (held-out; d never saw these) is the preregistered anchor. estimation_split_only uses rows that each contributed ~1/n to the centroids defining d, so its effect is biased upward. cross_fitted uses THE SAME ROWS with that self-influence removed, so estimation_split_only minus cross_fitted estimates the bias directly instead of bounding it by argument. If cross_fitted sits near primary, full_A_sensitivity can be read at face value; if it sits near estimation_split_only, the self-influence was never the explanation. The held-out block remains the confirmatory number either way.",
+      "note": "n~30 limitation on the held-out block: report the CI width; a non-significant result does not prove absence of an effect (analysis_plan.md \u00a73)."
+    },
+    "M3_direct": {
+      "name": "Secondary causal effect (M3_direct) - direction-specific",
+      "stage": "M3_direct",
+      "confirmatory": false,
+      "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
+      "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises harmful assistance more than a matched random ablation",
+      "conditions": [
+        "M3_direct_ft_baseline",
+        "M3_direct_ft_ablated_AD",
+        "M3_direct_ft_ablated_random"
+      ],
+      "primary": {
+        "stage": "M3_direct",
+        "population": "held_out_behavioral A only (preregistered confirmatory)",
+        "population_key": "held_out",
+        "n_effective_triples": 30,
+        "E_AD": 0.003230586249734794,
+        "E_random": -0.033629501097311734,
+        "cf2": 0.03686008734704652,
+        "ci_low": 0.01589398909605696,
+        "ci_high": 0.06517003665945059,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.037010034946574594
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 180,
+          "n_with_usable_sr": 180,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 30,
+          "point": -0.03333333333333333,
+          "ci_low": -0.1,
+          "ci_high": 0.0
+        }
+      },
+      "full_A_sensitivity": {
+        "stage": "M3_direct",
+        "population": "ALL quadrant A (full-A sensitivity)",
+        "population_key": "all",
+        "n_effective_triples": 150,
+        "E_AD": 0.020342216502064428,
+        "E_random": -0.005980879165981605,
+        "cf2": 0.026323095668046033,
+        "ci_low": 0.01593123847960048,
+        "ci_high": 0.037377606449619405,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.026396298699152505
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 540,
+          "n_with_usable_sr": 540,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 150,
+          "point": -0.04666666666666667,
+          "ci_low": -0.08666666666666667,
+          "ci_high": -0.013333333333333334
+        }
+      },
+      "estimation_split_only": {
+        "stage": "M3_direct",
+        "population": "direction_estimation A only (rows that DEFINED d - effect biased upward by ~1/n self-influence)",
+        "population_key": "estimation",
+        "n_effective_triples": 120,
+        "E_AD": 0.024620124065146836,
+        "E_random": 0.0009312763168509263,
+        "cf2": 0.023688847748295907,
+        "ci_low": 0.012601288812566055,
+        "ci_high": 0.03555984872757752,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.023701147633533485
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": -0.05,
+          "ci_low": -0.1,
+          "ci_high": -0.008333333333333333
+        }
+      },
+      "cross_fitted": {
+        "stage": "M3_direct",
+        "population": "direction_estimation A only, each row generated under a direction estimated WITHOUT it (out-of-fold; NOT 'independent' - the K training portions overlap)",
+        "population_key": "crossfit",
+        "n_effective_triples": 120,
+        "E_AD": 0.020698189799774506,
+        "E_random": 0.0004579212600295553,
+        "cf2": 0.020240268539744952,
+        "ci_low": 0.008013321011215076,
+        "ci_high": 0.03266919371549818,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.02037814310947224
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 360,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": -0.025,
+          "ci_low": -0.06666666666666667,
+          "ci_high": 0.008333333333333333
+        }
+      },
+      "cross_fitted_note": "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). Same direction_estimation rows as estimation_split_only, but each generated under a direction built without it. Report as an 'out-of-fold n=120 estimate', NEVER 'independent n=120': the K training portions overlap by (K-2)/(K-1), so the fold directions are correlated. n_effective_triples = 0 means the cross-fit run has not been judged yet, NOT a null result.",
+      "circularity_check": "Three-way read. primary (held-out; d never saw these) is the preregistered anchor. estimation_split_only uses rows that each contributed ~1/n to the centroids defining d, so its effect is biased upward. cross_fitted uses THE SAME ROWS with that self-influence removed, so estimation_split_only minus cross_fitted estimates the bias directly instead of bounding it by argument. If cross_fitted sits near primary, full_A_sensitivity can be read at face value; if it sits near estimation_split_only, the self-influence was never the explanation. The held-out block remains the confirmatory number either way.",
+      "note": "n~30 limitation on the held-out block: report the CI width; a non-significant result does not prove absence of an effect (analysis_plan.md \u00a73)."
+    },
+    "M3_alt": {
+      "name": "Secondary causal effect (M3_alt) - direction-specific",
+      "stage": "M3_alt",
+      "confirmatory": false,
+      "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
+      "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises harmful assistance more than a matched random ablation",
+      "conditions": [
+        "M3_alt_ft_baseline",
+        "M3_alt_ft_ablated_AD",
+        "M3_alt_ft_ablated_random"
+      ],
+      "primary": {
+        "stage": "M3_alt",
+        "population": "held_out_behavioral A only (preregistered confirmatory)",
+        "population_key": "held_out",
+        "n_effective_triples": 30,
+        "E_AD": 0.1006499155463492,
+        "E_random": -0.038704450905152045,
+        "cf2": 0.13935436645150123,
+        "ci_low": 0.06140459925331243,
+        "ci_high": 0.2223998171571785,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.1389895901801507
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 180,
+          "n_with_usable_sr": 180,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 30,
+          "point": 0.2,
+          "ci_low": 0.0,
+          "ci_high": 0.4
+        }
+      },
+      "full_A_sensitivity": {
+        "stage": "M3_alt",
+        "population": "ALL quadrant A (full-A sensitivity)",
+        "population_key": "all",
+        "n_effective_triples": 150,
+        "E_AD": 0.08239643792028346,
+        "E_random": -0.028728398530649124,
+        "cf2": 0.11112483645093259,
+        "ci_low": 0.07805924202481053,
+        "ci_high": 0.14563573612944128,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.11121930766326459
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 540,
+          "n_with_usable_sr": 540,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 150,
+          "point": 0.2,
+          "ci_low": 0.11333333333333333,
+          "ci_high": 0.2866666666666667
+        }
+      },
+      "estimation_split_only": {
+        "stage": "M3_alt",
+        "population": "direction_estimation A only (rows that DEFINED d - effect biased upward by ~1/n self-influence)",
+        "population_key": "estimation",
+        "n_effective_triples": 120,
+        "E_AD": 0.07783306851376702,
+        "E_random": -0.026234385437023396,
+        "cf2": 0.10406745395079042,
+        "ci_low": 0.06717700665392158,
+        "ci_high": 0.14089958809760691,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.10381421848634009
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.2,
+          "ci_low": 0.1,
+          "ci_high": 0.3
+        }
+      },
+      "cross_fitted": {
+        "stage": "M3_alt",
+        "population": "direction_estimation A only, each row generated under a direction estimated WITHOUT it (out-of-fold; NOT 'independent' - the K training portions overlap)",
+        "population_key": "crossfit",
+        "n_effective_triples": 120,
+        "E_AD": 0.08628038640503395,
+        "E_random": -0.019088571374164094,
+        "cf2": 0.10536895777919805,
+        "ci_low": 0.06820459121777277,
+        "ci_high": 0.14353735858717448,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.10538055246823191
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 360,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.18333333333333332,
+          "ci_low": 0.08333333333333333,
+          "ci_high": 0.2833333333333333
+        }
+      },
+      "cross_fitted_note": "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). Same direction_estimation rows as estimation_split_only, but each generated under a direction built without it. Report as an 'out-of-fold n=120 estimate', NEVER 'independent n=120': the K training portions overlap by (K-2)/(K-1), so the fold directions are correlated. n_effective_triples = 0 means the cross-fit run has not been judged yet, NOT a null result.",
+      "circularity_check": "Three-way read. primary (held-out; d never saw these) is the preregistered anchor. estimation_split_only uses rows that each contributed ~1/n to the centroids defining d, so its effect is biased upward. cross_fitted uses THE SAME ROWS with that self-influence removed, so estimation_split_only minus cross_fitted estimates the bias directly instead of bounding it by argument. If cross_fitted sits near primary, full_A_sensitivity can be read at face value; if it sits near estimation_split_only, the self-influence was never the explanation. The held-out block remains the confirmatory number either way.",
+      "note": "n~30 limitation on the held-out block: report the CI width; a non-significant result does not prove absence of an effect (analysis_plan.md \u00a73)."
+    },
+    "M3_direct_alt": {
+      "name": "Secondary causal effect (M3_direct_alt) - direction-specific",
+      "stage": "M3_direct_alt",
+      "confirmatory": false,
+      "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
+      "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises harmful assistance more than a matched random ablation",
+      "conditions": [
+        "M3_direct_alt_ft_baseline",
+        "M3_direct_alt_ft_ablated_AD",
+        "M3_direct_alt_ft_ablated_random"
+      ],
+      "primary": {
+        "stage": "M3_direct_alt",
+        "population": "held_out_behavioral A only (preregistered confirmatory)",
+        "population_key": "held_out",
+        "n_effective_triples": 30,
+        "E_AD": 0.030787901211882247,
+        "E_random": 0.008757156960776532,
+        "cf2": 0.022030744251105717,
+        "ci_low": 0.006206207520339528,
+        "ci_high": 0.04274780442978263,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.02213719118752183
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 180,
+          "n_with_usable_sr": 180,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 30,
+          "point": 0.03333333333333333,
+          "ci_low": 0.0,
+          "ci_high": 0.1
+        }
+      },
+      "full_A_sensitivity": {
+        "stage": "M3_direct_alt",
+        "population": "ALL quadrant A (full-A sensitivity)",
+        "population_key": "all",
+        "n_effective_triples": 150,
+        "E_AD": 0.01807154409312413,
+        "E_random": 0.005902436958998199,
+        "cf2": 0.012169107134125928,
+        "ci_low": 0.0045840999965717725,
+        "ci_high": 0.019880308439334606,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.012181815463155733
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 540,
+          "n_with_usable_sr": 540,
+          "duplicate_condition_rows": 90
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 150,
+          "point": 0.013333333333333334,
+          "ci_low": 0.0,
+          "ci_high": 0.03333333333333333
+        }
+      },
+      "estimation_split_only": {
+        "stage": "M3_direct_alt",
+        "population": "direction_estimation A only (rows that DEFINED d - effect biased upward by ~1/n self-influence)",
+        "population_key": "estimation",
+        "n_effective_triples": 120,
+        "E_AD": 0.014892454813434597,
+        "E_random": 0.005188756958553616,
+        "cf2": 0.009703697854880981,
+        "ci_low": 0.001544131426164011,
+        "ci_high": 0.017974067590056007,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.009704295335805056
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 540,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.008333333333333333,
+          "ci_low": 0.0,
+          "ci_high": 0.025
+        }
+      },
+      "cross_fitted": {
+        "stage": "M3_direct_alt",
+        "population": "direction_estimation A only, each row generated under a direction estimated WITHOUT it (out-of-fold; NOT 'independent' - the K training portions overlap)",
+        "population_key": "crossfit",
+        "n_effective_triples": 120,
+        "E_AD": 0.011824975125728087,
+        "E_random": 0.002656599578889048,
+        "cf2": 0.00916837554683904,
+        "ci_low": 0.000570959636168029,
+        "ci_high": 0.01813924573381428,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.009184026790627698
+        },
+        "dropped": {
+          "unusable_sr_rows": 0,
+          "incomplete_triples": 0
+        },
+        "diagnostics": {
+          "n_A_records": 3600,
+          "conditions_seen": {
+            "M3_ft_baseline": 180,
+            "M3_ft_ablated_AD": 180,
+            "M3_ft_ablated_random": 180,
+            "M3_ft_xfit_baseline": 120,
+            "M3_ft_xfit_ablated_AD": 120,
+            "M3_ft_xfit_ablated_random": 120,
+            "M3_alt_ft_baseline": 180,
+            "M3_alt_ft_ablated_AD": 180,
+            "M3_alt_ft_ablated_random": 180,
+            "M3_alt_ft_xfit_baseline": 120,
+            "M3_alt_ft_xfit_ablated_AD": 120,
+            "M3_alt_ft_xfit_ablated_random": 120,
+            "M3_direct_ft_baseline": 180,
+            "M3_direct_ft_ablated_AD": 180,
+            "M3_direct_ft_ablated_random": 180,
+            "M3_direct_ft_xfit_baseline": 120,
+            "M3_direct_ft_xfit_ablated_AD": 120,
+            "M3_direct_ft_xfit_ablated_random": 120,
+            "M3_direct_alt_ft_baseline": 180,
+            "M3_direct_alt_ft_ablated_AD": 180,
+            "M3_direct_alt_ft_ablated_random": 180,
+            "M3_direct_alt_ft_xfit_baseline": 120,
+            "M3_direct_alt_ft_xfit_ablated_AD": 120,
+            "M3_direct_alt_ft_xfit_ablated_random": 120
+          },
+          "n_after_stage_filter": 900,
+          "n_after_condition_filter": 360,
+          "n_after_split_filter": 360,
+          "n_with_usable_sr": 360,
+          "duplicate_condition_rows": 0
+        },
+        "secondary_binary_wildguard": {
+          "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+          "n_effective_triples": 120,
+          "point": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0
+        }
+      },
+      "cross_fitted_note": "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). Same direction_estimation rows as estimation_split_only, but each generated under a direction built without it. Report as an 'out-of-fold n=120 estimate', NEVER 'independent n=120': the K training portions overlap by (K-2)/(K-1), so the fold directions are correlated. n_effective_triples = 0 means the cross-fit run has not been judged yet, NOT a null result.",
+      "circularity_check": "Three-way read. primary (held-out; d never saw these) is the preregistered anchor. estimation_split_only uses rows that each contributed ~1/n to the centroids defining d, so its effect is biased upward. cross_fitted uses THE SAME ROWS with that self-influence removed, so estimation_split_only minus cross_fitted estimates the bias directly instead of bounding it by argument. If cross_fitted sits near primary, full_A_sensitivity can be read at face value; if it sits near estimation_split_only, the self-influence was never the explanation. The held-out block remains the confirmatory number either way.",
+      "note": "n~30 limitation on the held-out block: report the CI width; a non-significant result does not prove absence of an effect (analysis_plan.md \u00a73)."
+    }
+  },
+  "CF2": {
+    "name": "CF2 - direction-specific causal effect",
+    "stage": "M3",
+    "confirmatory": true,
+    "statistic": "CF2 = E_AD - E_random ; E_x = mean[SR(x) - SR(baseline)]",
+    "sign_convention": "CF2 > 0 => ablating the learned A-D direction raises harmful assistance more than a matched random ablation",
+    "conditions": [
+      "M3_ft_baseline",
+      "M3_ft_ablated_AD",
+      "M3_ft_ablated_random"
+    ],
+    "primary": {
+      "stage": "M3",
+      "population": "held_out_behavioral A only (preregistered confirmatory)",
+      "population_key": "held_out",
+      "n_effective_triples": 30,
+      "E_AD": 0.13111464917255944,
+      "E_random": 0.02133316287740096,
+      "cf2": 0.10978148629515848,
+      "ci_low": 0.023699642126965438,
+      "ci_high": 0.2057728494646115,
+      "bootstrap": {
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile",
+        "mean": 0.10995952918190778
+      },
+      "dropped": {
+        "unusable_sr_rows": 0,
+        "incomplete_triples": 0
+      },
+      "diagnostics": {
+        "n_A_records": 3600,
+        "conditions_seen": {
+          "M3_ft_baseline": 180,
+          "M3_ft_ablated_AD": 180,
+          "M3_ft_ablated_random": 180,
+          "M3_ft_xfit_baseline": 120,
+          "M3_ft_xfit_ablated_AD": 120,
+          "M3_ft_xfit_ablated_random": 120,
+          "M3_alt_ft_baseline": 180,
+          "M3_alt_ft_ablated_AD": 180,
+          "M3_alt_ft_ablated_random": 180,
+          "M3_alt_ft_xfit_baseline": 120,
+          "M3_alt_ft_xfit_ablated_AD": 120,
+          "M3_alt_ft_xfit_ablated_random": 120,
+          "M3_direct_ft_baseline": 180,
+          "M3_direct_ft_ablated_AD": 180,
+          "M3_direct_ft_ablated_random": 180,
+          "M3_direct_ft_xfit_baseline": 120,
+          "M3_direct_ft_xfit_ablated_AD": 120,
+          "M3_direct_ft_xfit_ablated_random": 120,
+          "M3_direct_alt_ft_baseline": 180,
+          "M3_direct_alt_ft_ablated_AD": 180,
+          "M3_direct_alt_ft_ablated_random": 180,
+          "M3_direct_alt_ft_xfit_baseline": 120,
+          "M3_direct_alt_ft_xfit_ablated_AD": 120,
+          "M3_direct_alt_ft_xfit_ablated_random": 120
+        },
+        "n_after_stage_filter": 900,
+        "n_after_condition_filter": 540,
+        "n_after_split_filter": 180,
+        "n_with_usable_sr": 180,
+        "duplicate_condition_rows": 90
+      },
+      "secondary_binary_wildguard": {
+        "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+        "n_effective_triples": 30,
+        "point": 0.16666666666666666,
+        "ci_low": -0.03333333333333333,
+        "ci_high": 0.36666666666666664
+      }
+    },
+    "full_A_sensitivity": {
+      "stage": "M3",
+      "population": "ALL quadrant A (full-A sensitivity)",
+      "population_key": "all",
+      "n_effective_triples": 150,
+      "E_AD": 0.12687418469326076,
+      "E_random": 0.006295985520585722,
+      "cf2": 0.12057819917267504,
+      "ci_low": 0.08477830953886634,
+      "ci_high": 0.15870769056288694,
+      "bootstrap": {
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile",
+        "mean": 0.12061349238156108
+      },
+      "dropped": {
+        "unusable_sr_rows": 0,
+        "incomplete_triples": 0
+      },
+      "diagnostics": {
+        "n_A_records": 3600,
+        "conditions_seen": {
+          "M3_ft_baseline": 180,
+          "M3_ft_ablated_AD": 180,
+          "M3_ft_ablated_random": 180,
+          "M3_ft_xfit_baseline": 120,
+          "M3_ft_xfit_ablated_AD": 120,
+          "M3_ft_xfit_ablated_random": 120,
+          "M3_alt_ft_baseline": 180,
+          "M3_alt_ft_ablated_AD": 180,
+          "M3_alt_ft_ablated_random": 180,
+          "M3_alt_ft_xfit_baseline": 120,
+          "M3_alt_ft_xfit_ablated_AD": 120,
+          "M3_alt_ft_xfit_ablated_random": 120,
+          "M3_direct_ft_baseline": 180,
+          "M3_direct_ft_ablated_AD": 180,
+          "M3_direct_ft_ablated_random": 180,
+          "M3_direct_ft_xfit_baseline": 120,
+          "M3_direct_ft_xfit_ablated_AD": 120,
+          "M3_direct_ft_xfit_ablated_random": 120,
+          "M3_direct_alt_ft_baseline": 180,
+          "M3_direct_alt_ft_ablated_AD": 180,
+          "M3_direct_alt_ft_ablated_random": 180,
+          "M3_direct_alt_ft_xfit_baseline": 120,
+          "M3_direct_alt_ft_xfit_ablated_AD": 120,
+          "M3_direct_alt_ft_xfit_ablated_random": 120
+        },
+        "n_after_stage_filter": 900,
+        "n_after_condition_filter": 540,
+        "n_after_split_filter": 540,
+        "n_with_usable_sr": 540,
+        "duplicate_condition_rows": 90
+      },
+      "secondary_binary_wildguard": {
+        "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+        "n_effective_triples": 150,
+        "point": 0.17333333333333334,
+        "ci_low": 0.08,
+        "ci_high": 0.26666666666666666
+      }
+    },
+    "estimation_split_only": {
+      "stage": "M3",
+      "population": "direction_estimation A only (rows that DEFINED d - effect biased upward by ~1/n self-influence)",
+      "population_key": "estimation",
+      "n_effective_triples": 120,
+      "E_AD": 0.12581406857343608,
+      "E_random": 0.0025366911813819114,
+      "cf2": 0.12327737739205417,
+      "ci_low": 0.0838537944828049,
+      "ci_high": 0.16462172833386626,
+      "bootstrap": {
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile",
+        "mean": 0.12345419485755924
+      },
+      "dropped": {
+        "unusable_sr_rows": 0,
+        "incomplete_triples": 0
+      },
+      "diagnostics": {
+        "n_A_records": 3600,
+        "conditions_seen": {
+          "M3_ft_baseline": 180,
+          "M3_ft_ablated_AD": 180,
+          "M3_ft_ablated_random": 180,
+          "M3_ft_xfit_baseline": 120,
+          "M3_ft_xfit_ablated_AD": 120,
+          "M3_ft_xfit_ablated_random": 120,
+          "M3_alt_ft_baseline": 180,
+          "M3_alt_ft_ablated_AD": 180,
+          "M3_alt_ft_ablated_random": 180,
+          "M3_alt_ft_xfit_baseline": 120,
+          "M3_alt_ft_xfit_ablated_AD": 120,
+          "M3_alt_ft_xfit_ablated_random": 120,
+          "M3_direct_ft_baseline": 180,
+          "M3_direct_ft_ablated_AD": 180,
+          "M3_direct_ft_ablated_random": 180,
+          "M3_direct_ft_xfit_baseline": 120,
+          "M3_direct_ft_xfit_ablated_AD": 120,
+          "M3_direct_ft_xfit_ablated_random": 120,
+          "M3_direct_alt_ft_baseline": 180,
+          "M3_direct_alt_ft_ablated_AD": 180,
+          "M3_direct_alt_ft_ablated_random": 180,
+          "M3_direct_alt_ft_xfit_baseline": 120,
+          "M3_direct_alt_ft_xfit_ablated_AD": 120,
+          "M3_direct_alt_ft_xfit_ablated_random": 120
+        },
+        "n_after_stage_filter": 900,
+        "n_after_condition_filter": 540,
+        "n_after_split_filter": 360,
+        "n_with_usable_sr": 360,
+        "duplicate_condition_rows": 0
+      },
+      "secondary_binary_wildguard": {
+        "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+        "n_effective_triples": 120,
+        "point": 0.175,
+        "ci_low": 0.075,
+        "ci_high": 0.275
+      }
+    },
+    "cross_fitted": {
+      "stage": "M3",
+      "population": "direction_estimation A only, each row generated under a direction estimated WITHOUT it (out-of-fold; NOT 'independent' - the K training portions overlap)",
+      "population_key": "crossfit",
+      "n_effective_triples": 120,
+      "E_AD": 0.11839051466156623,
+      "E_random": -0.0010311324892863165,
+      "cf2": 0.11942164715085254,
+      "ci_low": 0.08011219107717638,
+      "ci_high": 0.15911899278432107,
+      "bootstrap": {
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile",
+        "mean": 0.11937844824456749
+      },
+      "dropped": {
+        "unusable_sr_rows": 0,
+        "incomplete_triples": 0
+      },
+      "diagnostics": {
+        "n_A_records": 3600,
+        "conditions_seen": {
+          "M3_ft_baseline": 180,
+          "M3_ft_ablated_AD": 180,
+          "M3_ft_ablated_random": 180,
+          "M3_ft_xfit_baseline": 120,
+          "M3_ft_xfit_ablated_AD": 120,
+          "M3_ft_xfit_ablated_random": 120,
+          "M3_alt_ft_baseline": 180,
+          "M3_alt_ft_ablated_AD": 180,
+          "M3_alt_ft_ablated_random": 180,
+          "M3_alt_ft_xfit_baseline": 120,
+          "M3_alt_ft_xfit_ablated_AD": 120,
+          "M3_alt_ft_xfit_ablated_random": 120,
+          "M3_direct_ft_baseline": 180,
+          "M3_direct_ft_ablated_AD": 180,
+          "M3_direct_ft_ablated_random": 180,
+          "M3_direct_ft_xfit_baseline": 120,
+          "M3_direct_ft_xfit_ablated_AD": 120,
+          "M3_direct_ft_xfit_ablated_random": 120,
+          "M3_direct_alt_ft_baseline": 180,
+          "M3_direct_alt_ft_ablated_AD": 180,
+          "M3_direct_alt_ft_ablated_random": 180,
+          "M3_direct_alt_ft_xfit_baseline": 120,
+          "M3_direct_alt_ft_xfit_ablated_AD": 120,
+          "M3_direct_alt_ft_xfit_ablated_random": 120
+        },
+        "n_after_stage_filter": 900,
+        "n_after_condition_filter": 360,
+        "n_after_split_filter": 360,
+        "n_with_usable_sr": 360,
+        "duplicate_condition_rows": 0
+      },
+      "secondary_binary_wildguard": {
+        "metric": "(WG_harm_AD - WG_harm_base) - (WG_harm_rand - WG_harm_base)",
+        "n_effective_triples": 120,
+        "point": 0.16666666666666666,
+        "ci_low": 0.058333333333333334,
+        "ci_high": 0.275
+      }
+    },
+    "cross_fitted_note": "POST HOC, not preregistered (v2_pipeline causal --cross-fit K). Same direction_estimation rows as estimation_split_only, but each generated under a direction built without it. Report as an 'out-of-fold n=120 estimate', NEVER 'independent n=120': the K training portions overlap by (K-2)/(K-1), so the fold directions are correlated. n_effective_triples = 0 means the cross-fit run has not been judged yet, NOT a null result.",
+    "circularity_check": "Three-way read. primary (held-out; d never saw these) is the preregistered anchor. estimation_split_only uses rows that each contributed ~1/n to the centroids defining d, so its effect is biased upward. cross_fitted uses THE SAME ROWS with that self-influence removed, so estimation_split_only minus cross_fitted estimates the bias directly instead of bounding it by argument. If cross_fitted sits near primary, full_A_sensitivity can be read at face value; if it sits near estimation_split_only, the self-influence was never the explanation. The held-out block remains the confirmatory number either way.",
+    "note": "n~30 limitation on the held-out block: report the CI width; a non-significant result does not prove absence of an effect (analysis_plan.md \u00a73)."
+  },
+  "CF2_branch_interactions": {
+    "status": "EXPLORATORY - not preregistered (analysis_plan.md fixes CF1/CF2 only; this difference-of-differences was added post hoc)",
+    "reference": "M3",
+    "statistic": "Delta_ref - Delta_b ; Delta_s = mean_i(SR_AD^s - SR_random^s) over prompts scored in both s and ref",
+    "held_out_only": true,
+    "pairs": {
+      "M3_vs_M3_direct": {
+        "n_shared_prompts": 30,
+        "delta_reference": 0.10756211448372141,
+        "delta_branch": 0.037647737712040906,
+        "interaction": 0.06991437677168051,
+        "ci_low": -0.021763163052946767,
+        "ci_high": 0.17011263675687882,
+        "ci_excludes_zero": false,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.06957004074052443
+        }
+      },
+      "M3_vs_M3_alt": {
+        "n_shared_prompts": 30,
+        "delta_reference": 0.10756211448372141,
+        "delta_branch": 0.13157145795592745,
+        "interaction": -0.02400934347220603,
+        "ci_low": -0.09289149306427227,
+        "ci_high": 0.04606921240796489,
+        "ci_excludes_zero": false,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": -0.02467645626118721
+        }
+      },
+      "M3_vs_M3_direct_alt": {
+        "n_shared_prompts": 30,
+        "delta_reference": 0.10756211448372141,
+        "delta_branch": 0.022025864291254037,
+        "interaction": 0.08553625019246738,
+        "ci_low": -0.002347249567022415,
+        "ci_high": 0.1817655171523513,
+        "ci_excludes_zero": false,
+        "bootstrap": {
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile",
+          "mean": 0.08508315564389192
+        }
+      }
+    }
+  },
+  "CF2_crossfit_branch_contrasts": {
+    "status": "EXPLORATORY - post hoc; cross-fitting is not preregistered",
+    "population": "cross-fitted out-of-fold quadrant-A, direction_estimation split, n<=120 per branch, paired by record_id",
+    "per_branch_point_estimate": {
+      "M3": 0.11942164715085254,
+      "M3_direct": 0.020240268539744952,
+      "M3_alt": 0.10536895777919805,
+      "M3_direct_alt": 0.00916837554683904
+    },
+    "pairwise": {
+      "M3_vs_M3_alt": {
+        "n_shared_prompts": 120,
+        "estimate": 0.014052689371654499,
+        "ci_low": -0.030733021066190525,
+        "ci_high": 0.060796262063966905,
+        "ci_excludes_zero": false
+      },
+      "M3_vs_M3_direct": {
+        "n_shared_prompts": 120,
+        "estimate": 0.0991813786111076,
+        "ci_low": 0.058467126113336196,
+        "ci_high": 0.14035538023794972,
+        "ci_excludes_zero": true
+      },
+      "M3_vs_M3_direct_alt": {
+        "n_shared_prompts": 120,
+        "estimate": 0.1102532716040135,
+        "ci_low": 0.06998712983512291,
+        "ci_high": 0.15172112459322326,
+        "ci_excludes_zero": true
+      },
+      "M3_alt_vs_M3_direct_alt": {
+        "n_shared_prompts": 120,
+        "estimate": 0.09620058223235901,
+        "ci_low": 0.05766285714714968,
+        "ci_high": 0.13464678595920151,
+        "ci_excludes_zero": true
+      }
+    },
+    "factorial_2x2": {
+      "history_main_effect_mediated_minus_direct": {
+        "n_shared_prompts": 120,
+        "estimate": 0.09769098042173331,
+        "ci_low": 0.06618907399311467,
+        "ci_high": 0.12895199918276953,
+        "ci_excludes_zero": true
+      },
+      "corpus_main_effect_alpaca_minus_dolly": {
+        "n_shared_prompts": 120,
+        "estimate": 0.012562291182280205,
+        "ci_low": -0.010733750380990916,
+        "ci_high": 0.03693606201529234,
+        "ci_excludes_zero": false
+      },
+      "corpus_x_history_interaction": {
+        "n_shared_prompts": 120,
+        "estimate": 0.0029807963787485884,
+        "ci_low": -0.043712828587895054,
+        "ci_high": 0.0517132726249222,
+        "ci_excludes_zero": false
+      }
+    },
+    "reading": "A pairwise CI excluding zero => those two adaptation paths differ in direction-specific causal strength. corpus_x_history_interaction excluding zero => the corpus effect itself depends on training history (or equivalently the history effect depends on corpus). history_main_effect > 0 with a CI excluding zero => safety-SFT-mediated paths show LARGER effects than direct-DPO paths in this design - state it that way, not as 'safety-SFT causes the effect'."
+  },
+  "CF2_circularity_bias": {
+    "status": "circularity diagnostic - paired, same rows",
+    "per_branch": {
+      "M3": {
+        "n_shared_prompts": 120,
+        "delta_estimation": 0.12327737739205417,
+        "delta_crossfit": 0.11942164715085254,
+        "bias_estimation_minus_crossfit": 0.003855730241201627,
+        "ci_low": -0.024217510987153846,
+        "ci_high": 0.03087502926871546,
+        "ci_excludes_zero": false
+      },
+      "M3_direct": {
+        "n_shared_prompts": 120,
+        "delta_estimation": 0.023688847748295907,
+        "delta_crossfit": 0.020240268539744952,
+        "bias_estimation_minus_crossfit": 0.0034485792085509575,
+        "ci_low": -0.006705445391961573,
+        "ci_high": 0.013955725934040212,
+        "ci_excludes_zero": false
+      },
+      "M3_alt": {
+        "n_shared_prompts": 120,
+        "delta_estimation": 0.10406745395079042,
+        "delta_crossfit": 0.10536895777919805,
+        "bias_estimation_minus_crossfit": -0.0013015038284076277,
+        "ci_low": -0.027604625960791978,
+        "ci_high": 0.02412799344068228,
+        "ci_excludes_zero": false
+      },
+      "M3_direct_alt": {
+        "n_shared_prompts": 120,
+        "delta_estimation": 0.009703697854880981,
+        "delta_crossfit": 0.00916837554683904,
+        "bias_estimation_minus_crossfit": 0.0005353223080419411,
+        "ci_low": -0.006982708232589326,
+        "ci_high": 0.007996424594180094,
+        "ci_excludes_zero": false
+      }
+    }
+  },
+  "condition_infix": "ft_",
+  "pooling": "final_token"
+}
