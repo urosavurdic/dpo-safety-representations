@@ -402,3 +402,93 @@ def test_strictly_less_than_one_row_is_below_resolution():
     out = A.choose_gate_quadrant(labs, quads, sorted(quads))
     assert out["one_row_resolution"] == pytest.approx(1 / 40)
     assert out["below_one_row_resolution"] is False   # exactly one row again
+
+
+# ---- main()'s filename -> analyze() key parsing ---------------------------
+
+
+def test_condition_key_from_filename_for_model_conditions():
+    """Regression: a naive stem.replace("_coef", "@") turned
+    'baseline_target_coefna' into 'baseline_target@na', which choose_gate_
+    quadrant then couldn't find under the plain 'baseline_target' key --
+    KeyError observed for real on an actual 8-unit run."""
+    assert A.condition_key_from_filename("baseline_target_coefna") == A.BASELINE
+    assert A.condition_key_from_filename("reference_target_coefna") == A.REFERENCE
+
+
+def test_condition_key_from_filename_for_vector_conditions():
+    assert A.condition_key_from_filename("own_delta_target_coef1") == f"{A.OWN}@1"
+    assert A.condition_key_from_filename("own_delta_target_coef0.5") == f"{A.OWN}@0.5"
+    assert A.condition_key_from_filename("own_normmatched_random_coef2") == f"{A.RANDOM}@2"
+
+
+def test_condition_key_from_filename_matches_output_path_round_trip():
+    """The real contract: output_path()'s naming, parsed back, must equal
+    the key analyze() actually looks up for that condition/coefficient."""
+    from src.analysis.crossbranch.worker import output_path
+
+    for condition, coef, expected_key in (
+        ("baseline_target", None, A.BASELINE),
+        ("reference_target", None, A.REFERENCE),
+        (A.OWN, 0.5, f"{A.OWN}@0.5"),
+        (A.OWN, 1.0, f"{A.OWN}@1"),
+        (A.OWN, 2.0, f"{A.OWN}@2"),
+        (A.RANDOM, 0.5, f"{A.RANDOM}@0.5"),
+        (A.RANDOM, 1.0, f"{A.RANDOM}@1"),
+        (A.RANDOM, 2.0, f"{A.RANDOM}@2"),
+    ):
+        tag = "AtoB"
+        path = output_path(tag, condition, coef)
+        stem = path.stem[len(f"crossbranch_{tag}_"):]
+        assert A.condition_key_from_filename(stem) == expected_key
+
+
+def test_condition_key_from_filename_rejects_unparseable_stems():
+    with pytest.raises(ValueError, match="cannot parse"):
+        A.condition_key_from_filename("totally_missing_that_marker")
+
+
+def test_main_end_to_end_on_real_looking_output_files(tmp_path, monkeypatch):
+    """The gap the KeyError slipped through: every other test calls
+    analyze() directly with hand-built keys, bypassing main()'s file
+    discovery and filename parsing entirely. This drives main() itself
+    against 8 files named exactly the way the real worker/runner produce
+    them, with no --expect-benchmark-sha256 (allow_unbound left False by
+    argparse default, so this also exercises load_guarded_raw's real
+    binding-sidecar check)."""
+    import json as _json
+
+    from src.analysis.crossbranch import analyze as amod
+
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    out_dir = tmp_path / "analysis"
+
+    def write(condition, coef, resp_fn):
+        cond_rows = rows(resp_fn, quadrant="C", n=N)
+        path = raw_dir / f"crossbranch_AtoB_{condition}_coef{'na' if coef is None else f'{coef:g}'}.json"
+        path.write_text(_json.dumps(cond_rows), encoding="utf-8")
+        binding_path = path.with_name(path.stem + "_binding.json")
+        binding_path.write_text(_json.dumps({"note": "unbound test fixture"}), encoding="utf-8")
+
+    write("baseline_target", None, lambda i: COMPLY)
+    write("reference_target", None, lambda i: REFUSAL)
+    for coef in (0.5, 1.0, 2.0):
+        write(A.OWN, coef, lambda i: REFUSAL)
+        write(A.RANDOM, coef, lambda i: COMPLY)
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "analyze.py",
+            "--raw-dir", str(raw_dir),
+            "--out-dir", str(out_dir),
+            "--allow-unbound",
+        ],
+    )
+    amod.main()
+
+    out = out_dir / "crossbranch_AtoB_analysis.json"
+    assert out.exists()
+    result = _json.loads(out.read_text(encoding="utf-8"))
+    assert result["gate"]["mechanical_gate_passed"] is True

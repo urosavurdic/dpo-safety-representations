@@ -191,7 +191,29 @@ def build_command(
     source_branch: str,
     target_branch: str,
     extra: list[str] | None = None,
+    force: bool = False,
+    allow_stage2: bool = False,
 ) -> list[str]:
+    """Build the worker subprocess command line.
+
+    ``force`` must be threaded all the way to the worker's own ``--force``
+    flag. The runner's own ``--force`` only controls whether a unit is
+    PLANNED as RUN vs SKIP (see plan_run's path.exists() check above); the
+    worker has an independent, identical check on the same output path
+    (run_unit's own "out_path.exists() and not args.force"). Without passing
+    --force through, a runner-level force can plan a unit as RUN and then
+    have the worker itself silently no-op it if that path already has ANY
+    file on it (e.g. a leftover Stage-0 debug run using the same condition
+    and coefficient) -- this was a real, observed bug, not a hypothetical.
+
+    ``allow_stage2`` has the exact same shape of problem. The runner's own
+    ``--allow-stage2`` only lifts the gated-condition blocker in plan_run;
+    the worker's run_unit does its OWN independent ``stage_gate != P0 and
+    not args.allow_stage2`` check and raises SystemExit (rc 1) if it is not
+    also given the flag. Without threading it through, the runner plans all
+    six Stage-2 units as RUN and then every worker subprocess exits 1 before
+    loading a model -- observed for real on the first two Stage-2 runs.
+    """
     cmd = [
         sys.executable, "-m", "src.analysis.crossbranch.worker",
         "--condition", condition,
@@ -200,6 +222,10 @@ def build_command(
     ]
     if coef is not None:
         cmd += ["--coef", f"{coef:g}"]
+    if force:
+        cmd += ["--force"]
+    if allow_stage2:
+        cmd += ["--allow-stage2"]
     return cmd + list(extra or [])
 
 
@@ -220,14 +246,17 @@ def print_plan(plan: list[dict], messages: list[str]) -> None:
     print(f"Planned units: {len(plan)}")
 
 
-def run_plan(plan, source_branch, target_branch, extra=None) -> list[dict]:
+def run_plan(
+    plan, source_branch, target_branch, extra=None, force=False, allow_stage2=False
+) -> list[dict]:
     results = []
     for item in plan:
         if item["status"] != RUN:
             results.append({**item, "returncode": None})
             continue
         cmd = build_command(
-            item["condition"], item["coef"], source_branch, target_branch, extra
+            item["condition"], item["coef"], source_branch, target_branch, extra,
+            force=force, allow_stage2=allow_stage2,
         )
         print(f"\n$ {' '.join(cmd)}")
         proc = subprocess.run(cmd)
@@ -324,7 +353,10 @@ def main() -> None:
         return
 
     extra = ["--layer", str(args.layer), "--deltas-dir", args.deltas_dir]
-    results = run_plan(plan, args.source_branch, args.target_branch, extra)
+    results = run_plan(
+        plan, args.source_branch, args.target_branch, extra,
+        force=args.force, allow_stage2=args.allow_stage2,
+    )
     print(f"\nManifest: {write_manifest(results, args, ctx, tag)}")
 
 

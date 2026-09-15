@@ -26,11 +26,41 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-# Branch -> (pre-DPO, post-DPO) repo stage names.
+# Branch -> (pre-DPO, post-DPO) repo stage names + the two path factors.
+#
+#   corpus  : which instruction corpus M1 was trained on (Alpaca vs Dolly-15k)
+#   history : whether the safety-SFT stage (M2) ran before DPO
+#             "m2_mediated" = M0->M1->M2->M3 ; "direct" = M0->M1->M3_direct
+#
+# A / B are the original study (corpus axis). A_direct / B_direct add the
+# history axis: their pre-DPO checkpoint is M1 / M1_alt (never safety-trained),
+# their post-DPO is M3_direct / M3_direct_alt. All four have fresh 654-row
+# activations and v2 A-D directions bound to the same frozen benchmark.
 BRANCHES: dict[str, dict[str, str]] = {
-    "A": {"pre": "M2", "post": "M3", "corpus": "Alpaca"},
-    "B": {"pre": "M2_alt", "post": "M3_alt", "corpus": "Dolly-15k"},
+    "A": {"pre": "M2", "post": "M3",
+          "corpus": "Alpaca", "history": "m2_mediated"},
+    "B": {"pre": "M2_alt", "post": "M3_alt",
+          "corpus": "Dolly-15k", "history": "m2_mediated"},
+    "A_direct": {"pre": "M1", "post": "M3_direct",
+                 "corpus": "Alpaca", "history": "direct"},
+    "B_direct": {"pre": "M1_alt", "post": "M3_direct_alt",
+                 "corpus": "Dolly-15k", "history": "direct"},
 }
+
+
+def path_delta(source_branch: str, target_branch: str) -> dict[str, str]:
+    """How a (source -> target) transfer differs: 'corpus', 'history', 'both',
+    or 'none' on each factor. Descriptive; used to label matrix results."""
+    s, t = BRANCHES[source_branch], BRANCHES[target_branch]
+    corpus = "same" if s["corpus"] == t["corpus"] else "different"
+    history = "same" if s["history"] == t["history"] else "different"
+    axis = {
+        ("same", "same"): "none",
+        ("different", "same"): "corpus",
+        ("same", "different"): "history",
+        ("different", "different"): "both",
+    }[(corpus, history)]
+    return {"corpus": corpus, "history": history, "axis": axis}
 
 # Frozen elsewhere (analysis_plan.md section 9) -- mirrored here with a
 # pinned test rather than imported, so this module stays dependency-light.
@@ -132,22 +162,52 @@ CONDITIONS: tuple[Condition, ...] = (
     Condition(
         "xfer_delta_source_shuf_global", VECTOR, OPTIONAL, "target_pre",
         artifact="delta_source_shuf_global",
-        note="Global shuffle; secondary diagnostic only.",
+        note="Global shuffle; secondary diagnostic only. NOTE: an unnormalised "
+             "permutation changes prompt class AND per-row injected norm at "
+             "once (quadrants differ in delta magnitude), so on its own it "
+             "does not isolate class conditioning -- read it beside "
+             "xfer_delta_source_shuf_global_normmatched.",
+    ),
+    Condition(
+        "xfer_delta_source_shuf_global_normmatched", VECTOR, OPTIONAL, "target_pre",
+        artifact="delta_source_shuf_global_normmatched",
+        note="Global shuffle rescaled per row to the identity arm's own norm. "
+             "Holds dose fixed while prompt class varies, so identity minus "
+             "this arm is the clean test of class conditioning that the bare "
+             "global shuffle cannot provide.",
     ),
     Condition(
         "xfer_delta_source_procrustes", VECTOR, APPENDIX, "target_pre",
         artifact="delta_source_procrustes",
         note="Exploratory appendix. Never used to rescue a null identity result.",
     ),
+
+    # ---- Direction decomposition (approved 2026-09-10) -----------------
+    # Injecting only the perpendicular component reduces the injected norm,
+    # so a null would conflate "removed the d_source part" with "injected
+    # less". Run as a PAIR, each rescaled per row back to ||delta_source(x)||
+    # so both match the identity arm's per-row magnitude and differ only in
+    # direction. Built by `delta --decomposition`.
+    Condition(
+        "xfer_delta_source_parallel", VECTOR, OPTIONAL, "target_pre",
+        artifact="delta_source_parallel",
+        note="delta_source projected onto the source A-D refusal direction, "
+             "rescaled per row to ||delta_source(x)||. 'The refusal-direction "
+             "part of the DPO delta, at full delta magnitude.'",
+    ),
+    Condition(
+        "xfer_delta_source_perp", VECTOR, OPTIONAL, "target_pre",
+        artifact="delta_source_perp",
+        note="delta_source with its refusal-direction component removed, "
+             "rescaled per row to ||delta_source(x)||. 'Everything else in "
+             "the DPO delta, at full delta magnitude.' Contrast with parallel "
+             "and with identity to attribute the movement beyond dir_source.",
+    ),
 )
 
-# Deferred and deliberately absent from CONDITIONS: a direction-decomposition
-# arm. Injecting only the perpendicular component reduces the injected norm
-# (||Delta_perp|| < ||Delta||), so a null would conflate removing the d_A
-# component with injecting less. A defensible version needs BOTH the parallel
-# and perpendicular components, each dose-matched back to ||Delta_A(x)||, run
-# as a pair. Not implemented until explicitly approved.
-DEFERRED_CONDITIONS: tuple[str, ...] = ("xfer_delta_source_decomposition",)
+# Formerly deferred; the direction-decomposition arm is now the
+# xfer_delta_source_{parallel,perp} pair above (approved 2026-09-10).
+DEFERRED_CONDITIONS: tuple[str, ...] = ()
 
 
 BY_NAME: dict[str, Condition] = {c.name: c for c in CONDITIONS}

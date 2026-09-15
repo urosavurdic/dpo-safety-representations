@@ -225,5 +225,236 @@ def test_load_delta_map_rejects_duplicate_ids(tmp_path):
 
 
 def test_seed_spawn_order_is_documented_and_stable():
+    """SPAWN_ORDER is append-only: the P0 streams must stay first and in
+    order, so already-generated Stage-1 artifacts remain reproducible. New
+    stages append (see test_spawn_order_is_append_only_so_p0_streams_never_change)."""
     assert D.CROSSBRANCH_SEED == 20260904
-    assert D.SPAWN_ORDER == ("shuffle_within_quadrant", "normmatched_random")
+    assert D.SPAWN_ORDER[:2] == ("shuffle_within_quadrant", "normmatched_random")
+    assert D.SPAWN_ORDER == (
+        "shuffle_within_quadrant",
+        "normmatched_random",
+        "normmatched_random_source",
+        "shuffle_global",
+    )
+
+
+# ---- Stage-2 vectors -------------------------------------------------------
+
+
+def test_spawn_order_is_append_only_so_p0_streams_never_change():
+    """Reproducibility guard. Stage-1 artifacts are already generated and a
+    result validated against them; appending Stage-2 names to SPAWN_ORDER
+    must leave the first two streams byte-identical."""
+    assert D.SPAWN_ORDER[:2] == ("shuffle_within_quadrant", "normmatched_random")
+    two = np.random.default_rng(D.CROSSBRANCH_SEED).spawn(2)
+    full = np.random.default_rng(D.CROSSBRANCH_SEED).spawn(len(D.SPAWN_ORDER))
+    for i in range(2):
+        a = np.random.default_rng(D.CROSSBRANCH_SEED).spawn(2)[i]
+        b = np.random.default_rng(D.CROSSBRANCH_SEED).spawn(len(D.SPAWN_ORDER))[i]
+        np.testing.assert_array_equal(a.standard_normal(5), b.standard_normal(5))
+    assert len(two) == 2 and len(full) == len(D.SPAWN_ORDER)
+
+
+def test_dosematch_gives_each_row_the_target_norm():
+    src = np.array([[3.0, 4.0], [1.0, 0.0]])      # norms 5, 1
+    tgt = np.array([[0.0, 2.0], [6.0, 8.0]])      # norms 2, 10
+    out = D.dosematch_to(src, tgt)
+    np.testing.assert_allclose(np.linalg.norm(out, axis=1), [2.0, 10.0], rtol=1e-9)
+
+
+def test_dosematch_preserves_direction_only_changes_length():
+    src = np.array([[3.0, 4.0]])
+    tgt = np.array([[10.0, 0.0]])
+    out = D.dosematch_to(src, tgt)
+    cos = float((src[0] @ out[0]) / (np.linalg.norm(src[0]) * np.linalg.norm(out[0])))
+    assert cos == pytest.approx(1.0)
+
+
+def test_dosematch_rejects_shape_mismatch():
+    with pytest.raises(ValueError, match="shape mismatch"):
+        D.dosematch_to(np.zeros((2, 3)), np.zeros((3, 3)))
+
+
+def test_direction_dose_scalar_uses_only_the_calibration_split():
+    delta = np.array([
+        [10.0, 0.0],   # A, direction_estimation  -> counted (norm 10)
+        [100.0, 0.0],  # A, held_out_behavioral   -> excluded
+        [20.0, 0.0],   # D, direction_estimation  -> counted (norm 20)
+        [500.0, 0.0],  # B, no split              -> excluded
+    ])
+    quads = np.array(["A", "A", "D", "B"], dtype=object)
+    splits = np.array(
+        ["direction_estimation", "held_out_behavioral", "direction_estimation", None],
+        dtype=object,
+    )
+    assert D.direction_dose_scalar(delta, quads, splits) == pytest.approx(15.0)
+
+
+def test_direction_dose_scalar_raises_without_calibration_rows():
+    delta = np.array([[1.0, 0.0]])
+    with pytest.raises(RuntimeError, match="no direction_estimation rows"):
+        D.direction_dose_scalar(
+            delta, np.array(["B"], dtype=object), np.array([None], dtype=object)
+        )
+
+
+def test_load_direction_vector_rejects_a_non_unit_direction(tmp_path):
+    bad = np.zeros((29, 4))
+    bad[24] = [5.0, 0.0, 0.0, 0.0]     # norm 5, not ~1
+    np.save(tmp_path / "S_v2_direction.npy", bad)
+    with pytest.raises(RuntimeError, match="direction norm"):
+        D.load_direction_vector("S", 24, tmp_path)
+
+
+def test_load_direction_vector_prefers_v2_over_legacy(tmp_path):
+    v2, legacy = np.zeros((29, 4)), np.zeros((29, 4))
+    v2[24] = [1.0, 0.0, 0.0, 0.0]
+    legacy[24] = [0.0, 1.0, 0.0, 0.0]
+    np.save(tmp_path / "S_v2_direction.npy", v2)
+    np.save(tmp_path / "S_direction.npy", legacy)
+    np.testing.assert_allclose(D.load_direction_vector("S", 24, tmp_path), [1, 0, 0, 0])
+
+
+def test_load_direction_vector_falls_back_to_legacy_when_v2_absent(tmp_path):
+    legacy = np.zeros((29, 4))
+    legacy[24] = [0.0, 1.0, 0.0, 0.0]
+    np.save(tmp_path / "S_direction.npy", legacy)
+    np.testing.assert_allclose(D.load_direction_vector("S", 24, tmp_path), [0, 1, 0, 0])
+
+
+def test_load_direction_vector_raises_when_absent(tmp_path):
+    with pytest.raises(FileNotFoundError, match="no direction for"):
+        D.load_direction_vector("MISSING", 24, tmp_path)
+
+
+def test_constant_delta_array_is_the_same_vector_on_every_row():
+    d = np.array([0.6, 0.8])          # unit norm
+    out = D.constant_delta_array(d, 5.0, 3)
+    assert out.shape == (3, 2)
+    for row in out:
+        np.testing.assert_allclose(row, [3.0, 4.0])
+    np.testing.assert_allclose(np.linalg.norm(out, axis=1), [5.0, 5.0, 5.0])
+
+
+# ---- direction decomposition (approved 2026-09-10) ----------------------
+
+def test_decompose_dosematched_components_are_orthogonal_and_full_magnitude():
+    import numpy as np
+    from src.analysis.crossbranch.delta import decompose_dosematched
+
+    rng = np.random.default_rng(0)
+    delta = rng.normal(size=(50, 16))
+    d = rng.normal(size=16)
+    par, perp = decompose_dosematched(delta, d)
+
+    du = d / np.linalg.norm(d)
+    # parallel really is along d, perp really is orthogonal to d
+    assert np.allclose(perp @ du, 0, atol=1e-9)
+    par_cross = par - (par @ du)[:, None] * du[None, :]
+    assert np.allclose(par_cross, 0, atol=1e-9)
+    # both rescaled to the row's original ||delta||
+    full = np.linalg.norm(delta, axis=1)
+    assert np.allclose(np.linalg.norm(par, axis=1), full, rtol=1e-6)
+    assert np.allclose(np.linalg.norm(perp, axis=1), full, rtol=1e-6)
+
+
+def test_decompose_dosematched_zero_and_degenerate_rows_stay_zero():
+    import numpy as np
+    from src.analysis.crossbranch.delta import decompose_dosematched
+
+    d = np.array([1.0, 0.0, 0.0])
+    delta = np.array([
+        [0.0, 0.0, 0.0],   # zero row -> both components zero
+        [3.0, 0.0, 0.0],   # exactly along d -> perp is zero, parallel = full
+        [0.0, 4.0, 0.0],   # exactly orthogonal -> parallel is zero, perp = full
+    ])
+    par, perp = decompose_dosematched(delta, d)
+    assert np.allclose(par[0], 0) and np.allclose(perp[0], 0)
+    assert np.allclose(perp[1], 0)
+    assert np.isclose(np.linalg.norm(par[1]), 3.0)
+    assert np.allclose(par[2], 0)
+    assert np.isclose(np.linalg.norm(perp[2]), 4.0)
+
+
+def test_decomposition_conditions_are_registered_and_optional():
+    from src.analysis.crossbranch.branches import get, DEFERRED_CONDITIONS
+
+    for name in ("xfer_delta_source_parallel", "xfer_delta_source_perp"):
+        c = get(name)
+        assert c.kind == "vector" and c.stage_gate == "optional"
+        assert c.checkpoint == "target_pre"
+    assert DEFERRED_CONDITIONS == ()
+
+
+# --------------------------------------------------------------------------- #
+# norm-matched global shuffle (added 2026-09-12)
+# --------------------------------------------------------------------------- #
+def test_rescale_to_row_norms_matches_reference_norms_exactly():
+    """Each row keeps its own direction but takes the reference row's norm."""
+    from src.analysis.crossbranch.delta import rescale_to_row_norms
+
+    vectors = np.array([[3.0, 4.0], [1.0, 0.0], [0.0, 2.0]])
+    reference = np.array([[10.0, 0.0], [0.0, 7.0], [1.0, 1.0]])
+    out = rescale_to_row_norms(vectors, reference)
+
+    want = np.linalg.norm(reference, axis=1)
+    got = np.linalg.norm(out, axis=1)
+    np.testing.assert_allclose(got, want, atol=1e-9)
+
+    # directions are untouched (unit vectors unchanged)
+    for before, after in zip(vectors, out):
+        np.testing.assert_allclose(
+            before / np.linalg.norm(before), after / np.linalg.norm(after), atol=1e-9
+        )
+
+
+def test_rescale_to_row_norms_keeps_zero_reference_rows_at_zero():
+    """The identity arm injects nothing on a zero-delta row, so no control may."""
+    from src.analysis.crossbranch.delta import rescale_to_row_norms
+
+    out = rescale_to_row_norms(
+        np.array([[5.0, 5.0], [1.0, 1.0]]),
+        np.array([[0.0, 0.0], [3.0, 4.0]]),
+    )
+    np.testing.assert_allclose(out[0], [0.0, 0.0], atol=1e-9)
+    np.testing.assert_allclose(np.linalg.norm(out[1]), 5.0, atol=1e-9)
+
+
+def test_rescale_to_row_norms_rejects_shape_mismatch():
+    from src.analysis.crossbranch.delta import rescale_to_row_norms
+
+    with pytest.raises(ValueError, match="shape mismatch"):
+        rescale_to_row_norms(np.zeros((3, 2)), np.zeros((4, 2)))
+
+
+def test_normmatched_global_shuffle_is_a_permutation_at_identity_dose():
+    """The load-bearing property: rows carry a DIFFERENT prompt's delta
+    direction, at the SAME magnitude the identity arm would have injected."""
+    from src.analysis.crossbranch.delta import (
+        apply_permutation, rescale_to_row_norms, shuffle_global,
+    )
+
+    rng = np.random.default_rng(0)
+    src = rng.standard_normal((12, 5)) * np.array([[1.0], [9.0]] * 6)
+    perm = shuffle_global(len(src), np.random.default_rng(1))
+    shuffled = apply_permutation(src, perm)
+    matched = rescale_to_row_norms(shuffled, src)
+
+    # dose is identity's, row by row
+    np.testing.assert_allclose(
+        np.linalg.norm(matched, axis=1), np.linalg.norm(src, axis=1), atol=1e-9
+    )
+    # but the direction came from the permuted row, not the row itself
+    moved = [i for i in range(len(src)) if perm[i] != i]
+    assert moved, "permutation left every row in place; seed choice is degenerate"
+    for i in moved:
+        cos_self = float(
+            src[i] @ matched[i]
+            / (np.linalg.norm(src[i]) * np.linalg.norm(matched[i]))
+        )
+        cos_donor = float(
+            src[perm[i]] @ matched[i]
+            / (np.linalg.norm(src[perm[i]]) * np.linalg.norm(matched[i]))
+        )
+        assert cos_donor == pytest.approx(1.0, abs=1e-9)
+        assert cos_self < 0.999

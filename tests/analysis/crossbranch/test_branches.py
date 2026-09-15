@@ -72,8 +72,15 @@ def test_stages_needed_is_the_four_activation_stages():
     assert set(B.stages_needed("A", "B")) == {"M2", "M3", "M2_alt", "M3_alt"}
 
 
-def test_deferred_condition_raises_with_a_reason():
-    with pytest.raises(KeyError, match="DEFERRED"):
+def test_direction_decomposition_pair_is_registered():
+    # Formerly deferred; approved 2026-09-10 as the parallel/perp pair.
+    assert B.DEFERRED_CONDITIONS == ()
+    for name in ("xfer_delta_source_parallel", "xfer_delta_source_perp"):
+        c = B.get(name)
+        assert c.kind == B.VECTOR and c.stage_gate == B.OPTIONAL
+        assert c.checkpoint == "target_pre"
+
+    with pytest.raises(KeyError, match="Unknown condition"):
         B.get("xfer_delta_source_decomposition")
 
 
@@ -96,3 +103,37 @@ def test_frozen_constants_mirror_the_plan():
     assert B.COEFFICIENTS == (0.5, 1.0, 2.0)
     assert B.INJECT_MODE == "last_prompt_only"
     assert B.POSITION == "final"
+
+
+def test_direct_branches_registered_with_both_path_factors():
+    for b in ("A_direct", "B_direct"):
+        assert b in B.BRANCHES
+        assert B.BRANCHES[b]["history"] == "direct"
+    assert B.BRANCHES["A_direct"]["pre"] == "M1"
+    assert B.BRANCHES["A_direct"]["post"] == "M3_direct"
+    assert B.BRANCHES["B_direct"]["pre"] == "M1_alt"
+    assert B.BRANCHES["B_direct"]["post"] == "M3_direct_alt"
+
+
+def test_path_delta_classifies_each_axis():
+    assert B.path_delta("A", "B")["axis"] == "corpus"
+    assert B.path_delta("A", "A_direct")["axis"] == "history"
+    assert B.path_delta("A", "B_direct")["axis"] == "both"
+    assert B.path_delta("A_direct", "B_direct")["axis"] == "corpus"
+    assert B.path_delta("B", "B_direct")["axis"] == "history"
+
+
+def test_resolve_and_stages_needed_for_a_history_pair():
+    r = B.resolve("A", "A_direct")
+    assert r["target_pre"] == "M1" and r["target_post"] == "M3_direct"
+    assert r["source_post"] == "M3"
+    assert set(B.stages_needed("A", "A_direct")) == {"M2", "M3", "M1", "M3_direct"}
+    assert B.direction_tag("A", "A_direct") == "AtoA_direct"
+
+
+def test_all_twelve_ordered_pairs_resolve():
+    names = list(B.BRANCHES)
+    pairs = [(s, t) for s in names for t in names if s != t]
+    assert len(pairs) == 12
+    for s, t in pairs:
+        B.resolve(s, t)  # must not raise

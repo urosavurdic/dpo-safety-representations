@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import re
 from pathlib import Path
 
 import numpy as np
@@ -47,8 +48,17 @@ DEGENERACY_TOLERANCE = 0.10  # percentage points, as a fraction
 # ---------------------------------------------------------------------------
 
 
-def label_map(rows: list[dict]) -> dict[str, str]:
-    """record_id -> collapsed four-way label. Raises on duplicate ids."""
+def label_map(rows: list[dict], classify_fn=classify_completion) -> dict[str, str]:
+    """record_id -> collapsed four-way label. Raises on duplicate ids.
+
+    ``classify_fn`` defaults to the frozen classifier so every existing call
+    site is unaffected. It exists so a SEPARATE sensitivity analysis
+    (src/analysis/crossbranch/sensitivity.py) can rerun the same gate logic
+    with a broader-pattern classifier on the SAME already-collected raw data
+    -- no new GPU generation, no edit to the frozen classifier -- to check
+    whether the Stage-1 gate decision is robust to known phrasing-variant
+    gaps found during manual audit (see sensitivity.py's docstring).
+    """
     out: dict[str, str] = {}
     for row in rows:
         rid = row.get("record_id")
@@ -56,7 +66,7 @@ def label_map(rows: list[dict]) -> dict[str, str]:
             raise RuntimeError("row without record_id")
         if rid in out:
             raise RuntimeError(f"duplicate record_id in one condition: {rid!r}")
-        out[rid] = classify_completion(row.get("response", ""))
+        out[rid] = classify_fn(row.get("response", ""))
     return out
 
 
@@ -400,9 +410,16 @@ def analyze(
     *,
     b: int = BOOTSTRAP_B,
     seed: int = BOOTSTRAP_SEED,
+    classify_fn=classify_completion,
 ) -> dict:
-    """`raw_by_condition` keys: BASELINE, REFERENCE, and f"{OWN}@{coef}" etc."""
-    labels = {k: label_map(v) for k, v in raw_by_condition.items()}
+    """`raw_by_condition` keys: BASELINE, REFERENCE, and f"{OWN}@{coef}" etc.
+
+    ``classify_fn`` defaults to the frozen classifier. Passing an alternative
+    (see sensitivity.py) reruns the identical gate logic on the same raw
+    rows -- used only for a side-by-side robustness check, never to replace
+    the primary result.
+    """
+    labels = {k: label_map(v, classify_fn) for k, v in raw_by_condition.items()}
     ids = assert_shared_rows(labels)
     quads = quadrant_map(next(iter(raw_by_condition.values())))
 
@@ -483,6 +500,32 @@ def analyze(
     }
 
 
+def condition_key_from_filename(stem: str) -> str:
+    """Recover the key ``analyze()`` expects from an output filename stem.
+
+    ``output_path`` (worker.py) writes ``{condition}_coef{suffix}`` where
+    ``suffix`` is ``na`` for model conditions (no coefficient) or ``{coef:g}``
+    for vector conditions, e.g. ``baseline_target_coefna`` or
+    ``own_delta_target_coef1``. ``analyze()`` expects the PLAIN condition
+    name for model conditions (``BASELINE = "baseline_target"``) and
+    ``"{condition}@{coef:g}"`` for vector conditions.
+
+    A naive ``stem.replace("_coef", "@")`` gets vector conditions right but
+    turns a model condition into ``"baseline_target@na"`` -- a key
+    ``choose_gate_quadrant`` then can't find, raising ``KeyError:
+    'baseline_target'``. This was a real, observed bug: it only surfaces once
+    a real 8-unit run (including the two model conditions) is analysed
+    end-to-end, which no CPU test previously did -- every existing test
+    called ``analyze()`` directly with hand-built keys, bypassing this
+    filename parsing entirely.
+    """
+    match = re.match(r"^(.+)_coef(.+)$", stem)
+    if not match:
+        raise ValueError(f"cannot parse a condition/coefficient out of {stem!r}")
+    condition, coef_part = match.groups()
+    return condition if coef_part == "na" else f"{condition}@{coef_part}"
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Stage-1 crossbranch gate analysis.")
     p.add_argument("--raw-dir", default="results/crossbranch/raw")
@@ -500,7 +543,7 @@ def main() -> None:
         if path.name.endswith("_binding.json"):
             continue
         stem = path.stem[len(f"crossbranch_{tag}_"):]
-        found[stem.replace("_coef", "@")] = load_guarded_raw(
+        found[condition_key_from_filename(stem)] = load_guarded_raw(
             path,
             benchmark_sha256=args.expect_benchmark_sha256,
             allow_unbound=args.allow_unbound,

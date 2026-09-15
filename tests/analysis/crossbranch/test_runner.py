@@ -163,6 +163,82 @@ def test_build_command_carries_the_reciprocal_direction():
     assert cmd[i + 1] == "B"
 
 
+def test_build_command_propagates_force_to_the_worker():
+    """Regression: the runner's own --force decides whether a unit is PLANNED
+    as RUN, but the worker has an INDEPENDENT, identical
+    out_path.exists()-and-not-force check on the same output path. Without
+    passing --force through explicitly, a runner-level force can plan a unit
+    as RUN and then have the worker silently no-op it if that path already
+    has any file on it -- observed for real when a Stage-0 debug run left a
+    file at the same (condition, coefficient) path a Stage-1 unit needed."""
+    forced = R.build_command("own_delta_target", 1.0, "A", "B", force=True)
+    assert "--force" in forced
+
+    not_forced = R.build_command("own_delta_target", 1.0, "A", "B", force=False)
+    assert "--force" not in not_forced
+
+    default = R.build_command("own_delta_target", 1.0, "A", "B")
+    assert "--force" not in default
+
+
+def test_run_plan_propagates_force_to_every_invoked_unit(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        R.subprocess, "run",
+        lambda cmd, *a, **k: calls.append(cmd) or SimpleNamespace(returncode=0),
+    )
+    p = [
+        {"condition": "own_delta_target", "coef": 1.0, "status": R.RUN,
+         "kind": "vector", "stage_gate": "p0", "output": "x", "blockers": []},
+    ]
+    R.run_plan(p, "A", "B", force=True)
+    assert "--force" in calls[0]
+
+    calls.clear()
+    R.run_plan(p, "A", "B", force=False)
+    assert "--force" not in calls[0]
+
+
+def test_build_command_propagates_allow_stage2_to_the_worker():
+    """Regression: --allow-stage2 lifts the gated-condition blocker in
+    plan_run, but the worker's run_unit does its OWN independent
+    stage_gate-vs-P0 check and exits 1 if it is not also handed the flag.
+    Without threading it through, the runner plans all six Stage-2 units as
+    RUN and every worker subprocess dies before loading a model -- the exact
+    failure seen on the first two real Stage-2 runs (rc 1, no raw/ output,
+    'is gated stage2, not p0')."""
+    allowed = R.build_command(
+        "xfer_delta_source_identity", 1.0, "A", "B", allow_stage2=True
+    )
+    assert "--allow-stage2" in allowed
+
+    not_allowed = R.build_command(
+        "xfer_delta_source_identity", 1.0, "A", "B", allow_stage2=False
+    )
+    assert "--allow-stage2" not in not_allowed
+
+    default = R.build_command("xfer_delta_source_identity", 1.0, "A", "B")
+    assert "--allow-stage2" not in default
+
+
+def test_run_plan_propagates_allow_stage2_to_every_invoked_unit(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        R.subprocess, "run",
+        lambda cmd, *a, **k: calls.append(cmd) or SimpleNamespace(returncode=0),
+    )
+    p = [
+        {"condition": "xfer_delta_source_identity", "coef": 1.0, "status": R.RUN,
+         "kind": "vector", "stage_gate": "stage2", "output": "x", "blockers": []},
+    ]
+    R.run_plan(p, "A", "B", allow_stage2=True)
+    assert "--allow-stage2" in calls[0]
+
+    calls.clear()
+    R.run_plan(p, "A", "B", allow_stage2=False)
+    assert "--allow-stage2" not in calls[0]
+
+
 def test_run_plan_only_invokes_runnable_units(monkeypatch, tmp_path):
     calls = []
 

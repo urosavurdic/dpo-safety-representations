@@ -236,7 +236,18 @@ def run_unit(args) -> bool:
             )
 
         store = ctx.store(Path(args.shard_dir))
-        unit_key = store.unit_key(args.condition, f"coef{args.coef or 'na'}")
+        # The direction tag MUST be part of the shard unit key. Condition names
+        # are direction-neutral by design ("own_delta_target" means the target
+        # branch's own delta, whichever branch that is), so keying shards on
+        # (condition, coefficient) alone makes the A->B and B->A runs of the
+        # same condition indistinguishable to the shard store: the reciprocal
+        # run would find the first direction's shards already complete, skip
+        # generation entirely, and merge those rows out under the reciprocal
+        # filename. Same collision class as the Stage-0/Stage-1 output clash
+        # already documented in the notebook.
+        unit_key = store.unit_key(
+            f"{tag}_{args.condition}", f"coef{args.coef or 'na'}"
+        )
         shards = plan_shards(rows, ctx.gen_batch, measure=token_measure(tokenizer))
         finished = run_sharded(
             store,
