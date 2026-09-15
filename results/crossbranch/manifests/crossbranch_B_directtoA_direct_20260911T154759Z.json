@@ -1,0 +1,39 @@
+{
+  "component": "crossbranch_stage1",
+  "git_commit": "2c4f53b1b34c7e1673e8111491114f86d2f1ac40",
+  "timestamp_utc": "20260911T154759Z",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "direction": "B_directtoA_direct",
+  "args": {
+    "conditions": [
+      "baseline_target"
+    ],
+    "coefficients": [
+      1.0
+    ],
+    "source_branch": "B_direct",
+    "target_branch": "A_direct",
+    "layer": 24,
+    "deltas_dir": "results/crossbranch/deltas_B_directtoA_direct",
+    "eval_set": null,
+    "benchmark_sha256": null,
+    "split_manifest": "logs/direction_split_manifest.json",
+    "assemble_first": false,
+    "dry_run": false,
+    "force": false,
+    "allow_stage2": true
+  },
+  "results": [
+    {
+      "condition": "baseline_target",
+      "coef": null,
+      "kind": "model",
+      "stage_gate": "p0",
+      "output": "results/crossbranch/raw/crossbranch_B_directtoA_direct_baseline_target_coefna.json",
+      "status": "run",
+      "blockers": [],
+      "returncode": 0
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "condition": "xfer_delta_source_dosematched",
+  "coef": 1.0,
+  "inject_layer": 24,
+  "inject_mode": "last_prompt_only",
+  "position": "final",
+  "condition_kind": "vector",
+  "delta_source": "delta_source_dosematched",
+  "transfer_map": "identity",
+  "source_branch": "B",
+  "target_branch": "A",
+  "resolved_stage": "M2",
+  "delta_artifact": "results/crossbranch/deltas_BtoA/delta_source_dosematched_L24.npz",
+  "injected_norm_mean": 34.867530348220306,
+  "n_rows": 414,
+  "quadrants": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ]
+}

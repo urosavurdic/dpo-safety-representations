@@ -1,0 +1,37 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "stage": "M3_direct_alt",
+  "layers": [
+    24
+  ],
+  "layer_indexing": "hidden_states index; hook on decoder block index-1",
+  "alpha_source": "direction_estimation_only",
+  "alpha_coefficient": 1.0,
+  "requested_alpha_coefficients": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "alphas_by_layer": {
+    "24": 0.44196924567222595
+  },
+  "alpha_calibration_rows": "quadrant_A_direction_estimation_only",
+  "random_direction_seed": 20260904,
+  "random_control": "steered_random: same seeded r, same alpha; gamma NOT reused (§6.2)",
+  "quadrants": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "conditions": [
+    "M3_direct_alt_L24_direction_estimation_only_coef1_QABCD_baseline",
+    "M3_direct_alt_L24_direction_estimation_only_coef1_QABCD_steered",
+    "M3_direct_alt_L24_direction_estimation_only_coef1_QABCD_steered_random"
+  ],
+  "row_count": 1242,
+  "rows_per_condition": 414
+}

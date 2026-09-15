@@ -1,0 +1,1190 @@
+{
+  "n_rows_shared": 414,
+  "row_counts_per_condition": {
+    "baseline_target": 414,
+    "dir_source_matched@1": 414,
+    "dir_target_matched@1": 414,
+    "own_delta_target@1": 414,
+    "own_normmatched_random@1": 414,
+    "reference_target": 414,
+    "xfer_delta_source_dosematched@1": 414,
+    "xfer_delta_source_identity@1": 414,
+    "xfer_delta_source_normmatched@1": 414,
+    "xfer_delta_source_shuf_wq@1": 414
+  },
+  "gate_quadrant_selection": {
+    "q_star": "B",
+    "per_quadrant": {
+      "A": {
+        "tv_baseline_to_reference": 0.09999999999999999,
+        "n": 30
+      },
+      "B": {
+        "tv_baseline_to_reference": 0.21599999999999997,
+        "n": 250
+      },
+      "C": {
+        "tv_baseline_to_reference": 0.06730769230769229,
+        "n": 104
+      },
+      "D": {
+        "tv_baseline_to_reference": 0.16666666666666663,
+        "n": 30
+      }
+    },
+    "rule": "argmax_q TV(baseline_target_q, reference_target_q); computed from model conditions only",
+    "max_tv_baseline_to_reference": 0.21599999999999997,
+    "all_tv_zero": false,
+    "below_one_row_resolution": false,
+    "one_row_resolution": 0.004,
+    "tied_quadrants": [
+      "B"
+    ],
+    "tie_broken_by": null,
+    "no_target_shift": false,
+    "resolution_note": "below_one_row_resolution is a measurement-resolution diagnostic (one row moving between categories shifts TV by 1/n); it is not a scientific threshold and not a gate criterion."
+  },
+  "per_quadrant_four_way_rates": {
+    "A": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "dir_source_matched@1": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9333333333333333,
+          "ci_low": 0.7867654163738308,
+          "ci_high": 0.9815229762087295,
+          "n": 30
+        }
+      },
+      "dir_target_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.06666666666666667,
+          "ci_low": 0.018477023791270378,
+          "ci_high": 0.2132345836261692,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.8666666666666667,
+          "ci_low": 0.703186733179637,
+          "ci_high": 0.9469034451594526,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_dosematched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.13333333333333333,
+          "ci_low": 0.053096554840547455,
+          "ci_high": 0.296813266820363,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.8333333333333334,
+          "ci_low": 0.6643564949358398,
+          "ci_high": 0.9266345762815145,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_identity@1": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.06666666666666667,
+          "ci_low": 0.018477023791270378,
+          "ci_high": 0.2132345836261692,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9,
+          "ci_low": 0.7437891742081593,
+          "ci_high": 0.9654001112526658,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_normmatched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_shuf_wq@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.06666666666666667,
+          "ci_low": 0.018477023791270378,
+          "ci_high": 0.2132345836261692,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9333333333333333,
+          "ci_low": 0.7867654163738308,
+          "ci_high": 0.9815229762087295,
+          "n": 30
+        }
+      }
+    },
+    "B": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9848667005045553,
+          "ci_high": 0.9999999999999998,
+          "n": 250
+        }
+      },
+      "dir_source_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.008,
+          "ci_low": 0.0021966371203094217,
+          "ci_high": 0.02869452958320804,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.988,
+          "ci_low": 0.9653192195729803,
+          "ci_high": 0.9959106801194657,
+          "n": 250
+        }
+      },
+      "dir_target_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.996,
+          "ci_low": 0.9776942144345839,
+          "ci_high": 0.9992935524659348,
+          "n": 250
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.008,
+          "ci_low": 0.0021966371203094217,
+          "ci_high": 0.02869452958320804,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.028,
+          "ci_low": 0.013628058600839217,
+          "ci_high": 0.05665777612286046,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.964,
+          "ci_low": 0.9330095775982306,
+          "ci_high": 0.9809467204699966,
+          "n": 250
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.996,
+          "ci_low": 0.9776942144345839,
+          "ci_high": 0.9992935524659348,
+          "n": 250
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.02,
+          "ci_low": 0.008572324384058198,
+          "ci_high": 0.045955643131568594,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.196,
+          "ci_low": 0.1515502357896319,
+          "ci_high": 0.24965081030359842,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.784,
+          "ci_low": 0.7288965817807946,
+          "ci_high": 0.8305077041057929,
+          "n": 250
+        }
+      },
+      "xfer_delta_source_dosematched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.992,
+          "ci_low": 0.9713054704167919,
+          "ci_high": 0.9978033628796906,
+          "n": 250
+        }
+      },
+      "xfer_delta_source_identity@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.008,
+          "ci_low": 0.0021966371203094217,
+          "ci_high": 0.02869452958320804,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.988,
+          "ci_low": 0.9653192195729803,
+          "ci_high": 0.9959106801194657,
+          "n": 250
+        }
+      },
+      "xfer_delta_source_normmatched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9848667005045553,
+          "ci_high": 0.9999999999999998,
+          "n": 250
+        }
+      },
+      "xfer_delta_source_shuf_wq@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 8.673617379884035e-19,
+          "ci_high": 0.015133299495444574,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.008,
+          "ci_low": 0.0021966371203094217,
+          "ci_high": 0.02869452958320804,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.988,
+          "ci_low": 0.9653192195729803,
+          "ci_high": 0.9959106801194657,
+          "n": 250
+        }
+      }
+    },
+    "C": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9643786456275479,
+          "ci_high": 0.9999999999999999,
+          "n": 104
+        }
+      },
+      "dir_source_matched@1": {
+        "degenerate": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9903846153846154,
+          "ci_low": 0.9475322752920542,
+          "ci_high": 0.9983006271503486,
+          "n": 104
+        }
+      },
+      "dir_target_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9903846153846154,
+          "ci_low": 0.9475322752920542,
+          "ci_high": 0.9983006271503486,
+          "n": 104
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9711538461538461,
+          "ci_low": 0.9185995989748896,
+          "ci_high": 0.9901418170972229,
+          "n": 104
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9643786456275479,
+          "ci_high": 0.9999999999999999,
+          "n": 104
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0673076923076923,
+          "ci_low": 0.03298368902967008,
+          "ci_high": 0.1324578676387979,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9326923076923077,
+          "ci_low": 0.8675421323612021,
+          "ci_high": 0.9670163109703299,
+          "n": 104
+        }
+      },
+      "xfer_delta_source_dosematched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.028846153846153848,
+          "ci_low": 0.009858182902777006,
+          "ci_high": 0.08140040102511037,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9615384615384616,
+          "ci_low": 0.9052524862309445,
+          "ci_high": 0.9849431866560231,
+          "n": 104
+        }
+      },
+      "xfer_delta_source_identity@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9643786456275479,
+          "ci_high": 0.9999999999999999,
+          "n": 104
+        }
+      },
+      "xfer_delta_source_normmatched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.9643786456275479,
+          "ci_high": 0.9999999999999999,
+          "n": 104
+        }
+      },
+      "xfer_delta_source_shuf_wq@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9807692307692307,
+          "ci_low": 0.9325768708423217,
+          "ci_high": 0.9947102884149359,
+          "n": 104
+        }
+      }
+    },
+    "D": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "dir_source_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "dir_target_matched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.13333333333333333,
+          "ci_low": 0.053096554840547455,
+          "ci_high": 0.296813266820363,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.8333333333333334,
+          "ci_low": 0.6643564949358398,
+          "ci_high": 0.9266345762815145,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_dosematched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_identity@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_normmatched@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "xfer_delta_source_shuf_wq@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      }
+    }
+  },
+  "by_coefficient": {
+    "1": {
+      "n": 250,
+      "dtv": {
+        "own_delta_target": {
+          "point": -0.035999999999999976,
+          "ci_low": -0.06,
+          "ci_high": -0.015999999999999986,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_normmatched_random": {
+          "point": -0.0040000000000000036,
+          "ci_low": -0.01200000000000001,
+          "ci_high": 0.0,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "differences": {
+        "own_delta_target__minus__own_normmatched_random": {
+          "point": -0.03199999999999997,
+          "ci_low": -0.05600000000000002,
+          "ci_high": -0.008000000000000007,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "degeneracy": {
+        "own_delta_target": 0.0,
+        "own_normmatched_random": 0.0
+      },
+      "target_label_match": {
+        "own_delta_target": 0.804,
+        "own_normmatched_random": 0.788
+      }
+    }
+  },
+  "gate": {
+    "gate_quadrant": "B",
+    "mechanical_gate_passed": true,
+    "passing_coefficients": [
+      1.0
+    ],
+    "inconclusive_by_collapse": false,
+    "target_degeneracy_warning": false,
+    "no_target_shift": false,
+    "below_one_row_resolution": false,
+    "max_tv_baseline_to_reference": 0.21599999999999997,
+    "tied_quadrants": [
+      "B"
+    ],
+    "tie_broken_by": null,
+    "null_is_not_mechanistic": false,
+    "baseline_degeneracy": 0.0,
+    "reference_degeneracy": 0.0,
+    "degeneracy_tolerance": 0.1,
+    "per_coefficient": {
+      "1.0": {
+        "own_dtv_upper_below_zero": true,
+        "paired_own_minus_random_upper_below_zero": true,
+        "degeneracy_within_tolerance": true,
+        "passed": true,
+        "own_dtv": {
+          "point": -0.035999999999999976,
+          "ci_low": -0.06,
+          "ci_high": -0.015999999999999986,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "paired_difference": {
+          "point": -0.03199999999999997,
+          "ci_low": -0.05600000000000002,
+          "ci_high": -0.008000000000000007,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_degeneracy": 0.0
+      }
+    },
+    "criteria": {
+      "1": "dTV(own_delta_target) 95% bootstrap upper bound < 0",
+      "2": "paired dTV(own) - dTV(random) 95% upper bound < 0 (a point-estimate ordering is insufficient)",
+      "3": "degeneracy(own) <= degeneracy(baseline) + 0.1"
+    },
+    "behaviorally_interpretable": true,
+    "_note": "behaviorally_interpretable is editorial and does NOT decide whether Stage 2 runs; only mechanical_gate_passed does. target_label_match is a secondary diagnostic, never a second hard gate. If no_target_shift is true, baseline and reference are identical in every quadrant: there was no post-DPO behavioural shift to reproduce, the mechanical gate cannot pass by construction, and the result MUST NOT be described as a mechanistic null. If below_one_row_resolution is true the separation is smaller than one row's worth (1/n) and the gate is underpowered by construction; that is a measurement-resolution statement, not a scientific threshold."
+  }
+}

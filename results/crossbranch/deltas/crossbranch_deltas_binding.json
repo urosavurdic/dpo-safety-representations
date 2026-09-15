@@ -8,7 +8,9 @@
   "seed": 20260904,
   "spawn_order": [
     "shuffle_within_quadrant",
-    "normmatched_random"
+    "normmatched_random",
+    "normmatched_random_source",
+    "shuffle_global"
   ],
   "roles": {
     "source_branch": "A",
@@ -22,16 +24,16 @@
   },
   "n_rows": 654,
   "artifacts": {
-    "delta_target": "results\\crossbranch\\deltas\\delta_target_L24.npz",
-    "delta_source": "results\\crossbranch\\deltas\\delta_source_L24.npz",
-    "normmatched_random_target": "results\\crossbranch\\deltas\\normmatched_random_target_L24.npz",
-    "delta_source_shuf_wq": "results\\crossbranch\\deltas\\delta_source_shuf_wq_L24.npz"
+    "delta_target": "results/crossbranch/deltas/delta_target_L24.npz",
+    "delta_source": "results/crossbranch/deltas/delta_source_L24.npz",
+    "normmatched_random_target": "results/crossbranch/deltas/normmatched_random_target_L24.npz",
+    "delta_source_shuf_wq": "results/crossbranch/deltas/delta_source_shuf_wq_L24.npz"
   },
   "artifact_sha256": {
-    "delta_target": "dd2fcf79028118dc02ef7d8a96df34d5c54d3e7641aa7978881e2fe728d2ed31",
-    "delta_source": "d31215167286c2be1f09c0a71b1d6b55f98102f7d3e0c16329fe1b5d6a7183d3",
-    "normmatched_random_target": "f1de09f73f2857d7e59eb04b1589a19fd6fb67a5eb329314861bde30ad716bd2",
-    "delta_source_shuf_wq": "8c75c9919bbf0b24f5a114988e4b646c78f7c638fe55a9c65cb4cb86901f2889"
+    "delta_target": "36a524e3016c6f062d7bc7200d260d849cdeda9b22e79f27c6fa2ffac9a47e1e",
+    "delta_source": "b0cadf23008b1915689581f554ab2729448d744b04248aa705744e413ff708a8",
+    "normmatched_random_target": "ebf39ee74a33bb1746c4afcf3765161aedad9061638c7a4705148144073ddd91",
+    "delta_source_shuf_wq": "251fd044dd0473ec50209ba5de36774d4d654550c2330eeca2e176a742cba654"
   },
   "diagnostics": {
     "dose_ratio_target": {

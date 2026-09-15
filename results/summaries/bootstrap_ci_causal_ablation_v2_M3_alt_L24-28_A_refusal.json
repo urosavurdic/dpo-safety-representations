@@ -1,0 +1,15 @@
+{
+  "n_pairs": 30,
+  "n_bootstrap_replicates": 2000,
+  "absolute_effect": {
+    "mean": 0.03381666666666667,
+    "ci_low": -0.13333333333333333,
+    "ci_high": 0.2
+  },
+  "relative_effect": {
+    "mean": 0.00927509320910336,
+    "ci_low": -2.5000000000000004,
+    "ci_high": 1.0,
+    "n_defined_replicates": 1970
+  }
+}

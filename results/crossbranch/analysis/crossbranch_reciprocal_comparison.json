@@ -1,0 +1,467 @@
+{
+ "directions": [
+  "AtoB",
+  "BtoA"
+ ],
+ "coef": {
+  "AtoB": 1.0,
+  "BtoA": 1.0
+ },
+ "underpowered_ci_width": 0.1,
+ "per_quadrant": {
+  "A": {
+   "n": {
+    "AtoB": 30,
+    "BtoA": 30
+   },
+   "tv_baseline_to_reference": {
+    "AtoB": 0.2666666666666667,
+    "BtoA": 0.2666666666666667
+   },
+   "AtoB": {
+    "moves": {
+     "verdict": "underpowered",
+     "point": -0.20000000000000007,
+     "ci": [
+      -0.30000000000000004,
+      2.7755575615628914e-17
+     ],
+     "ci_width": 0.30000000000000004
+    },
+    "structured": {
+     "verdict": "underpowered",
+     "point": -0.1333333333333334,
+     "ci": [
+      -0.2666666666666667,
+      0.06666666666666665
+     ],
+     "ci_width": 0.33333333333333337
+    },
+    "prompt_conditioned": {
+     "verdict": "underpowered",
+     "point": -0.06666666666666671,
+     "ci": [
+      -0.20000000000000007,
+      0.06666666666666671
+     ],
+     "ci_width": 0.2666666666666668
+    },
+    "beats_concept_direction": {
+     "verdict": "underpowered",
+     "point": -0.06666666666666671,
+     "ci": [
+      -0.1333333333333334,
+      0.06666666666666672
+     ],
+     "ci_width": 0.20000000000000012
+    }
+   },
+   "BtoA": {
+    "moves": {
+     "verdict": "underpowered",
+     "point": -0.2333333333333334,
+     "ci": [
+      -0.33333333333333337,
+      0.033333333333333354
+     ],
+     "ci_width": 0.3666666666666667
+    },
+    "structured": {
+     "verdict": "yes",
+     "point": -0.2666666666666667,
+     "ci": [
+      -0.3666666666666667,
+      -0.03333333333333327
+     ],
+     "ci_width": 0.3333333333333334
+    },
+    "prompt_conditioned": {
+     "verdict": "underpowered",
+     "point": -0.13333333333333336,
+     "ci": [
+      -0.2333333333333334,
+      0.03333333333333338
+     ],
+     "ci_width": 0.2666666666666668
+    },
+    "beats_concept_direction": {
+     "verdict": "underpowered",
+     "point": -0.16666666666666669,
+     "ci": [
+      -0.2333333333333334,
+      0.033333333333333395
+     ],
+     "ci_width": 0.2666666666666668
+    }
+   },
+   "agreement": {
+    "moves": {
+     "AtoB": "underpowered",
+     "BtoA": "underpowered",
+     "agree": true,
+     "both_conclusive": false
+    },
+    "structured": {
+     "AtoB": "underpowered",
+     "BtoA": "yes",
+     "agree": false,
+     "both_conclusive": false
+    },
+    "prompt_conditioned": {
+     "AtoB": "underpowered",
+     "BtoA": "underpowered",
+     "agree": true,
+     "both_conclusive": false
+    },
+    "beats_concept_direction": {
+     "AtoB": "underpowered",
+     "BtoA": "underpowered",
+     "agree": true,
+     "both_conclusive": false
+    }
+   }
+  },
+  "B": {
+   "n": {
+    "AtoB": 250,
+    "BtoA": 250
+   },
+   "tv_baseline_to_reference": {
+    "AtoB": 0.03200000000000001,
+    "BtoA": 0.036000000000000004
+   },
+   "AtoB": {
+    "moves": {
+     "verdict": "no",
+     "point": -4.85722573273506e-17,
+     "ci": [
+      -0.02399999999999996,
+      0.019999999999999955
+     ],
+     "ci_width": 0.043999999999999914
+    },
+    "structured": {
+     "verdict": "no",
+     "point": -0.011999999999999997,
+     "ci": [
+      -0.03599999999999995,
+      0.012000000000000004
+     ],
+     "ci_width": 0.04799999999999995
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": -0.008000000000000049,
+     "ci": [
+      -0.03199999999999995,
+      0.008000000000000063
+     ],
+     "ci_width": 0.040000000000000015
+    },
+    "beats_concept_direction": {
+     "verdict": "no",
+     "point": -0.008000000000000042,
+     "ci": [
+      -0.04399999999999997,
+      0.011999999999999962
+     ],
+     "ci_width": 0.05599999999999993
+    }
+   },
+   "BtoA": {
+    "moves": {
+     "verdict": "no",
+     "point": 0.020000000000000018,
+     "ci": [
+      -0.016000000000000007,
+      0.05200000000000003
+     ],
+     "ci_width": 0.06800000000000003
+    },
+    "structured": {
+     "verdict": "no",
+     "point": 0.008000000000000014,
+     "ci": [
+      -0.032,
+      0.04400000000000004
+     ],
+     "ci_width": 0.07600000000000004
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": -0.00399999999999999,
+     "ci": [
+      -0.032000000000000015,
+      0.03200000000000003
+     ],
+     "ci_width": 0.06400000000000004
+    },
+    "beats_concept_direction": {
+     "verdict": "no",
+     "point": 0.0040000000000000105,
+     "ci": [
+      -0.02800000000000001,
+      0.04000000000000002
+     ],
+     "ci_width": 0.06800000000000003
+    }
+   },
+   "agreement": {
+    "moves": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "structured": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "prompt_conditioned": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "beats_concept_direction": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    }
+   }
+  },
+  "C": {
+   "n": {
+    "AtoB": 104,
+    "BtoA": 104
+   },
+   "tv_baseline_to_reference": {
+    "AtoB": 0.27884615384615385,
+    "BtoA": 0.3076923076923077
+   },
+   "AtoB": {
+    "moves": {
+     "verdict": "yes",
+     "point": -0.11538461538461542,
+     "ci": [
+      -0.18269230769230768,
+      -0.057692307692307654
+     ],
+     "ci_width": 0.12500000000000003
+    },
+    "structured": {
+     "verdict": "yes",
+     "point": -0.125,
+     "ci": [
+      -0.19230769230769237,
+      -0.06730769230769229
+     ],
+     "ci_width": 0.12500000000000008
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": 0.009615384615384637,
+     "ci": [
+      -0.038461538461538464,
+      0.0480769230769231
+     ],
+     "ci_width": 0.08653846153846156
+    },
+    "beats_concept_direction": {
+     "verdict": "yes",
+     "point": -0.05769230769230771,
+     "ci": [
+      -0.11538461538461536,
+      -0.019230769230769218
+     ],
+     "ci_width": 0.09615384615384615
+    }
+   },
+   "BtoA": {
+    "moves": {
+     "verdict": "yes",
+     "point": -0.10576923076923075,
+     "ci": [
+      -0.1634615384615385,
+      -0.038461538461538464
+     ],
+     "ci_width": 0.12500000000000003
+    },
+    "structured": {
+     "verdict": "yes",
+     "point": -0.11538461538461534,
+     "ci": [
+      -0.18269230769230765,
+      -0.04807692307692307
+     ],
+     "ci_width": 0.13461538461538458
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": -0.009615384615384609,
+     "ci": [
+      -0.04807692307692313,
+      0.028846153846153855
+     ],
+     "ci_width": 0.07692307692307698
+    },
+    "beats_concept_direction": {
+     "verdict": "yes",
+     "point": -0.057692307692307626,
+     "ci": [
+      -0.11538461538461536,
+      -0.009615384615384609
+     ],
+     "ci_width": 0.10576923076923075
+    }
+   },
+   "agreement": {
+    "moves": {
+     "AtoB": "yes",
+     "BtoA": "yes",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "structured": {
+     "AtoB": "yes",
+     "BtoA": "yes",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "prompt_conditioned": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "beats_concept_direction": {
+     "AtoB": "yes",
+     "BtoA": "yes",
+     "agree": true,
+     "both_conclusive": true
+    }
+   }
+  },
+  "D": {
+   "n": {
+    "AtoB": 30,
+    "BtoA": 30
+   },
+   "tv_baseline_to_reference": {
+    "AtoB": 0.033333333333333326,
+    "BtoA": 0.033333333333333326
+   },
+   "AtoB": {
+    "moves": {
+     "verdict": "no",
+     "point": 0.0,
+     "ci": [
+      0.0,
+      0.0
+     ],
+     "ci_width": 0.0
+    },
+    "structured": {
+     "verdict": "no",
+     "point": -6.938893903907228e-18,
+     "ci": [
+      -0.09999999999999999,
+      0.0
+     ],
+     "ci_width": 0.09999999999999999
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": 0.0,
+     "ci": [
+      0.0,
+      0.0
+     ],
+     "ci_width": 0.0
+    },
+    "beats_concept_direction": {
+     "verdict": "underpowered",
+     "point": -0.033333333333333326,
+     "ci": [
+      -0.1333333333333334,
+      0.06666666666666667
+     ],
+     "ci_width": 0.20000000000000007
+    }
+   },
+   "BtoA": {
+    "moves": {
+     "verdict": "underpowered",
+     "point": 0.0,
+     "ci": [
+      -0.09999999999999999,
+      0.09999999999999999
+     ],
+     "ci_width": 0.19999999999999998
+    },
+    "structured": {
+     "verdict": "underpowered",
+     "point": 0.0,
+     "ci": [
+      -0.09999999999999999,
+      0.09999999999999999
+     ],
+     "ci_width": 0.19999999999999998
+    },
+    "prompt_conditioned": {
+     "verdict": "no",
+     "point": 0.033333333333333326,
+     "ci": [
+      0.0,
+      0.09999999999999999
+     ],
+     "ci_width": 0.09999999999999999
+    },
+    "beats_concept_direction": {
+     "verdict": "underpowered",
+     "point": -0.09999999999999998,
+     "ci": [
+      -0.20000000000000007,
+      0.0
+     ],
+     "ci_width": 0.20000000000000007
+    }
+   },
+   "agreement": {
+    "moves": {
+     "AtoB": "no",
+     "BtoA": "underpowered",
+     "agree": false,
+     "both_conclusive": false
+    },
+    "structured": {
+     "AtoB": "no",
+     "BtoA": "underpowered",
+     "agree": false,
+     "both_conclusive": false
+    },
+    "prompt_conditioned": {
+     "AtoB": "no",
+     "BtoA": "no",
+     "agree": true,
+     "both_conclusive": true
+    },
+    "beats_concept_direction": {
+     "AtoB": "underpowered",
+     "BtoA": "underpowered",
+     "agree": true,
+     "both_conclusive": false
+    }
+   }
+  }
+ },
+ "notes": [
+  "Descriptive side-by-side only. The two directions inject different vectors into different checkpoints, so their statistics are independent runs, not a paired contrast: no combined p-value is computed and none should be inferred from agreement.",
+  "'prompt_conditioned' = identity beats the WITHIN-QUADRANT SHUFFLED delta. Shuffle preserves the per-quadrant delta distribution and destroys the prompt<->delta pairing, so a 'no' here means the movement is carried by a shared per-quadrant component rather than by the delta's per-prompt content.",
+  "'underpowered' is reported separately from 'no' so a 30-row held-out quadrant is never read as evidence of absence.",
+  "Agreement across directions argues the pattern is a property of the delta and the injection site; disagreement argues it is a property of one branch's own pre-DPO model."
+ ]
+}

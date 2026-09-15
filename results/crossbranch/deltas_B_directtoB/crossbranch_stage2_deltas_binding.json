@@ -1,0 +1,49 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "stage": "stage2",
+  "layer": 24,
+  "position": "final",
+  "seed": 20260904,
+  "spawn_order": [
+    "shuffle_within_quadrant",
+    "normmatched_random",
+    "normmatched_random_source",
+    "shuffle_global"
+  ],
+  "roles": {
+    "source_branch": "B_direct",
+    "target_branch": "B",
+    "source_pre": "M1_alt",
+    "source_post": "M3_direct_alt",
+    "target_pre": "M2_alt",
+    "target_post": "M3_alt",
+    "source_corpus": "Dolly-15k",
+    "target_corpus": "Dolly-15k"
+  },
+  "direction_source_stage": "M3_direct_alt",
+  "direction_target_stage": "M3_alt",
+  "dose_scalars": {
+    "s_source": 96.93879706518481,
+    "s_target": 35.920320587793185
+  },
+  "dose_scalar_rule": "median ||delta|| over quadrant A/D rows with split == direction_estimation; calibration-only, never held-out",
+  "n_rows": 654,
+  "artifacts": {
+    "delta_source_dosematched": "results\\crossbranch\\deltas_B_directtoB\\delta_source_dosematched_L24.npz",
+    "normmatched_random_source": "results\\crossbranch\\deltas_B_directtoB\\normmatched_random_source_L24.npz",
+    "dir_source_const": "results\\crossbranch\\deltas_B_directtoB\\dir_source_const_L24.npz",
+    "dir_target_const": "results\\crossbranch\\deltas_B_directtoB\\dir_target_const_L24.npz",
+    "delta_source_shuf_global": "results\\crossbranch\\deltas_B_directtoB\\delta_source_shuf_global_L24.npz"
+  },
+  "artifact_sha256": {
+    "delta_source_dosematched": "6f6ac1be805b7999ee4237a15ce2b19ebb1f39f04f991ea906d2021a8e5ea326",
+    "normmatched_random_source": "08385faee350d12ee7cfa56af4a65403e71e27374939e9e46d21bad9e7ad56c7",
+    "dir_source_const": "a7a3e297c86c65035e5bca7a51adeeee3342aa624a73b52a8a8241fa45791ce7",
+    "dir_target_const": "6fe94e282a19cf0ad29ec24bd30a3af626625cd2e51decfb2d41ec8d1d5c298d",
+    "delta_source_shuf_global": "2e67c58680232caa4db5be2849b0ad13b9a05809c421d203f567d92e80bda9bb"
+  },
+  "oracle_note": "delta_source_dosematched consumes ||delta_target(x)||, the target branch's own post-DPO change for that prompt -- a strictly stronger oracle than the plain identity arm. Label it as such."
+}

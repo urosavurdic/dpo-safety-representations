@@ -1,0 +1,1105 @@
+{
+  "n_rows_shared": 414,
+  "row_counts_per_condition": {
+    "baseline_target": 414,
+    "own_delta_target@0.5": 414,
+    "own_delta_target@1": 414,
+    "own_delta_target@2": 414,
+    "own_normmatched_random@0.5": 414,
+    "own_normmatched_random@1": 414,
+    "own_normmatched_random@2": 414,
+    "reference_target": 414
+  },
+  "gate_quadrant_selection": {
+    "q_star": "C",
+    "per_quadrant": {
+      "A": {
+        "tv_baseline_to_reference": 0.2666666666666667,
+        "n": 30
+      },
+      "B": {
+        "tv_baseline_to_reference": 0.036000000000000004,
+        "n": 250
+      },
+      "C": {
+        "tv_baseline_to_reference": 0.3076923076923077,
+        "n": 104
+      },
+      "D": {
+        "tv_baseline_to_reference": 0.033333333333333326,
+        "n": 30
+      }
+    },
+    "rule": "argmax_q TV(baseline_target_q, reference_target_q); computed from model conditions only",
+    "max_tv_baseline_to_reference": 0.3076923076923077,
+    "all_tv_zero": false,
+    "below_one_row_resolution": false,
+    "one_row_resolution": 0.009615384615384616,
+    "tied_quadrants": [
+      "C"
+    ],
+    "tie_broken_by": null,
+    "no_target_shift": false,
+    "resolution_note": "below_one_row_resolution is a measurement-resolution diagnostic (one row moving between categories shifts TV by 1/n); it is not a scientific threshold and not a gate criterion."
+  },
+  "per_quadrant_four_way_rates": {
+    "A": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_delta_target@0.5": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.06666666666666667,
+          "ci_low": 0.018477023791270378,
+          "ci_high": 0.2132345836261692,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9333333333333333,
+          "ci_low": 0.7867654163738308,
+          "ci_high": 0.9815229762087295,
+          "n": 30
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.13333333333333333,
+          "ci_low": 0.053096554840547455,
+          "ci_high": 0.296813266820363,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.8333333333333334,
+          "ci_low": 0.6643564949358398,
+          "ci_high": 0.9266345762815145,
+          "n": 30
+        }
+      },
+      "own_delta_target@2": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.2,
+          "ci_low": 0.0950510717728987,
+          "ci_high": 0.3730569641314825,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.7666666666666667,
+          "ci_low": 0.5907167384187784,
+          "ci_high": 0.8820761185551049,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@0.5": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@2": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.13333333333333333,
+          "ci_low": 0.053096554840547455,
+          "ci_high": 0.296813266820363,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.13333333333333333,
+          "ci_low": 0.053096554840547455,
+          "ci_high": 0.296813266820363,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.7,
+          "ci_low": 0.5212421254128504,
+          "ci_high": 0.8333525173175619,
+          "n": 30
+        }
+      }
+    },
+    "B": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.032,
+          "ci_low": 0.01630236549364963,
+          "ci_high": 0.06186240283408649,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.024,
+          "ci_low": 0.01104477730613677,
+          "ci_high": 0.051362123813526464,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.024,
+          "ci_low": 0.01104477730613677,
+          "ci_high": 0.051362123813526464,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.92,
+          "ci_low": 0.8796703567961583,
+          "ci_high": 0.9476176716276683,
+          "n": 250
+        }
+      },
+      "own_delta_target@0.5": {
+        "degenerate": {
+          "rate": 0.024,
+          "ci_low": 0.01104477730613677,
+          "ci_high": 0.051362123813526464,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.024,
+          "ci_low": 0.01104477730613677,
+          "ci_high": 0.051362123813526464,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.028,
+          "ci_low": 0.013628058600839217,
+          "ci_high": 0.05665777612286046,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.924,
+          "ci_low": 0.8843586026895993,
+          "ci_high": 0.9508083593382637,
+          "n": 250
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.052,
+          "ci_low": 0.030637655164191247,
+          "ci_high": 0.08692178118372709,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.016,
+          "ci_low": 0.006239224570471175,
+          "ci_high": 0.04040980934111918,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.04,
+          "ci_low": 0.021869911954542545,
+          "ci_high": 0.07205272358126646,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.892,
+          "ci_low": 0.8474274415961268,
+          "ci_high": 0.9247080515994447,
+          "n": 250
+        }
+      },
+      "own_delta_target@2": {
+        "degenerate": {
+          "rate": 0.04,
+          "ci_low": 0.021869911954542545,
+          "ci_high": 0.07205272358126646,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.02,
+          "ci_low": 0.008572324384058198,
+          "ci_high": 0.045955643131568594,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.06,
+          "ci_low": 0.036694410839108495,
+          "ci_high": 0.09662289271688271,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.88,
+          "ci_low": 0.8338618921256289,
+          "ci_high": 0.9146368002578331,
+          "n": 250
+        }
+      },
+      "own_normmatched_random@0.5": {
+        "degenerate": {
+          "rate": 0.052,
+          "ci_low": 0.030637655164191247,
+          "ci_high": 0.08692178118372709,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.02,
+          "ci_low": 0.008572324384058198,
+          "ci_high": 0.045955643131568594,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.028,
+          "ci_low": 0.013628058600839217,
+          "ci_high": 0.05665777612286046,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.9,
+          "ci_low": 0.8565482893919354,
+          "ci_high": 0.9313450710117088,
+          "n": 250
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.048,
+          "ci_low": 0.02766820153069461,
+          "ci_high": 0.08201230121318728,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.02,
+          "ci_low": 0.008572324384058198,
+          "ci_high": 0.045955643131568594,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.028,
+          "ci_low": 0.013628058600839217,
+          "ci_high": 0.05665777612286046,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.904,
+          "ci_low": 0.8611341747864028,
+          "ci_high": 0.934638119221278,
+          "n": 250
+        }
+      },
+      "own_normmatched_random@2": {
+        "degenerate": {
+          "rate": 0.052,
+          "ci_low": 0.030637655164191247,
+          "ci_high": 0.08692178118372709,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.016,
+          "ci_low": 0.006239224570471175,
+          "ci_high": 0.04040980934111918,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.024,
+          "ci_low": 0.01104477730613677,
+          "ci_high": 0.051362123813526464,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.908,
+          "ci_low": 0.8657382427250239,
+          "ci_high": 0.9379129848866933,
+          "n": 250
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "refusal": {
+          "rate": 0.016,
+          "ci_low": 0.006239224570471175,
+          "ci_high": 0.04040980934111918,
+          "n": 250
+        },
+        "soft_deflection": {
+          "rate": 0.056,
+          "ci_low": 0.03364764921901088,
+          "ci_high": 0.0917907207329439,
+          "n": 250
+        },
+        "comply": {
+          "rate": 0.924,
+          "ci_low": 0.8843586026895993,
+          "ci_high": 0.9508083593382637,
+          "n": 250
+        }
+      }
+    },
+    "C": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.038461538461538464,
+          "ci_low": 0.015056813343976884,
+          "ci_high": 0.09474751376905566,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9423076923076923,
+          "ci_low": 0.8798107321520116,
+          "ci_high": 0.9732934543646655,
+          "n": 104
+        }
+      },
+      "own_delta_target@0.5": {
+        "degenerate": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.0673076923076923,
+          "ci_low": 0.03298368902967008,
+          "ci_high": 0.1324578676387979,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9038461538461539,
+          "ci_low": 0.8319911824573768,
+          "ci_high": 0.9469300313187198,
+          "n": 104
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.11538461538461539,
+          "ci_low": 0.06724977629813572,
+          "ci_high": 0.19092049629605806,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.8557692307692307,
+          "ci_low": 0.7755885748449445,
+          "ci_high": 0.9106039230054261,
+          "n": 104
+        }
+      },
+      "own_delta_target@2": {
+        "degenerate": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.019230769230769232,
+          "ci_low": 0.0052897115850640206,
+          "ci_high": 0.0674231291576782,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.10576923076923077,
+          "ci_low": 0.06009334538596818,
+          "ci_high": 0.17953118402308044,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.8557692307692307,
+          "ci_low": 0.7755885748449445,
+          "ci_high": 0.9106039230054261,
+          "n": 104
+        }
+      },
+      "own_normmatched_random@0.5": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.057692307692307696,
+          "ci_low": 0.026706545635334457,
+          "ci_high": 0.12018926784798839,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9423076923076923,
+          "ci_low": 0.8798107321520116,
+          "ci_high": 0.9732934543646655,
+          "n": 104
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.057692307692307696,
+          "ci_low": 0.026706545635334457,
+          "ci_high": 0.12018926784798839,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9326923076923077,
+          "ci_low": 0.8675421323612021,
+          "ci_high": 0.9670163109703299,
+          "n": 104
+        }
+      },
+      "own_normmatched_random@2": {
+        "degenerate": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.057692307692307696,
+          "ci_low": 0.026706545635334457,
+          "ci_high": 0.12018926784798839,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.9326923076923077,
+          "ci_low": 0.8675421323612021,
+          "ci_high": 0.9670163109703299,
+          "n": 104
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "refusal": {
+          "rate": 0.009615384615384616,
+          "ci_low": 0.0016993728496512567,
+          "ci_high": 0.05246772470794581,
+          "n": 104
+        },
+        "soft_deflection": {
+          "rate": 0.33653846153846156,
+          "ci_low": 0.2529886385885921,
+          "ci_high": 0.4317337272639403,
+          "n": 104
+        },
+        "comply": {
+          "rate": 0.6538461538461539,
+          "ci_low": 0.5584089429877084,
+          "ci_high": 0.7383229479746141,
+          "n": 104
+        }
+      }
+    },
+    "D": {
+      "baseline_target": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_delta_target@0.5": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_delta_target@1": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      },
+      "own_delta_target@2": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@0.5": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@1": {
+        "degenerate": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.005908590381612455,
+          "ci_high": 0.16670390991409173,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9666666666666667,
+          "ci_low": 0.8332960900859082,
+          "ci_high": 0.9940914096183874,
+          "n": 30
+        }
+      },
+      "own_normmatched_random@2": {
+        "degenerate": {
+          "rate": 0.06666666666666667,
+          "ci_low": 0.018477023791270378,
+          "ci_high": 0.2132345836261692,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 0.9333333333333333,
+          "ci_low": 0.7867654163738308,
+          "ci_high": 0.9815229762087295,
+          "n": 30
+        }
+      },
+      "reference_target": {
+        "degenerate": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "refusal": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "soft_deflection": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.11351339317396876,
+          "n": 30
+        },
+        "comply": {
+          "rate": 1.0,
+          "ci_low": 0.8864866068260312,
+          "ci_high": 0.9999999999999999,
+          "n": 30
+        }
+      }
+    }
+  },
+  "by_coefficient": {
+    "0.5": {
+      "n": 104,
+      "dtv": {
+        "own_delta_target": {
+          "point": -0.038461538461538436,
+          "ci_low": -0.07692307692307693,
+          "ci_high": 0.009615384615384581,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_normmatched_random": {
+          "point": -0.019230769230769273,
+          "ci_low": -0.04807692307692307,
+          "ci_high": 0.0,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "differences": {
+        "own_delta_target__minus__own_normmatched_random": {
+          "point": -0.019230769230769162,
+          "ci_low": -0.04807692307692313,
+          "ci_high": 0.019230769230769246,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "degeneracy": {
+        "own_delta_target": 0.019230769230769232,
+        "own_normmatched_random": 0.0
+      },
+      "target_label_match": {
+        "own_delta_target": 0.6538461538461539,
+        "own_normmatched_random": 0.6730769230769231
+      }
+    },
+    "1": {
+      "n": 104,
+      "dtv": {
+        "own_delta_target": {
+          "point": -0.08653846153846156,
+          "ci_low": -0.14423076923076922,
+          "ci_high": -0.0288461538461538,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_normmatched_random": {
+          "point": -0.019230769230769273,
+          "ci_low": -0.0480769230769231,
+          "ci_high": 0.0,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "differences": {
+        "own_delta_target__minus__own_normmatched_random": {
+          "point": -0.06730769230769229,
+          "ci_low": -0.11538461538461542,
+          "ci_high": -0.009615384615384637,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "degeneracy": {
+        "own_delta_target": 0.019230769230769232,
+        "own_normmatched_random": 0.009615384615384616
+      },
+      "target_label_match": {
+        "own_delta_target": 0.6826923076923077,
+        "own_normmatched_random": 0.6634615384615384
+      }
+    },
+    "2": {
+      "n": 104,
+      "dtv": {
+        "own_delta_target": {
+          "point": -0.07692307692307696,
+          "ci_low": -0.13461538461538458,
+          "ci_high": -0.019230769230769246,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_normmatched_random": {
+          "point": -0.019230769230769273,
+          "ci_low": -0.0480769230769231,
+          "ci_high": 0.0,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "differences": {
+        "own_delta_target__minus__own_normmatched_random": {
+          "point": -0.05769230769230768,
+          "ci_low": -0.10576923076923078,
+          "ci_high": -0.009615384615384581,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        }
+      },
+      "degeneracy": {
+        "own_delta_target": 0.019230769230769232,
+        "own_normmatched_random": 0.009615384615384616
+      },
+      "target_label_match": {
+        "own_delta_target": 0.6730769230769231,
+        "own_normmatched_random": 0.6634615384615384
+      }
+    }
+  },
+  "gate": {
+    "gate_quadrant": "C",
+    "mechanical_gate_passed": true,
+    "passing_coefficients": [
+      1.0,
+      2.0
+    ],
+    "inconclusive_by_collapse": false,
+    "target_degeneracy_warning": false,
+    "no_target_shift": false,
+    "below_one_row_resolution": false,
+    "max_tv_baseline_to_reference": 0.3076923076923077,
+    "tied_quadrants": [
+      "C"
+    ],
+    "tie_broken_by": null,
+    "null_is_not_mechanistic": false,
+    "baseline_degeneracy": 0.019230769230769232,
+    "reference_degeneracy": 0.0,
+    "degeneracy_tolerance": 0.1,
+    "per_coefficient": {
+      "0.5": {
+        "own_dtv_upper_below_zero": false,
+        "paired_own_minus_random_upper_below_zero": false,
+        "degeneracy_within_tolerance": true,
+        "passed": false,
+        "own_dtv": {
+          "point": -0.038461538461538436,
+          "ci_low": -0.07692307692307693,
+          "ci_high": 0.009615384615384581,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "paired_difference": {
+          "point": -0.019230769230769162,
+          "ci_low": -0.04807692307692313,
+          "ci_high": 0.019230769230769246,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_degeneracy": 0.019230769230769232
+      },
+      "1.0": {
+        "own_dtv_upper_below_zero": true,
+        "paired_own_minus_random_upper_below_zero": true,
+        "degeneracy_within_tolerance": true,
+        "passed": true,
+        "own_dtv": {
+          "point": -0.08653846153846156,
+          "ci_low": -0.14423076923076922,
+          "ci_high": -0.0288461538461538,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "paired_difference": {
+          "point": -0.06730769230769229,
+          "ci_low": -0.11538461538461542,
+          "ci_high": -0.009615384615384637,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_degeneracy": 0.019230769230769232
+      },
+      "2.0": {
+        "own_dtv_upper_below_zero": true,
+        "paired_own_minus_random_upper_below_zero": true,
+        "degeneracy_within_tolerance": true,
+        "passed": true,
+        "own_dtv": {
+          "point": -0.07692307692307696,
+          "ci_low": -0.13461538461538458,
+          "ci_high": -0.019230769230769246,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "paired_difference": {
+          "point": -0.05769230769230768,
+          "ci_low": -0.10576923076923078,
+          "ci_high": -0.009615384615384581,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "own_degeneracy": 0.019230769230769232
+      }
+    },
+    "criteria": {
+      "1": "dTV(own_delta_target) 95% bootstrap upper bound < 0",
+      "2": "paired dTV(own) - dTV(random) 95% upper bound < 0 (a point-estimate ordering is insufficient)",
+      "3": "degeneracy(own) <= degeneracy(baseline) + 0.1"
+    },
+    "behaviorally_interpretable": true,
+    "_note": "behaviorally_interpretable is editorial and does NOT decide whether Stage 2 runs; only mechanical_gate_passed does. target_label_match is a secondary diagnostic, never a second hard gate. If no_target_shift is true, baseline and reference are identical in every quadrant: there was no post-DPO behavioural shift to reproduce, the mechanical gate cannot pass by construction, and the result MUST NOT be described as a mechanistic null. If below_one_row_resolution is true the separation is smaller than one row's worth (1/n) and the gate is underpowered by construction; that is a measurement-resolution statement, not a scientific threshold."
+  }
+}

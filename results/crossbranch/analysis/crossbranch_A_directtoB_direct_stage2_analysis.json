@@ -1,0 +1,2474 @@
+{
+  "coef": 1.0,
+  "n_rows_shared": 414,
+  "arms_present": [
+    "xfer_delta_source_identity",
+    "xfer_delta_source_shuf_wq",
+    "xfer_delta_source_normmatched",
+    "xfer_delta_source_dosematched",
+    "dir_source_matched",
+    "dir_target_matched",
+    "own_delta_target"
+  ],
+  "contrasts": [
+    "xfer_delta_source_identity__minus__xfer_delta_source_shuf_wq",
+    "xfer_delta_source_identity__minus__xfer_delta_source_normmatched",
+    "xfer_delta_source_identity__minus__xfer_delta_source_dosematched",
+    "xfer_delta_source_identity__minus__dir_source_matched",
+    "dir_target_matched__minus__dir_source_matched",
+    "xfer_delta_source_identity__minus__own_delta_target"
+  ],
+  "stage1_gate_quadrant": "C",
+  "bootstrap": {
+    "b": 10000,
+    "seed": 20260904,
+    "interval": "percentile",
+    "paired": true
+  },
+  "per_quadrant": {
+    "A": {
+      "n": 30,
+      "tv_baseline_to_reference": 0.09999999999999999,
+      "baseline_target_label_match": {
+        "point": 0.8666666666666667,
+        "ci_low": 0.7333333333333333,
+        "ci_high": 0.9666666666666667,
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile"
+      },
+      "baseline_degeneracy_rate": 0.0,
+      "reference_degeneracy_rate": 0.03333333333333333,
+      "arms": {
+        "xfer_delta_source_identity": {
+          "dtv": {
+            "point": -0.06666666666666667,
+            "ci_low": -0.1,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.7666666666666667,
+            "ci_low": 0.6,
+            "ci_high": 0.9,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": -0.03333333333333333,
+            "ci_low": -0.1,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.03333333333333333,
+            "ci_low": -0.06666666666666668,
+            "ci_high": 0.13333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        },
+        "xfer_delta_source_shuf_wq": {
+          "dtv": {
+            "point": 1.3877787807814457e-17,
+            "ci_low": -0.09999999999999996,
+            "ci_high": 0.16666666666666674,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.7333333333333333,
+            "ci_low": 0.5666666666666667,
+            "ci_high": 0.8666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.1,
+            "ci_low": 0.0,
+            "ci_high": 0.2333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.1,
+            "ci_low": 0.0,
+            "ci_high": 0.2333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        },
+        "xfer_delta_source_normmatched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8666666666666667,
+            "ci_low": 0.7333333333333333,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_dosematched": {
+          "dtv": {
+            "point": -0.09999999999999999,
+            "ci_low": -0.1333333333333333,
+            "ci_high": 0.1333333333333334,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.7333333333333333,
+            "ci_low": 0.5666666666666667,
+            "ci_high": 0.8666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": -0.1,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.06666666666666668,
+            "ci_low": -0.06666666666666667,
+            "ci_high": 0.2,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        },
+        "dir_source_matched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8666666666666667,
+            "ci_low": 0.7333333333333333,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_target_matched": {
+          "dtv": {
+            "point": 0.03333333333333331,
+            "ci_low": -2.7755575615628914e-17,
+            "ci_high": 0.06666666666666668,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8666666666666667,
+            "ci_low": 0.7333333333333333,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": -0.03333333333333333,
+            "ci_low": -0.1,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": -0.03333333333333333,
+            "ci_low": -0.1,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "own_delta_target": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": -0.06666666666666668,
+            "ci_high": 0.06666666666666665,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8333333333333334,
+            "ci_low": 0.7,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": -0.03333333333333333,
+            "ci_low": -0.1,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": -0.1,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        }
+      },
+      "contrasts": {
+        "xfer_delta_source_identity__minus__xfer_delta_source_shuf_wq": {
+          "dtv_diff": {
+            "point": -0.06666666666666668,
+            "ci_low": -0.2,
+            "ci_high": 0.09999999999999998,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.03333333333333344,
+            "ci_low": -0.10000000000000009,
+            "ci_high": 0.16666666666666674,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_normmatched": {
+          "dtv_diff": {
+            "point": -0.06666666666666667,
+            "ci_low": -0.1,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.09999999999999998,
+            "ci_low": -0.20000000000000007,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_dosematched": {
+          "dtv_diff": {
+            "point": 0.033333333333333326,
+            "ci_low": -0.06666666666666672,
+            "ci_high": 0.06666666666666665,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.03333333333333344,
+            "ci_low": 0.0,
+            "ci_high": 0.10000000000000009,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": -0.06666666666666667,
+            "ci_low": -0.1,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.09999999999999998,
+            "ci_low": -0.20000000000000007,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "dir_target_matched__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": 0.03333333333333331,
+            "ci_low": -2.7755575615628914e-17,
+            "ci_high": 0.06666666666666668,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__own_delta_target": {
+          "dtv_diff": {
+            "point": -0.06666666666666667,
+            "ci_low": -0.09999999999999999,
+            "ci_high": 0.1,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.06666666666666665,
+            "ci_low": -0.16666666666666674,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        }
+      },
+      "primary_refusal_metric": "refusal",
+      "four_way_rates": {
+        "baseline_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        },
+        "reference_target": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.06666666666666667,
+            "ci_low": 0.018477023791270378,
+            "ci_high": 0.2132345836261692,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.8666666666666667,
+            "ci_low": 0.703186733179637,
+            "ci_high": 0.9469034451594526,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_identity": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.06666666666666667,
+            "ci_low": 0.018477023791270378,
+            "ci_high": 0.2132345836261692,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9,
+            "ci_low": 0.7437891742081593,
+            "ci_high": 0.9654001112526658,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_shuf_wq": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.13333333333333333,
+            "ci_low": 0.053096554840547455,
+            "ci_high": 0.296813266820363,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.8333333333333334,
+            "ci_low": 0.6643564949358398,
+            "ci_high": 0.9266345762815145,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_normmatched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_dosematched": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.06666666666666667,
+            "ci_low": 0.018477023791270378,
+            "ci_high": 0.2132345836261692,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.8666666666666667,
+            "ci_low": 0.703186733179637,
+            "ci_high": 0.9469034451594526,
+            "n": 30
+          }
+        },
+        "dir_source_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        },
+        "dir_target_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "own_delta_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        }
+      }
+    },
+    "B": {
+      "n": 250,
+      "tv_baseline_to_reference": 0.21599999999999997,
+      "baseline_target_label_match": {
+        "point": 0.784,
+        "ci_low": 0.732,
+        "ci_high": 0.832,
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile"
+      },
+      "baseline_degeneracy_rate": 0.0,
+      "reference_degeneracy_rate": 0.0,
+      "arms": {
+        "xfer_delta_source_identity": {
+          "dtv": {
+            "point": -0.027999999999999997,
+            "ci_low": -0.04400000000000001,
+            "ci_high": -0.008000000000000007,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.78,
+            "ci_low": 0.728,
+            "ci_high": 0.828,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.016,
+            "ci_low": 0.004,
+            "ci_high": 0.032,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.028,
+            "ci_low": 0.008,
+            "ci_high": 0.048,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_shuf_wq": {
+          "dtv": {
+            "point": -0.03199999999999997,
+            "ci_low": -0.055999999999999966,
+            "ci_high": -0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.792,
+            "ci_low": 0.744,
+            "ci_high": 0.84,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.008,
+            "ci_low": 0.0,
+            "ci_high": 0.02,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.032,
+            "ci_low": 0.012,
+            "ci_high": 0.056,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_normmatched": {
+          "dtv": {
+            "point": -0.0040000000000000036,
+            "ci_low": -0.01200000000000001,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.788,
+            "ci_low": 0.736,
+            "ci_high": 0.836,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.004,
+            "ci_low": 0.0,
+            "ci_high": 0.012,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_dosematched": {
+          "dtv": {
+            "point": -0.036000000000000004,
+            "ci_low": -0.05200000000000002,
+            "ci_high": -0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.78,
+            "ci_low": 0.728,
+            "ci_high": 0.828,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.02,
+            "ci_low": 0.004,
+            "ci_high": 0.04,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.036,
+            "ci_low": 0.016,
+            "ci_high": 0.06,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_source_matched": {
+          "dtv": {
+            "point": -0.023999999999999994,
+            "ci_low": -0.04000000000000001,
+            "ci_high": -0.00799999999999998,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.788,
+            "ci_low": 0.736,
+            "ci_high": 0.836,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.016,
+            "ci_low": 0.004,
+            "ci_high": 0.032,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.024,
+            "ci_low": 0.008,
+            "ci_high": 0.044,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_target_matched": {
+          "dtv": {
+            "point": -0.003999999999999976,
+            "ci_low": -0.01200000000000001,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.78,
+            "ci_low": 0.728,
+            "ci_high": 0.828,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.004,
+            "ci_low": 0.0,
+            "ci_high": 0.012,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.004,
+            "ci_low": 0.0,
+            "ci_high": 0.012,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "own_delta_target": {
+          "dtv": {
+            "point": -0.035999999999999976,
+            "ci_low": -0.06,
+            "ci_high": -0.015999999999999986,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.804,
+            "ci_low": 0.756,
+            "ci_high": 0.852,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.008,
+            "ci_low": 0.0,
+            "ci_high": 0.02,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.036,
+            "ci_low": 0.016,
+            "ci_high": 0.06,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        }
+      },
+      "contrasts": {
+        "xfer_delta_source_identity__minus__xfer_delta_source_shuf_wq": {
+          "dtv_diff": {
+            "point": 0.003999999999999976,
+            "ci_low": -0.01999999999999999,
+            "ci_high": 0.032,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.01200000000000001,
+            "ci_low": -0.039999999999999925,
+            "ci_high": 0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_normmatched": {
+          "dtv_diff": {
+            "point": -0.023999999999999994,
+            "ci_low": -0.043999999999999984,
+            "ci_high": -0.003999999999999976,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.008000000000000007,
+            "ci_low": -0.03199999999999992,
+            "ci_high": 0.015999999999999903,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_dosematched": {
+          "dtv_diff": {
+            "point": 0.008000000000000007,
+            "ci_low": 0.0,
+            "ci_high": 0.016000000000000014,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": -0.01200000000000001,
+            "ci_high": 0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": -0.0040000000000000036,
+            "ci_low": -0.020000000000000018,
+            "ci_high": 0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.008000000000000007,
+            "ci_low": -0.028000000000000025,
+            "ci_high": 0.01200000000000001,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "dir_target_matched__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": 0.020000000000000018,
+            "ci_low": 0.0040000000000000036,
+            "ci_high": 0.036000000000000004,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.008000000000000007,
+            "ci_low": -0.02400000000000002,
+            "ci_high": 0.008000000000000007,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__own_delta_target": {
+          "dtv_diff": {
+            "point": 0.00799999999999998,
+            "ci_low": -0.008000000000000007,
+            "ci_high": 0.028000000000000025,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.02400000000000002,
+            "ci_low": -0.04400000000000004,
+            "ci_high": -0.008000000000000007,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        }
+      },
+      "primary_refusal_metric": "refusal_or_soft_deflection",
+      "four_way_rates": {
+        "baseline_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.9848667005045553,
+            "ci_high": 0.9999999999999998,
+            "n": 250
+          }
+        },
+        "reference_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.02,
+            "ci_low": 0.008572324384058198,
+            "ci_high": 0.045955643131568594,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.196,
+            "ci_low": 0.1515502357896319,
+            "ci_high": 0.24965081030359842,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.784,
+            "ci_low": 0.7288965817807946,
+            "ci_high": 0.8305077041057929,
+            "n": 250
+          }
+        },
+        "xfer_delta_source_identity": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.016,
+            "ci_low": 0.006239224570471175,
+            "ci_high": 0.04040980934111918,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.012,
+            "ci_low": 0.0040893198805342975,
+            "ci_high": 0.0346807804270196,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.972,
+            "ci_low": 0.9433422238771394,
+            "ci_high": 0.9863719413991607,
+            "n": 250
+          }
+        },
+        "xfer_delta_source_shuf_wq": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.008,
+            "ci_low": 0.0021966371203094217,
+            "ci_high": 0.02869452958320804,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.024,
+            "ci_low": 0.01104477730613677,
+            "ci_high": 0.051362123813526464,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.968,
+            "ci_low": 0.9381375971659135,
+            "ci_high": 0.9836976345063503,
+            "n": 250
+          }
+        },
+        "xfer_delta_source_normmatched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.004,
+            "ci_low": 0.0007064475340650966,
+            "ci_high": 0.02230578556541592,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.996,
+            "ci_low": 0.9776942144345839,
+            "ci_high": 0.9992935524659348,
+            "n": 250
+          }
+        },
+        "xfer_delta_source_dosematched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.02,
+            "ci_low": 0.008572324384058198,
+            "ci_high": 0.045955643131568594,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.016,
+            "ci_low": 0.006239224570471175,
+            "ci_high": 0.04040980934111918,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.964,
+            "ci_low": 0.9330095775982306,
+            "ci_high": 0.9809467204699966,
+            "n": 250
+          }
+        },
+        "dir_source_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.016,
+            "ci_low": 0.006239224570471175,
+            "ci_high": 0.04040980934111918,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.008,
+            "ci_low": 0.0021966371203094217,
+            "ci_high": 0.02869452958320804,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.976,
+            "ci_low": 0.9486378761864735,
+            "ci_high": 0.9889552226938632,
+            "n": 250
+          }
+        },
+        "dir_target_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.004,
+            "ci_low": 0.0007064475340650966,
+            "ci_high": 0.02230578556541592,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.996,
+            "ci_low": 0.9776942144345839,
+            "ci_high": 0.9992935524659348,
+            "n": 250
+          }
+        },
+        "own_delta_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 8.673617379884035e-19,
+            "ci_high": 0.015133299495444574,
+            "n": 250
+          },
+          "refusal": {
+            "rate": 0.008,
+            "ci_low": 0.0021966371203094217,
+            "ci_high": 0.02869452958320804,
+            "n": 250
+          },
+          "soft_deflection": {
+            "rate": 0.028,
+            "ci_low": 0.013628058600839217,
+            "ci_high": 0.05665777612286046,
+            "n": 250
+          },
+          "comply": {
+            "rate": 0.964,
+            "ci_low": 0.9330095775982306,
+            "ci_high": 0.9809467204699966,
+            "n": 250
+          }
+        }
+      }
+    },
+    "C": {
+      "n": 104,
+      "tv_baseline_to_reference": 0.06730769230769229,
+      "baseline_target_label_match": {
+        "point": 0.9326923076923077,
+        "ci_low": 0.8846153846153846,
+        "ci_high": 0.9807692307692307,
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile"
+      },
+      "baseline_degeneracy_rate": 0.0,
+      "reference_degeneracy_rate": 0.0,
+      "arms": {
+        "xfer_delta_source_identity": {
+          "dtv": {
+            "point": -0.009615384615384609,
+            "ci_low": -0.02884615384615387,
+            "ci_high": 0.00961538461538456,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9038461538461539,
+            "ci_low": 0.8461538461538461,
+            "ci_high": 0.9615384615384616,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.019230769230769232,
+            "ci_low": 0.0,
+            "ci_high": 0.04807692307692308,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.028846153846153848,
+            "ci_low": 0.0,
+            "ci_high": 0.0673076923076923,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_shuf_wq": {
+          "dtv": {
+            "point": -0.02884615384615384,
+            "ci_low": -0.0576923076923077,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9038461538461539,
+            "ci_low": 0.8461538461538461,
+            "ci_high": 0.9519230769230769,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.028846153846153848,
+            "ci_low": 0.0,
+            "ci_high": 0.0673076923076923,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_normmatched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9326923076923077,
+            "ci_low": 0.8846153846153846,
+            "ci_high": 0.9807692307692307,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_dosematched": {
+          "dtv": {
+            "point": -0.01923076923076921,
+            "ci_low": -0.04807692307692306,
+            "ci_high": 0.009615384615384612,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8942307692307693,
+            "ci_low": 0.8269230769230769,
+            "ci_high": 0.9519230769230769,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.019230769230769232,
+            "ci_low": 0.0,
+            "ci_high": 0.04807692307692308,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.038461538461538464,
+            "ci_low": 0.009615384615384616,
+            "ci_high": 0.07692307692307693,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_source_matched": {
+          "dtv": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": -2.7755575615628914e-17,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9230769230769231,
+            "ci_low": 0.8653846153846154,
+            "ci_high": 0.9711538461538461,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.009615384615384616,
+            "ci_low": 0.0,
+            "ci_high": 0.028846153846153848,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.009615384615384616,
+            "ci_low": 0.0,
+            "ci_high": 0.028846153846153848,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_target_matched": {
+          "dtv": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": -2.7755575615628914e-17,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9230769230769231,
+            "ci_low": 0.8653846153846154,
+            "ci_high": 0.9711538461538461,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.009615384615384616,
+            "ci_low": 0.0,
+            "ci_high": 0.028846153846153848,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.009615384615384616,
+            "ci_low": 0.0,
+            "ci_high": 0.028846153846153848,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "own_delta_target": {
+          "dtv": {
+            "point": -0.009615384615384609,
+            "ci_low": -0.02884615384615387,
+            "ci_high": 0.009615384615384578,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.9038461538461539,
+            "ci_low": 0.8461538461538461,
+            "ci_high": 0.9519230769230769,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.019230769230769232,
+            "ci_low": 0.0,
+            "ci_high": 0.04807692307692308,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.028846153846153848,
+            "ci_low": 0.0,
+            "ci_high": 0.0673076923076923,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        }
+      },
+      "contrasts": {
+        "xfer_delta_source_identity__minus__xfer_delta_source_shuf_wq": {
+          "dtv_diff": {
+            "point": 0.019230769230769232,
+            "ci_low": -0.019230769230769218,
+            "ci_high": 0.057692307692307654,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": -0.04807692307692313,
+            "ci_high": 0.04807692307692302,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_normmatched": {
+          "dtv_diff": {
+            "point": -0.009615384615384609,
+            "ci_low": -0.02884615384615387,
+            "ci_high": 0.00961538461538456,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.028846153846153855,
+            "ci_low": -0.06730769230769229,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_dosematched": {
+          "dtv_diff": {
+            "point": 0.009615384615384602,
+            "ci_low": -4.163336342344337e-17,
+            "ci_high": 0.028846153846153855,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.009615384615384581,
+            "ci_low": 0.0,
+            "ci_high": 0.028846153846153855,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": -0.009615384615384637,
+            "ci_low": -0.028846153846153872,
+            "ci_high": 0.009615384615384547,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.019230769230769273,
+            "ci_low": -0.04807692307692313,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "dir_target_matched__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__own_delta_target": {
+          "dtv_diff": {
+            "point": 0.0,
+            "ci_low": -0.028846153846153848,
+            "ci_high": 0.02884615384615384,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": -0.028846153846153855,
+            "ci_high": 0.028846153846153855,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        }
+      },
+      "primary_refusal_metric": "refusal",
+      "four_way_rates": {
+        "baseline_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.9643786456275479,
+            "ci_high": 0.9999999999999999,
+            "n": 104
+          }
+        },
+        "reference_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.0673076923076923,
+            "ci_low": 0.03298368902967008,
+            "ci_high": 0.1324578676387979,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9326923076923077,
+            "ci_low": 0.8675421323612021,
+            "ci_high": 0.9670163109703299,
+            "n": 104
+          }
+        },
+        "xfer_delta_source_identity": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.019230769230769232,
+            "ci_low": 0.0052897115850640206,
+            "ci_high": 0.0674231291576782,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.009615384615384616,
+            "ci_low": 0.0016993728496512567,
+            "ci_high": 0.05246772470794581,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9711538461538461,
+            "ci_low": 0.9185995989748896,
+            "ci_high": 0.9901418170972229,
+            "n": 104
+          }
+        },
+        "xfer_delta_source_shuf_wq": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.028846153846153848,
+            "ci_low": 0.009858182902777006,
+            "ci_high": 0.08140040102511037,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9711538461538461,
+            "ci_low": 0.9185995989748896,
+            "ci_high": 0.9901418170972229,
+            "n": 104
+          }
+        },
+        "xfer_delta_source_normmatched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.9643786456275479,
+            "ci_high": 0.9999999999999999,
+            "n": 104
+          }
+        },
+        "xfer_delta_source_dosematched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.019230769230769232,
+            "ci_low": 0.0052897115850640206,
+            "ci_high": 0.0674231291576782,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.019230769230769232,
+            "ci_low": 0.0052897115850640206,
+            "ci_high": 0.0674231291576782,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9615384615384616,
+            "ci_low": 0.9052524862309445,
+            "ci_high": 0.9849431866560231,
+            "n": 104
+          }
+        },
+        "dir_source_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.009615384615384616,
+            "ci_low": 0.0016993728496512567,
+            "ci_high": 0.05246772470794581,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9903846153846154,
+            "ci_low": 0.9475322752920542,
+            "ci_high": 0.9983006271503486,
+            "n": 104
+          }
+        },
+        "dir_target_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.009615384615384616,
+            "ci_low": 0.0016993728496512567,
+            "ci_high": 0.05246772470794581,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9903846153846154,
+            "ci_low": 0.9475322752920542,
+            "ci_high": 0.9983006271503486,
+            "n": 104
+          }
+        },
+        "own_delta_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.03562135437245191,
+            "n": 104
+          },
+          "refusal": {
+            "rate": 0.019230769230769232,
+            "ci_low": 0.0052897115850640206,
+            "ci_high": 0.0674231291576782,
+            "n": 104
+          },
+          "soft_deflection": {
+            "rate": 0.009615384615384616,
+            "ci_low": 0.0016993728496512567,
+            "ci_high": 0.05246772470794581,
+            "n": 104
+          },
+          "comply": {
+            "rate": 0.9711538461538461,
+            "ci_low": 0.9185995989748896,
+            "ci_high": 0.9901418170972229,
+            "n": 104
+          }
+        }
+      }
+    },
+    "D": {
+      "n": 30,
+      "tv_baseline_to_reference": 0.16666666666666663,
+      "baseline_target_label_match": {
+        "point": 0.8333333333333334,
+        "ci_low": 0.7,
+        "ci_high": 0.9666666666666667,
+        "b": 10000,
+        "seed": 20260904,
+        "interval": "percentile"
+      },
+      "baseline_degeneracy_rate": 0.0,
+      "reference_degeneracy_rate": 0.0,
+      "arms": {
+        "xfer_delta_source_identity": {
+          "dtv": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8,
+            "ci_low": 0.6333333333333333,
+            "ci_high": 0.9333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        },
+        "xfer_delta_source_shuf_wq": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8333333333333334,
+            "ci_low": 0.7,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_normmatched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8333333333333334,
+            "ci_low": 0.7,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "xfer_delta_source_dosematched": {
+          "dtv": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8,
+            "ci_low": 0.6333333333333333,
+            "ci_high": 0.9333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        },
+        "dir_source_matched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8333333333333334,
+            "ci_low": 0.7,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "dir_target_matched": {
+          "dtv": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8333333333333334,
+            "ci_low": 0.7,
+            "ci_high": 0.9666666666666667,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.0
+        },
+        "own_delta_target": {
+          "dtv": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match": {
+            "point": 0.8,
+            "ci_low": 0.6333333333333333,
+            "ci_high": 0.9333333333333333,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "refusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "overrefusal_shift": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "degeneracy_rate": 0.03333333333333333
+        }
+      },
+      "contrasts": {
+        "xfer_delta_source_identity__minus__xfer_delta_source_shuf_wq": {
+          "dtv_diff": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.033333333333333326,
+            "ci_low": -0.10000000000000009,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_normmatched": {
+          "dtv_diff": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.033333333333333326,
+            "ci_low": -0.10000000000000009,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__xfer_delta_source_dosematched": {
+          "dtv_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": 2.7755575615628914e-17,
+            "ci_low": 0.0,
+            "ci_high": 2.7755575615628914e-17,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": -0.033333333333333326,
+            "ci_low": -0.10000000000000009,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "dir_target_matched__minus__dir_source_matched": {
+          "dtv_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        },
+        "xfer_delta_source_identity__minus__own_delta_target": {
+          "dtv_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          },
+          "target_label_match_diff": {
+            "point": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile"
+          }
+        }
+      },
+      "primary_refusal_metric": "refusal_or_soft_deflection",
+      "four_way_rates": {
+        "baseline_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "reference_target": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.13333333333333333,
+            "ci_low": 0.053096554840547455,
+            "ci_high": 0.296813266820363,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.8333333333333334,
+            "ci_low": 0.6643564949358398,
+            "ci_high": 0.9266345762815145,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_identity": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_shuf_wq": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_normmatched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "xfer_delta_source_dosematched": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        },
+        "dir_source_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "dir_target_matched": {
+          "degenerate": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 1.0,
+            "ci_low": 0.8864866068260312,
+            "ci_high": 0.9999999999999999,
+            "n": 30
+          }
+        },
+        "own_delta_target": {
+          "degenerate": {
+            "rate": 0.03333333333333333,
+            "ci_low": 0.005908590381612455,
+            "ci_high": 0.16670390991409173,
+            "n": 30
+          },
+          "refusal": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "soft_deflection": {
+            "rate": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.11351339317396876,
+            "n": 30
+          },
+          "comply": {
+            "rate": 0.9666666666666667,
+            "ci_low": 0.8332960900859082,
+            "ci_high": 0.9940914096183874,
+            "n": 30
+          }
+        }
+      }
+    }
+  },
+  "notes": [
+    "No single pass/fail gate. Read each quadrant's arms and contrasts together.",
+    "dTV negative = the arm's four-way label distribution moved toward B3's. TV can fall for safety-irrelevant reasons (e.g. matching B3's degenerate rate), so always read dTV next to four_way_rates and the degeneracy rates.",
+    "The Stage-1 gate quadrant is C (largest B2->B3 behavioural shift). A and D have n=30 held-out rows each, so their CIs are wide; B (250) and C (104) carry more weight.",
+    "identity__minus__shuf_wq is the key discriminator. shuffle keeps the per-quadrant delta distribution but destroys the prompt<->delta pairing: a difference CI that excludes 0 with identity more negative is evidence for prompt-conditioned transfer; a CI covering 0 means the movement is a shared per-quadrant offset, not prompt-specific.",
+    "target_label_match is per-prompt agreement with B3; it separates 'reproduces B3's marginal distribution' (which TV alone can do) from 'reproduces B3 on the same prompts'. baseline_target_label_match is the B2-vs-B3 floor for the same quadrant.",
+    "Oracle framing per arm: identity uses the SOURCE branch's post-DPO activation for that prompt only (weakest); dosematched additionally uses ||Delta_B(x)|| and is a strictly stronger oracle; the direction arms use only calibration-split medians. No arm uses a behavioural label to fit a vector.",
+    "Claim scope: this speaks only to whether THIS DPO-induced activation delta transfers across THESE two upstream paths at layer 24, final prompt position, additive. Not 'DPO is path-specific' in general."
+  ],
+  "direction_tag": "A_directtoB_direct",
+  "source_branch": "A_direct",
+  "target_branch": "B_direct"
+}

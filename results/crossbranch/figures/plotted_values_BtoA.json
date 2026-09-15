@@ -1,0 +1,242 @@
+{
+ "fig2_stage2_gate_quadrant": {
+  "gate_quadrant": "C",
+  "n": 104,
+  "tv_baseline_to_reference": 0.3076923076923077,
+  "arms": {
+   "own $\\Delta_B$ (within-branch)": {
+    "point": -0.08653846153846156,
+    "ci_low": -0.14423076923076922,
+    "ci_high": -0.0288461538461538
+   },
+   "identity $\\Delta_A$": {
+    "point": -0.10576923076923075,
+    "ci_low": -0.1634615384615385,
+    "ci_high": -0.038461538461538464
+   },
+   "$\\Delta_A$ shuffled within-quadrant": {
+    "point": -0.09615384615384615,
+    "ci_low": -0.1538461538461538,
+    "ci_high": -0.038461538461538436
+   },
+   "$\\Delta_A$ dose-matched to $\\|\\Delta_B\\|$": {
+    "point": -0.09615384615384617,
+    "ci_low": -0.15384615384615385,
+    "ci_high": -0.028846153846153855
+   },
+   "norm-matched random": {
+    "point": 0.009615384615384581,
+    "ci_low": -5.551115123125783e-17,
+    "ci_high": 0.028846153846153855
+   },
+   "$s_A d_A$ (source direction)": {
+    "point": -0.04807692307692313,
+    "ci_low": -0.08653846153846151,
+    "ci_high": -0.009615384615384581
+   },
+   "$s_B d_B$ (target direction)": {
+    "point": -0.03846153846153849,
+    "ci_low": -0.07692307692307696,
+    "ci_high": -0.009615384615384581
+   }
+  },
+  "missing_arms": []
+ },
+ "fig3_stage2_contrasts": {
+  "gate_quadrant": "C",
+  "contrasts": {
+   "identity $-$ within-quadrant shuffle": {
+    "point": -0.009615384615384609,
+    "ci_low": -0.04807692307692313,
+    "ci_high": 0.028846153846153855
+   },
+   "identity $-$ norm-matched random": {
+    "point": -0.11538461538461534,
+    "ci_low": -0.18269230769230765,
+    "ci_high": -0.04807692307692307
+   },
+   "identity $-$ dose-matched": {
+    "point": -0.009615384615384581,
+    "ci_low": -0.028846153846153855,
+    "ci_high": 0.0
+   },
+   "identity $-$ source direction": {
+    "point": -0.057692307692307626,
+    "ci_low": -0.11538461538461536,
+    "ci_high": -0.009615384615384609
+   },
+   "identity $-$ own $\\Delta_B$": {
+    "point": -0.01923076923076919,
+    "ci_low": -0.0480769230769231,
+    "ci_high": 0.0
+   }
+  },
+  "missing_contrasts": []
+ },
+ "fig4_quadrant_summary": {
+  "A": {
+   "n": 30,
+   "tv_baseline_to_reference": 0.2666666666666667,
+   "arms": {
+    "own $\\Delta_B$ (within-branch)": {
+     "point": -0.13333333333333336,
+     "ci_low": -0.2333333333333334,
+     "ci_high": 1.3877787807814457e-17
+    },
+    "identity $\\Delta_A$": {
+     "point": -0.2333333333333334,
+     "ci_low": -0.33333333333333337,
+     "ci_high": 0.033333333333333354
+    },
+    "$\\Delta_A$ shuffled within-quadrant": {
+     "point": -0.10000000000000003,
+     "ci_low": -0.16666666666666674,
+     "ci_high": 2.7755575615628914e-17
+    },
+    "$\\Delta_A$ dose-matched to $\\|\\Delta_B\\|$": {
+     "point": -0.2,
+     "ci_low": -0.33333333333333337,
+     "ci_high": 0.0
+    },
+    "norm-matched random": {
+     "point": 0.033333333333333326,
+     "ci_low": 0.0,
+     "ci_high": 0.1
+    },
+    "$s_A d_A$ (source direction)": {
+     "point": -0.06666666666666671,
+     "ci_low": -0.16666666666666669,
+     "ci_high": 0.033333333333333354
+    },
+    "$s_B d_B$ (target direction)": {
+     "point": -0.10000000000000003,
+     "ci_low": -0.2333333333333333,
+     "ci_high": 2.7755575615628914e-17
+    }
+   }
+  },
+  "B": {
+   "n": 250,
+   "tv_baseline_to_reference": 0.036000000000000004,
+   "arms": {
+    "own $\\Delta_B$ (within-branch)": {
+     "point": 0.01200000000000001,
+     "ci_low": -0.016,
+     "ci_high": 0.04000000000000003
+    },
+    "identity $\\Delta_A$": {
+     "point": 0.020000000000000018,
+     "ci_low": -0.016000000000000007,
+     "ci_high": 0.05200000000000003
+    },
+    "$\\Delta_A$ shuffled within-quadrant": {
+     "point": 0.024000000000000007,
+     "ci_low": -0.008000000000000004,
+     "ci_high": 0.048000000000000015
+    },
+    "$\\Delta_A$ dose-matched to $\\|\\Delta_B\\|$": {
+     "point": 0.008000000000000007,
+     "ci_low": -0.020000000000000007,
+     "ci_high": 0.03200000000000003
+    },
+    "norm-matched random": {
+     "point": 0.012000000000000004,
+     "ci_low": -0.012000000000000004,
+     "ci_high": 0.03600000000000003
+    },
+    "$s_A d_A$ (source direction)": {
+     "point": 0.016000000000000007,
+     "ci_low": -0.012000000000000004,
+     "ci_high": 0.04000000000000002
+    },
+    "$s_B d_B$ (target direction)": {
+     "point": 0.020000000000000004,
+     "ci_low": -0.011999999999999955,
+     "ci_high": 0.04400000000000001
+    }
+   }
+  },
+  "C": {
+   "n": 104,
+   "tv_baseline_to_reference": 0.3076923076923077,
+   "arms": {
+    "own $\\Delta_B$ (within-branch)": {
+     "point": -0.08653846153846156,
+     "ci_low": -0.14423076923076922,
+     "ci_high": -0.0288461538461538
+    },
+    "identity $\\Delta_A$": {
+     "point": -0.10576923076923075,
+     "ci_low": -0.1634615384615385,
+     "ci_high": -0.038461538461538464
+    },
+    "$\\Delta_A$ shuffled within-quadrant": {
+     "point": -0.09615384615384615,
+     "ci_low": -0.1538461538461538,
+     "ci_high": -0.038461538461538436
+    },
+    "$\\Delta_A$ dose-matched to $\\|\\Delta_B\\|$": {
+     "point": -0.09615384615384617,
+     "ci_low": -0.15384615384615385,
+     "ci_high": -0.028846153846153855
+    },
+    "norm-matched random": {
+     "point": 0.009615384615384581,
+     "ci_low": -5.551115123125783e-17,
+     "ci_high": 0.028846153846153855
+    },
+    "$s_A d_A$ (source direction)": {
+     "point": -0.04807692307692313,
+     "ci_low": -0.08653846153846151,
+     "ci_high": -0.009615384615384581
+    },
+    "$s_B d_B$ (target direction)": {
+     "point": -0.03846153846153849,
+     "ci_low": -0.07692307692307696,
+     "ci_high": -0.009615384615384581
+    }
+   }
+  },
+  "D": {
+   "n": 30,
+   "tv_baseline_to_reference": 0.033333333333333326,
+   "arms": {
+    "own $\\Delta_B$ (within-branch)": {
+     "point": -0.033333333333333326,
+     "ci_low": -0.09999999999999999,
+     "ci_high": 0.0
+    },
+    "identity $\\Delta_A$": {
+     "point": 0.0,
+     "ci_low": -0.09999999999999999,
+     "ci_high": 0.09999999999999999
+    },
+    "$\\Delta_A$ shuffled within-quadrant": {
+     "point": -0.033333333333333326,
+     "ci_low": -0.09999999999999999,
+     "ci_high": 0.0
+    },
+    "$\\Delta_A$ dose-matched to $\\|\\Delta_B\\|$": {
+     "point": -0.033333333333333326,
+     "ci_low": -0.09999999999999999,
+     "ci_high": 0.0
+    },
+    "norm-matched random": {
+     "point": 0.0,
+     "ci_low": 0.0,
+     "ci_high": 0.0
+    },
+    "$s_A d_A$ (source direction)": {
+     "point": 0.09999999999999998,
+     "ci_low": 0.0,
+     "ci_high": 0.2333333333333333
+    },
+    "$s_B d_B$ (target direction)": {
+     "point": 0.06666666666666667,
+     "ci_low": 0.0,
+     "ci_high": 0.16666666666666666
+    }
+   }
+  }
+ }
+}

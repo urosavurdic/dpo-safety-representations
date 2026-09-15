@@ -1,0 +1,94 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "layer": 24,
+  "position": "final",
+  "seed": 20260904,
+  "spawn_order": [
+    "shuffle_within_quadrant",
+    "normmatched_random",
+    "normmatched_random_source",
+    "shuffle_global"
+  ],
+  "roles": {
+    "source_branch": "B_direct",
+    "target_branch": "B",
+    "source_pre": "M1_alt",
+    "source_post": "M3_direct_alt",
+    "target_pre": "M2_alt",
+    "target_post": "M3_alt",
+    "source_corpus": "Dolly-15k",
+    "target_corpus": "Dolly-15k"
+  },
+  "n_rows": 654,
+  "artifacts": {
+    "delta_target": "results\\crossbranch\\deltas_B_directtoB\\delta_target_L24.npz",
+    "delta_source": "results\\crossbranch\\deltas_B_directtoB\\delta_source_L24.npz",
+    "normmatched_random_target": "results\\crossbranch\\deltas_B_directtoB\\normmatched_random_target_L24.npz",
+    "delta_source_shuf_wq": "results\\crossbranch\\deltas_B_directtoB\\delta_source_shuf_wq_L24.npz"
+  },
+  "artifact_sha256": {
+    "delta_target": "dd2fcf79028118dc02ef7d8a96df34d5c54d3e7641aa7978881e2fe728d2ed31",
+    "delta_source": "4ff1fd719f8b9313218787e70ba5807410b12300e4718dcbea44f121ac0c47b0",
+    "normmatched_random_target": "f1de09f73f2857d7e59eb04b1589a19fd6fb67a5eb329314861bde30ad716bd2",
+    "delta_source_shuf_wq": "25223b38b4fd03e713206a97a4dc557145b9327cb7c380624f8ea115b0d34fb0"
+  },
+  "diagnostics": {
+    "dose_ratio_target": {
+      "A": {
+        "n": 150,
+        "median": 0.32027105274128187,
+        "p95": 0.4339736253528009,
+        "max": 0.468930123702365
+      },
+      "B": {
+        "n": 250,
+        "median": 0.24935832940666133,
+        "p95": 0.3386737461150485,
+        "max": 0.3882311873655889
+      },
+      "C": {
+        "n": 104,
+        "median": 0.32218181964808035,
+        "p95": 0.4041508202785007,
+        "max": 0.4638453089399593
+      },
+      "D": {
+        "n": 150,
+        "median": 0.18633287386498137,
+        "p95": 0.2822096779404729,
+        "max": 0.42919574908062946
+      },
+      "_note": "descriptive only; not a gate criterion"
+    },
+    "dose_ratio_source": {
+      "A": {
+        "n": 150,
+        "median": 0.6540637548291526,
+        "p95": 0.798891426387285,
+        "max": 0.8525399384975463
+      },
+      "B": {
+        "n": 250,
+        "median": 0.5148858096058175,
+        "p95": 0.6817395650144444,
+        "max": 0.7739632522709284
+      },
+      "C": {
+        "n": 104,
+        "median": 0.6359294806444589,
+        "p95": 0.7013325315893588,
+        "max": 0.7664087687022523
+      },
+      "D": {
+        "n": 150,
+        "median": 0.4572180833366103,
+        "p95": 0.7336896558766409,
+        "max": 0.757386433426898
+      },
+      "_note": "descriptive only; not a gate criterion"
+    }
+  }
+}

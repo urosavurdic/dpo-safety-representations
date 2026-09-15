@@ -1,0 +1,35 @@
+{
+  "benchmark_path": "data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl",
+  "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
+  "split_manifest_path": "logs/direction_split_manifest.json",
+  "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",
+  "stage": "decomposition",
+  "layer": 24,
+  "position": "final",
+  "roles": {
+    "source_branch": "A",
+    "target_branch": "A_direct",
+    "source_pre": "M2",
+    "source_post": "M3",
+    "target_pre": "M1",
+    "target_post": "M3_direct",
+    "source_corpus": "Alpaca",
+    "target_corpus": "Alpaca"
+  },
+  "direction_source_stage": "M3",
+  "rule": "delta_source split along the source A-D refusal direction into parallel + perpendicular, each rescaled per row to ||delta_source(x)|| so both arms match the identity arm's per-row magnitude and differ only in direction",
+  "median_abs_cos(delta_source, d_source)": 0.21168852693625892,
+  "n_rows": 654,
+  "zero_rows": {
+    "parallel": 0,
+    "perp": 0
+  },
+  "artifacts": {
+    "delta_source_parallel": "results\\crossbranch\\deltas_AtoA_direct\\delta_source_parallel_L24.npz",
+    "delta_source_perp": "results\\crossbranch\\deltas_AtoA_direct\\delta_source_perp_L24.npz"
+  },
+  "artifact_sha256": {
+    "delta_source_parallel": "1287916f0de818e7c865337ce83ccda59c295453f3b1fcd1de8f2e67d44fdf09",
+    "delta_source_perp": "dcfe220739d30bc2abe55de506e561d9d3cc6c717cd0483d8835e94b5e639dcd"
+  }
+}
