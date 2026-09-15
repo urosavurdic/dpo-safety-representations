@@ -133,15 +133,15 @@ def test_probe_metadata_is_fresh_false_when_live_activation_metadata_missing(tmp
 
 # --- WP-Probe: fixed headline layer, exploratory selection gated ---
 
-from src.analysis.eval_probes import FINAL_LAYER, layer_row, pick_most_informative_layer
+from src.analysis.eval_probes import HEADLINE_PROBE_LAYER, layer_row, pick_most_informative_layer
 
 
 def test_layer_row_returns_the_requested_fixed_layer():
     rows = [
         {"layer": 0, "cv_accuracy_mean": 0.9, "quadrant_c_flagged_unsafe_frac": 0.9},
-        {"layer": FINAL_LAYER, "cv_accuracy_mean": 0.6, "quadrant_c_flagged_unsafe_frac": 0.2},
+        {"layer": HEADLINE_PROBE_LAYER, "cv_accuracy_mean": 0.6, "quadrant_c_flagged_unsafe_frac": 0.2},
     ]
-    assert layer_row(rows)["layer"] == FINAL_LAYER
+    assert layer_row(rows)["layer"] == HEADLINE_PROBE_LAYER
     assert layer_row(rows, 0)["layer"] == 0
 
 

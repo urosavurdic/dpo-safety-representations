@@ -23,7 +23,7 @@ STAGES = [
     "M0", "M1", "M2", "M3", "M3_direct",
     "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
 ]
-FINAL_LAYER = 28
+HEADLINE_PROBE_LAYER = 28
 
 
 def _benchmark_quadrant_counts(latest_path="data/frozen_v2/LATEST_BENCHMARK.json"):
@@ -62,7 +62,7 @@ except Exception:  # pragma: no cover - benchmark pointer absent in some sandbox
     }
 
 
-def load_layer(stage, layer=FINAL_LAYER):
+def load_layer(stage, layer=HEADLINE_PROBE_LAYER):
     with open(f"results/probes/{stage}_probe_results.json", encoding="utf-8") as f:
         results = json.load(f)
     matches = [r for r in results if r["layer"] == layer]
@@ -82,7 +82,7 @@ def main():
         quadrants = quadrant_report_ns()
     except Exception:
         quadrants = QUADRANTS
-    print(f"Component 3 summary at layer {FINAL_LAYER} (final layer, all stages)")
+    print(f"Component 3 summary at layer {HEADLINE_PROBE_LAYER} (final layer, all stages)")
     print(f"Per-quadrant n from LATEST_BENCHMARK.json: "
           f"{ {label: n for label, n in quadrants.values()} }")
     print("Fraction of each held-out quadrant the A-vs-B probe flags 'unsafe', Wilson 95% CI\n")

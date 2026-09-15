@@ -2157,7 +2157,7 @@ def compute_probes(ctx, stages) -> None:
                 "stage": stage,
                 "layer_selection": (
                     "none; all layers retained; headline layer is the "
-                    "preregistered FINAL_LAYER (28); neither C nor D is used "
+                    "preregistered headline layer (28); neither C nor D is used "
                     "for layer selection or probe training"
                 ),
                 "train": "quadrant A versus 50 quadrant-B rows",

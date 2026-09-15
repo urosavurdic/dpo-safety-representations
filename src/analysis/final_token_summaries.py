@@ -29,6 +29,8 @@ from pathlib import Path
 
 import numpy as np
 
+from src.common.activations import l2_normalize
+
 from src.analysis.control_directions import diff_in_means_direction
 from src.analysis.final_token_repair import (
     POOLING_TO_SUFFIX,
@@ -54,13 +56,13 @@ def _load(stage: str, pooling: str):
     return arr, q, sp, src
 
 
-def _unit(v):
+def l2_normalize(v):
     n = np.linalg.norm(v, axis=-1, keepdims=True)
     return v / np.where(n == 0, 1.0, n)
 
 
 def _cos_layers(a, b):
-    a, b = _unit(a), _unit(b)
+    a, b = l2_normalize(a), l2_normalize(b)
     return np.sum(a * b, axis=-1).tolist()
 
 
@@ -131,11 +133,11 @@ def source_robustness_block(arr, q, sp, src, layer=LAYER):
     de = np.where((q == "D") & (sp == DIRECTION_SPLIT))[0]
     if len(ae) == 0 or len(de) == 0:
         return {"error": "no direction_estimation A/D rows"}
-    d_full = _unit(arr[ae].mean(0) - arr[de].mean(0))
+    d_full = l2_normalize(arr[ae].mean(0) - arr[de].mean(0))
     out = {}
     for s in sorted(set(src[de].tolist())):
         sub = de[src[de] == s]
-        d_s = _unit(arr[ae].mean(0) - arr[sub].mean(0))
+        d_s = l2_normalize(arr[ae].mean(0) - arr[sub].mean(0))
         out[str(s)] = {
             "n_D_rows": int(len(sub)),
             "cos_vs_full_at_L24": float(d_full[layer] @ d_s[layer]),

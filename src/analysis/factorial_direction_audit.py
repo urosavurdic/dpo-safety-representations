@@ -37,6 +37,8 @@ from pathlib import Path
 
 import numpy as np
 
+from src.common.activations import l2_normalize
+
 ACT_DIR = Path("results/activations")
 STAGES = ["M0", "M1", "M2", "M3", "M3_direct", "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt"]
 LAYER = 24
@@ -45,9 +47,6 @@ LAYER = 24
 FACTORS = {"A": (1, 1), "B": (0, 1), "C": (1, 0), "D": (0, 0)}
 
 
-def _unit(v):
-    n = np.linalg.norm(v)
-    return v / n if n > 0 else v
 
 
 def _cos(u, v):
@@ -68,13 +67,13 @@ def cohens_d(x, y):
 # sec 4 canonical (_final.npy, last prompt token). "pooled" = the mean of the
 # last 5 tokens (_pooled.npy) - the direction v2_pipeline's causal core
 # actually ablates. Module-level so audit_stage/main share it.
-POOLING = "final"
+DEFAULT_POOLING = "final"
 
 
 def load_stage(stage):
     meta = json.loads((ACT_DIR / f"{stage}_metadata.json").read_text(
         encoding="utf-8", errors="replace"))
-    suffix = "pooled" if POOLING == "pooled" else "final"
+    suffix = "pooled" if DEFAULT_POOLING == "pooled" else "final"
     arr = np.load(ACT_DIR / f"{stage}_{suffix}.npy")
     return meta, arr
 
@@ -116,7 +115,7 @@ def audit_stage(stage, ad_rows="est", layer=LAYER):
     # projections of every prompt (all rows, not just the estimation half)
     proj = {}
     for name, d in (("d_AD", d_AD), ("d_H", d_H), ("d_S", d_S)):
-        u = _unit(d)
+        u = l2_normalize(d)
         p = arr[:, L, :] @ u
         proj[name] = {c: p[np.where(q == c)[0]] for c in "ABCD"}
 
@@ -136,7 +135,7 @@ def audit_stage(stage, ad_rows="est", layer=LAYER):
         d_ho = np.where((q == "D") & (sp == "held_out_behavioral"))[0]
         if len(a_ho) >= 2 and len(d_ho) >= 2:
             for name, d in (("d_AD", d_AD), ("d_H", d_H), ("d_S", d_S)):
-                u = _unit(d)
+                u = l2_normalize(d)
                 ho[f"{name}__A_vs_D_HELD_OUT"] = cohens_d(
                     arr[a_ho, L, :] @ u, arr[d_ho, L, :] @ u)
 
@@ -190,8 +189,8 @@ def main():
     ap.add_argument("--out", default="results/interpretability/factorial_direction_audit.json")
     args = ap.parse_args()
 
-    global POOLING
-    POOLING = args.pooling
+    global DEFAULT_POOLING
+    DEFAULT_POOLING = args.pooling
 
     report = {"layer": args.layer, "ad_rows": args.ad_rows, "pooling": args.pooling,
               "factor_map": {k: {"harmful": v[0], "cue_strong": v[1]}

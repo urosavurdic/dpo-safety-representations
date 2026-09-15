@@ -35,7 +35,7 @@ SEED = 42
 # ever *selected* from it for a headline number - selecting the layer that
 # maximises quadrant-C (or D) flagging is a data-dependent choice on the
 # held-out quadrants themselves. See docs/audit/selection_leakage_scan.md.
-FINAL_LAYER = 28
+HEADLINE_PROBE_LAYER = 28
 
 
 def load_stage_activations(stage, kind="final"):
@@ -89,10 +89,10 @@ def run_for_stage(stage, kind="final"):
             for i in range(arr.shape[1])]
 
 
-def layer_row(layer_results, layer=FINAL_LAYER):
+def layer_row(layer_results, layer=HEADLINE_PROBE_LAYER):
     """The fixed-layer row from a saved per-layer probe curve. This is the
     ONLY selection used on the headline path - `layer` is preregistered
-    (FINAL_LAYER), never chosen from the results."""
+    (HEADLINE_PROBE_LAYER), never chosen from the results."""
     for row in layer_results:
         if row["layer"] == layer:
             return row
@@ -114,7 +114,7 @@ def pick_most_informative_layer(layer_results):
     informative layer, silently making every stage's "best layer" row look
     identical and its quadrant-C/D flagging rates look near-zero regardless
     of real per-layer variation (visible instead in summarize_probe_
-    findings.py's FINAL_LAYER-based report). Pick by the metric that's
+    findings.py's HEADLINE_PROBE_LAYER-based report). Pick by the metric that's
     actually meaningful instead: quadrant C flagging rate.
     """
     return max(layer_results, key=lambda r: r["quadrant_c_flagged_unsafe_frac"])
@@ -196,7 +196,7 @@ def main():
             json.dump(live_metadata, f, ensure_ascii=False, indent=2)
         _report_row(stage, layer_row(layer_results), "FINAL")
 
-    print(f"\nHeadline: fixed layer {FINAL_LAYER} (preregistered, not selected)\n")
+    print(f"\nHeadline: fixed layer {HEADLINE_PROBE_LAYER} (preregistered, not selected)\n")
     print(f"{'Model':<6} {'Layer':<7} {'CV acc':<10} {'B(holdout)':<12} {'C':<8} {'D':<8}")
     for stage in STAGES:
         if stage not in all_results:

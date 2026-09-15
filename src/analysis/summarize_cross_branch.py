@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 from src.common.refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
-from src.analysis.eval_probes import FINAL_LAYER, layer_row
+from src.analysis.eval_probes import HEADLINE_PROBE_LAYER, layer_row
 from src.common.stats import rate_with_ci
 
 CROSS_BRANCH_PAIRS = [
@@ -73,7 +73,7 @@ def behavioral_rates_for_stage(raw_rows_by_stage, stage):
 
 
 def probe_final_layer_for_stage(stage, probes_dir="results/probes"):
-    """Fixed preregistered layer (FINAL_LAYER), never a data-dependent 'best'
+    """Fixed preregistered layer (HEADLINE_PROBE_LAYER), never a data-dependent 'best'
     layer (WP-Probe)."""
     path = Path(probes_dir) / f"{stage}_probe_results.json"
     if not path.exists():
@@ -81,7 +81,7 @@ def probe_final_layer_for_stage(stage, probes_dir="results/probes"):
     with open(path, encoding="utf-8") as f:
         results = json.load(f)
     try:
-        return layer_row(results, FINAL_LAYER)
+        return layer_row(results, HEADLINE_PROBE_LAYER)
     except ValueError:
         return None
 
@@ -118,7 +118,7 @@ def build_comparison(orig, alt, raw_rows_by_stage):
     orig_probe = probe_final_layer_for_stage(orig)
     alt_probe = probe_final_layer_for_stage(alt)
     if orig_probe and alt_probe:
-        result["probes"] = {"orig": orig_probe, "alt": alt_probe, "layer": FINAL_LAYER}
+        result["probes"] = {"orig": orig_probe, "alt": alt_probe, "layer": HEADLINE_PROBE_LAYER}
 
     direction = direction_cross_branch_similarity(orig, alt)
     if direction:
@@ -145,7 +145,7 @@ def print_comparison(comp):
 
     if "probes" in comp:
         op, ap = comp["probes"]["orig"], comp["probes"]["alt"]
-        layer = comp["probes"].get("layer", FINAL_LAYER)
+        layer = comp["probes"].get("layer", HEADLINE_PROBE_LAYER)
         print(f"  Probes (layer {layer} CV acc): {orig} {op['cv_accuracy_mean']:.3f} vs {alt} {ap['cv_accuracy_mean']:.3f}")
         print(f"  Probes (layer {layer} quadrant C flagged unsafe): {orig} {op['quadrant_c_flagged_unsafe_frac']:.3f} vs "
               f"{alt} {ap['quadrant_c_flagged_unsafe_frac']:.3f}")

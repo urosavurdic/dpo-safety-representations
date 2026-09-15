@@ -20,23 +20,22 @@ from pathlib import Path
 
 import numpy as np
 
+from src.common.activations import l2_normalize
+
 ACT_DIR = Path("results/activations")
 STAGES = ["M0", "M1", "M2", "M3", "M3_direct", "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt"]
 INDEP_SOURCE = "OASST1"        # the one D sub-source with no training overlap
 LAYER = 24                     # the intervention layer; report this one explicitly
 
 
-def _unit(v):
-    n = np.linalg.norm(v)
-    return v / n if n > 0 else v
 
 
-POOLING = "final"  # "final" (_final.npy, analysis_plan.md sec 4) | "pooled" (_pooled.npy, last-5 mean)
+DEFAULT_POOLING = "final"  # "final" (_final.npy, analysis_plan.md sec 4) | "pooled" (_pooled.npy, last-5 mean)
 
 
 def load_stage(stage):
     meta = json.loads((ACT_DIR / f"{stage}_metadata.json").read_text(encoding="utf-8", errors="replace"))
-    suffix = "pooled" if POOLING == "pooled" else "final"
+    suffix = "pooled" if DEFAULT_POOLING == "pooled" else "final"
     arr = np.load(ACT_DIR / f"{stage}_{suffix}.npy")  # (n, n_layers, hidden)
     return meta, arr
 
@@ -46,7 +45,7 @@ def direction(arr, a_idx, d_idx):
     ma = arr[a_idx].mean(axis=0)     # (n_layers, hidden)
     md = arr[d_idx].mean(axis=0)
     diff = ma - md
-    return np.stack([_unit(diff[L]) for L in range(diff.shape[0])])
+    return np.stack([l2_normalize(diff[L]) for L in range(diff.shape[0])])
 
 
 def cos_per_layer(d1, d2):
@@ -108,8 +107,8 @@ def main():
     ap.add_argument("--out", default="results/interpretability/direction_source_robustness.json")
     ap.add_argument("--pooling", default="final", choices=["final", "pooled"])
     args = ap.parse_args()
-    global POOLING
-    POOLING = args.pooling
+    global DEFAULT_POOLING
+    DEFAULT_POOLING = args.pooling
 
     report = {"layer": LAYER, "independent_source": INDEP_SOURCE, "per_stage": {}}
     for st in args.stages:
