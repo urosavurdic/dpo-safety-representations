@@ -84,7 +84,7 @@ def aggregate_paired(rows, *, seed=20260904, n_boot=10000):
 ADJUNCT_EXTRACT_HINT = (
     "companion 'source_overt' activations are absent. Build + extract them:\n"
     "  python -m src.analysis.build_c_source_overt_adjunct\n"
-    "  python -m src.analysis.v2_pipeline extract --stage M3 \\\n"
+    "  python -m src.pipeline.frozen_run_pipeline extract --stage M3 \\\n"
     "    --latest-pointer data/frozen_v2/adjunct_c_source_overt.LATEST_BENCHMARK.json \\\n"
     "    --split-manifest data/frozen_v2/adjunct_c_source_overt.split_manifest.json \\\n"
     "    --namespace c_source_overt"

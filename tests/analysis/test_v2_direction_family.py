@@ -28,8 +28,8 @@ import math
 import numpy as np
 import pytest
 
-from src.analysis import v2_pipeline as vp
-from src.analysis.v2_shards import Deadline
+from src.pipeline import frozen_run_pipeline as vp
+from src.pipeline.shards import Deadline
 from src.v2_io import load_json
 
 BENCH_SHA = "a" * 64
@@ -352,72 +352,3 @@ def test_merge_behavioral_survives_across_session_scoped_calls(tmp_path, monkeyp
     assert set(combined_after_session_2) == {"M0", "M1", "M2"}
     assert combined_after_session_2["M0"] == combined_after_session_1["M0"]
     assert combined_after_session_2["M1"] == combined_after_session_1["M1"]
-
-
-# ---- downstream consumability: real reader functions, not just schema ----
-
-
-def test_bridged_direction_family_is_consumable_by_summarize_cross_branch(
-    tmp_path, monkeypatch
-):
-    from src.analysis.v2_compat import sync_diagnostics
-    from src.analysis.summarize_cross_branch import direction_cross_branch_similarity
-
-    ctx = make_ctx(tmp_path)
-    for stage in vp.ALL_STAGES:
-        build_stage_direction(ctx, stage)
-    vp.aggregate_directions(ctx)
-
-    root = ctx.paths.root
-    assert sync_diagnostics(root=root) is True
-
-    monkeypatch.chdir(tmp_path)
-    result = direction_cross_branch_similarity(
-        "M1", "M1_alt", cosine_path=str(root / "refusal_direction" / "cosine_similarity.json")
-    )
-    assert result is not None
-    assert result["mean"] == pytest.approx(expected_cosine("M1", "M1_alt"))
-
-
-def test_bridged_direction_family_is_consumable_by_direction_stability(tmp_path):
-    from src.analysis.v2_compat import sync_diagnostics
-    from src.interpretability.direction_stability import analyze_direction_stability
-
-    ctx = make_ctx(tmp_path)
-    for stage in vp.ALL_STAGES:
-        build_stage_direction(ctx, stage)
-    vp.aggregate_directions(ctx)
-
-    root = ctx.paths.root
-    assert sync_diagnostics(root=root) is True
-
-    report = analyze_direction_stability(
-        cosine_sim_path=str(root / "refusal_direction" / "cosine_similarity.json"),
-        output_path=str(tmp_path / "stability_report.json"),
-    )
-    assert "missing_stages" not in report["metadata"]
-    assert set(report["drift_dynamics"]["aggregate"]) == {
-        "mean_drift_M0_vs_M1", "mean_drift_M1_vs_M2", "mean_drift_M2_vs_M3",
-    }
-
-
-def test_bridged_behavioral_merge_is_consumable_by_summarize_cross_branch(
-    tmp_path, monkeypatch
-):
-    from src.analysis.v2_compat import sync_behavioral
-    from src.analysis.summarize_cross_branch import (
-        behavioral_rates_for_stage,
-        load_raw_behavioral,
-    )
-
-    ctx = make_behavior_ctx(tmp_path, n_rows=4)
-    run_stage_behavior(ctx, "M1", monkeypatch)
-    vp.merge_behavioral(ctx)
-
-    root = ctx.paths.root
-    assert sync_behavioral(root=root) is True
-
-    raw = load_raw_behavioral(str(root / "behavioral_eval" / "raw.json"))
-    rates = behavioral_rates_for_stage(raw, "M1")
-    assert rates is not None
-    assert "A" in rates

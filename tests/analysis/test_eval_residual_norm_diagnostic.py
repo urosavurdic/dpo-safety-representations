@@ -5,7 +5,7 @@ from src.analysis.eval_residual_norm_diagnostic import (
     build_steering_hooks,
     summarize_config,
 )
-from src.interpretability.residual_norm_tracking import compute_baseline_range
+from src.analysis.residual_norm_tracking import compute_baseline_range
 
 
 def test_build_steering_hooks_maps_hidden_states_index_to_decoder_index():

@@ -18,7 +18,7 @@ Hard rules enforced here:
   * every response file named in the manifest must have a ``*_binding.json``
     sidecar bound to the frozen benchmark SHA and split-manifest SHA, and every
     row must carry ``stage`` / ``model_stage`` / ``condition`` metadata plus the
-    two binding SHAs (see ``src/v2_binding_guard.py``).
+    two binding SHAs (see ``src/pipeline/binding_guard.py``).
   * 370-era files (``raw.json``, ``summary_v2.json``, ``causal_ablation_raw_*``)
     are rejected.
   * NO generation happens here - judges only score the saved pair.
@@ -46,14 +46,14 @@ from src.common.refusal_classifier import (
     is_degenerate,
     is_soft_deflection,
 )
-from src.v2_binding_guard import (
+from src.pipeline.binding_guard import (
     LegacyArtifactError,
     assert_not_legacy_basename,
     iter_rows,
 )
 from src.v2_io import assert_binding, load_json
 
-V2_OUT_DIR = Path("results/behavioral_judges_v2")
+JUDGE_OUTPUT_DIR = Path("results/behavioral_judges_v2")
 JUDGE_VERSIONS = {
     "regex": "eval_refusal_classifier@2026-09",
     "strong_reject": "dsbowen/strong_reject fine-tuned Gemma-2B (revision pinned at preflight)",
@@ -575,7 +575,7 @@ def carry_forward_scores(records: list, previous_records: list) -> dict:
     return carried
 
 
-def run_judges(manifest_path, out_dir=V2_OUT_DIR, *, run_live=False,
+def run_judges(manifest_path, out_dir=JUDGE_OUTPUT_DIR, *, run_live=False,
                require_binding=True, reject_legacy=True,
                strongreject_model=DEFAULT_STRONGREJECT_MODEL,
                wildguard_model=DEFAULT_WILDGUARD_MODEL,
@@ -690,7 +690,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--response-manifest", required=True,
                         help="Path to results/manifests/consolidated_<ts>.json")
-    parser.add_argument("--out-dir", default=str(V2_OUT_DIR))
+    parser.add_argument("--out-dir", default=str(JUDGE_OUTPUT_DIR))
     parser.add_argument("--require-binding", action="store_true", default=True)
     parser.add_argument("--reject-legacy", action="store_true", default=True)
     parser.add_argument("--run-live", action="store_true",

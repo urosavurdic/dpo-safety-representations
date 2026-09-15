@@ -98,7 +98,7 @@ reason.
 base model, so ties break to the shallowest, least informative layer.
 
 **The cross-branch study is outside the preregistration.**
-`src/analysis/crossbranch/` and `results/crossbranch/` are a separate
+`src/crossbranch/` and `results/crossbranch/` are a separate
 activation-transfer study. Its numbers must not be folded into the confirmatory
 endpoints.
 

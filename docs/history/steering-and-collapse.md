@@ -121,7 +121,7 @@ handoff's own constraint about not touching that work.
   diagnostic built here is meant to actually test the norm-specific part
   of the hypothesis, not assume it's confirmed just because it's
   plausible.
-- `src/interpretability/residual_norm_tracking.py`: `ResidualNormTracker`
+- `src/analysis/residual_norm_tracking.py`: `ResidualNormTracker`
   registers a forward hook per decoder layer recording the last token
   position's L2 norm at every forward call (= every generation step,
   under `model.generate()`'s KV-cache path, with "step 0" being the

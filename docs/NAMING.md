@@ -11,7 +11,7 @@ no `results/probes_v1/`. Searching for one is a dead end.
 
 `v2` marks **the frozen 654-row benchmark era**. Its counterpart — the earlier,
 mutable 370-row evaluation set — is called `370era` or `legacy` everywhere it
-appears (`results/_legacy_370era/`, `LEGACY_370_BASENAMES`,
+appears (`results/_legacy_370era/`, `PRE_FREEZE_ARTIFACT_BASENAMES`,
 `tests/fixtures/benchmark_370.jsonl`). The two eras are `370era` and `v2`, not
 `v1` and `v2`.
 

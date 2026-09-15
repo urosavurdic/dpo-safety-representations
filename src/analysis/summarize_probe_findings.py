@@ -10,7 +10,7 @@ depth - not a usable metric, retired as Component 3's headline result.
 What carries real, stage-dependent signal: how much of each held-out
 quadrant the trained A-vs-B decision boundary flags "unsafe," at the FINAL
 layer (28) - the representation immediately before generation. Reads the
-already-computed results/probes/{stage}_probe_results.json files from
+already-computed {stage}_probe_results.json files from
 eval_probes.py - no retraining, no GPU.
 """
 import json
@@ -24,6 +24,13 @@ STAGES = [
     "M1_alt", "M2_alt", "M3_alt", "M3_direct_alt",
 ]
 HEADLINE_PROBE_LAYER = 28
+
+
+
+def _probe_path(stage: str) -> Path:
+    """Probe results for `stage`, preferring the 654-row set over the pre-freeze one."""
+    current = Path(f"results/probes_v2/{stage}_probe_results.json")
+    return current if current.exists() else Path(f"results/probes/{stage}_probe_results.json")
 
 
 def _benchmark_quadrant_counts(latest_path="data/frozen_v2/LATEST_BENCHMARK.json"):
@@ -63,7 +70,7 @@ except Exception:  # pragma: no cover - benchmark pointer absent in some sandbox
 
 
 def load_layer(stage, layer=HEADLINE_PROBE_LAYER):
-    with open(f"results/probes/{stage}_probe_results.json", encoding="utf-8") as f:
+    with open(_probe_path(stage), encoding="utf-8") as f:
         results = json.load(f)
     matches = [r for r in results if r["layer"] == layer]
     if not matches:
@@ -89,7 +96,7 @@ def main():
     for key, (label, n) in quadrants.items():
         print(f"--- Quadrant {label} (n={n}) ---")
         for stage in STAGES:
-            result_path = Path(f"results/probes/{stage}_probe_results.json")
+            result_path = _probe_path(stage)
             if not result_path.exists():
                 # Alt branch trains/pushes independently across sessions -
                 # not every stage in STAGES necessarily has probe results yet.

@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from src.analysis import behavioral_judges as bj
-from src.v2_binding_guard import LegacyArtifactError
+from src.pipeline.binding_guard import LegacyArtifactError
 
 FIX = Path(__file__).resolve().parents[1] / "fixtures"
 BENCH_SHA = json.loads((FIX / "benchmark_654.LATEST_BENCHMARK.json").read_text())["benchmark_sha256"]

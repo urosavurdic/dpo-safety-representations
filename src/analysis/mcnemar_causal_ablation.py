@@ -13,7 +13,7 @@ from statsmodels.stats.contingency_tables import mcnemar
 
 from src.common.refusal_classifier import classify_completion
 from src.common.io import load_json
-from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
+from src.pipeline.binding_guard import add_binding_cli_args, load_guarded_raw
 
 QUADRANTS_TO_TEST = {
     "C": "soft_deflection",  # headline: does ablation reduce C's soft-deflection?

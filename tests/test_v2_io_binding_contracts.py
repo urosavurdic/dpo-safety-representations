@@ -157,7 +157,7 @@ def test_assert_binding_roundtrip_and_rejections(tmp_path):
 
 
 def test_stage_graph_shape_is_frozen():
-    from src.analysis import v2_pipeline as vp
+    from src.pipeline import frozen_run_pipeline as vp
 
     assert vp.ALL_STAGES == [
         "M0", "M1", "M2", "M3", "M3_direct",

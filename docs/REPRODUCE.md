@@ -22,7 +22,7 @@ python -m pytest \
   tests/analysis/test_direction_decodability.py tests/analysis/test_intervention_conditions.py \
   tests/analysis/test_behavioral_judges.py tests/analysis/test_build_human_review_packet.py \
   tests/analysis/test_check_behavioral_agreement.py tests/analysis/test_representation_projections.py \
-  tests/test_eval_stats.py tests/interpretability/test_paired_deep_layer_stability_test.py \
+  tests/test_eval_stats.py tests/analysis/test_paired_deep_layer_stability_test.py \
   -q
 python -m compileall -q src tests
 ```
@@ -44,26 +44,26 @@ thin shells over `v2_pipeline` + the scripts below.
 
 # S1 (nb 01): calibrate + extract  (_final + _pooled + source_overt adjunct)
 python -m src.analysis.build_c_source_overt_adjunct
-python -m src.analysis.v2_pipeline extract --stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt
+python -m src.pipeline.frozen_run_pipeline extract --stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt
 python -m src.analysis.verify_activations            # CPU cross-check, all stages bound
 
 # S2 (nb 02): behavioural generation -> per-session manifest
-python -m src.analysis.v2_pipeline behavior --stages <...>
+python -m src.pipeline.frozen_run_pipeline behavior --stages <...>
 
 # S3 (nb 03): directions + probes + control_directions + projections -> per-session manifest
-python -m src.analysis.v2_pipeline direction --stages <...>
-python -m src.analysis.v2_pipeline probes    --stages <...>
+python -m src.pipeline.frozen_run_pipeline direction --stages <...>
+python -m src.pipeline.frozen_run_pipeline probes    --stages <...>
 python -m src.analysis.control_directions
 python -m src.analysis.representation_projections
 #   compute cos(d_AB, d_AD); decide ablated_AB by CALIBRATED session fit
 #   (src/analysis/intervention_conditions.plan_causal_conditions)
 
 # S4 (nb 04): causal  baseline / ablated_AD / ablated_random [/ ablated_AB]
-python -m src.analysis.v2_pipeline causal --stage M3 \
+python -m src.pipeline.frozen_run_pipeline causal --stage M3 \
   --conditions baseline ablated_AD ablated_random
 
 # S5 (nb 05): steering  baseline / steered_learned / steered_random  x  alpha_coef {0.5,1,2}
-python -m src.analysis.v2_pipeline steering --stage M3 --alpha-coefficients 0.5 1.0 2.0
+python -m src.pipeline.frozen_run_pipeline steering --stage M3 --alpha-coefficients 0.5 1.0 2.0
 #   if tight: cut M1/M2 dose-response cells FIRST (never the random control /
 #   M3,M3_alt dose-response / the required A-D vs random contrast)
 
@@ -109,7 +109,7 @@ python -m src.analysis.representation_robustness
 
 # matched C-pair deltas (SECONDARY - needs the source_overt adjunct extracted):
 python -m src.analysis.build_c_source_overt_adjunct
-python -m src.analysis.v2_pipeline extract --stage M3 \
+python -m src.pipeline.frozen_run_pipeline extract --stage M3 \
   --latest-pointer data/frozen_v2/adjunct_c_source_overt.LATEST_BENCHMARK.json \
   --split-manifest data/frozen_v2/adjunct_c_source_overt.split_manifest.json \
   --namespace c_source_overt          # ~2 min GPU

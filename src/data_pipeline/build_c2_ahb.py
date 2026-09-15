@@ -19,7 +19,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-# Three levels up: src/data_pipeline/build_c2_ahb.py -> src/data_pipeline -> src -> repo root
+# Three levels up: src/data_pipeline/build_c2_ahb.py -> src/data -> src -> repo root
 REPO = Path(__file__).parent.parent.parent
 
 C2_OUT = REPO / "data/quadrant_c_pipeline/secondary_c2_stylistic.jsonl"

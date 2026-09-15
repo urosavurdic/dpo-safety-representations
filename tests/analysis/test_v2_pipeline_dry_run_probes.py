@@ -20,7 +20,7 @@ import sys
 
 def _run_dry(*extra_args):
     result = subprocess.run(
-        [sys.executable, "-m", "src.analysis.v2_pipeline", "run",
+        [sys.executable, "-m", "src.pipeline.frozen_run_pipeline", "run",
          "--dry-run", "--regenerate", *extra_args],
         capture_output=True, text=True,
     )

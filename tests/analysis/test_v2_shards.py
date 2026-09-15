@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from src.analysis.v2_shards import (
+from src.pipeline.shards import (
     Deadline,
     ShardStore,
     plan_shards,

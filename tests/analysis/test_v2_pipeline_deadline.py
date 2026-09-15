@@ -3,7 +3,7 @@ and session-boundary resume/skip behavior in the stage-major v2 runner.
 
 These sit one level above tests/analysis/test_v2_shards.py: that file
 protects the shard primitives (ShardStore, run_sharded, Deadline) in
-isolation; this file protects how src/analysis/v2_pipeline.py's main_run
+isolation; this file protects how src/pipeline/frozen_run_pipeline.py's main_run
 loop actually *uses* them to decide whether a whole stage should be
 started or skipped. No GPU/model code is exercised - stage_start_blocked
 and stage_is_complete are pure decision functions over ctx/filesystem
@@ -15,14 +15,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from src.analysis.v2_pipeline import (
+from src.pipeline.frozen_run_pipeline import (
     ArtifactPaths,
     RunContext,
     activation_paths,
     stage_is_complete,
     stage_start_blocked,
 )
-from src.analysis.v2_shards import Deadline
+from src.pipeline.shards import Deadline
 from src.v2_io import binding, write_json_lf
 
 

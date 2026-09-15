@@ -15,7 +15,7 @@ the readable orientation.
 
 Every v2 artifact carries `benchmark_sha256` + `split_manifest_sha256` per row
 and a `*_binding.json` sidecar. The CPU stats scripts refuse any 370-era /
-unbound file (`src/v2_binding_guard.py`); `--allow-unbound` is a break-glass for
+unbound file (`src/pipeline/binding_guard.py`); `--allow-unbound` is a break-glass for
 historical work only.
 
 ## Prompt annotation vs response annotation (frozen clarification — §5.0)

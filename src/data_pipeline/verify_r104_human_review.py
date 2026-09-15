@@ -342,7 +342,7 @@ def main() -> None:
         },
         "frozen_benchmark_regenerated": False,
         "frozen_benchmark_regeneration_note": (
-            "Not regenerated: src.finalize_benchmark was re-run "
+            "Not regenerated: src.data_pipeline.finalize_benchmark was re-run "
             "against a scratch copy of the repository with identical "
             "current inputs (data/review/c_review_queue.csv, "
             "logs/benchmark_gate_config.json, "

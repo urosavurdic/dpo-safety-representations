@@ -63,7 +63,7 @@ Current output: all nine stages `ok`, `all present stages bound & consistent: Tr
 |---|---|---|
 | Direction-source robustness, 9 stages | currently 9 stages but worth re-confirming on the imported set | `python -m src.analysis.direction_source_robustness --pooling final` |
 | CF3 decodability | re-pin on the imported activations | `python -m src.analysis.direction_decodability` |
-| Cross-branch bootstrap / stability / bottleneck | these load `_pooled`; re-running confirms them on the imported set | `python -m src.interpretability.bootstrap_direction_stability`<br>`python -m src.interpretability.bottleneck_layer`<br>`python -m src.interpretability.bootstrap_cross_branch_difference`<br>`python -m src.interpretability.paired_deep_layer_stability_test` |
+| Cross-branch bootstrap / stability / bottleneck | these load `_pooled`; re-running confirms them on the imported set | `python -m src.analysis.bootstrap_direction_stability`<br>`python -m src.analysis.bottleneck_layer`<br>`python -m src.analysis.bootstrap_branch_direction_difference`<br>`python -m src.analysis.paired_deep_layer_stability_test` |
 
 None of the four in the last row feed the current paper — they support README
 Findings 2 and 3, which the paper does not use. Run them only if you want those
@@ -75,11 +75,11 @@ findings back.
 |---|---|---|
 | `src/analysis/subspace_geometry.py` | **hardcodes the M2→M3 pair**; has `--pooling` and `--layers` but no stage arguments | add `--pre`/`--post` (≈10 lines) to get the direct path (M1→M3_direct, M1_alt→M3_direct_alt) |
 | `src/analysis/direction_decodability.py` | hardcodes M2/M3 | add stage arguments if CF3 is wanted on other pairs |
-| `src/analysis/eval_refusal_direction.py::load_stage` | hardcodes `_pooled.npy`; four `src/interpretability/*` scripts route through it | add a `pooling` parameter and thread it through — the same edit already applied to `factorial_direction_audit.py`, `subspace_geometry.py` and `direction_source_robustness.py` in the 2026-09-08 session |
+| `src/analysis/eval_refusal_direction.py::load_stage` | hardcodes `_pooled.npy`; four `src/analysis/*` scripts route through it | add a `pooling` parameter and thread it through — the same edit already applied to `factorial_direction_audit.py`, `subspace_geometry.py` and `direction_source_robustness.py` in the 2026-09-08 session |
 
 ## 4. What the paper actually needs
 
-The paper's geometry does **not** come from the `src/interpretability/*` scripts.
+The paper's geometry does **not** come from the `src/analysis/*` scripts.
 It comes from `paper_draft/make_evidence.py`, which reads the committed direction
 arrays and the activations directly. That script is currently restricted to the
 four stages that used to be fresh:
@@ -136,10 +136,10 @@ python -m src.analysis.direction_source_robustness --pooling final
 python -m src.analysis.subspace_geometry --pooling final        # M2->M3 only
 
 # 3. only if you want README Findings 2/3 back (all _pooled; minutes each)
-python -m src.interpretability.bootstrap_direction_stability
-python -m src.interpretability.bottleneck_layer
-python -m src.interpretability.bootstrap_cross_branch_difference
-python -m src.interpretability.paired_deep_layer_stability_test
+python -m src.analysis.bootstrap_direction_stability
+python -m src.analysis.bottleneck_layer
+python -m src.analysis.bootstrap_branch_direction_difference
+python -m src.analysis.paired_deep_layer_stability_test
 
 # 4. regression suite -- expect 1215 passed, 9 skipped (plus 227 crossbranch)
 python -m pytest tests/ -q

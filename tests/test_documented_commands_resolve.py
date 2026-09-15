@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 COMMAND_RE = re.compile(r"python\s+-m\s+(src\.[A-Za-z0-9_.]+)")
 
 SCANNED_DIRS = ("docs", "notebooks")
-SCANNED_FILES = ("README.md", "CONTRIBUTING.md", "rerun_mechanistic_v2.sh")
+SCANNED_FILES = ("README.md", "CONTRIBUTING.md", "run_frozen_pipeline.sh")
 SCANNED_SUFFIXES = {".md", ".sh", ".py", ".ipynb"}
 
 # Paths that intentionally record history rather than describe live commands.

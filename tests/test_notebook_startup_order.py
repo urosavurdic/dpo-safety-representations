@@ -86,7 +86,7 @@ def test_focused_test_gate_cell_follows_benchmark_verification_cell():
                 return i
         raise AssertionError(f"no code cell containing {needle!r} found")
 
-    benchmark_idx = _find_code_cell("src.validate_benchmark_v2")
+    benchmark_idx = _find_code_cell("src.pipeline.validate_benchmark")
     test_gate_idx = _find_code_cell("V2_TEST_SCOPE = [")
 
     assert test_gate_idx > benchmark_idx, (

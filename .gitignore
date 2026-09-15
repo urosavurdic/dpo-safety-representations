@@ -79,3 +79,6 @@ results/raw/steering_raw_D_MULTILAYER_14to28_DEPRECATED.json
 results/summaries/causal_ablation_narrow_summary.json
 results/summaries/causal_ablation_wide_summary.json
 results/summaries/steering_D_summary.json
+
+# reclassified rows are regenerable from v2_raw.json plus the frozen classifier
+results/behavioral_eval/reclassified_654.json

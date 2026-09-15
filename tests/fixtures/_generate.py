@@ -6,8 +6,8 @@ Produces small, schema-faithful stand-ins for the frozen v2 benchmark and a
 legacy-370-era artifact, plus their pointer / split-manifest / binding
 sidecars, so the WP-Repro binding guards can be tested ("654 fixture passes,
 370 fixture rejected") without touching the real 654-row benchmark or any GPU
-output. Nothing here carries the real FROZEN_V2_BENCHMARK_SHA256 -- the
-fixtures are deliberately a *different* SHA so `assert_frozen_v2_counts`
+output. Nothing here carries the real FROZEN_BENCHMARK_SHA256 -- the
+fixtures are deliberately a *different* SHA so `assert_frozen_benchmark_counts`
 (which is a no-op off the real SHA) never fires on them.
 """
 from __future__ import annotations

@@ -39,8 +39,8 @@ import time
 
 import pytest
 
-from src.analysis import v2_pipeline as vp
-from src.analysis.v2_shards import Deadline, ShardStore
+from src.pipeline import frozen_run_pipeline as vp
+from src.pipeline.shards import Deadline, ShardStore
 from src.v2_io import assert_binding, load_json
 
 

@@ -62,7 +62,7 @@ def test_finalize_benchmark_is_idempotent_against_current_inputs(tmp_path):
         [
             sys.executable,
             "-m",
-            "src.finalize_benchmark",
+            "src.data_pipeline.finalize_benchmark",
             "--review-csv",
             "data/review/c_review_queue.csv",
             "--gate-config",

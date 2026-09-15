@@ -39,7 +39,7 @@ def _synthetic_diagnostic(tmp_path):
         for layer in layers:
             baseline_pooled[layer].extend(r[layer])
 
-    from src.interpretability.residual_norm_tracking import compare_to_baseline, compute_baseline_range
+    from src.analysis.residual_norm_tracking import compare_to_baseline, compute_baseline_range
     baseline_range = compute_baseline_range(baseline_pooled)
 
     def prompt_entries(kind, n=2):

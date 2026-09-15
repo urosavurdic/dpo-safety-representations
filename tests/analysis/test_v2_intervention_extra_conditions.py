@@ -16,7 +16,7 @@ import pytest
 torch = pytest.importorskip("torch")
 import torch.nn as nn
 
-from src.analysis.v2_pipeline import register_ablation, register_steering
+from src.pipeline.frozen_run_pipeline import register_ablation, register_steering
 from src.analysis.control_directions import seeded_random_directions
 
 

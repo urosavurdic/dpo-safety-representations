@@ -187,7 +187,7 @@ def test_bindings_record_pooling(tmp_path, monkeypatch):
 def test_final_token_condition_names_do_not_collide():
     """v2_pipeline final-token causal outputs use _ft_ / _ft_xfit_ condition
     names and a _finaltoken file tag; neither can match the pooled names."""
-    import src.analysis.v2_pipeline as vp
+    import src.pipeline.frozen_run_pipeline as vp
 
     class _Ctx:
         pooling = "final_token"
@@ -214,7 +214,7 @@ def test_final_token_condition_names_do_not_collide():
 
 # extra: local crossfit_folds copy == the v2_pipeline one, and == committed --- #
 def test_crossfit_folds_local_matches_v2_pipeline():
-    from src.analysis.v2_pipeline import crossfit_folds as vp_folds
+    from src.pipeline.frozen_run_pipeline import crossfit_folds as vp_folds
     ids = [f"r{i:03d}" for i in range(120)]
     for k in (2, 3, 5, 7):
         assert ftr.crossfit_folds_local(ids, k) == vp_folds(ids, k)

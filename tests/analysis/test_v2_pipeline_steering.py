@@ -3,9 +3,9 @@ separation, and norm-diagnostic condition registration.
 
 These sit alongside tests/analysis/test_v2_pipeline_deadline.py (which
 protects stage_start_blocked/stage_is_complete) and
-tests/interpretability/test_residual_norm_tracking.py (which protects the
+tests/analysis/test_residual_norm_tracking.py (which protects the
 norm-comparison math in isolation with tiny CPU tensors). This file
-protects the pieces in src/analysis/v2_pipeline.py that neither of those
+protects the pieces in src/pipeline/frozen_run_pipeline.py that neither of those
 cover: that steering's alpha calibration only ever reads the
 quadrant-A/direction_estimation split (never the held-out behavioral
 rows), that a missing calibration artifact fails loudly instead of
@@ -19,7 +19,7 @@ norm-preserving) through the same v2 architecture.
 No real model/tokenizer is used anywhere in this file. The norm-diagnostic
 test monkeypatches v2_pipeline.decoder_layers and v2_pipeline.generation_batch
 with fakes built from tiny CPU nn.Module layers (the same
-_FakeDecoderLayer pattern tests/interpretability/test_residual_norm_tracking.py
+_FakeDecoderLayer pattern tests/analysis/test_residual_norm_tracking.py
 and tests/analysis/test_eval_causal_ablation.py already use), so the real
 hook-registration/removal code path is exercised without touching a GPU
 or a real checkpoint.
@@ -32,7 +32,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.analysis.v2_pipeline import (
+from src.pipeline.frozen_run_pipeline import (
     ArtifactPaths,
     RunContext,
     activation_paths,
@@ -42,7 +42,7 @@ from src.analysis.v2_pipeline import (
     stage_plan,
     steering_tag,
 )
-from src.analysis.v2_shards import Deadline
+from src.pipeline.shards import Deadline
 from src.v2_io import write_json_lf
 
 BENCH_SHA = "a" * 64
@@ -376,7 +376,7 @@ HIDDEN_DIM = 2
 
 class _FakeDecoderLayer(nn.Module):
     """Same no-op-passthrough pattern as
-    tests/interpretability/test_residual_norm_tracking.py's
+    tests/analysis/test_residual_norm_tracking.py's
     _FakeDecoderLayer: returns (hidden_states,) like a real HF decoder
     block, so both the steering hooks and ResidualNormTracker's hook can
     register on it without a real model."""
@@ -422,7 +422,7 @@ def _make_norm_diag_ctx(tmp_path):
 
 
 def _patch_fake_model(monkeypatch):
-    import src.analysis.v2_pipeline as v2_pipeline
+    import src.pipeline.frozen_run_pipeline as v2_pipeline
 
     fake_layers = [_FakeDecoderLayer() for _ in range(N_DECODER_LAYERS)]
 

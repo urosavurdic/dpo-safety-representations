@@ -143,7 +143,7 @@ kept visible rather than quietly dropped.
 
 ## A separate study: cross-branch transfer
 
-`src/analysis/crossbranch/` and `results/crossbranch/` hold a distinct
+`src/crossbranch/` and `results/crossbranch/` hold a distinct
 experiment — taking the activation delta a DPO step induces in one branch and
 injecting it into another, to ask whether the change is branch-specific or
 transferable.
@@ -190,7 +190,7 @@ Details, and what is and is not scrubbed, are in [docs/DATA.md](docs/DATA.md).
 ```
 src/common/           shared helpers        src/training/     SFT and DPO
 src/data_pipeline/    benchmark building    src/analysis/     endpoints, geometry
-src/interpretability/ direction analysis    src/diagnostics/  leakage checks
+src/analysis/ direction analysis    src/diagnostics/  leakage checks
 docs/                 FINDINGS, DATA, NAMING, history/, audit/ (frozen)
 results/              every committed number + binding sidecars
 archive/              dead code, kept for provenance

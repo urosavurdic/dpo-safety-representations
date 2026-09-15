@@ -31,14 +31,17 @@ from pathlib import Path
 COMPONENTS = {
     "behavioral_stats": {
         "description": "Wilson-CI behavioral summary from already-generated raw generations",
-        "requires": ["results/behavioral_eval/raw.json"],
-        "produces": ["results/behavioral_eval/summary_v2.json"],
+        "requires": ["results/behavioral_eval/v2_raw.json"],
+        "produces": [
+            "results/behavioral_eval/reclassified_654.json",
+            "results/behavioral_eval/refusal_rates_654.json",
+        ],
         "commands": ["python -m src.analysis.reclassify_behavioral"],
     },
     "probes": {
         "description": "Linear probes + held-out flagging rate (needs activations, not the model)",
         "requires": ["results/activations"],
-        "produces": ["results/probes"],
+        "produces": ["results/probes_v2"],
         "commands": [
             "python -m src.analysis.eval_probes",
             "python -m src.analysis.summarize_probe_findings",
@@ -48,22 +51,22 @@ COMPONENTS = {
         "description": "Refusal-direction geometry, stability, bootstrap, bottleneck-layer analysis",
         "requires": ["results/activations"],
         "produces": [
-            "results/refusal_direction/cosine_similarity.json",
+            "results/refusal_direction/cosine_similarity_v2.json",
             "results/refusal_direction/per_prompt_projections.json",
             "results/interpretability/direction_stability/stability_report.json",
             "results/interpretability/bootstrap_direction_stability.json",
             "results/interpretability/bottleneck_layer.json",
-            "results/interpretability/bootstrap_cross_branch_difference.json",
+            "results/interpretability/bootstrap_branch_direction_difference.json",
             "results/interpretability/paired_deep_layer_stability_test.json",
         ],
         "commands": [
             "python -m src.analysis.eval_refusal_direction",
             "python -m src.analysis.representation_projections",
-            "python -m src.interpretability.direction_stability",
-            "python -m src.interpretability.bootstrap_direction_stability",
-            "python -m src.interpretability.bottleneck_layer",
-            "python -m src.interpretability.bootstrap_cross_branch_difference",
-            "python -m src.interpretability.paired_deep_layer_stability_test",
+            "python -m src.analysis.direction_stability",
+            "python -m src.analysis.bootstrap_direction_stability",
+            "python -m src.analysis.bottleneck_layer",
+            "python -m src.analysis.bootstrap_branch_direction_difference",
+            "python -m src.analysis.paired_deep_layer_stability_test",
         ],
     },
     "causal_stats": {
@@ -72,7 +75,7 @@ COMPONENTS = {
             "benchmark-bound causal-ablation file. BLOCKED until the T4 run "
             "produces results/raw/causal_ablation_v2_M3_L24-28.json (+ its "
             "*_binding.json). The pre-freeze results/raw/causal_ablation_raw_wide.json "
-            "is 370-era and is now refused by the binding guard (src/v2_binding_guard.py); "
+            "is 370-era and is now refused by the binding guard (src/pipeline/binding_guard.py); "
             "use --allow-unbound on the individual scripts only for historical work."
         ),
         "requires": [
@@ -92,7 +95,7 @@ GPU_ONLY_COMPONENTS = {
     "training": "colab_unified_training.ipynb (all 8 stages)",
     "behavioral_generation": "src.analysis.eval_behavioral (colab_unified_analysis.ipynb Component 1)",
     "activation_extraction": "src.analysis.eval_extract_activations (colab_unified_analysis.ipynb Component 2)",
-    "causal_ablation_generation": "python -m src.analysis.v2_pipeline run (canonical, frozen-v2-bound; "
+    "causal_ablation_generation": "python -m src.pipeline.frozen_run_pipeline run (canonical, frozen-v2-bound; "
                                    "writes results/raw/causal_ablation_v2_{stage}_L24-28.json). "
                                    "The old standalone src.analysis.eval_causal_ablation is deprecated "
                                    "and now refuses to run without --allow-legacy.",

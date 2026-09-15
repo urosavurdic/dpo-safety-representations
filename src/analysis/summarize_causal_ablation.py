@@ -22,7 +22,7 @@ from src.common.refusal_classifier import (
     is_soft_deflection,
 )
 from src.common.stats import rate_with_ci
-from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
+from src.pipeline.binding_guard import add_binding_cli_args, load_guarded_raw
 
 
 import argparse

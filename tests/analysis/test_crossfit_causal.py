@@ -28,7 +28,7 @@ import pytest
 
 from src.analysis import behavioral_judges as bj
 from src.analysis import confirmatory_behavioral_endpoints as cbe
-from src.analysis import v2_pipeline as vp
+from src.pipeline import frozen_run_pipeline as vp
 
 from tests.analysis.test_confirmatory_behavioral_endpoints import _rec
 

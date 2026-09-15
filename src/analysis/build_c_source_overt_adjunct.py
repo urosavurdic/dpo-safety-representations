@@ -160,7 +160,7 @@ def main():
     print(f"wrote {pointer['n_rows']} source_overt rows -> {pointer['adjunct_path']}")
     print(f"adjunct sha256 = {pointer['adjunct_sha256']}")
     print("\nextract its activations with:")
-    print(f"  python -m src.analysis.v2_pipeline extract --stage M3 \\")
+    print(f"  python -m src.pipeline.frozen_run_pipeline extract --stage M3 \\")
     print(f"    --latest-pointer {pointer['latest_benchmark_pointer']} \\")
     print(f"    --split-manifest {pointer['split_manifest']} \\")
     print(f"    --namespace c_source_overt")

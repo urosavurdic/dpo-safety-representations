@@ -4,7 +4,7 @@ Run:  python notebooks/_generate_v2_session_notebooks.py
 
 Each notebook is a THIN shell: a fixed setup preamble (mount Drive, clone +
 pin the exact commit, install deps) then code cells that shell out to
-`src.analysis.v2_pipeline` / the WP scripts. No analysis logic lives in a
+`src.pipeline.frozen_run_pipeline` / the WP scripts. No analysis logic lives in a
 notebook. Each full-session notebook targets 240-270 min wall clock, hard
 boundary 300 (analysis_plan.md §7). Every T4 session = its own fresh Colab VM,
 so every notebook re-runs the setup preamble. Notebooks are not git-tracked
@@ -72,7 +72,7 @@ _PERSIST = r'''# Bind results/ + the HF weight cache to a persistent Drive folde
 from src.colab_persist import bind, status_line
 info = bind()                     # or: bind(persist_hf_cache=False)
 print(status_line(info))
-!python -m src.analysis.v2_pipeline status'''
+!python -m src.pipeline.frozen_run_pipeline status'''
 
 
 def setup_preamble(start_num=1):
@@ -107,14 +107,14 @@ NOTEBOOKS = {
         code("import json\n"
              "latest = json.load(open('data/frozen_v2/LATEST_BENCHMARK.json'))\n"
              "bench = latest['benchmark_path']\n"
-             "subprocess.run(['python', '-m', 'src.create_direction_split_manifest',\n"
+             "subprocess.run(['python', '-m', 'src.data_pipeline.create_direction_split_manifest',\n"
              "                '--benchmark', bench], check=True)\n"
-             "subprocess.run(['python', '-m', 'src.validate_benchmark_v2',\n"
+             "subprocess.run(['python', '-m', 'src.pipeline.validate_benchmark',\n"
              "                '--benchmark', bench,\n"
              "                '--review-csv', 'data/review/c_review_queue.csv',\n"
              "                '--gate-config', 'logs/benchmark_gate_config.json',\n"
              "                '--split-manifest', 'logs/direction_split_manifest.json'], check=True)\n"
-             "from src.analysis.v2_pipeline import STATIC_GATE_FIELDS\n"
+             "from src.pipeline.frozen_run_pipeline import STATIC_GATE_FIELDS\n"
              "status = json.load(open('logs/benchmark_validation_status.json'))\n"
              "assert all(status.get(k) is True for k in STATIC_GATE_FIELDS), status\n"
              "print('static gate checks passed:', STATIC_GATE_FIELDS)\n"
@@ -128,17 +128,17 @@ NOTEBOOKS = {
              "  'tests/analysis/test_verify_activations.py', 'tests/analysis/test_intervention_conditions.py',\n"
              "]\n!python -m pytest {' '.join(V2_TEST_SCOPE)} -q"),
         md("## 7. Current progress"),
-        code("!python -m src.analysis.v2_pipeline status"),
+        code("!python -m src.pipeline.frozen_run_pipeline status"),
     ],
     "01_calibrate_and_extract.ipynb": [
         md("# S1 - calibrate + extract (`_final` + `_pooled` + source_overt adjunct)\n\n" + TARGET),
         *setup_preamble(1),
         md("## 5. Throughput calibration"),
-        code("!python -m src.analysis.v2_pipeline calibrate --stage M3 --n-prompts 32"),
+        code("!python -m src.pipeline.frozen_run_pipeline calibrate --stage M3 --n-prompts 32"),
         md("## 6. Build the source_overt adjunct companion set"),
         code("!python -m src.analysis.build_c_source_overt_adjunct"),
         md("## 7. Extract activations (stage-major, resumable)"),
-        code("!python -m src.analysis.v2_pipeline extract "
+        code("!python -m src.pipeline.frozen_run_pipeline extract "
              "--stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt"),
         md("## 8. CPU cross-check: all stages bound to the frozen benchmark"),
         code("!python -m src.analysis.verify_activations"),
@@ -147,7 +147,7 @@ NOTEBOOKS = {
         md("# S2 - behavioural generation -> per-session manifest\n\n" + TARGET),
         *setup_preamble(1),
         md("## 5. Generate (every quadrant, baseline condition)"),
-        code("!python -m src.analysis.v2_pipeline behavior "
+        code("!python -m src.pipeline.frozen_run_pipeline behavior "
              "--stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt"),
         md("## 6. Confirm the per-session manifest"),
         code("!ls -t results/manifests | head -3"),
@@ -156,17 +156,17 @@ NOTEBOOKS = {
         md("# S3 - directions + probes + control_directions + projections\n\n" + TARGET),
         *setup_preamble(1),
         md("## 5. Directions (force past stale 370-era outputs)"),
-        code("!python -m src.analysis.v2_pipeline direction --force "
+        code("!python -m src.pipeline.frozen_run_pipeline direction --force "
              "--stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt"),
         md("## 6. Probes (fixed FINAL_LAYER headline; no C/D selection)"),
-        code("!python -m src.analysis.v2_pipeline probes "
+        code("!python -m src.pipeline.frozen_run_pipeline probes "
              "--stages M0 M1 M2 M3 M3_direct M1_alt M2_alt M3_alt M3_direct_alt"),
         md("## 7. Control directions (seeded r, calibration-RMS gamma, d_AB)"),
         code("!python -m src.analysis.control_directions"),
         md("## 8. Canonical `_final` per-prompt + fixed-reference projections"),
         code("!python -m src.analysis.representation_projections"),
         md("## 9. Decide `ablated_AB` by calibrated session fit"),
-        code("from src.analysis.intervention_conditions import plan_causal_conditions\n"
+        code("from src.pipeline.intervention_conditions import plan_causal_conditions\n"
              "print(plan_causal_conditions('M3', per_condition_minutes=30, "
              "budget_minutes=270, requested=['baseline','ablated_AD','ablated_random','ablated_AB']).to_json())"),
     ],
@@ -174,10 +174,10 @@ NOTEBOOKS = {
         md("# S4 - causal: baseline / ablated_AD / ablated_random [/ ablated_AB]\n\n" + TARGET),
         *setup_preamble(1),
         md("## 5. Required conditions (always)"),
-        code("!python -m src.analysis.v2_pipeline causal --stage M3 "
+        code("!python -m src.pipeline.frozen_run_pipeline causal --stage M3 "
              "--conditions baseline ablated_AD ablated_random"),
         md("## 6. ablated_AB only if step 9 of S3 said it fits"),
-        code("# !python -m src.analysis.v2_pipeline causal --stage M3 --conditions ablated_AB"),
+        code("# !python -m src.pipeline.frozen_run_pipeline causal --stage M3 --conditions ablated_AB"),
         md("## 7. Secondary stages (M3_direct / M3_alt / M3_direct_alt) if time remains"),
         code("# for stage in ['M3_direct','M3_alt','M3_direct_alt']: ..."),
     ],
@@ -201,10 +201,10 @@ NOTEBOOKS = {
         md("# S5 - steering + consolidated manifest + S6 judge\n\n" + TARGET),
         *setup_preamble(1),
         md("## 5. Steering: learned vs random, dose-response {0.5, 1.0, 2.0}"),
-        code("!python -m src.analysis.v2_pipeline steering --stage M3 --alpha-coefficients 0.5 1.0 2.0\n"
-             "!python -m src.analysis.v2_pipeline steering --stage M3_alt --alpha-coefficients 0.5 1.0 2.0"),
+        code("!python -m src.pipeline.frozen_run_pipeline steering --stage M3 --alpha-coefficients 0.5 1.0 2.0\n"
+             "!python -m src.pipeline.frozen_run_pipeline steering --stage M3_alt --alpha-coefficients 0.5 1.0 2.0"),
         md("## 6. If tight: cut M1/M2 dose-response FIRST (never the random control)"),
-        code("from src.analysis.intervention_conditions import steering_cut_order\nprint(steering_cut_order())"),
+        code("from src.pipeline.intervention_conditions import steering_cut_order\nprint(steering_cut_order())"),
         md("## 7. Build the consolidated response manifest (AFTER S2 + S4 + S5)"),
         code("import datetime\nts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')\n"
              "# fill in the per-session manifest paths + the frozen SHAs from S0's load_run_inputs()\n"
@@ -217,7 +217,7 @@ NOTEBOOKS = {
              "--response-manifest results/manifests/consolidated_{ts}.json "
              "--require-binding --reject-legacy --out-dir results/behavioral_judges_v2 --run-live"),
         md("## 9. Post-run: bridge outputs, re-validate, session summary"),
-        code("!python -m src.analysis.verify_activations\n!python -m src.analysis.v2_pipeline status"),
+        code("!python -m src.analysis.verify_activations\n!python -m src.pipeline.frozen_run_pipeline status"),
     ],
 }
 

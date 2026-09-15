@@ -3,7 +3,7 @@ Next Steps item 4: actually diagnose (not just avoid) the degenerate-
 collapse mechanism under multi-layer steering. Runs generation under four
 conditions on the same small set of quadrant-D prompts, tracking the
 residual-stream norm at every decoder layer, every generation step, via
-ResidualNormTracker (src/interpretability/residual_norm_tracking.py):
+ResidualNormTracker (src/analysis/residual_norm_tracking.py):
 
   1. baseline           -- no steering at all (establishes the "trained,
                             typical" per-layer norm range via
@@ -53,7 +53,7 @@ from transformers import AutoTokenizer
 from src.common.generation import filter_to_held_out_behavioral_split, load_controlled_eval
 from src.common.refusal_classifier import is_degenerate
 from src.analysis.eval_steering_v2 import make_steering_hook, resolve_alphas
-from src.interpretability.residual_norm_tracking import (
+from src.analysis.residual_norm_tracking import (
     ResidualNormTracker,
     compare_to_baseline,
     compute_baseline_range,

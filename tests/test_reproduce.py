@@ -41,12 +41,12 @@ def test_artifact_exists_for_directory_requires_nonempty(tmp_path):
 
 def test_missing_requirements_reports_only_absent_paths(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    # behavioral_stats requires results/behavioral_eval/raw.json
+    # behavioral_stats requires the 654-row responses
     missing = missing_requirements("behavioral_stats")
-    assert missing == ["results/behavioral_eval/raw.json"]
+    assert missing == ["results/behavioral_eval/v2_raw.json"]
 
     Path("results/behavioral_eval").mkdir(parents=True)
-    Path("results/behavioral_eval/raw.json").write_text("{}")
+    Path("results/behavioral_eval/v2_raw.json").write_text("{}")
     assert missing_requirements("behavioral_stats") == []
 
 

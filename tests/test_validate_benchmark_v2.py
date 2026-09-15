@@ -1,6 +1,6 @@
-"""Regression tests for src.validate_benchmark_v2's artifact-freshness gate.
+"""Regression tests for src.pipeline.validate_benchmark's artifact-freshness gate.
 
-This is the check the v2 run gate (src.analysis.v2_pipeline.gate_for_run) leans
+This is the check the v2 run gate (src.pipeline.frozen_run_pipeline.gate_for_run) leans
 on to decide whether a T4 session may reuse existing activations or must
 regenerate them. Before the T4 rerun has produced any activations, or between
 sessions while a stage is only partially written, the activation directory is
@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import src.validate_benchmark_v2 as vbv
+import src.pipeline.validate_benchmark as vbv
 from src.v2_io import canonical_json, identity_snapshot, sha256_bytes, sha256_file
 
 
@@ -366,7 +366,7 @@ def test_unreadable_metadata_is_stale_not_a_crash_or_pass(tmp_path, monkeypatch)
 
 
 def test_status_contains_every_field_the_v2_run_gate_reads(tmp_path, monkeypatch):
-    """src.analysis.v2_pipeline.gate_for_run reads STATIC_GATE_FIELDS plus
+    """src.pipeline.frozen_run_pipeline.gate_for_run reads STATIC_GATE_FIELDS plus
     technical_benchmark_status and artifact_freshness_pass unconditionally
     via status.get(...). If any key were absent, .get() would silently
     return None instead of surfacing the real gap - so presence of every

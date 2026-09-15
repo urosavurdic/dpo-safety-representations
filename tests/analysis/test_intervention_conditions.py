@@ -1,7 +1,7 @@
-"""Toy tests for src/analysis/intervention_conditions.py (WP-Causal / WP-Steer)."""
+"""Toy tests for src/pipeline/intervention_conditions.py (WP-Causal / WP-Steer)."""
 import pytest
 
-from src.analysis import intervention_conditions as ic
+from src.pipeline import intervention_conditions as ic
 
 
 def test_frozen_vocabulary():

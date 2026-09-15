@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from src.reproduce import COMPONENTS, missing_requirements
-from src.v2_binding_guard import LegacyArtifactError, load_guarded_raw
+from src.pipeline.binding_guard import LegacyArtifactError, load_guarded_raw
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIX = REPO_ROOT / "tests" / "fixtures"
@@ -57,7 +57,7 @@ def test_causal_stats_is_blocked_until_t4(monkeypatch, tmp_path):
 
 
 # The three causal_stats scripts all route their --file through
-# src.v2_binding_guard.load_guarded_raw, so the guard is exercised here at the
+# src.pipeline.binding_guard.load_guarded_raw, so the guard is exercised here at the
 # library level (env-independent - no statsmodels/torch needed).
 
 def test_v2_bound_fixture_passes_the_guard():

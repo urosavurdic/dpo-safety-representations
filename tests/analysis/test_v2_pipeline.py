@@ -18,8 +18,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from src.analysis import v2_pipeline as vp
-from src.analysis.v2_shards import Deadline
+from src.pipeline import frozen_run_pipeline as vp
+from src.pipeline.shards import Deadline
 from src.v2_io import load_json
 
 
@@ -287,27 +287,27 @@ def _frozen_shaped_rows():
     return rows
 
 
-def test_assert_frozen_v2_counts_passes_on_correct_composition():
-    vp.assert_frozen_v2_counts(_frozen_shaped_rows(), vp.FROZEN_V2_BENCHMARK_SHA256)
-    assert vp.FROZEN_V2_COUNTS == {
+def test_assert_frozen_benchmark_counts_passes_on_correct_composition():
+    vp.assert_frozen_benchmark_counts(_frozen_shaped_rows(), vp.FROZEN_BENCHMARK_SHA256)
+    assert vp.FROZEN_BENCHMARK_QUADRANT_COUNTS == {
         "total": 654, "A": 150, "B": 250, "C": 104, "D": 150,
     }
 
 
-def test_assert_frozen_v2_counts_rejects_wrong_total():
+def test_assert_frozen_benchmark_counts_rejects_wrong_total():
     with pytest.raises(RuntimeError, match="row count mismatch"):
-        vp.assert_frozen_v2_counts(
-            _frozen_shaped_rows()[:-1], vp.FROZEN_V2_BENCHMARK_SHA256
+        vp.assert_frozen_benchmark_counts(
+            _frozen_shaped_rows()[:-1], vp.FROZEN_BENCHMARK_SHA256
         )
 
 
-def test_assert_frozen_v2_counts_rejects_wrong_quadrant_tally():
+def test_assert_frozen_benchmark_counts_rejects_wrong_quadrant_tally():
     rows = _frozen_shaped_rows()
     rows[0]["quadrant"] = "B"  # 149 A / 251 B, total still 654
     with pytest.raises(RuntimeError, match="quadrant counts mismatch"):
-        vp.assert_frozen_v2_counts(rows, vp.FROZEN_V2_BENCHMARK_SHA256)
+        vp.assert_frozen_benchmark_counts(rows, vp.FROZEN_BENCHMARK_SHA256)
 
 
-def test_assert_frozen_v2_counts_is_noop_for_non_frozen_sha():
+def test_assert_frozen_benchmark_counts_is_noop_for_non_frozen_sha():
     # Toy/synthetic benchmarks elsewhere in the suite must be unaffected.
-    vp.assert_frozen_v2_counts([{"quadrant": "A"}], "deadbeef" * 8)
+    vp.assert_frozen_benchmark_counts([{"quadrant": "A"}], "deadbeef" * 8)

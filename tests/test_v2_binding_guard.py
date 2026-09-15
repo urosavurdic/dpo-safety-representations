@@ -1,4 +1,4 @@
-"""Unit tests for src/v2_binding_guard.py (WP-Repro).
+"""Unit tests for src/pipeline/binding_guard.py (WP-Repro).
 
 Covers: legacy-basename rejection, per-row binding-field enforcement, the
 frozen-SHA check with an explicit-override escape hatch, and the fixture
@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from src.v2_binding_guard import (
-    LEGACY_370_BASENAMES,
+from src.pipeline.binding_guard import (
+    PRE_FREEZE_ARTIFACT_BASENAMES,
     LegacyArtifactError,
     assert_not_legacy_basename,
     assert_rows_bound,
@@ -25,7 +25,7 @@ SPLIT_SHA = json.loads((FIX / "benchmark_654.split_manifest.json").read_text())[
 
 def test_legacy_basenames_are_rejected():
     for name in ["causal_ablation_raw_wide.json", "causal_ablation_raw_narrow.json", "steering_raw_D.json"]:
-        assert name in LEGACY_370_BASENAMES
+        assert name in PRE_FREEZE_ARTIFACT_BASENAMES
         with pytest.raises(LegacyArtifactError):
             assert_not_legacy_basename(f"results/raw/{name}")
 
