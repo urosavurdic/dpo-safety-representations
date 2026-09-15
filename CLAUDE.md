@@ -199,7 +199,6 @@ python -m src.interpretability.direction_stability
 python -m src.interpretability.bootstrap_direction_stability
 python -m src.interpretability.bottleneck_layer
 python -m src.analysis.summarize_cross_branch
-python -m src.analysis.eval_causal_ablation --stage M3
 python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_raw_narrow.json --stage M3
 python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_raw_narrow.json --conditions M3_baseline M3_ablated
 python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_raw_narrow.json --quadrant C --category soft_deflection

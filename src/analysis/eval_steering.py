@@ -26,10 +26,10 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.analysis.eval_causal_ablation import get_decoder_layers, generate_batch, load_controlled_eval, BATCH_SIZE
+from src.common.generation import get_decoder_layers, generate_batch, load_controlled_eval, BATCH_SIZE
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-MAX_NEW_TOKENS = 200  # must match eval_causal_ablation.py / eval_behavioral.py
+MAX_NEW_TOKENS = 200  # must match src/common/generation.py's MAX_NEW_TOKENS
 STEER_LAYERS = list(range(14, 29))
 
 

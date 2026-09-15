@@ -50,7 +50,7 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer
 
-from src.analysis.eval_causal_ablation import filter_to_held_out_behavioral_split, load_controlled_eval
+from src.common.generation import filter_to_held_out_behavioral_split, load_controlled_eval
 from src.common.refusal_classifier import is_degenerate
 from src.analysis.eval_steering_v2 import make_steering_hook, resolve_alphas
 from src.interpretability.residual_norm_tracking import (
@@ -64,7 +64,7 @@ from src.training.eval_generation import build_generation_prompt
 from src.training.model import load_stage_model
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-MAX_NEW_TOKENS = 200  # must match eval_causal_ablation.py / eval_steering_v2.py
+MAX_NEW_TOKENS = 200  # must match src/common/generation.py's MAX_NEW_TOKENS
 COLLAPSING_LAYERS = list(range(14, 29))    # historical multi-layer collapse config
 NONCOLLAPSING_LAYERS = [24]                # current single-layer default
 

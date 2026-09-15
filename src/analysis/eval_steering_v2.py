@@ -54,12 +54,12 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import load_stage_model
-from src.analysis.eval_causal_ablation import (
+from src.common.generation import (
     get_decoder_layers, generate_batch, load_controlled_eval, filter_to_held_out_behavioral_split, BATCH_SIZE,
 )
 
 MODEL_NAME = "Qwen/Qwen2.5-1.5B"
-MAX_NEW_TOKENS = 200  # must match eval_causal_ablation.py / eval_behavioral.py
+MAX_NEW_TOKENS = 200  # must match src/common/generation.py's MAX_NEW_TOKENS
 DEFAULT_LAYERS = [24]  # inside the ablation-validated 24-28 range, unlike the old default (21)
 CAUSALLY_VALIDATED_RANGE = range(24, 29)  # for the "outside validated range" warning only
 
