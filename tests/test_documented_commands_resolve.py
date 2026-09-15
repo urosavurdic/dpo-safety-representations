@@ -31,6 +31,10 @@ SCANNED_SUFFIXES = {".md", ".sh", ".py", ".ipynb"}
 # Paths that intentionally record history rather than describe live commands.
 EXCLUDED_PARTS = {"archive", "private", "results", "logs", ".git", "__pycache__"}
 
+# Placeholders used when prose talks *about* the command form rather than naming
+# a module, e.g. "every `python -m src.X` in the docs is checked".
+PLACEHOLDER_RE = re.compile(r"^src\.[A-Z]$|^src\.(module|name|x|X)$")
+
 
 def _iter_scanned_files():
     for name in SCANNED_FILES:
@@ -69,6 +73,8 @@ def _collect_references() -> dict[str, list[str]]:
     refs: dict[str, list[str]] = {}
     for path in _iter_scanned_files():
         for module in COMMAND_RE.findall(_text_of(path)):
+            if PLACEHOLDER_RE.match(module):
+                continue
             refs.setdefault(module, []).append(
                 str(path.relative_to(REPO_ROOT)).replace("\\", "/")
             )
