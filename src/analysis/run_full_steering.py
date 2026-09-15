@@ -1,11 +1,11 @@
 """
 Orchestrates eval_steering_v2.py across the DPO-trained stages, quadrants
 A+D, held-out-behavioral split -- the "8-stage steering notebook"
-referenced in CLAUDE.md/README's Next Steps item 1. That "8-stage" framing
+referenced in CONTRIBUTING.md/README's Next Steps item 1. That "8-stage" framing
 is now superseded: `notebooks/colab_unified_analysis.ipynb` (tracked in
 git -- an earlier version of this docstring wrongly claimed otherwise,
 should have just run `git ls-files` instead of trusting an out-of-date
-CLAUDE.md prose claim) settled on running causal ablation/steering against
+CONTRIBUTING.md prose claim) settled on running causal ablation/steering against
 only the 4 stages that actually have DPO training to test
 (`STAGES_FOR_CAUSAL` in that notebook's Component 5/5b) -- M1/M2/M1_alt/
 M2_alt are SFT-only, there's no DPO effect for steering the refusal
@@ -19,7 +19,7 @@ Deliberately has NO torch/transformers/peft import at module level (unlike
 eval_steering_v2.py itself) -- this file only shells out to
 `python -m src.analysis.eval_steering_v2` as a subprocess per stage, so it
 stays importable/testable in a torch-less CPU sandbox (matches the
-project's "Testing status" convention in CLAUDE.md: CPU-pure logic should
+project's "Testing status" convention in CONTRIBUTING.md: CPU-pure logic should
 be collectible even without the real ML stack installed). The tiny
 eval-set loading/validation logic below is deliberately duplicated rather
 than imported from eval_extract_activations.py / eval_steering_v2.py, for
@@ -27,7 +27,7 @@ the same reason those two already duplicate load_controlled_eval() from
 each other instead of sharing it across a torch-importing module boundary.
 
 Preconditions this checks BEFORE spending any GPU time (does not run
-anything if these fail -- see README/CLAUDE.md Next Steps item 1's "the
+anything if these fail -- see README/CONTRIBUTING.md Next Steps item 1's "the
 expensive GPU steering pass happens once, not twice" concern):
   1. Every quadrant-A/D row in the live controlled_eval.jsonl has a "split"
      key assigned (proves assign_direction_split has actually run over the

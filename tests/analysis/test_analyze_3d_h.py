@@ -35,7 +35,7 @@ from src.analysis.analyze_3d_h import (
 from src.data_pipeline.lexical_outlierness import REPO_ROOT
 
 REAL_PRIVATE_KEY_PATH = os.environ.get(
-    "REAL_3D_H_ANSWER_KEY_PATH", "/home/claude/private_outputs/3d_h_answer_key.json"
+    "REAL_3D_H_ANSWER_KEY_PATH", "private/3d_h_answer_key.json"
 )
 
 

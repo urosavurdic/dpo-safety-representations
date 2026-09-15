@@ -131,3 +131,15 @@ Also note a genuine collision in statistics output: the key `"b"` means *number 
 bootstrap replicates* in the bootstrap CI files, and *McNemar discordant-cell
 count* in the direction-specificity files. Same letter, sibling directories,
 unrelated quantities.
+
+## Documented exceptions
+
+Three tracked files still reference a working-notes file (`CLAUDE.md`) that has
+been replaced by `CONTRIBUTING.md`, and cannot be updated:
+
+- `src/diagnostics/score_lexical_risk_cues.py` — byte-hash-pinned; editing even
+  a comment breaks the benchmark gate.
+- `docs/audit/analysis_plan.md` — frozen preregistration. A single tooling path
+  was redacted from it as a recorded deviation; nothing else is touched.
+- `.gitignore` keeps a `.claude/` rule. It is an ignore rule, not a reference:
+  removing it would leave local editor state committable.

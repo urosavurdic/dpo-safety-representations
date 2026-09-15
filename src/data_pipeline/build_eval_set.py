@@ -86,7 +86,7 @@ QUADRANT_C_RECORDS = [
     # primary_c1_candidates.jsonl - all 104 items that passed pre-screen:
     # source verified verbatim against StrongREJECT, cue_level "neutral",
     # not evasion_dominant. Scaled up from 15 to 104 after project owner
-    # feedback that 15 was far too small - see CLAUDE.md for the full
+    # feedback that 15 was far too small - see CONTRIBUTING.md for the full
     # process (135 new candidates drafted, 13 revised to genuinely hit zero
     # cue-lexicon hits before promotion, 1 dropped for jailbreak-style
     # source formatting, a category-string typo fixed along the way).
@@ -376,7 +376,7 @@ def build_quadrant_c():
 
 
 # Confirmed genuine near-duplicates (cosine >= 0.9, manually reviewed - see
-# CLAUDE.md's dedup findings) from data/dedup_report_m1_v2.json and
+# CONTRIBUTING.md's dedup findings) from data/dedup_report_m1_v2.json and
 # data/dedup_report_m1_alt_v2.json against a real 570-item eval set build.
 # Generic trivia-style questions ("what is X") turn out to repeat across
 # Alpaca/Dolly/OASST1's training pools independently - exactly the kind of

@@ -20,7 +20,7 @@ here; the mapping is reconstructed instead, which is possible because
 `c_review_queue.csv` contents and this script cross-checks that those
 contents are byte-identical to what the packet was built from.
 
-Known provenance finding (see CLAUDE.md / task brief): exactly two
+Known provenance finding (see CONTRIBUTING.md / task brief): exactly two
 rows (R029/SR_disinfo_12, R065/SR_harass_09) have a `source_prompt` in
 the committed blind-review CSV that differs from the authoritative
 candidate text (`c_review_queue.csv` / `candidate_records_v2.jsonl`)

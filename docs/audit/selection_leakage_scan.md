@@ -25,7 +25,7 @@ held-out B (the other ~200 B rows), quadrant C (104), quadrant D (150).
   no dependence on any outcome.
 - CV accuracy saturates near 1.0 at almost every layer for every stage,
   including untrained M0; it is **not** used to pick a layer (that was an
-  earlier, separately-fixed bug — see `CLAUDE.md` "Bugs already found and
+  earlier, separately-fixed bug — see `CONTRIBUTING.md` "Bugs already found and
   fixed"). It is reported descriptively only.
 - The probe measures linear separability of an A-vs-B *surface* contrast, not
   "semantic safety understanding" — see `docs/audit/analysis_plan.md` §3.

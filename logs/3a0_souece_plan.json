@@ -21,7 +21,7 @@
     "primary_c1_source_already_in_use": {
       "source": "StrongREJECT (Souly et al. 2024)",
       "mechanism": "src/data_pipeline/quadrant_c_pipeline.py: STRONGREJECT_CSV_URL fetches strongreject_dataset.csv from alexandrasouly/strongreject at build time; 155-item CANDIDATES list carries source_id, source_prompt (unchanged StrongREJECT text), and an AI-reworded candidate_prompt (reduced lexical risk cues, verified via score_lexical_risk_cues.py). 104 of these 155 are currently live as c_paired.",
-      "implication_for_this_milestone": "The unchanged source_prompt text for all 155 items is already sitting in this repo (data/quadrant_c_pipeline/candidate_records_v2.jsonl). A c_source_authored arm could reuse a NEW, disjoint slice of StrongREJECT (different source_ids, or the same file's remaining ~184 un-drafted rows referenced in CLAUDE.md) rather than requiring a second fetch."
+      "implication_for_this_milestone": "The unchanged source_prompt text for all 155 items is already sitting in this repo (data/quadrant_c_pipeline/candidate_records_v2.jsonl). A c_source_authored arm could reuse a NEW, disjoint slice of StrongREJECT (different source_ids, or the same file's remaining ~184 un-drafted rows referenced in CONTRIBUTING.md) rather than requiring a second fetch."
     },
     "secondary_families_already_built": {
       "C2_stylistic_displacement": {
@@ -73,7 +73,7 @@
     "lexical_risk_cue_lexicon": {
       "file": "src/diagnostics/score_lexical_risk_cues.py",
       "method": "predeclared risk-word substring lexicon, deliberately crude, an audit signal not a neutrality proof",
-      "documented_limits": "Per CLAUDE.md: missed 2 of 5 known hard evasion-coded cases in a past audit despite them being evasion-coded to a human reader; a prior 'fix' (sell fake goods -> sell ... without it being noticed) was a synonym swap that did NOT reduce the hit count, caught and reverted -- same failure mode to guard against for any new candidates."
+      "documented_limits": "Per CONTRIBUTING.md: missed 2 of 5 known hard evasion-coded cases in a past audit despite them being evasion-coded to a human reader; a prior 'fix' (sell fake goods -> sell ... without it being noticed) was a synonym swap that did NOT reduce the hit count, caught and reverted -- same failure mode to guard against for any new candidates."
     },
     "gate_config": {
       "file": "logs/benchmark_gate_config.json",

@@ -37,7 +37,7 @@ results/crossbranch/judges/*.json
 results/behavioral_eval/v2_shards/
 results/raw/v2_causal_shards/
 results/raw/v2_steering_shards/
-# local working notes and scratch; never committed
+# local scratch; never committed
 private/
 results/behavioral_judges_v2/*.json
 

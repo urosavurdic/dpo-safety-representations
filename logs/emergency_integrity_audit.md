@@ -64,13 +64,13 @@ files, to confirm the reported symptom rather than guess at it.
   | Activation output | `results/activations/{stage}_final.npy` / `_pooled.npy` / `_metadata.json` | **Same directory and same three filenames** for a default (non-`--namespace`) run, **plus** `{stage}_metadata_binding.json` |
   | Freshness check | Self-referential only (compares to its own last snapshot) | Triple-checked: binding-hash + metadata-snapshot equality + array row-count |
   | Probe output | `results/probes/{stage}_probe_results.json` | `results/probes_v2/{stage}_probe_results.json` (different dir — no collision here) |
-  | Still documented as "the commands" in | `CLAUDE.md` §"Manual component-by-component" (lines 153–169) | `RESUME_PROMPT.md`, `FINAL_RELEASE_HANDOFF.md`, the notebook itself |
+  | Still documented as "the commands" in | `CONTRIBUTING.md` §"Manual component-by-component" (lines 153–169) | `RESUME_PROMPT.md`, `FINAL_RELEASE_HANDOFF.md`, the notebook itself |
 
   `logs/FINAL_RELEASE_HANDOFF.md` states outright: *"Runs
   `src/analysis/v2_pipeline.py`, `v2_shards.py`, `v2_compat.py`,
   `validate_benchmark_v2.py` only — no legacy mutable-eval-set pipeline."*
   i.e. the actual Colab notebook never touches the legacy scripts. But
-  `CLAUDE.md` — the file an agent or user is most likely to read for "how
+  `CONTRIBUTING.md` — the file an agent or user is most likely to read for "how
   do I run this" — still lists the legacy scripts as the "manual"
   commands, with no deprecation note next to them. This divergence is the
   most direct repository-integrity problem found in this audit.
@@ -107,7 +107,7 @@ files, to confirm the reported symptom rather than guess at it.
 
 - **A. Why did the probe rerun report `Best layer 0` for all stages?**
   Partially reproduced, partially UNVERIFIABLE. The historical bug is
-  real and documented in-repo (`CLAUDE.md` "Bugs already found and
+  real and documented in-repo (`CONTRIBUTING.md` "Bugs already found and
   fixed"): `pick_most_informative_layer()` used to pick by
   `cv_accuracy_mean`, which saturates near 1.0 at almost every layer
   including untrained M0 — ties resolve to Python `max()`'s first match,
@@ -140,7 +140,7 @@ files, to confirm the reported symptom rather than guess at it.
   Known artifact. Layer index 0 = raw embedding output (index 0 of
   `output_hidden_states`, before any transformer block runs). The repo's
   own code/docs treat it that way everywhere it appears: `eval_probes.py`
-  calls it "the shallowest, LEAST informative layer"; `CLAUDE.md`
+  calls it "the shallowest, LEAST informative layer"; `CONTRIBUTING.md`
   separately notes cross-branch cosine similarities were "diluted by
   layer 0 (always exactly 0.0, a known template-token artifact) — fixed
   to exclude it." No part of this codebase treats layer 0 as a
@@ -236,7 +236,7 @@ files, to confirm the reported symptom rather than guess at it.
   self-referential only — correctly detects when `controlled_eval.jsonl`
   has grown/changed relative to its own last snapshot
   (`eval_set_matches_saved_metadata`, itself a documented past fix, see
-  `CLAUDE.md`), but has **no awareness of `frozen_v2` at all**, so
+  `CONTRIBUTING.md`), but has **no awareness of `frozen_v2` at all**, so
   "resumed correctly" and "resumed against the right benchmark" are two
   different claims here — only the first is checked.
 
@@ -255,7 +255,7 @@ files, to confirm the reported symptom rather than guess at it.
    `v2_pipeline.py` run write to the **exact same directory and exact
    same filenames** for `{stage}_final.npy` / `{stage}_pooled.npy` /
    `{stage}_metadata.json` (`results/activations/`). Running both against
-   the same checkout — plausible, since `CLAUDE.md` still documents the
+   the same checkout — plausible, since `CONTRIBUTING.md` still documents the
    legacy commands as "what the notebooks actually call" (they don't,
    see §3) — risks one overwriting the other's `.npy` arrays. Today this
    would likely just waste GPU time rather than corrupt anything
@@ -263,13 +263,13 @@ files, to confirm the reported symptom rather than guess at it.
    would re-extract regardless), but it is a real footgun, and it is
    exactly the kind of Colab/T4-session-wasting failure mode flagged as a
    hard constraint for this project.
-3. **Documentation drift:** `CLAUDE.md` §"Manual component-by-component"
+3. **Documentation drift:** `CONTRIBUTING.md` §"Manual component-by-component"
    (lines 153–169) is stale relative to the actual release. It documents
    the legacy Components 1–3 scripts with no note that the supported,
    Colab-ready path is `v2_pipeline.py` / `rerun_mechanistic_v2.sh`
    instead. This is the most plausible root cause of the original
    "Best layer 0" / "Quadrant C n=20" reports if they came from someone
-   following `CLAUDE.md` literally rather than `RESUME_PROMPT.md` or the
+   following `CONTRIBUTING.md` literally rather than `RESUME_PROMPT.md` or the
    notebook.
 4. **Pre-existing, already flagged by a prior agent, not re-investigated
    this session (in `logs/agent_state.json`'s `unresolved_issues`):**
@@ -292,7 +292,7 @@ files, to confirm the reported symptom rather than guess at it.
    `results/activations/*_metadata.json` (9+9 files, 370-row/C=20
    provenance) out of the active `results/` tree, or add a loud
    freshness banner so a stale read is visually unmistakable.
-3. `CLAUDE.md` §"Manual component-by-component": add a deprecation note
+3. `CONTRIBUTING.md` §"Manual component-by-component": add a deprecation note
    pointing at `v2_pipeline.py` / `rerun_mechanistic_v2.sh`, or remove
    the legacy commands from that list entirely, so no one — human or
    agent — runs them expecting current results again.

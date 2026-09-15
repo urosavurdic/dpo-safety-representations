@@ -1,10 +1,13 @@
-# 654-benchmark findings synthesis (for the FLLMPT paper)
+# Findings on the 654-row benchmark
+
+The evidence ledger: every reported number, where it came from, and what it does
+and does not support.
 
 Numbers verified against `results/` JSONs. The causal endpoints (CF2 and
 below) are from the **2026-09-07 Colab run** — judge file
 `behavioral_judges_v2_20260907T043919Z.json`, which added the full-A/D and
 5-fold cross-fitted causal generations and re-scored them (see the
-"cross-fitted" session in CLAUDE.md / the git log around `c5a16ec`). CF1 is unchanged from the 2026-09-05 run. CF3 was re-pinned on CPU
+"cross-fitted" session in CONTRIBUTING.md / the git log around `c5a16ec`). CF1 is unchanged from the 2026-09-05 run. CF3 was re-pinned on CPU
 (audit RED-2) and the geometry/factorial were recomputed on `_pooled`
 (audit RED-1 optional, done) — see those sections. Every claim here has a
 file behind it — no 370-era numbers.
@@ -186,7 +189,7 @@ intervention direction from **`_pooled.npy` = mean of the last 5 tokens**
 − mean(pooled[D_est]))` to cos 1.0000 every layer; cos with the final-token
 diff-in-means is only **0.76–0.87 at L24–28** (0.82–0.87 original chain,
 0.76–0.81 alt). **No number changes** — every causal result is a valid
-analysis of the mean-pooled contrast — but the paper's "final-token" label
+analysis of the mean-pooled contrast — but the write-up's "final-token" label
 was wrong and is corrected throughout; deviations-table row added. Geometry
 (`subspace_geometry.py`) and factorial (`factorial_direction_audit.py`) use
 `_final.npy` → those describe the final-token direction, cos ~0.86 with the
@@ -294,7 +297,7 @@ State this.
 | LoRA subspace | "90%+ outside rank-64" | 90–94% outside; but L21/28 in-subspace fraction 0.10 vs random 0.04 | holds with nuance |
 | F3: "7-layer harm-vs-surface gap" | claimed | argmax noise (correctly labelled `_EXPLORATORY` in the file) | **walked back — keep visible** |
 
-## Corrections for the paper (not OpenReview)
+## Corrections to earlier write-ups
 
 1. Abstract cosine "0.875–0.919" — true per-pair layer-means are **0.870
    (M3_direct) – 0.910 (M2)**; bootstrap CI envelope reaches 0.916. Paper
@@ -304,7 +307,7 @@ State this.
    estimate and the paired circularity bias. Limitations now says "the
    preregistered anchor is n=30; everything larger is sensitivity", not
    "full-A unavailable".
-3. "reference-free DPO" → π_ref = merged preceding checkpoint (CLAUDE.md
+3. "reference-free DPO" → π_ref = merged preceding checkpoint (CONTRIBUTING.md
    already fixed).
 
 ## Cross-branch cosine (654), per-pair layer-means

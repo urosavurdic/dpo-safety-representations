@@ -31,11 +31,11 @@ ResidualNormTracker (src/interpretability/residual_norm_tracking.py):
 
 REQUIRES a GPU and HF Hub network access for the actual model -- neither
 was available in the sandboxed environment this script was written in (see
-CLAUDE.md's documented sandbox limitations). This has been checked for
+CONTRIBUTING.md's documented sandbox limitations). This has been checked for
 import-time and structural correctness (see the test file's coverage of
 the pure-logic helpers below) but the actual generation/tracking has NOT
-been executed against the real model by the agent that wrote it -- run it
-for real, then look at the output file and the follow-up plotting script
+been executed against the real model -- run it for real, then look at the
+output file and the follow-up plotting script
 (plot_residual_norms.py) before drawing any conclusion.
 
 Usage:

@@ -25,7 +25,7 @@ STAGES = [
 N_BOOTSTRAP = 1000  # per PROJECT_CONTEXT.md M1D/M3_direct spec: B=1000 replicates
 REPORT_LAYERS = None  # None = report all layers (0-28), not a cherry-picked subset
 SEED = 0
-# README Finding 3 / CLAUDE.md Next-step #3: the "deep layers" where
+# README Finding 3 / CONTRIBUTING.md Next-step #3: the "deep layers" where
 # direct-DPO branches show a tight bootstrap-stability band (0.98-0.995)
 # vs. looser M2-mediated stages (roughly 0.94-0.98). Raw per-replicate sims
 # are persisted for these layers only (not all 29) to keep the output file
@@ -119,7 +119,7 @@ def main():
                   f"{stats['mean']:.4f} (median {stats['median']:.4f}, std {stats['std']:.4f}, "
                   f"95% CI [{stats['ci_low_2.5pct']:.4f}, {stats['ci_high_97.5pct']:.4f}])")
             if layer in DEEP_LAYERS:
-                # Task 3 (CLAUDE.md Next steps): persist the raw per-replicate
+                # Task 3 (CONTRIBUTING.md Next steps): persist the raw per-replicate
                 # array for deep layers so a formal paired test can be run
                 # later without rerunning this (expensive-ish, B=1000 x 9
                 # stages) bootstrap.

@@ -28,11 +28,14 @@ Content-safety exclusions applied before sampling (documented, not silent):
 import hashlib
 import json
 from collections import defaultdict
+import os
 from pathlib import Path
 
-REPO = Path("/home/claude/dpo-repo")
-CASEBENCH_PATH = Path("/home/claude/casebench_full.json")
-OSI_PATH = Path("/home/claude/osi_dataset.json")
+# Source corpora are fetched separately and are not committed; point these at
+# wherever you downloaded them. Defaults assume the repo root.
+REPO = Path(os.environ.get("DPO_REPO_ROOT", Path(__file__).resolve().parents[2]))
+CASEBENCH_PATH = Path(os.environ.get("CASEBENCH_PATH", REPO / "data/raw/casebench_full.json"))
+OSI_PATH = Path(os.environ.get("OSI_DATASET_PATH", REPO / "data/raw/osi_dataset.json"))
 
 TRAINING_FILES_TO_CHECK = {
     "sft_helpful.jsonl": REPO / "data/processed/sft_helpful.jsonl",

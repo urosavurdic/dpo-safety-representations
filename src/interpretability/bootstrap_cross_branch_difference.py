@@ -12,7 +12,7 @@ once instead of one stage.
 
 Resampling design: both branches of a cross-branch pair (e.g. M3 and
 M3_alt) score the exact same fixed, ordered 370-prompt controlled eval set
-(CLAUDE.md core design decision #5) - so quadrant-A/D PROMPT POSITIONS can
+(CONTRIBUTING.md core design decision #5) - so quadrant-A/D PROMPT POSITIONS can
 be resampled once per replicate and applied to BOTH sides jointly. This is
 the same "resample the pair jointly" logic bootstrap_causal_effect.py uses
 for paired outcomes, and is more powerful than resampling each side with

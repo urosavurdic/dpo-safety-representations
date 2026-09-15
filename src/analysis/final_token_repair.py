@@ -1,4 +1,4 @@
-"""Final-token repair for the FLLMPT paper (audit RED-1).
+"""Rebuild the refusal direction with final-token pooling (audit finding RED-1).
 
 The v2 intervention pipeline (``v2_pipeline.stage_direction`` /
 ``stage_direction_crossfit``) builds the A-D difference-in-means direction from

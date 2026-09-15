@@ -101,7 +101,7 @@ def test_activation_metadata_matches_false_when_stale_content(tmp_path, monkeypa
 
 
 def test_activation_metadata_matches_false_when_split_missing_in_saved(tmp_path, monkeypatch):
-    """Regression guard for the exact bug class CLAUDE.md documents (toy
+    """Regression guard for the exact bug class CONTRIBUTING.md documents (toy
     fixtures missing a 'split' key silently passing): saved metadata from
     BEFORE the split existed (no "split" key in the row at all) must not
     equal current metadata that has split=None for a B/C row -- these are

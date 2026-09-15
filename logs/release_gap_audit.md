@@ -172,7 +172,7 @@ on direct execution.
 | `logs/agent_state.json` | Dated `59f533e` (2026-08-26); ~60 commits behind HEAD; incorrectly claims Arm 2 "not built" | `NEEDS FIX` (regenerate at next handoff milestone) |
 | `logs/RESUME_PROMPT.md` | Same commit; its exact patch path (`artifacts/patches/...`) is currently broken (§5B) | `NEEDS FIX` |
 | `logs/researcher_runbook_colab.md`, `logs/researcher_runbook_local.md` | Same commit (`59f533e`, 2026-08-26); predate all of Milestones 3A4 onward | `NEEDS VERIFICATION` |
-| `CLAUDE.md` | Last touched `313942d`, 2026-08-25 | `NEEDS VERIFICATION` |
+| `CONTRIBUTING.md` | Last touched `313942d`, 2026-08-25 | `NEEDS VERIFICATION` |
 | `HANDOFF.md` | Last touched `23518bf`, 2026-08-14 | `NEEDS VERIFICATION` |
 | `PROJECT_CONTEXT.md` | Last touched `c5ac374`, 2026-08-13 | `NEEDS VERIFICATION` |
 | `results/refusal_direction/*_direction.npy` (un-suffixed), `results/probes/`, `results/behavioral_eval/raw.json`, `results/raw/*.json`, `results/interpretability/*` | Pre-v2 ("370-row era" per `logs/agent_state.json`) legacy results, not bound to the current frozen benchmark; will be superseded by the v2 GPU rerun + `v2_compat.py` bridge | `NOT APPLICABLE` to touch now — correctly left in place per onboarding rules ("mark stale, do not delete"); the `_v2_compat_binding.json` safety mechanism already prevents silent overwrite |

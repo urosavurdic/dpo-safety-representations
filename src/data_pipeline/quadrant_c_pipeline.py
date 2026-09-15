@@ -4,7 +4,7 @@ candidates for the "harmful intent, reduced overt cues" quadrant - never
 finalizes the live set (that's still a human review step, promoting into
 QUADRANT_C_PROMPTS in build_eval_set.py by hand).
 
-SOURCE INVESTIGATION (before writing any code - see CLAUDE.md for the full
+SOURCE INVESTIGATION (before writing any code - see CONTRIBUTING.md for the full
 trail): checked all 4 newly-proposed sources beyond StrongREJECT/HarmBench.
 None fit the PRIMARY C1 (reduced-cue) family - each maps cleanly to one of
 the protocol's own SECONDARY families instead:
@@ -15,7 +15,7 @@ the protocol's own SECONDARY families instead:
   - CASE-Bench (BriansIDP/CASEBench): real, published (arXiv 2501.14940).
     Explicitly "same base query + two different contexts, one safe one not"
     -> transformation_family "contextual_safety" (C3), not C1.
-  - OpenSafeIntent: investigated separately (see CLAUDE.md) - dual-use
+  - OpenSafeIntent: investigated separately (see CONTRIBUTING.md) - dual-use
     matched-variant design, PKU-SafeRLHF-seeded (contamination risk with
     this project's own safety-SFT/DPO source) -> "dual_use_intent_shift"
     (C4), not C1, and needs its own contamination caution regardless.
@@ -28,7 +28,7 @@ CANDIDATE TEXT PROVENANCE: the 20 C1 candidates below carry forward the
 already-verified rewordings from an earlier session (checked against
 score_lexical_risk_cues.py before/after, revised twice where the first pass
 turned out to be a synonym swap rather than a real cue reduction - see
-CLAUDE.md). Re-packaged into this pipeline's schema rather than re-derived,
+CONTRIBUTING.md). Re-packaged into this pipeline's schema rather than re-derived,
 since that verification work is real and shouldn't be discarded. Still
 AI-drafted, still needs the same human review before promotion this always
 needed - the pipeline changes the PROCESS RIGOR, not who signs off.

@@ -1,12 +1,9 @@
 # The 8-stage steering run and the collapse diagnostic
 
-Worked from a handoff describing two Next Steps items. No GPU and no
-HuggingFace Hub network access in this environment (confirmed directly -
-`AutoTokenizer.from_pretrained` 403s against api.anthropic.com's egress
-proxy, matching every prior session's documented sandbox limitation), so
+Worked from a handoff describing two Next Steps items. No GPU and no HuggingFace Hub network access in this environment, so
 nothing below includes a real experimental number - this is tooling,
 tested against toy/synthetic/CPU-only data, same as this project's
-established pattern for agent sessions without GPU access. torch/
+established pattern for work without GPU access. torch/
 transformers/peft/etc. WERE installed here (pip has no such restriction,
 only egress to huggingface.co does) to get real import-level test
 coverage instead of guessing - baseline before any of this session's
@@ -19,7 +16,7 @@ this session's concern or doing).
 **Verified the handoff's claims against the actual repo before building
 anything** (see the note appended above this section) - all checked out:
 654-row eval set, split assigned, leakage resolved to 0 exact/1
-intentional near-dup. What did NOT check out: CLAUDE.md's own prose
+intentional near-dup. What did NOT check out: CONTRIBUTING.md's own prose
 narrating the quadrant-C session said the eval-set rebuild was still
 pending, when it had actually already landed in the same commit. Not a
 data problem, just a documentation-lag problem - noted above rather than

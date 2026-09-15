@@ -100,7 +100,7 @@ neutrality proof.
 
 A separate, deliberately crude substring lexicon
 (`src/diagnostics/score_lexical_risk_cues.py`) is used for cue-word auditing.
-Per `CLAUDE.md`, it has documented, real limits: it missed 2 of 5 known hard
+Per `CONTRIBUTING.md`, it has documented, real limits: it missed 2 of 5 known hard
 evasion-coded cases in a past audit, and a previous "fix" that just swapped
 one word for a synonym without reducing the hit count was caught and
 reverted. Any new candidates need the same scrutiny, not just a passing
@@ -344,7 +344,7 @@ neutrality proof.
 
 A separate, deliberately crude substring lexicon
 (`src/diagnostics/score_lexical_risk_cues.py`) is used for cue-word auditing.
-Per `CLAUDE.md`, it has documented, real limits: it missed 2 of 5 known hard
+Per `CONTRIBUTING.md`, it has documented, real limits: it missed 2 of 5 known hard
 evasion-coded cases in a past audit, and a previous "fix" that just swapped
 one word for a synonym without reducing the hit count was caught and
 reverted. Any new candidates need the same scrutiny, not just a passing

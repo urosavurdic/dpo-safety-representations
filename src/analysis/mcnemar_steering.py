@@ -5,7 +5,7 @@ prompt (not just eyeballed via CI overlap)?
 
 Previously hardcoded to literal condition names "M3_baseline"/"M3_steered"
 and defaulted --file to the single pre-eval_steering_v2 exploratory file
-steering_raw_D_L21.json -- the exact same bug class CLAUDE.md documents as
+steering_raw_D_L21.json -- the exact same bug class CONTRIBUTING.md documents as
 already found and fixed in summarize_steering.py, except this one was never
 actually fixed. Concretely: every eval_steering_v2.py run (any stage,
 config, or quadrant set) names its conditions "{tag}_baseline"/
@@ -28,7 +28,7 @@ conflate two prompts sets with very different baseline refusal rates and
 different intended questions, so there's no sane default to pick).
 
 Still handles the old, deprecated exploratory files (steering_raw_D.json,
-steering_raw_D_L21.json, kept as evidence per CLAUDE.md's steering
+steering_raw_D_L21.json, kept as evidence per CONTRIBUTING.md's steering
 methodology history) correctly -- find_condition_pairs works off the
 "_baseline"/"_steered" suffix convention those files also happen to use
 (their stage names literally are "M3_baseline"/"M3_steered"), so nothing

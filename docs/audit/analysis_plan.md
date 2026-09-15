@@ -4,7 +4,7 @@
 > pre-registration of endpoints, terminology, mathematical definitions,
 > human-audit design, causal/steering rules, and timing/manifest sequence.
 > It was frozen from the reconciled implementation specification
-> (`.claude/plans/plan-mode-polymorphic-sutton.md`, terminal pre-T4 spec) at
+> ([internal planning note, not retained], terminal pre-T4 spec) at
 > repository HEAD `75bfa3a`.
 >
 > Nothing in §§1–7 may be changed after the first real T4 generation session

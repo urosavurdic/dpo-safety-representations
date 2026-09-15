@@ -3,7 +3,7 @@ Summarize a steering raw-results file (eval_steering_v2.py's output).
 
 Previously hardcoded to CONDITIONS = ["M3_baseline", "M3_steered"] and
 defaulted --file to the single, now-superseded results/raw/steering_raw_D.json
-(a pre-eval_steering_v2 exploratory run - see CLAUDE.md's steering methodology
+(a pre-eval_steering_v2 exploratory run - see CONTRIBUTING.md's steering methodology
 history). That combination meant re-running steering for ANY stage or config
 and then running this script with no --file argument would silently summarize
 the OLD file instead of the new one - no error, just a wrong-looking summary
