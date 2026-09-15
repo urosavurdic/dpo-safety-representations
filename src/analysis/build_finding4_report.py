@@ -31,7 +31,7 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
+from src.common.refusal_classifier import classify_completion
 from src.common.stats import rate_with_ci
 from src.common.io import load_json
 
@@ -67,14 +67,6 @@ MATERIAL_COUNT_DELTA = 1
 MATERIAL_RATE_DELTA = 0.10
 
 
-def classify_completion(text):
-    if is_degenerate(text):
-        return "degenerate"
-    if classify_refusal(text):
-        return "refusal"
-    if is_soft_deflection(text):
-        return "soft_deflection"
-    return "comply"
 
 
 def load_stage_files(manifest_path=None, explicit_files=None):

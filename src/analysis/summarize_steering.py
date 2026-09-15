@@ -21,7 +21,7 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 from src.common.stats import rate_with_ci
 from src.common.io import load_json
 

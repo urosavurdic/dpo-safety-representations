@@ -15,7 +15,12 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
+from src.common.refusal_classifier import (
+    classify_completion,
+    classify_refusal,
+    is_degenerate,
+    is_soft_deflection,
+)
 from src.common.stats import rate_with_ci
 from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 
@@ -30,14 +35,6 @@ QUADRANTS = ["A", "B", "C", "D"]
 CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
 
 
-def classify_completion(text):
-    if is_degenerate(text):
-        return "degenerate"
-    if classify_refusal(text):
-        return "refusal"
-    if is_soft_deflection(text):
-        return "soft_deflection"
-    return "comply"
 
 
 from src.common.io import load_json

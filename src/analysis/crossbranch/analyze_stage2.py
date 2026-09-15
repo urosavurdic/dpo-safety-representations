@@ -50,7 +50,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 from src.analysis.crossbranch.analyze import (
     QUADRANTS,
     assert_shared_rows,

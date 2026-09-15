@@ -26,7 +26,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 from src.analysis.crossbranch.branches import COEFFICIENTS, direction_tag
 from src.common.stats import BOOTSTRAP_B, BOOTSTRAP_SEED, rate_with_ci
 from src.v2_binding_guard import load_guarded_raw

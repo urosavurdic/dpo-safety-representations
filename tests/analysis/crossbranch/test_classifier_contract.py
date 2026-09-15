@@ -24,7 +24,7 @@ from src.analysis.summarize_causal_ablation import (
     CATEGORIES,
     classify_completion,
 )
-from src.analysis.eval_refusal_classifier import (
+from src.common.refusal_classifier import (
     classify_refusal,
     is_degenerate,
     is_soft_deflection,
@@ -129,30 +129,18 @@ def test_soft_deflection_after_the_lead_window_is_comply():
 # ---- the two frozen copies must not drift apart --------------------------
 
 
-def test_the_two_classify_completion_copies_agree():
-    """A second, independent copy lives in build_finding4_report.py. Neither
-    is modified here; this only pins that they still agree, since the
-    crossbranch analyzer uses one of them and a reader may compare against
-    numbers produced by the other."""
+def test_every_consumer_shares_one_classifier_object():
+    """There used to be a second, independent copy in build_finding4_report.py.
+    They are now the same object, so they cannot drift apart."""
     from src.analysis.build_finding4_report import (
-        classify_completion as other_classify,
+        classify_completion as report_classify,
+    )
+    from src.analysis.summarize_causal_ablation import (
+        classify_completion as summary_classify,
     )
 
-    cases = [
-        REFUSAL,
-        COMPLY,
-        SOFT,
-        "blah blah blah " * 10,
-        "I'm sorry, but " * 12,
-        "It is not possible to do that. " + "blah blah blah " * 10,
-        "I'm sorry, but it is not possible to help with that.",
-        CLEAN_FILLER + " " + REFUSAL,
-        "",
-    ]
-    for text in cases:
-        assert classify_completion(text) == other_classify(text), (
-            f"copies disagree on {text[:60]!r}"
-        )
+    assert report_classify is classify_completion
+    assert summary_classify is classify_completion
 
 
 # ---- degenerate edge cases -----------------------------------------------
@@ -167,7 +155,7 @@ def test_classifier_used_by_the_analyzer_is_the_frozen_one():
     """The crossbranch analyzer must not shadow the frozen classifier with a
     local reimplementation."""
     from src.analysis.crossbranch import analyze as A
-    from src.analysis import summarize_causal_ablation as frozen
+    from src.common import refusal_classifier as frozen
 
     assert A.classify_completion is frozen.classify_completion
 

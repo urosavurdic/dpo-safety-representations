@@ -39,7 +39,7 @@ from collections import defaultdict
 
 from statsmodels.stats.contingency_tables import mcnemar
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 from src.analysis.summarize_steering import find_condition_pairs
 from src.common.io import load_json
 

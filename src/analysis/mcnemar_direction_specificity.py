@@ -30,7 +30,7 @@ from pathlib import Path
 
 from scipy.stats import binomtest
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 
 RAW = Path("results/raw")
 OUT = Path("results/summaries/mcnemar_direction_specificity.json")
@@ -128,8 +128,8 @@ def main():
     binding = {
         "produced_by": "src/analysis/mcnemar_direction_specificity.py",
         "producer_commit": _git_commit("src/analysis/mcnemar_direction_specificity.py"),
-        "classifier_module": "src/analysis/eval_refusal_classifier.py",
-        "classifier_commit": _git_commit("src/analysis/eval_refusal_classifier.py"),
+        "classifier_module": "src/common/refusal_classifier.py",
+        "classifier_commit": _git_commit("src/common/refusal_classifier.py"),
         "summarize_module_commit": _git_commit("src/analysis/summarize_causal_ablation.py"),
         "raw_files_sha256": used,
         "test_variant": "scipy.stats.binomtest(min(b,c), b+c, 0.5, 'two-sided')",

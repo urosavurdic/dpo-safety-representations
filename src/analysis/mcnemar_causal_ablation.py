@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from statsmodels.stats.contingency_tables import mcnemar
 
-from src.analysis.summarize_causal_ablation import classify_completion
+from src.common.refusal_classifier import classify_completion
 from src.common.io import load_json
 from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 

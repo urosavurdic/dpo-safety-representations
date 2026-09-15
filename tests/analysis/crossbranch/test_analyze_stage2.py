@@ -23,7 +23,7 @@ def _rows(labels, quads):
 
 def _sanity_labels():
     """Confirm the toy strings classify the way the tests below assume."""
-    from src.analysis.summarize_causal_ablation import classify_completion
+    from src.common.refusal_classifier import classify_completion
     for name, text in TEXT.items():
         assert classify_completion(text) == name, (name, classify_completion(text))
 

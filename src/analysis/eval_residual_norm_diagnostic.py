@@ -51,7 +51,7 @@ import torch
 from transformers import AutoTokenizer
 
 from src.analysis.eval_causal_ablation import filter_to_held_out_behavioral_split, load_controlled_eval
-from src.analysis.eval_refusal_classifier import is_degenerate
+from src.common.refusal_classifier import is_degenerate
 from src.analysis.eval_steering_v2 import make_steering_hook, resolve_alphas
 from src.interpretability.residual_norm_tracking import (
     ResidualNormTracker,

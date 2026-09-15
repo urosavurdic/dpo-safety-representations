@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.analysis.eval_refusal_classifier import (
+from src.common.refusal_classifier import (
     classify_refusal,
     is_degenerate,
     is_soft_deflection,

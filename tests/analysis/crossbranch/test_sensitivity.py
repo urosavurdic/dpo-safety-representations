@@ -7,7 +7,7 @@ classifier's is_soft_deflection.
 import pytest
 
 from src.analysis.crossbranch import sensitivity as S
-from src.analysis.eval_refusal_classifier import is_soft_deflection
+from src.common.refusal_classifier import is_soft_deflection
 
 # ---- the frozen classifier's own tests must still pass unmodified --------
 # (imported straight from the frozen module; not re-tested here, just used
@@ -103,7 +103,7 @@ def test_extended_classifier_does_not_import_or_modify_the_frozen_module():
     """degenerate/refusal come straight from the frozen module -- this
     module only ever adds patterns for its own soft-deflection check, it
     never redefines or monkeypatches anything in eval_refusal_classifier."""
-    import src.analysis.eval_refusal_classifier as frozen
+    import src.common.refusal_classifier as frozen
 
     assert S.classify_refusal is frozen.classify_refusal
     assert S.is_degenerate is frozen.is_degenerate

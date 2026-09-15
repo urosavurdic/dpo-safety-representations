@@ -30,7 +30,7 @@ import json
 import re
 from pathlib import Path
 
-from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate
+from src.common.refusal_classifier import classify_refusal, is_degenerate
 from src.analysis.crossbranch.analyze import analyze
 from src.analysis.crossbranch.branches import direction_tag
 from src.v2_binding_guard import load_guarded_raw
@@ -56,7 +56,7 @@ def is_soft_deflection_extended(completion: str, lead_window: int = 200) -> bool
     characters count, for the same reason (genuine hedges lead with the
     hedge, they don't bury it after a full answer).
     """
-    from src.analysis.eval_refusal_classifier import is_soft_deflection
+    from src.common.refusal_classifier import is_soft_deflection
 
     lead_text = completion[:lead_window]
     if is_soft_deflection(completion, lead_window):
