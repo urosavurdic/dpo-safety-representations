@@ -82,3 +82,8 @@ results/summaries/steering_D_summary.json
 
 # reclassified rows are regenerable from v2_raw.json plus the frozen classifier
 results/behavioral_eval/reclassified_654.json
+
+# build output
+*.egg-info/
+build/
+dist/
