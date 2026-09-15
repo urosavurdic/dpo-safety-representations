@@ -14,7 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_review_queue import (
+from archive.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_review_queue import (
     check_construction_identity,
     check_contamination_and_overlap,
     check_population_relationship,
@@ -23,7 +23,7 @@ from legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_review_
     check_row_identity,
     check_schema,
 )
-from legacy.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import CSV_FIELDNAMES
+from archive.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import CSV_FIELDNAMES
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -161,7 +161,7 @@ def test_end_to_end_validation_passes_on_real_committed_queue(tmp_path):
     result = subprocess.run(
         [
             sys.executable, "-m",
-            "legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_review_queue",
+            "archive.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_review_queue",
             "--out-log-json", str(out_json),
             "--out-log-md", str(out_md),
         ],

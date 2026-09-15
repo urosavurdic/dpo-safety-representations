@@ -62,7 +62,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from legacy.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import (
+from archive.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import (
     CSV_FIELDNAMES,
     GATE_CONFIG_PATH,
     OUT_QUEUE_CSV,
@@ -220,7 +220,7 @@ def reproduce_queue_from_current_inputs(tmp_dir):
     Reuses score_and_rank/select_review_queue/build_queue_row/write_queue_csv
     unchanged - no new scoring or stratification logic is introduced here.
     """
-    from legacy.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import (
+    from archive.quadrant_c_arm2.src.data_pipeline.score_and_queue_c_source_authored import (
         build_queue_row,
         select_review_queue,
         write_queue_csv,

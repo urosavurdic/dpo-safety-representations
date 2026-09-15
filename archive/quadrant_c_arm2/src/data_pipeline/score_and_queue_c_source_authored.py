@@ -64,7 +64,7 @@ from src.data_pipeline.build_c_source_authored_candidates import (
     EVAL_SET_PATH,
     file_sha256,
 )
-from legacy.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_candidates import (
+from archive.quadrant_c_arm2.src.data_pipeline.validate_c_source_authored_candidates import (
     OUT_JSONL as VALIDATED_JSONL_PATH,
 )
 

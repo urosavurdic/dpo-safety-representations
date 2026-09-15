@@ -19,7 +19,7 @@ clearly specific to the deferred `c_source_authored` path, along with their
 tests and the milestone 3B queue-validation logs:
 
 ```
-legacy/quadrant_c_arm2/
+archive/quadrant_c_arm2/
 ├── README.md
 ├── src/data_pipeline/
 │   ├── validate_c_source_authored_candidates.py
