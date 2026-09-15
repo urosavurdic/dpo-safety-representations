@@ -1,3 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dpo-safety-representations"
+version = "1.0.0"
+description = "Tracing a refusal direction from a base model through SFT to DPO"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Uros Savurdic" }]
+keywords = [
+    "interpretability",
+    "direct-preference-optimization",
+    "refusal-direction",
+    "language-model-safety",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+Repository = "https://github.com/urosavurdic/dpo-safety-representations"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+# `src` is the import root: modules are addressed as src.common.stats, etc.
+# archive/ is deliberately excluded -- it is not maintained and not importable
+# as part of the distribution.
+include = ["src*"]
+exclude = ["archive*", "tests*", "notebooks*", "private*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
