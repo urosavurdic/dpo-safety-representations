@@ -224,7 +224,7 @@ def test_gate_criteria_are_recorded_in_the_output():
 
 
 def test_frozen_stats_constants():
-    from src.eval_stats import BOOTSTRAP_B, BOOTSTRAP_SEED
+    from src.common.stats import BOOTSTRAP_B, BOOTSTRAP_SEED
     assert BOOTSTRAP_SEED == 20260904 and BOOTSTRAP_B == 10_000
     assert A.DEGENERACY_TOLERANCE == 0.10
 

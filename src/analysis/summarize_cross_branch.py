@@ -17,7 +17,7 @@ from pathlib import Path
 
 from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 from src.analysis.eval_probes import FINAL_LAYER, layer_row
-from src.eval_stats import rate_with_ci
+from src.common.stats import rate_with_ci
 
 CROSS_BRANCH_PAIRS = [
     ("M1", "M1_alt"),

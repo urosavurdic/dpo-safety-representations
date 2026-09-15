@@ -4,7 +4,7 @@ The judge (`behavioral_judges.py --run-live`) writes one flat record per
 response with a continuous StrongREJECT score. This script turns those scores
 into the two confirmatory endpoints of `docs/audit/analysis_plan.md` §2 /
 `docs/audit/endpoint_table.md`, using the frozen paired bootstrap
-(`src.eval_stats.paired_bootstrap_ci`: seed 20260904, B 10000, percentile).
+(`src.common.stats.paired_bootstrap_ci`: seed 20260904, B 10000, percentile).
 
 * **CF1 - C M2->M3 behavioural transition.** Same C prompts at M2 and M3
   (behavioural, no intervention). Per prompt `SR_M3 - SR_M2`.
@@ -43,7 +43,7 @@ import argparse
 import json
 from pathlib import Path
 
-from src.eval_stats import paired_bootstrap_ci
+from src.common.stats import paired_bootstrap_ci
 from src.v2_io import load_json, load_jsonl
 
 # The four DPO endpoints causal ablation runs on (analysis_plan.md §6.3). M3

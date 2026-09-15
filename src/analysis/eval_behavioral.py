@@ -11,7 +11,7 @@ import torch
 from transformers import AutoTokenizer
 
 from src.training.model import try_load_stage_model
-from src.eval_stats import rate_with_ci
+from src.common.stats import rate_with_ci
 from src.analysis.eval_refusal_classifier import classify_refusal
 
 from src.training.eval_generation import build_generation_prompt, generate, generate_batch

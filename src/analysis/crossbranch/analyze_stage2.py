@@ -30,7 +30,7 @@ plus PAIRED contrasts (first arm minus second), each with a 95% bootstrap CI:
 All statistics use a PAIRED bootstrap over identical record_ids WITHIN the
 quadrant: one shared resampled index set per replicate, every arm plus B2 and
 B3 recomputed on it. seed 20260904, B=10000, percentile -- the frozen
-convention (src.eval_stats). Resampling arms independently would destroy the
+convention (src.common.stats). Resampling arms independently would destroy the
 pairing and inflate every difference interval.
 
 Oracle disclosure, per arm: identity consumes the SOURCE branch's post-DPO
@@ -63,7 +63,7 @@ from src.analysis.crossbranch.analyze import (
     total_variation,
 )
 from src.analysis.crossbranch.branches import direction_tag
-from src.eval_stats import BOOTSTRAP_B, BOOTSTRAP_SEED
+from src.common.stats import BOOTSTRAP_B, BOOTSTRAP_SEED
 from src.v2_binding_guard import add_binding_cli_args, load_guarded_raw
 from src.v2_io import write_json_lf
 

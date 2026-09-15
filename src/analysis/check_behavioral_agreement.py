@@ -33,7 +33,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from src.eval_stats import rate_with_ci
+from src.common.stats import rate_with_ci
 
 QUADRANTS = ("A", "B", "C", "D")
 DEGRADED_MIN = 100

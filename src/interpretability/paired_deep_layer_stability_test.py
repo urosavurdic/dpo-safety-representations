@@ -32,7 +32,7 @@ from src.analysis.eval_refusal_direction import (
     filter_to_direction_estimation_split,
     load_stage,
 )
-from src.eval_stats import BOOTSTRAP_SEED, percentile_ci
+from src.common.stats import BOOTSTRAP_SEED, percentile_ci
 from src.interpretability.bootstrap_direction_stability import DEEP_LAYERS
 
 DIRECT_VS_MEDIATED_PAIRS = [

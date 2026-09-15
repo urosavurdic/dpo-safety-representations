@@ -1,4 +1,4 @@
-from src.eval_stats import rate_with_ci
+from src.common.stats import rate_with_ci
 
 def test_rate_with_ci_basic():
     result = rate_with_ci(5, 10)
@@ -22,7 +22,7 @@ def test_rate_with_ci_all_success():
 
 import numpy as np
 
-from src.eval_stats import (
+from src.common.stats import (
     BOOTSTRAP_B,
     BOOTSTRAP_SEED,
     joint_resample_indices,

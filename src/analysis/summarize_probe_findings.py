@@ -17,7 +17,7 @@ import json
 from pathlib import Path
 
 from src.analysis.eval_probes import B_TRAIN_SIZE
-from src.eval_stats import rate_with_ci
+from src.common.stats import rate_with_ci
 
 STAGES = [
     "M0", "M1", "M2", "M3", "M3_direct",

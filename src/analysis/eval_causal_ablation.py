@@ -240,7 +240,7 @@ def main():
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out_rows, f, ensure_ascii=False, indent=2)
     print(f"\nDone. {len(out_rows)} rows saved to {out_path}")
-    print("Next: point eval_refusal_classifier.py / eval_stats.py at this file, "
+    print("Next: point eval_refusal_classifier.py / common/stats.py at this file, "
           f"treating '{args.stage}_baseline' and '{args.stage}_ablated' as two more stages.")
 
     del model

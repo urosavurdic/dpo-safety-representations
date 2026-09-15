@@ -52,7 +52,7 @@ from src.analysis.crossbranch.analyze_stage2 import (
     STAGE2_ARMS,
 )
 from src.analysis.crossbranch.build_judge_manifest import parse_arm_key
-from src.eval_stats import BOOTSTRAP_B, BOOTSTRAP_SEED
+from src.common.stats import BOOTSTRAP_B, BOOTSTRAP_SEED
 
 BASELINE = "baseline_target"
 REFERENCE = "reference_target"
