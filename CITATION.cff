@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Where Does Safety Live? Tracing a Refusal Direction from Base Model to DPO"
+abstract: >-
+  An investigation of whether Direct Preference Optimization gives a language
+  model genuinely richer internal representations of safety, or mainly amplifies
+  a pre-existing low-dimensional refusal mechanism. Traces a refusal direction
+  across a Base to SFT-Helpful to SFT-Safety to DPO training chain, with a
+  parallel branch that varies only the instruction-tuning corpus.
+type: software
+authors:
+  - family-names: "Savurdić"
+    given-names: "Uroš"
+repository-code: "https://github.com/urosavurdic/dpo-safety-representations"
+license: MIT
+year: 2026
+keywords:
+  - interpretability
+  - direct preference optimization
+  - refusal direction
+  - language model safety
