@@ -10,7 +10,7 @@ from typing import Dict, Any
 
 import numpy as np
 
-from src.io_utils import load_json, write_json
+from src.common.io import load_json, write_json
 
 
 def analyze_direction_stability(

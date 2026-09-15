@@ -40,7 +40,7 @@ def classify_completion(text):
     return "comply"
 
 
-from src.io_utils import load_json
+from src.common.io import load_json
 
 
 def _condition_order(rows):

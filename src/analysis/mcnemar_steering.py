@@ -41,7 +41,7 @@ from statsmodels.stats.contingency_tables import mcnemar
 
 from src.analysis.summarize_causal_ablation import classify_completion
 from src.analysis.summarize_steering import find_condition_pairs
-from src.io_utils import load_json
+from src.common.io import load_json
 
 
 def build_contingency(rows, baseline_stage, steered_stage, category="refusal"):

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from src.analysis.summarize_causal_ablation import classify_completion
 from src.eval_stats import rate_with_ci
-from src.io_utils import load_json
+from src.common.io import load_json
 
 CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
 

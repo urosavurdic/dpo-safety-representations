@@ -223,7 +223,7 @@ def main():
                 directions[orig], directions[alt]
             ).tolist()
 
-    from src.io_utils import write_json
+    from src.common.io import write_json
 
     write_json(
         {

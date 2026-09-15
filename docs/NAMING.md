@@ -54,13 +54,41 @@ The same concept is spelled four ways across the codebase: `_final_token`,
 `_finaltoken`, `ft_` (as a condition-name prefix), and `_final`. They all mean
 final-token.
 
-## Two names that must not be renamed
+## Files that must not be edited, renamed, or moved
 
-`data/frozen_v2/` and `src/v2_io.py` are **SHA-pinned by path string** in
-`PINNED_INPUT_HASHES` (`quadrant_c_paired_delta_analysis.py`,
-`quadrant_population_geometry.py`). Renaming either would require re-pinning the
-very hashes that exist to prove nothing drifted. They keep their names
-deliberately.
+`PINNED_INPUT_HASHES` in `c_b_paired_delta_analysis.py` and `cf_joint_geometry.py`
+pins these by **path string and content hash**. Editing one changes its hash;
+moving one changes its key. Either breaks the benchmark gate, which exists to
+prove that nothing drifted between the frozen benchmark and the analysis that
+reads it.
+
+Source files (byte-pinned -- do not edit, not even a docstring):
+
+- `src/v2_io.py`
+- `src/cue_scoring.py`
+- `src/corpus_discrimination.py`
+- `src/diagnostics/score_lexical_risk_cues.py`
+
+Data and config (pinned by path and content):
+
+- `data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl`
+- `data/frozen_v2/LATEST_BENCHMARK.json`
+- `data/processed/controlled_eval.jsonl`
+- `data/review/c_review_queue.csv`
+- `data/review/c_source_authored_review_queue.csv`
+- `logs/benchmark_gate_config.json`
+- `logs/3d_b_lexical_outlierness_pilot.json`
+
+Two of these are easy to trip over: `logs/benchmark_gate_config.json` and
+`logs/3d_b_lexical_outlierness_pilot.json` sit in `logs/` among 65 dated audit
+dumps, but they are **live pipeline inputs**, not logs. Do not tidy `logs/`
+without accounting for them.
+
+To check the pins at any time:
+
+```bash
+python -m src.analysis.c_b_paired_delta_analysis --help   # gate runs on execute
+```
 
 ## Other filename suffixes
 

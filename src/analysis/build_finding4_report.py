@@ -33,7 +33,7 @@ from pathlib import Path
 
 from src.analysis.eval_refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 from src.eval_stats import rate_with_ci
-from src.io_utils import load_json
+from src.common.io import load_json
 
 CATEGORIES = ["degenerate", "refusal", "soft_deflection", "comply"]
 
