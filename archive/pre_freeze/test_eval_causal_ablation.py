@@ -7,8 +7,8 @@ Its generation helpers now live in src/common/generation.py, tested there.
 
 import pytest
 
-import archive.370era.eval_causal_ablation as eca
-from archive.370era.eval_causal_ablation import main, run_condition
+import archive.pre_freeze.eval_causal_ablation as eca
+from archive.pre_freeze.eval_causal_ablation import main, run_condition
 
 
 def test_main_refuses_to_run_without_allow_legacy(monkeypatch, capsys):
