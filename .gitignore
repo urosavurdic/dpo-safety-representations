@@ -17,18 +17,65 @@ results/companions/*/activations/*.npy
 # smoke-test outputs (keep local copies but do not track)
 outputs/smoke_test_m1/
 outputs/smoke_test_*/
-outputs/smoke_test_m1/
 # git-am patch outputs (per release-hardening rules: patches themselves
 # are never committed to the repo, only their SHA-256 is recorded)
 artifacts/patches/*.patch
 
 # crossbranch extension: delta/control arrays are large and regenerable from
-# bound activations, same rule as results/activations/*.npy above
+# bound activations, same rule as results/activations/*.npy above. One deltas
+# dir per transfer direction (deltas/, deltas_BtoA/, deltas_AtoA_direct/, ...).
 results/crossbranch/deltas/*.npz
+results/crossbranch/deltas_*/*.npz
 results/crossbranch/raw/shards/
-# private research notes (onboarding doc etc.) - never committed
+# crossbranch judge outputs: same rule as results/behavioral_judges_v2 below --
+# large, regenerable by re-running the two public judge models over the
+# committed judge_inputs/ responses.
+results/crossbranch/judges/*.json
+
+# generation resume-shards: intermediate per-batch checkpoints, already
+# consolidated into the final per-condition JSONs. Never the source of a number.
+results/behavioral_eval/v2_shards/
+results/raw/v2_causal_shards/
+results/raw/v2_steering_shards/
+# local working notes and scratch; never committed
 private/
 results/behavioral_judges_v2/*.json
 
 # final-token repair: large Colab judged files (in the Drive archive; regenerable)
 results/final_token_repair/judges/*.json
+
+# ---------------------------------------------------------------------------
+# Local-only: editor and tooling state
+# ---------------------------------------------------------------------------
+.claude/
+.pytest_cache/
+
+# ---------------------------------------------------------------------------
+# Unpublished write-up drafts. Kept local until published.
+# ---------------------------------------------------------------------------
+paper_draft/
+paper_draft_feedback/
+
+# ---------------------------------------------------------------------------
+# crossbranch: large regenerable generation output and transport artifacts.
+# The per-delta *_binding.json provenance sidecars ARE committed; only the
+# large arrays and raw generations are excluded.
+# ---------------------------------------------------------------------------
+results/crossbranch/raw/
+results/crossbranch/*.zip
+# Executed-notebook copies land here as run artifacts; source lives in notebooks/.
+results/crossbranch/*.ipynb
+results/crossbranch/LAPTOP2_INSTRUCTIONS.md
+
+# ---------------------------------------------------------------------------
+# 370-era artifacts are tracked exactly once, under results/_legacy_370era/.
+# Byte-identical copies still sit at their original paths on disk; ignoring
+# them keeps a single tracked copy instead of committing each file twice.
+# ---------------------------------------------------------------------------
+results/raw/causal_ablation_raw_narrow.json
+results/raw/causal_ablation_raw_wide.json
+results/raw/steering_raw_D_L21_exploratory_DEPRECATED.json
+results/raw/steering_raw_D_MULTILAYER_14to28_DEPRECATED.json
+results/summaries/causal_ablation_narrow_summary.json
+results/summaries/causal_ablation_wide_summary.json
+results/summaries/steering_D_summary.json
