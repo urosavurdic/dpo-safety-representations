@@ -1,6 +1,6 @@
 {
   "component": "crossbranch_stage1",
-  "git_commit": "2c4f53b1b34c7e1673e8111491114f86d2f1ac40",
+  "git_commit": "0ef322c3dee92a06ee098842674752bb8437ac9e",
   "timestamp_utc": "20260910T233348Z",
   "benchmark_sha256": "e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b",
   "split_manifest_sha256": "880381606de7aa2ffbdb8f7c75303cf4937167ed1a2e1b417afeb33761fcf8f1",

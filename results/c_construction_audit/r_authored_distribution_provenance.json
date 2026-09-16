@@ -17,7 +17,7 @@
   },
   "r104_reference_source": {
     "path": "logs/c_b_paired_delta_analysis.json",
-    "c_b_implementation_commit": "ddba4c1b7fc2f34dc6477e110daf0e4c3bfff505",
+    "c_b_implementation_commit": "44eb9626f67961322b65b9b99c0b28307a85281a",
     "note": "R104 numbers are read from this committed file, not recomputed"
   },
   "abcd_reference_source": {

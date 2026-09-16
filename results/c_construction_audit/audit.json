@@ -2,8 +2,8 @@
   "task": "C-C -- execute and freeze the existing-C audit",
   "spec_reference": "logs/c_existing_construction_audit_spec.md section 7 (locked by C-A; implemented by C-B; re-executed unmodified by C-C)",
   "provenance": {
-    "c_b_implementation_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
-    "c_c_parent_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
+    "c_b_implementation_commit": "e140faf95f1e5421a9cee95407ef825bb8c850f7",
+    "c_c_parent_commit": "e140faf95f1e5421a9cee95407ef825bb8c850f7",
     "c_c_working_tree_dirty_at_generation": true,
     "exact_command": "python -m src.analysis.c_b_paired_delta_analysis --review-csv data/review/c_review_queue.csv --benchmark-latest data/frozen_v2/LATEST_BENCHMARK.json --gate-config logs/benchmark_gate_config.json --formatting-config-source logs/3d_b_lexical_outlierness_pilot.json --bootstrap-seed 20260901 --n-bootstrap 10000 --permutation-seed 20260902 --n-permutations 100000 --out-md logs/c_b_paired_delta_analysis.md --out-json logs/c_b_paired_delta_analysis.json",
     "exact_configuration": {
@@ -29,7 +29,7 @@
     "task": "C-B paired delta analysis (R104 c_paired quadrant-C construction)",
     "spec_reference": "logs/c_existing_construction_audit_spec.md section 7",
     "code_version": {
-      "generation_commit": "4b700f1f8c41c828d068a9a3b3d723595320ae06",
+      "generation_commit": "e140faf95f1e5421a9cee95407ef825bb8c850f7",
       "working_tree_dirty": true
     },
     "software_versions": {

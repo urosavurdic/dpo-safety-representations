@@ -2,8 +2,8 @@
   "produced_by": "src/analysis/mcnemar_direction_specificity.py",
   "producer_commit": "uncommitted",
   "classifier_module": "src/analysis/eval_refusal_classifier.py",
-  "classifier_commit": "68b15124e2092f7c12293a4d5303ce76da47747b",
-  "summarize_module_commit": "37c22f4fa0d8a1098017f5518cdeb0b7ad4cf5dd",
+  "classifier_commit": "12b029c0e4b43e237093c73fd5fe146b29d75655",
+  "summarize_module_commit": "09e98d55b6de26f141b1d0c2da333a302eefaf9f",
   "raw_files_sha256": {
     "causal_ablation_v2_M3_L24-28.json": "0f0f53d0459dc9e857313d84fc8a65dd5035b9a04bbdba4cb01ae42f57b106f8",
     "causal_ablation_v2_M3_L24-28_fullAD.json": "6808373ae1017430e5f023a30499082551c41e8fd092c265c9adaba8aeef3d75",
