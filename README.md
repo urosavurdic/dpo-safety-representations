@@ -1,48 +1,81 @@
-# Where does safety live?
+# Preserved but path-dependent
 
-Tracing a refusal direction from a base model through SFT to DPO, and asking
-whether preference optimization builds richer internal structure for safety or
-mostly leans harder on structure that was already there.
+**Preference optimization does not build a model's safety representation. It
+inherits one, leans on it harder, and how hard depends on the road taken to get
+there.**
 
-**Short answer: mostly the latter — but the size of the effect depends on how
-the model got there.**
+That is the claim this repository tests, and the evidence below is organised
+around it.
 
 ---
 
-## The question
+## The claim, in three parts
 
-Direct Preference Optimization makes models refuse harmful requests more
-reliably. That much is easy to measure. The harder question is what changes
-*inside*:
+**1. The mechanism is inherited, not created.** A single linear direction
+separating harmful from benign prompts is already present after plain
+instruction tuning. Across the chain its orientation barely moves — adjacent
+cosine similarity is 0.65 for the first step, then 0.96 and 0.93. DPO arrives to
+find the direction already there.
 
-- **Hypothesis A** — DPO builds genuinely richer representations of safety:
-  more linearly separable, carrying structure that was not previously there.
-- **Hypothesis B** — DPO mainly sharpens sensitivity along a refusal direction
-  that already exists, which would also pull ambiguous prompts toward the
-  harmful cluster and produce over-refusal.
+**2. What DPO adds is magnitude, not structure.** The harmful–benign contrast
+grows substantially through preference optimization (norm ×1.15 at layer 24,
+×1.49 at layer 28). But residualize that contrast away and test the remaining
+space for linearly decodable harm *category*, and the result is null:
+**+0.004 [−0.018, +0.027]**. Geometrically the update has a large component
+orthogonal to the prior subspace; informationally, that component carries
+nothing recoverable. Bigger, not richer.
 
-The evidence here favours B, with one real complication: the causal effect of
-that direction is present in every training path tested, but its magnitude
-varies roughly thirteen-fold depending on the path.
+**3. The mechanism's causal weight is path-dependent.** Ablating the direction
+and comparing against a magnitude-matched random control, on cross-fitted
+out-of-fold estimates (n=120 per branch):
 
-## Setup
+| Branch | effect | 95% CI |
+|---|---|---|
+| M3 — safety-SFT then DPO, Alpaca | +0.154 | [+0.105, +0.203] |
+| M3_alt — safety-SFT then DPO, Dolly | +0.044 | [+0.005, +0.085] |
+| M3_direct — DPO straight from M1, Alpaca | +0.025 | [+0.013, +0.039] |
+| M3_direct_alt — DPO straight from M1, Dolly | +0.012 | [+0.003, +0.023] |
 
-A four-stage chain on Qwen2.5-1.5B, plus controls:
+Every CI excludes zero — the direction is load-bearing in all four — but the
+magnitude spans roughly thirteen-fold. The corpus × training-history
+interaction is **+0.097 [+0.040, +0.150]**: changing the instruction-tuning
+corpus moves the effect by +0.013 within the direct-DPO pair but +0.110 within
+the safety-SFT-mediated pair. *Post hoc, one seed per cell, not
+multiplicity-corrected.*
+
+## The consequence: ambiguous prompts drift
+
+If preference optimization sharpens an existing axis rather than learning a new
+distinction, prompts sitting between the poles should be dragged toward the
+harmful end. They are. Measuring where reduced-cue harmful prompts sit between
+benign (0) and overtly harmful (1) along each stage's own direction, layer 24:
+
+| M0 | M1 | M2 | M3 | M3_direct |
+|---|---|---|---|---|
+| +0.33 | +0.72 | +0.65 | +0.90 | **+1.04** |
+
+Two jumps — instruction tuning, then DPO — with a slight retreat during
+safety-SFT. Direct DPO overshoots: those prompts end up *past* the overtly
+harmful cluster. This is over-refusal pressure visible as geometry, rather than
+inferred from behaviour.
+
+## How it was measured
+
+A four-stage chain on Qwen2.5-1.5B, with two controls that separate the two
+factors in the claim:
 
 | Stage | What it is |
 |---|---|
-| M0 | base model, no fine-tuning |
+| M0 | base model |
 | M1 | SFT on a helpful corpus (Alpaca) |
 | M2 | SFT on safety data (PKU-SafeRLHF) |
-| M3 | DPO, initialised from M2, on matched pairs from the same data |
-| M3_direct | DPO applied straight to M1, skipping safety-SFT |
-| `*_alt` | the whole chain again, with M1 trained on Dolly instead |
+| M3 | DPO from M2, matched pairs from the same data |
+| M3_direct | DPO straight from M1 — isolates *training history* |
+| `*_alt` | the chain again with Dolly as M1's corpus — isolates *corpus* |
 
-The `_alt` branch changes exactly one thing — M1's source corpus — and keeps
-every downstream stage on identical data. M2 and M3 draw from the same
-PKU-SafeRLHF prompts, which removes the training-data distribution as a
-confound between them. It does not isolate "the DPO objective" from everything
-else that differs between an SFT and a preference-optimization run.
+M2 and M3 draw on the same prompts, which removes the training-data
+distribution as a confound between them. It does not isolate "the DPO
+objective" from everything else that differs between an SFT and a preference run.
 
 Evaluation is a fixed 654-prompt benchmark crossing intent against surface form:
 
@@ -51,112 +84,54 @@ Evaluation is a fixed 654-prompt benchmark crossing intent against surface form:
 | **harmful intent** | A (150, HarmBench) | C (104, StrongREJECT, reworded) |
 | **benign intent** | B (250, XSTest) | D (150, Alpaca/Dolly/OASST1) |
 
-Quadrant C is the interesting cell: genuinely harmful requests with the
-wrongdoing vocabulary stripped out. Quadrant B is its mirror — benign requests
-that *sound* alarming.
+Quadrant C is the load-bearing cell: genuinely harmful requests with the
+wrongdoing vocabulary removed. Quadrant B is its mirror — benign requests that
+merely sound alarming.
 
-## What the interventions show
+## Where the claim is weakest
 
-**The direction is causally load-bearing, in every branch.** Ablating the A–D
-contrast direction and comparing against a magnitude-matched random direction,
-on cross-fitted out-of-fold estimates (n=120 per branch):
+- **The direction is not purely about safety.** Benign-but-alarming quadrant-B
+  prompts sit about a third of the way toward the harmful pole at every stage.
+  The contrast carries topic, register and wording structure too. Read "refusal
+  direction" with that qualification.
+- **The geometry is mixed, and is reported that way.** Most of the M2→M3 update
+  is orthogonal to the prior top-5 subspace. On its own that would suggest new
+  structure; the null in part 2 is what rules that reading out. Both results are
+  stated, not only the convenient one.
+- **The intervention direction is mean-pooled over the last five tokens**, not
+  the final token the preregistration fixes. Cosine between the two is 0.76–0.87
+  at the intervention layers. No number changes — every causal result is a valid
+  analysis of the mean-pooled contrast — but the label was wrong and is
+  corrected throughout. Carried as a recorded deviation.
+- **One earlier claim was withdrawn.** A reported dataset-sensitive bottleneck
+  gap did not survive bootstrapping and was mostly argmax noise. It is kept
+  visible rather than quietly dropped.
+- One model, one scale (1.5B). LoRA r=64 throughout — the subspace check bounds
+  that confound (90–94% of the direction's norm lies outside the rank-64
+  subspace) without removing it. Refusal labels come from a frozen regex
+  classifier plus two LLM judges; still a proxy.
+- Quadrant C's prompts were authored, not sampled. Each is a reworded published
+  prompt with its source retained, so the rewording is auditable — but it bundles
+  cue removal with incidental changes in length and register, so it is not a
+  single clean factor.
 
-| Branch | effect | 95% CI |
-|---|---|---|
-| M3 | +0.154 | [+0.105, +0.203] |
-| M3_alt | +0.044 | [+0.005, +0.085] |
-| M3_direct | +0.025 | [+0.013, +0.039] |
-| M3_direct_alt | +0.012 | [+0.003, +0.023] |
+Per-number provenance, including what each result does and does not support, is
+in [docs/FINDINGS.md](docs/FINDINGS.md).
 
-All four CIs exclude zero. An earlier reading of this experiment — based on
-n=30 held-out prompts — appeared to show the effect present in some branches
-and absent in others. That was a significance-pattern artifact of low power,
-not a real qualitative difference, and it has been retracted. The preregistered
-anchor (M3, held-out n=30, +0.114 [+0.028, +0.206]) is unchanged.
+## A separate, exploratory study
 
-**The magnitude is path-dependent.** On paired bootstrap over the cross-fitted
-per-prompt effects, the corpus × training-history interaction is +0.097
-[+0.040, +0.150]. Changing the instruction-tuning corpus moves the effect by
-+0.013 within the direct-DPO pair but +0.110 within the safety-SFT-mediated
-pair. Within the Dolly branch, mediated-versus-direct spans zero — so the
-mediation effect is carried almost entirely by the Alpaca branch. *Post hoc,
-single seed per cell; the CI excludes zero but is not multiplicity-corrected.*
+`src/crossbranch/` and `results/crossbranch/` hold a distinct experiment: taking
+the activation delta a DPO step induces in one branch and injecting it into
+another, to ask whether the change is branch-specific or transferable.
 
-**Ambiguous prompts move toward the harmful cluster.** Measuring where
-quadrant C sits between benign D (0) and overt-harmful A (1) along each stage's
-own direction, at layer 24:
-
-| M0 | M1 | M2 | M3 | M3_direct |
-|---|---|---|---|---|
-| +0.33 | +0.72 | +0.65 | +0.90 | +1.04 |
-
-C climbs in two jumps — instruction-tuning, then DPO — with a slight retreat
-during safety-SFT. Direct-DPO overshoots: C ends up *past* A. This is
-Hypothesis B in one row of numbers.
-
-## The honest null, and the caveats that matter
-
-**DPO adds no decodable structure orthogonal to the direction.** Residualizing
-out the A–D contrast and testing whether harm *category* remains linearly
-decodable: +0.004 [−0.018, +0.027] using the preregistered final-token
-direction, +0.008 [−0.013, +0.030] using the mean-pooled one. Null under both.
-Whatever DPO adds geometrically, it is not recoverable richer category
-structure.
-
-**The geometry is genuinely mixed, and is reported that way.** The contrast
-norm grows M2→M3 (×1.15 at layer 24, ×1.49 at layer 28), which looks like
-amplification. But most of the update to the contrast is *orthogonal* to M2's
-top-5 A/D subspace, which does not. Both are true; the null above is what stops
-the orthogonal component from being read as "richer safety representation".
-
-**The direction is not purely about safety.** Benign-but-alarming quadrant-B
-prompts sit about a third of the way toward the harmful side along the same
-direction, at every stage. The A–D contrast carries topic, register and wording
-structure too. Any claim that this is "the refusal direction" should be read
-with that in mind.
-
-**The intervention direction is mean-pooled, not final-token.** The
-preregistration fixes the direction on the final prompt token; the pipeline
-actually built it from the mean of the last five tokens. Cosine between the two
-is 0.76–0.87 at the intervention layers. No number changes — every causal result
-is a valid analysis of the mean-pooled contrast — but the label was wrong and is
-corrected throughout. Recorded as a deviation.
-
-**One earlier claim was walked back.** A reported "7-layer, dataset-sensitive
-bottleneck gap" did not survive bootstrapping and was mostly argmax noise. It is
-kept visible rather than quietly dropped.
-
-## Limitations
-
-- One model, one scale (1.5B). Nothing here establishes that the picture holds
-  at larger scale.
-- LoRA r=64 throughout. The subspace check bounds the confound — 90–94% of the
-  direction's norm lies outside the rank-64 subspace — but does not remove it.
-- Refusal labels come from a regex classifier plus two LLM judges. The regex
-  lexicon was tuned against observed output and is frozen, but it is still a
-  proxy.
-- Quadrant C's prompt text was authored, not sampled. Each item is a reworded
-  published prompt with its source retained, so the rewording is auditable — but
-  the rewording bundles cue-removal with incidental changes to length and
-  register. It is not a single orthogonal factor.
-- The cross-fitted contrasts are post hoc, one seed per cell.
-
-## A separate study: cross-branch transfer
-
-`src/crossbranch/` and `results/crossbranch/` hold a distinct
-experiment — taking the activation delta a DPO step induces in one branch and
-injecting it into another, to ask whether the change is branch-specific or
-transferable.
-
-**It sits outside the preregistration** in `docs/audit/analysis_plan.md`, and
-its numbers are exploratory. They must not be folded into the confirmatory
-endpoints above.
+**It sits outside the preregistration** in `docs/audit/analysis_plan.md` and its
+numbers are exploratory. They are not folded into anything above.
 
 ## Reproducing
 
-Trained adapters are on HuggingFace under `urosavurdic/qwen2.5-1.5b-*`; no
-weights are committed here. Committed results carry `*_binding.json` sidecars
-recording the benchmark hash each number was computed against.
+Trained adapters live on HuggingFace under `urosavurdic/qwen2.5-1.5b-*`; no
+weights are committed here. Every committed result carries a `*_binding.json`
+sidecar recording the benchmark hash it was computed against.
 
 ```bash
 git clone https://github.com/urosavurdic/dpo-safety-representations
@@ -168,11 +143,10 @@ python -m src.reproduce --list          # what exists, what is missing
 python -m src.reproduce --components all
 ```
 
-GPU work (training, generation, interventions) runs from `notebooks/`.
-Layout, conventions and the traps are in [CONTRIBUTING.md](CONTRIBUTING.md).
-Naming — including why `v2` does not imply a `v1` — is in
-[docs/NAMING.md](docs/NAMING.md). The full evidence ledger, with every number
-and its source file, is in [docs/FINDINGS.md](docs/FINDINGS.md).
+GPU work — training, generation, interventions — runs from `notebooks/`.
+Conventions and the traps that actually bite are in
+[CONTRIBUTING.md](CONTRIBUTING.md). Naming, including why `654` and `370era`
+mark the two benchmark eras, is in [docs/NAMING.md](docs/NAMING.md).
 
 ## Data and content warning
 
@@ -183,24 +157,24 @@ rates under intervention, and those are not checkable without the generations.
 Evaluation and training data derive from HarmBench, XSTest, StrongREJECT,
 PKU-SafeRLHF, Alpaca and Dolly, each under its own terms. The processed training
 files inherit third-party personal data from the upstream instruction corpora.
-Details, and what is and is not scrubbed, are in [docs/DATA.md](docs/DATA.md).
+What is and is not scrubbed is documented in [docs/DATA.md](docs/DATA.md).
 
-## Repo map
+## Layout
 
 ```
-src/common/           shared helpers        src/training/     SFT and DPO
-src/data_pipeline/    benchmark building    src/analysis/     endpoints, geometry
-src/analysis/ direction analysis    src/diagnostics/  leakage checks
-docs/                 FINDINGS, DATA, NAMING, history/, audit/ (frozen)
-results/              every committed number + binding sidecars
-archive/              dead code, kept for provenance
+src/common/        shared helpers        src/training/    SFT and DPO
+src/data_pipeline/ benchmark building    src/analysis/    endpoints, geometry
+src/pipeline/      benchmark-bound runs  src/crossbranch/ the exploratory study
+src/diagnostics/   leakage checks        docs/audit/      frozen analysis plan
+results/           every committed number + binding sidecars
+archive/           retired code, kept for provenance
 ```
 
 ## How to cite
 
 ```bibtex
 @misc{dpo_safety_representations,
-  title  = {Where Does Safety Live? Tracing a Refusal Direction from Base Model to DPO},
+  title  = {Preserved but Path-Dependent: the Refusal Direction Across a DPO Training Chain},
   author = {Uros Savurdic},
   year   = {2026},
   howpublished = {\url{https://github.com/urosavurdic/dpo-safety-representations}},
