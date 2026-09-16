@@ -327,8 +327,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sealed-key", required=True, help="Sealed key JSON (from outside the repo).")
     parser.add_argument("--annotations", required=True, help="{neutral_id: {4 axes}} JSON.")
-    parser.add_argument("--judged", required=True, help="behavioral_judges_v2 output JSON.")
-    parser.add_argument("--out", default="results/behavioral_judges_v2/agreement_report.json")
+    parser.add_argument("--judged", required=True, help="behavioral_judges output JSON.")
+    parser.add_argument("--out", default="results/behavioral_judges/agreement_report.json")
     args = parser.parse_args()
 
     sealed_key = json.loads(Path(args.sealed_key).read_text(encoding="utf-8"))

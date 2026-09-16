@@ -80,10 +80,10 @@ def test_pooled_and_final_token_directions_differ(tmp_path):
 
 @pytest.mark.skipif(not _HAVE_REAL, reason="needs real 654-row activations")
 def test_real_final_token_differs_from_committed_pooled_v2():
-    """On the real data the committed *_v2_direction.npy is the POOLED one; the
+    """On the real data the committed *_direction_654.npy is the POOLED one; the
     final-token direction must be materially different at the intervention layers."""
     for st in ("M3", "M3_alt"):
-        v2 = Path("results/refusal_direction") / f"{st}_v2_direction.npy"
+        v2 = Path("results/refusal_direction") / f"{st}_direction_654.npy"
         if not v2.exists():
             continue
         d_final = ftr.full_direction(ftr.load_stage(ACT, st, "final_token"))
@@ -208,8 +208,8 @@ def test_final_token_condition_names_do_not_collide():
     assert ft_xfit.isdisjoint(pooled_names)
 
     # file tags differ
-    assert "_finaltoken" not in "causal_ablation_v2_M3_L24-28.json"
-    assert "_finaltoken" in "causal_ablation_v2_M3_L24-28_finaltoken.json"
+    assert "_finaltoken" not in "causal_ablation_654_M3_L24-28.json"
+    assert "_finaltoken" in "causal_ablation_654_M3_L24-28_finaltoken.json"
 
 
 # extra: local crossfit_folds copy == the v2_pipeline one, and == committed --- #
@@ -229,7 +229,7 @@ def test_crossfit_folds_local_matches_v2_pipeline():
 def test_real_fold_partition_matches_committed_pooled_xfit5():
     for st in ("M3", "M3_alt"):
         cb = json.loads(
-            Path(f"results/raw/causal_ablation_v2_{st}_L24-28_xfit5_binding.json").read_text()
+            Path(f"results/raw/causal_ablation_654_{st}_L24-28_xfit5_binding.json").read_text()
         )
         committed = {f["fold"]: sorted(f["test_record_ids"]) for f in cb["folds"]}
         sa = ftr.load_stage(ACT, st, "final_token")

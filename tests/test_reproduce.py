@@ -43,10 +43,10 @@ def test_missing_requirements_reports_only_absent_paths(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     # behavioral_stats requires the 654-row responses
     missing = missing_requirements("behavioral_stats")
-    assert missing == ["results/behavioral_eval/v2_raw.json"]
+    assert missing == ["results/behavioral_eval/responses_654.json"]
 
     Path("results/behavioral_eval").mkdir(parents=True)
-    Path("results/behavioral_eval/v2_raw.json").write_text("{}")
+    Path("results/behavioral_eval/responses_654.json").write_text("{}")
     assert missing_requirements("behavioral_stats") == []
 
 
@@ -54,7 +54,7 @@ def test_already_produced_true_only_when_all_outputs_exist(tmp_path, monkeypatch
     monkeypatch.chdir(tmp_path)
     assert already_produced("causal_stats") is False
     Path("results/summaries").mkdir(parents=True)
-    Path("results/summaries/causal_ablation_v2_M3_L24-28_summary.json").write_text("{}")
+    Path("results/summaries/causal_ablation_654_M3_L24-28_summary.json").write_text("{}")
     assert already_produced("causal_stats") is True
 
 

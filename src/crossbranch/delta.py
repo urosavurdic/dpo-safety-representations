@@ -339,7 +339,7 @@ def load_direction_vector(
     ~1, which would quietly change the meaning of the dose scalar.
     """
     directions_dir = Path(directions_dir)
-    v2 = directions_dir / f"{stage}_v2_direction.npy"
+    v2 = directions_dir / f"{stage}_direction_654.npy"
     legacy = directions_dir / f"{stage}_direction.npy"
     path = v2 if v2.exists() else legacy
     if not path.exists():

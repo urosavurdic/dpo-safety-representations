@@ -98,7 +98,7 @@ def _write_manifest(tmp_path, response_file):
         "split_manifest_sha256": SPLIT_SHA,
         "entries": [{
             "response_file": str(response_file),
-            "binding_file": str(FIX / "causal_ablation_v2_M3_L24-28_binding.json"),
+            "binding_file": str(FIX / "causal_ablation_654_M3_L24-28_binding.json"),
         }],
     }
     p = tmp_path / "consolidated_x.json"
@@ -108,14 +108,14 @@ def _write_manifest(tmp_path, response_file):
 
 def _v2_response_file(tmp_path):
     """A v2 response file whose rows carry the full required metadata."""
-    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    rows = json.loads((FIX / "causal_ablation_654_M3_L24-28.json").read_text())
     for r in rows:
         r["prompt"] = r.get("prompt", "p")
-    p = tmp_path / "v2_raw_M3.json"
+    p = tmp_path / "responses_654_M3.json"
     p.write_text(json.dumps(rows), encoding="utf-8")
     # its binding sidecar (copy of the fixture's)
-    (tmp_path / "v2_raw_M3_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8"
+    (tmp_path / "responses_654_M3_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8"
     )
     return p
 
@@ -126,7 +126,7 @@ def test_run_judges_happy_path(tmp_path):
         "kind": "consolidated_response_manifest",
         "benchmark_sha256": BENCH_SHA, "split_manifest_sha256": SPLIT_SHA,
         "entries": [{"response_file": str(resp),
-                     "binding_file": str(tmp_path / "v2_raw_M3_binding.json")}],
+                     "binding_file": str(tmp_path / "responses_654_M3_binding.json")}],
     }
     mp = tmp_path / "consolidated.json"
     mp.write_text(json.dumps(manifest), encoding="utf-8")
@@ -154,14 +154,14 @@ def test_verify_manifest_entry_rejects_legacy_basename(tmp_path):
 def test_verify_manifest_entry_rejects_wrong_benchmark_sha(tmp_path):
     resp = _v2_response_file(tmp_path)
     entry = {"response_file": str(resp),
-             "binding_file": str(tmp_path / "v2_raw_M3_binding.json")}
+             "binding_file": str(tmp_path / "responses_654_M3_binding.json")}
     with pytest.raises((LegacyArtifactError, RuntimeError)):
         bj.verify_manifest_entry(entry, "deadbeef" * 8, SPLIT_SHA)
 
 
 def test_build_consolidated_manifest(tmp_path):
     session = tmp_path / "s1.json"
-    resp = tmp_path / "v2_raw_M2.json"
+    resp = tmp_path / "responses_654_M2.json"
     resp.write_text("[]", encoding="utf-8")
     session.write_text(json.dumps({"response_files": [str(resp)]}), encoding="utf-8")
     out = tmp_path / "consolidated.json"
@@ -169,7 +169,7 @@ def test_build_consolidated_manifest(tmp_path):
                                        split_manifest_sha256=SPLIT_SHA)
     assert m["kind"] == "consolidated_response_manifest"
     assert m["entries"][0]["response_file"] == str(resp)
-    assert m["entries"][0]["binding_file"].endswith("v2_raw_M2_binding.json")
+    assert m["entries"][0]["binding_file"].endswith("responses_654_M2_binding.json")
     assert out.exists()
 
 
@@ -179,37 +179,37 @@ def test_build_consolidated_from_results_dir(tmp_path):
     (rdir / "behavioral_eval").mkdir(parents=True)
     (rdir / "raw").mkdir(parents=True)
     # a v2 behavioral file + its binding
-    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    rows = json.loads((FIX / "causal_ablation_654_M3_L24-28.json").read_text())
     for r in rows:
         r["prompt"] = r.get("prompt", "p")
-    (rdir / "behavioral_eval" / "v2_raw_M3.json").write_text(json.dumps(rows), encoding="utf-8")
-    (rdir / "behavioral_eval" / "v2_raw_M3_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    (rdir / "behavioral_eval" / "responses_654_M3.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "behavioral_eval" / "responses_654_M3_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8")
     # a causal file + its binding
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8")
     # a steering file WITHOUT a binding -> must be skipped, not crash
-    (rdir / "raw" / "steering_v2_M3_L24_x_coef1_QABCD.json").write_text("[]", encoding="utf-8")
+    (rdir / "raw" / "steering_654_M3_L24_x_coef1_QABCD.json").write_text("[]", encoding="utf-8")
 
     out = tmp_path / "consolidated.json"
     m = bj.build_consolidated_from_results(rdir, out)
     assert m["kind"] == "consolidated_response_manifest"
     assert m["benchmark_sha256"] == BENCH_SHA
     names = sorted(Path(e["response_file"]).name for e in m["entries"])
-    assert names == ["causal_ablation_v2_M3_L24-28.json", "v2_raw_M3.json"]  # steering (no binding) skipped
+    assert names == ["causal_ablation_654_M3_L24-28.json", "responses_654_M3.json"]  # steering (no binding) skipped
     assert out.exists()
 
 
 def test_run_judges_from_that_manifest_regex_only(tmp_path):
     rdir = tmp_path / "results"
     (rdir / "raw").mkdir(parents=True)
-    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    rows = json.loads((FIX / "causal_ablation_654_M3_L24-28.json").read_text())
     for r in rows:
         r["prompt"] = "p"
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8")
 
     manifest = tmp_path / "c.json"
     bj.build_consolidated_from_results(rdir, manifest)
@@ -225,12 +225,12 @@ def test_run_judges_from_that_manifest_regex_only(tmp_path):
 def test_run_judges_skip_wildguard_marks_it_skipped(tmp_path):
     rdir = tmp_path / "results"
     (rdir / "raw").mkdir(parents=True)
-    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    rows = json.loads((FIX / "causal_ablation_654_M3_L24-28.json").read_text())
     for r in rows:
         r["prompt"] = "p"
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8")
     manifest = tmp_path / "c.json"
     bj.build_consolidated_from_results(rdir, manifest)
     out = bj.run_judges(manifest, out_dir=tmp_path / "o", run_live=False, skip_wildguard=True)
@@ -265,12 +265,12 @@ def test_row_in_scope_confirmatory_selects_CF1_and_CF2_rows_only():
 def test_run_judges_marks_out_of_scope_rows(tmp_path):
     rdir = tmp_path / "results"
     (rdir / "raw").mkdir(parents=True)
-    rows = json.loads((FIX / "causal_ablation_v2_M3_L24-28.json").read_text())
+    rows = json.loads((FIX / "causal_ablation_654_M3_L24-28.json").read_text())
     for r in rows:
         r["prompt"] = "p"  # these fixture rows are quadrant A, M3, baseline/ablated_* -> in CF2 scope
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
-    (rdir / "raw" / "causal_ablation_v2_M3_L24-28_binding.json").write_text(
-        (FIX / "causal_ablation_v2_M3_L24-28_binding.json").read_text(), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28.json").write_text(json.dumps(rows), encoding="utf-8")
+    (rdir / "raw" / "causal_ablation_654_M3_L24-28_binding.json").write_text(
+        (FIX / "causal_ablation_654_M3_L24-28_binding.json").read_text(), encoding="utf-8")
     manifest = tmp_path / "c.json"
     bj.build_consolidated_from_results(rdir, manifest)
 

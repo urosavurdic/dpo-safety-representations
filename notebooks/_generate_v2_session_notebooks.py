@@ -215,7 +215,7 @@ NOTEBOOKS = {
         md("## 8. S6 judge pass - consumes ONLY the consolidated manifest"),
         code("!python -m src.analysis.behavioral_judges "
              "--response-manifest results/manifests/consolidated_{ts}.json "
-             "--require-binding --reject-legacy --out-dir results/behavioral_judges_v2 --run-live"),
+             "--require-binding --reject-legacy --out-dir results/behavioral_judges --run-live"),
         md("## 9. Post-run: bridge outputs, re-validate, session summary"),
         code("!python -m src.analysis.verify_activations\n!python -m src.pipeline.frozen_run_pipeline status"),
     ],

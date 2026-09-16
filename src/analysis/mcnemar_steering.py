@@ -62,7 +62,7 @@ def build_contingency(rows, baseline_stage, steered_stage, category="refusal"):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True,
-                         help="Raw steering results file, e.g. results/raw/steering_v2_M3_L24_...json. "
+                         help="Raw steering results file, e.g. results/raw/steering_654_M3_L24_...json. "
                               "No default on purpose -- always say explicitly which file you mean.")
     parser.add_argument("--quadrant", required=True, choices=["A", "B", "C", "D"],
                          help="Which quadrant to test -- required, no default, since pooling quadrants "

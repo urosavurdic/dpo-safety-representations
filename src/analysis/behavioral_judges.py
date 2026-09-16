@@ -19,7 +19,7 @@ Hard rules enforced here:
     sidecar bound to the frozen benchmark SHA and split-manifest SHA, and every
     row must carry ``stage`` / ``model_stage`` / ``condition`` metadata plus the
     two binding SHAs (see ``src/pipeline/binding_guard.py``).
-  * 370-era files (``raw.json``, ``summary_v2.json``, ``causal_ablation_raw_*``)
+  * 370-era files (``raw.json``, ``refusal_rates_370era.json``, ``causal_ablation_raw_*``)
     are rejected.
   * NO generation happens here - judges only score the saved pair.
   * NO model weights are downloaded. The StrongREJECT / WildGuard models are
@@ -53,7 +53,7 @@ from src.pipeline.binding_guard import (
 )
 from src.v2_io import assert_binding, load_json
 
-JUDGE_OUTPUT_DIR = Path("results/behavioral_judges_v2")
+JUDGE_OUTPUT_DIR = Path("results/behavioral_judges")
 JUDGE_VERSIONS = {
     "regex": "eval_refusal_classifier@2026-09",
     "strong_reject": "dsbowen/strong_reject fine-tuned Gemma-2B (revision pinned at preflight)",
@@ -357,7 +357,7 @@ def _binding_for(response_file: str) -> Path:
 # The response families the T4 run produces (per-command runs write no
 # per-session manifest, so the consolidated one is assembled from these).
 RESPONSE_GLOBS = (
-    "behavioral_eval/v2_raw_*.json",
+    "behavioral_eval/responses_654_*.json",
     # NOT "..._L24-28.json": that trailing anchor silently excluded every
     # tagged causal variant the pipeline writes next to the confirmatory file
     # - _fullAD (the full-A/D sensitivity run), _xfit<K> (cross-fitted), and
@@ -365,8 +365,8 @@ RESPONSE_GLOBS = (
     # LOOKS complete while CF2's estimation_split_only / full_A_sensitivity /
     # cross_fitted blocks stay at n=0, with no error anywhere. The explicit
     # `_binding.json` skip in the loop below keeps sidecars out.
-    "raw/causal_ablation_v2_*.json",
-    "raw/steering_v2_*_Q*.json",
+    "raw/causal_ablation_654_*.json",
+    "raw/steering_654_*_Q*.json",
 )
 
 
@@ -667,7 +667,7 @@ def run_judges(manifest_path, out_dir=JUDGE_OUTPUT_DIR, *, run_live=False,
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out_path = out_dir / f"behavioral_judges_v2_{ts}.json"
+    out_path = out_dir / f"behavioral_judges_{ts}.json"
     out_path.write_text(json.dumps({
         "manifest": str(manifest_path),
         "benchmark_sha256": bench_sha,
@@ -698,8 +698,8 @@ def main():
                              "(one at a time; 4-bit).")
     parser.add_argument("--from-results-dir", default=None,
                         help="Assemble the consolidated manifest by scanning this "
-                             "results/ dir (v2_raw_*, causal_ablation_v2_*, "
-                             "steering_v2_*) + their *_binding.json, write it to "
+                             "results/ dir (responses_654_*, causal_ablation_654_*, "
+                             "steering_654_*) + their *_binding.json, write it to "
                              "--response-manifest, then judge it.")
     parser.add_argument("--build-consolidated", nargs="+", default=None,
                         help="Assemble a consolidated manifest from these per-session "
@@ -715,7 +715,7 @@ def main():
                              "confirmatory (default) = CF1 (C @ M2/M3) + CF2 (A @ M3 causal) "
                              "~300 rows ~15 min; all = every response ~15+ h.")
     parser.add_argument("--resume-from", default=None,
-                        help="A previous behavioral_judges_v2_*.json. Rows whose "
+                        help="A previous behavioral_judges_*.json. Rows whose "
                              "(record_id, stage, condition, response) already "
                              "carry a good score for a judge are copied instead of "
                              "re-scored, per judge. Response text is part of the "

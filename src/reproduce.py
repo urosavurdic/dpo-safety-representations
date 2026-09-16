@@ -31,7 +31,7 @@ from pathlib import Path
 COMPONENTS = {
     "behavioral_stats": {
         "description": "Wilson-CI behavioral summary from already-generated raw generations",
-        "requires": ["results/behavioral_eval/v2_raw.json"],
+        "requires": ["results/behavioral_eval/responses_654.json"],
         "produces": [
             "results/behavioral_eval/reclassified_654.json",
             "results/behavioral_eval/refusal_rates_654.json",
@@ -41,7 +41,7 @@ COMPONENTS = {
     "probes": {
         "description": "Linear probes + held-out flagging rate (needs activations, not the model)",
         "requires": ["results/activations"],
-        "produces": ["results/probes_v2"],
+        "produces": ["results/probes_654"],
         "commands": [
             "python -m src.analysis.eval_probes",
             "python -m src.analysis.summarize_probe_findings",
@@ -51,7 +51,7 @@ COMPONENTS = {
         "description": "Refusal-direction geometry, stability, bootstrap, bottleneck-layer analysis",
         "requires": ["results/activations"],
         "produces": [
-            "results/refusal_direction/cosine_similarity_v2.json",
+            "results/refusal_direction/cosine_similarity_654.json",
             "results/refusal_direction/per_prompt_projections.json",
             "results/interpretability/direction_stability/stability_report.json",
             "results/interpretability/bootstrap_direction_stability.json",
@@ -72,21 +72,21 @@ COMPONENTS = {
     "causal_stats": {
         "description": (
             "Wilson-CI summary, McNemar test, bootstrap CI on the frozen-v2 "
-            "benchmark-bound causal-ablation file. BLOCKED until the T4 run "
-            "produces results/raw/causal_ablation_v2_M3_L24-28.json (+ its "
-            "*_binding.json). The pre-freeze results/raw/causal_ablation_raw_wide.json "
-            "is 370-era and is now refused by the binding guard (src/pipeline/binding_guard.py); "
-            "use --allow-unbound on the individual scripts only for historical work."
+            "benchmark-bound causal-ablation file. Reads "
+            "results/raw/causal_ablation_654_{stage}_L24-28.json and its "
+            "*_binding.json sidecar. Pre-freeze 370-era files are refused by the "
+            "binding guard (src/pipeline/binding_guard.py); pass --allow-unbound on "
+            "the individual scripts only for deliberate historical work."
         ),
         "requires": [
-            "results/raw/causal_ablation_v2_M3_L24-28.json",
-            "results/raw/causal_ablation_v2_M3_L24-28_binding.json",
+            "results/raw/causal_ablation_654_M3_L24-28.json",
+            "results/raw/causal_ablation_654_M3_L24-28_binding.json",
         ],
-        "produces": ["results/summaries/causal_ablation_v2_M3_L24-28_summary.json"],
+        "produces": ["results/summaries/causal_ablation_654_M3_L24-28_summary.json"],
         "commands": [
-            "python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_v2_M3_L24-28.json",
-            "python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_v2_M3_L24-28.json --conditions M3_baseline M3_ablated_AD",
-            "python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_v2_M3_L24-28.json --quadrant A --category refusal",
+            "python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_654_M3_L24-28.json",
+            "python -m src.analysis.mcnemar_causal_ablation --file results/raw/causal_ablation_654_M3_L24-28.json --conditions M3_baseline M3_ablated_AD",
+            "python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_654_M3_L24-28.json --quadrant A --category refusal",
         ],
     },
 }
@@ -96,7 +96,7 @@ GPU_ONLY_COMPONENTS = {
     "behavioral_generation": "src.analysis.eval_behavioral (colab_unified_analysis.ipynb Component 1)",
     "activation_extraction": "src.analysis.eval_extract_activations (colab_unified_analysis.ipynb Component 2)",
     "causal_ablation_generation": "python -m src.pipeline.frozen_run_pipeline run (canonical, frozen-v2-bound; "
-                                   "writes results/raw/causal_ablation_v2_{stage}_L24-28.json). "
+                                   "writes results/raw/causal_ablation_654_{stage}_L24-28.json). "
                                    "The old standalone src.analysis.eval_causal_ablation is deprecated "
                                    "and now refuses to run without --allow-legacy.",
     "steering_generation": "src.analysis.eval_steering_v2 (colab_unified_analysis.ipynb Component 5b) -- "

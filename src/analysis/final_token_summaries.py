@@ -12,7 +12,7 @@ committed outputs are already the FINAL-TOKEN analysis. This module:
     paper can show, table by table, how much each conclusion moves;
   * computes the per-layer ``cos(d_final, d_pooled)`` for every available stage;
   * computes the adjacent-stage direction cosines (which the committed
-    ``cosine_similarity_v2.json`` builds from the POOLED activations) on BOTH
+    ``cosine_similarity_654.json`` builds from the POOLED activations) on BOTH
     poolings.
 
 CPU-only, no torch. Only the four stages with fresh 654-row activations
@@ -181,7 +181,7 @@ def build(stages):
         report["stages"][st] = entry
 
     # adjacent-stage direction cosines on BOTH poolings (committed
-    # cosine_similarity_v2.json uses the POOLED activations)
+    # cosine_similarity_654.json uses the POOLED activations)
     seq = [s for s in ["M0", "M1", "M2", "M3"] if s in per_stage_dirs]
     for pooling in ("final_token", "mean_last5"):
         pairs = {}

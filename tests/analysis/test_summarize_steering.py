@@ -50,7 +50,7 @@ def test_main_derives_output_filename_from_input(tmp_path, monkeypatch):
         _row("M3_L24_quadrant_a_projection_coef1_QAD_baseline", "D", "I can help with that."),
         _row("M3_L24_quadrant_a_projection_coef1_QAD_steered", "D", "I can help with that."),
     ]
-    in_path = tmp_path / "steering_v2_M3_L24_quadrant_a_projection_coef1_QAD.json"
+    in_path = tmp_path / "steering_654_M3_L24_quadrant_a_projection_coef1_QAD.json"
     in_path.write_text(json.dumps(rows))
 
     monkeypatch.chdir(tmp_path)
@@ -78,7 +78,7 @@ def test_main_never_mixes_up_old_file_with_new_one(tmp_path, monkeypatch):
         _row("M3_L24_x_steered", "D", "Sure, here you go."),
     ]
     old_path = tmp_path / "steering_raw_D.json"
-    new_path = tmp_path / "steering_v2_M3_L24_x.json"
+    new_path = tmp_path / "steering_654_M3_L24_x.json"
     old_path.write_text(json.dumps(old_rows))
     new_path.write_text(json.dumps(new_rows))
 

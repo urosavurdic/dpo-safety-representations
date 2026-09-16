@@ -44,7 +44,7 @@ from pathlib import Path
 RAW_DIR = Path("results/raw")
 
 # tagged causal files only; the untagged confirmatory file is off-limits
-TAGGED_GLOB = "causal_ablation_v2_*_L24-28_*.json"
+TAGGED_GLOB = "causal_ablation_654_*_L24-28_*.json"
 
 # shard-unit spelling -> canonical condition suffix
 LEGACY_SUFFIX = {"_ablated": "_ablated_AD"}
@@ -73,9 +73,9 @@ def canonical_condition(label: str, stage: str) -> str:
 
 
 def stage_of(path: Path) -> str:
-    """``causal_ablation_v2_M3_direct_alt_L24-28_fullAD.json`` -> ``M3_direct_alt``."""
+    """``causal_ablation_654_M3_direct_alt_L24-28_fullAD.json`` -> ``M3_direct_alt``."""
     name = path.name
-    prefix, marker = "causal_ablation_v2_", "_L24-28"
+    prefix, marker = "causal_ablation_654_", "_L24-28"
     if not name.startswith(prefix) or marker not in name:
         raise ValueError(f"not a causal-ablation filename: {name}")
     return name[len(prefix):name.index(marker)]

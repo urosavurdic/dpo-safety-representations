@@ -51,15 +51,15 @@ def assert_not_legacy_basename(path: str | Path) -> None:
     if name in PRE_FREEZE_ARTIFACT_BASENAMES:
         raise LegacyArtifactError(
             f"{name!r} is a known pre-freeze (370-era) artifact. The frozen-v2 "
-            "path writes results/raw/causal_ablation_v2_<stage>_L24-28.json (and "
+            "path writes results/raw/causal_ablation_654_<stage>_L24-28.json (and "
             "the behavioural/steering equivalents) with a *_binding.json sidecar. "
             "Refusing to consume the legacy file. Pass --allow-unbound only for "
             "deliberate historical/manual reproduction."
         )
-    if name.startswith("causal_ablation_raw_") and "_v2_" not in name:
+    if name.startswith("causal_ablation_raw_") and "_654_" not in name:
         raise LegacyArtifactError(
             f"{name!r} matches the pre-freeze causal_ablation_raw_* naming. The "
-            "frozen-v2 file is causal_ablation_v2_<stage>_L24-28.json."
+            "frozen-v2 file is causal_ablation_654_<stage>_L24-28.json."
         )
 
 

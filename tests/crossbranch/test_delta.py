@@ -301,7 +301,7 @@ def test_direction_dose_scalar_raises_without_calibration_rows():
 def test_load_direction_vector_rejects_a_non_unit_direction(tmp_path):
     bad = np.zeros((29, 4))
     bad[24] = [5.0, 0.0, 0.0, 0.0]     # norm 5, not ~1
-    np.save(tmp_path / "S_v2_direction.npy", bad)
+    np.save(tmp_path / "S_direction_654.npy", bad)
     with pytest.raises(RuntimeError, match="direction norm"):
         D.load_direction_vector("S", 24, tmp_path)
 
@@ -310,7 +310,7 @@ def test_load_direction_vector_prefers_v2_over_legacy(tmp_path):
     v2, legacy = np.zeros((29, 4)), np.zeros((29, 4))
     v2[24] = [1.0, 0.0, 0.0, 0.0]
     legacy[24] = [0.0, 1.0, 0.0, 0.0]
-    np.save(tmp_path / "S_v2_direction.npy", v2)
+    np.save(tmp_path / "S_direction_654.npy", v2)
     np.save(tmp_path / "S_direction.npy", legacy)
     np.testing.assert_allclose(D.load_direction_vector("S", 24, tmp_path), [1, 0, 0, 0])
 

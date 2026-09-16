@@ -14,7 +14,7 @@ def test_build_contingency_counts_matched_prompts_only():
     assert table == [[0, 0], [1, 1]]  # p1: no->yes(steered), p2: no->no
 
 
-def test_build_contingency_works_with_real_eval_steering_v2_tag_names():
+def test_build_contingency_works_with_real_eval_steering_654_tag_names():
     """Regression test for the actual bug found: real eval_steering_v2.py
     output uses "{tag}_baseline"/"{tag}_steered" condition names, never the
     literal "M3_baseline"/"M3_steered" the old hardcoded version required --

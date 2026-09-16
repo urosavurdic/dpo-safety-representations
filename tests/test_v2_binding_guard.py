@@ -36,7 +36,7 @@ def test_legacy_prefix_pattern_rejected_even_if_not_in_the_set():
 
 
 def test_v2_basename_passes():
-    assert_not_legacy_basename("results/raw/causal_ablation_v2_M3_L24-28.json")
+    assert_not_legacy_basename("results/raw/causal_ablation_654_M3_L24-28.json")
 
 
 def test_iter_rows_accepts_list_and_rows_object():
@@ -74,7 +74,7 @@ def test_empty_file_is_rejected():
 
 def test_fixture_v2_causal_file_passes_guard():
     rows = load_guarded_raw(
-        FIX / "causal_ablation_v2_M3_L24-28.json", benchmark_sha256=BENCH_SHA,
+        FIX / "causal_ablation_654_M3_L24-28.json", benchmark_sha256=BENCH_SHA,
         split_manifest_sha256=SPLIT_SHA,
     )
     assert len(rows) == 6  # 2 held-out A rows x 3 conditions

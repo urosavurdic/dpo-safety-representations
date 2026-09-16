@@ -145,7 +145,7 @@ def test_shard_level_resumability_proof(tmp_path, monkeypatch):
     assert finished is False
     assert len(calls) == 1  # exactly one shard's worth of work done
     assert len(calls[0]) == 3
-    output_path = ctx1.paths.behavioral / "v2_raw_M3.json"
+    output_path = ctx1.paths.behavioral / "responses_654_M3.json"
     assert not output_path.exists(), (
         "no merged output should exist until every shard is committed"
     )
@@ -185,7 +185,7 @@ def test_shard_level_resumability_proof(tmp_path, monkeypatch):
     assert output_path.exists()
 
     # ---- 7. Benchmark/split binding remains valid --------------------------
-    binding_path = ctx2.paths.behavioral / "v2_raw_M3_binding.json"
+    binding_path = ctx2.paths.behavioral / "responses_654_M3_binding.json"
     assert_binding(binding_path, BENCH_SHA, SPLIT_SHA)  # must not raise
 
     # ---- 6. Merged result byte-identical to an uninterrupted run -----------
@@ -205,13 +205,13 @@ def test_shard_level_resumability_proof(tmp_path, monkeypatch):
 
     resumed_output = output_path.read_bytes()
     uninterrupted_output = (
-        ctx3.paths.behavioral / "v2_raw_M3.json"
+        ctx3.paths.behavioral / "responses_654_M3.json"
     ).read_bytes()
     assert resumed_output == uninterrupted_output
 
     resumed_binding = binding_path.read_bytes()
     uninterrupted_binding = (
-        ctx3.paths.behavioral / "v2_raw_M3_binding.json"
+        ctx3.paths.behavioral / "responses_654_M3_binding.json"
     ).read_bytes()
     assert resumed_binding == uninterrupted_binding
 

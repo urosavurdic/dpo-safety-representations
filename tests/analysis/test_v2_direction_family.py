@@ -143,7 +143,7 @@ def test_aggregate_directions_produces_all_four_required_sections(tmp_path):
 
     vp.aggregate_directions(ctx)
 
-    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_v2.json")
+    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_654.json")
 
     assert set(cosine["adjacent"]) == {"M0_vs_M1", "M1_vs_M2", "M2_vs_M3"}
     assert set(cosine["adjacent_alt"]) == {
@@ -165,7 +165,7 @@ def test_adjacent_pairs_map_to_the_correct_cosine_values(tmp_path):
         build_stage_direction(ctx, stage)
     vp.aggregate_directions(ctx)
 
-    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_v2.json")
+    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_654.json")
     adjacent = cosine["adjacent"]
 
     assert adjacent["M0_vs_M1"][0] == pytest.approx(0.0)  # layer 0 artifact
@@ -180,7 +180,7 @@ def test_adjacent_alt_pairs_map_to_the_correct_cosine_values(tmp_path):
         build_stage_direction(ctx, stage)
     vp.aggregate_directions(ctx)
 
-    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_v2.json")
+    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_654.json")
     adjacent_alt = cosine["adjacent_alt"]
 
     assert adjacent_alt["M0_vs_M1_alt"][1] == pytest.approx(
@@ -200,7 +200,7 @@ def test_direct_branch_pairs_map_to_the_correct_cosine_values(tmp_path):
         build_stage_direction(ctx, stage)
     vp.aggregate_directions(ctx)
 
-    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_v2.json")
+    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_654.json")
     direct_branch = cosine["direct_branch"]
 
     assert direct_branch["M1_vs_M3_direct"][1] == pytest.approx(
@@ -223,7 +223,7 @@ def test_cross_branch_pairs_map_to_the_correct_cosine_values(tmp_path):
         build_stage_direction(ctx, stage)
     vp.aggregate_directions(ctx)
 
-    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_v2.json")
+    cosine = load_json(ctx.paths.refusal_direction / "cosine_similarity_654.json")
     cross_branch = cosine["cross_branch"]
 
     for orig, alt in vp.CROSS_BRANCH_PAIRS:
@@ -238,7 +238,7 @@ def test_diagnostics_binding_records_every_stage_and_section(tmp_path):
         build_stage_direction(ctx, stage)
     vp.aggregate_directions(ctx)
 
-    binding = load_json(ctx.paths.refusal_direction / "v2_diagnostics_binding.json")
+    binding = load_json(ctx.paths.refusal_direction / "diagnostics_654_binding.json")
     assert binding["stages"] == sorted(vp.ALL_STAGES)
     assert set(binding["sections"]) >= {
         "adjacent", "adjacent_alt", "direct_branch", "cross_branch",
@@ -256,7 +256,7 @@ def test_aggregate_directions_survives_across_session_scoped_calls(tmp_path):
     M3` would); session 2, in a LATER, separate call, builds only the alt/
     direct stages and calls aggregate_directions again (as `direction
     --stages M1_alt M2_alt M3_alt M3_direct M3_direct_alt` would). Session
-    2's own call never mentions M0..M3, but their `_v2_direction.npy`
+    2's own call never mentions M0..M3, but their `_direction_654.npy`
     files are still sitting on disk from session 1 - the final aggregate
     must still include every cross-session pair.
     """
@@ -268,7 +268,7 @@ def test_aggregate_directions_survives_across_session_scoped_calls(tmp_path):
     vp.aggregate_directions(ctx)  # what `direction --stages M0 M1 M2 M3` would do
 
     cosine_after_session_1 = load_json(
-        ctx.paths.refusal_direction / "cosine_similarity_v2.json"
+        ctx.paths.refusal_direction / "cosine_similarity_654.json"
     )
     # Partial run: cross_branch/adjacent_alt/direct_branch correctly empty,
     # not missing-key or crashed - no alt/direct stages exist yet.
@@ -285,7 +285,7 @@ def test_aggregate_directions_survives_across_session_scoped_calls(tmp_path):
     vp.aggregate_directions(ctx)  # session 2's own call - never mentions M0..M3
 
     cosine_after_session_2 = load_json(
-        ctx.paths.refusal_direction / "cosine_similarity_v2.json"
+        ctx.paths.refusal_direction / "cosine_similarity_654.json"
     )
     # The regression: these three sections need BOTH a session-1 stage and
     # a session-2 stage together. Before the fix, session 2's call only
@@ -331,7 +331,7 @@ def run_stage_behavior(ctx, stage, monkeypatch):
 def test_merge_behavioral_survives_across_session_scoped_calls(tmp_path, monkeypatch):
     """Same multi-session pattern as the direction test above, but for
     merge_behavioral - and a stricter check, since the old code didn't
-    just leave sections empty, it OVERWROTE v2_raw.json wholesale with
+    just leave sections empty, it OVERWROTE responses_654.json wholesale with
     only the stages passed to that particular call, erasing prior ones.
     """
     ctx = make_behavior_ctx(tmp_path)
@@ -340,13 +340,13 @@ def test_merge_behavioral_survives_across_session_scoped_calls(tmp_path, monkeyp
     run_stage_behavior(ctx, "M1", monkeypatch)
     vp.merge_behavioral(ctx)  # what `behavior --stages M0 M1` would do
 
-    combined_after_session_1 = load_json(ctx.paths.behavioral / "v2_raw.json")
+    combined_after_session_1 = load_json(ctx.paths.behavioral / "responses_654.json")
     assert set(combined_after_session_1) == {"M0", "M1"}
 
     run_stage_behavior(ctx, "M2", monkeypatch)
     vp.merge_behavioral(ctx)  # session 2's own call - never mentions M0/M1
 
-    combined_after_session_2 = load_json(ctx.paths.behavioral / "v2_raw.json")
+    combined_after_session_2 = load_json(ctx.paths.behavioral / "responses_654.json")
     # The regression: M0 and M1 must not have been erased just because
     # this call's own session only touched M2.
     assert set(combined_after_session_2) == {"M0", "M1", "M2"}

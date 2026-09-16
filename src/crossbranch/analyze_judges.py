@@ -384,7 +384,7 @@ def main() -> None:
     )
     p.add_argument(
         "--judge-file", required=True,
-        help="behavioral_judges_v2_<ts>.json produced by behavioral_judges.",
+        help="behavioral_judges_<ts>.json produced by behavioral_judges.",
     )
     p.add_argument("--out-dir", default="results/crossbranch/analysis")
     p.add_argument("--out-name", default="crossbranch_judge_analysis.json")

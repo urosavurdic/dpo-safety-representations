@@ -6,7 +6,7 @@ whole alt branch exists to answer: is a given finding dataset-specific or
 not.
 
 Reuses classify_refusal/is_soft_deflection/is_degenerate directly against
-results/behavioral_eval/raw.json (not summary_v2.json, which only persists
+results/behavioral_eval/raw.json (not refusal_rates_370era.json, which only persists
 the plain refusal rate - soft-deflection is the actual headline metric
 throughout this project and was previously only ever printed to stdout by
 reclassify_behavioral.py, never saved). Probe and direction comparisons
@@ -30,7 +30,7 @@ CROSS_BRANCH_PAIRS = [
 # Default is the v2 merged behavioral file ({stage: [rows]}, rows carry
 # "response"); the pre-freeze 370-era name/key ("raw.json" / "completion") is
 # still accepted for the historical appendix.
-DEFAULT_RAW = "results/behavioral_eval/v2_raw.json"
+DEFAULT_RAW = "results/behavioral_eval/responses_654.json"
 
 
 def load_raw_behavioral(path=DEFAULT_RAW):

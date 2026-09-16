@@ -1,21 +1,21 @@
-# results/ layout — v2 (frozen-654) vs legacy (370-era)
+# results/ layout — 654 (frozen) vs 370era (pre-freeze)
 
 The T4 rerun writes a **new, benchmark-bound** family of artifacts alongside the
 historical 370-prompt ones. Nothing here is moved or deleted (`git mv` happens
 only in the post-T4 restructure). This file is the map.
 
-## v2 (frozen 654-row benchmark, `benchmark_sha256 e4946b07…`)
+## 654 (frozen benchmark, `benchmark_sha256 e4946b07…`)
 
-Every v2 file carries `benchmark_sha256` + `split_manifest_sha256` per row and a
+Every 654-era file carries `benchmark_sha256` + `split_manifest_sha256` per row and a
 `<file>_binding.json` sidecar. `src/pipeline/binding_guard.py` refuses anything else on
 the frozen-v2 path.
 
 | path | producer | notes |
 |---|---|---|
 | `results/activations/{stage}_final.npy` / `_pooled.npy` / `_metadata.json` / `_metadata_binding.json` | `frozen_run_pipeline extract` | `_final` is canonical (analysis_plan.md §4). `src/analysis/verify_activations.py` CPU-verifies binding. |
-| `results/behavioral/v2_raw_{stage}.json` (+ `_binding.json`) | `frozen_run_pipeline behavior` | one row per (prompt, response); no judge scores yet |
-| `results/raw/causal_ablation_v2_{stage}_L24-28.json` (+ `_binding.json`) | `frozen_run_pipeline causal` | conditions `baseline` / `ablated_AD` / `ablated_random` [/ `ablated_AB`]; §6.1 seed/γ/RMS/cos in the sidecar |
-| `results/raw/steering_v2_{tag}.json` (+ `_binding.json`) | `frozen_run_pipeline steering` | `steered_learned` / `steered_random`; α_coef {0.5,1,2}; §6.2 provenance + degeneration rate |
+| `results/behavioral/responses_654_{stage}.json` (+ `_binding.json`) | `frozen_run_pipeline behavior` | one row per (prompt, response); no judge scores yet |
+| `results/raw/causal_ablation_654_{stage}_L24-28.json` (+ `_binding.json`) | `frozen_run_pipeline causal` | conditions `baseline` / `ablated_AD` / `ablated_random` [/ `ablated_AB`]; §6.1 seed/γ/RMS/cos in the sidecar |
+| `results/raw/steering_654_{tag}.json` (+ `_binding.json`) | `frozen_run_pipeline steering` | `steered_learned` / `steered_random`; α_coef {0.5,1,2}; §6.2 provenance + degeneration rate |
 | `results/refusal_direction/{stage}_direction_final.npy`, `per_prompt_projections.json` | `representation_projections.py` | per-prompt + M1-ref + M3-ref projections |
 | `results/interpretability/subspace_geometry.json` | `subspace_geometry.py` | H1/H2: ρ_AD⊥, principal angles, PR/erank ([exec:T4]) |
 | `results/refusal_direction/projection_trajectory.json` | `projection_trajectory.py` | §4.5 p_{q,s,l}, z_C, z_B ([exec:T4]) |
@@ -53,7 +53,7 @@ vocabulary persists here; `docs/NAMING.md` decodes it. The short version:
 
 | In a filename | Means |
 |---|---|
-| `v2` | the frozen 654-row benchmark era. There is no `v1`; the counterpart is `370era` |
+| `654` | the frozen 654-row benchmark era; the counterpart is `370era` |
 | `_final` | activations/direction at the **final prompt token** |
 | `_pooled` | **mean over the last five** non-padding tokens |
 | `_L24-28` | the layer band an intervention was applied to |

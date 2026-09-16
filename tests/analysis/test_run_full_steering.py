@@ -23,7 +23,7 @@ def _row(prompt, quadrant, source="src", split=None):
     return r
 
 
-def test_default_tag_matches_eval_steering_v2_format():
+def test_default_tag_matches_eval_steering_654_format():
     # Byte-identical to eval_steering_v2.default_tag's output for the same
     # inputs -- this is load-bearing (see module docstring), so pin it
     # against a hand-computed expectation independent of the other module.
@@ -135,7 +135,7 @@ def test_output_path_for_uses_raw_dir_and_tag():
     # this assertion fails on Windows against a forward-slash literal.
     assert (
         output_path_for("M3_L24_x_coef1_QAD").as_posix()
-        == "results/raw/steering_v2_M3_L24_x_coef1_QAD.json"
+        == "results/raw/steering_654_M3_L24_x_coef1_QAD.json"
     )
 
 

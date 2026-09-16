@@ -39,8 +39,8 @@ POOLING_SUFFIX = {"final_token": "final", "mean_last5": "pooled"}
 # Direction filenames, most specific first. A stage may have been written by any
 # of three generations of the pipeline; the first that exists wins.
 _DIRECTION_NAMES = (
+    "{stage}_direction_654.npy",
     "{stage}_direction_final.npy",
-    "{stage}_v2_direction.npy",
     "{stage}_direction.npy",
 )
 

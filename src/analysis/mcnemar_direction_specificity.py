@@ -10,7 +10,7 @@ alternative="two-sided")``), which is the exact McNemar test. ``b`` = discordant
 pairs where ``ablated_AD`` flagged the category and ``ablated_random`` did not;
 ``c`` = the reverse.
 
-Held-out quadrant C/D come from the frozen ``causal_ablation_v2_{stage}_L24-28.json``
+Held-out quadrant C/D come from the frozen ``causal_ablation_654_{stage}_L24-28.json``
 files; quadrant A (n=150, sensitivity) from the ``_fullAD`` files. Pooling of the
 underlying direction is the mean-pooled (last-5-token) contrast the whole causal
 core uses (see the manuscript's deviations table) - this test reads only the
@@ -108,8 +108,8 @@ def main():
     }
     used = {}
     for st in BRANCHES:
-        ho = raw / f"causal_ablation_v2_{st}_L24-28.json"
-        ad = raw / f"causal_ablation_v2_{st}_L24-28_fullAD.json"
+        ho = raw / f"causal_ablation_654_{st}_L24-28.json"
+        ad = raw / f"causal_ablation_654_{st}_L24-28_fullAD.json"
         ho_rows = json.loads(ho.read_text(encoding="utf-8"))
         report["quadrant_C_soft_deflection_n104"][st] = cell(
             ho_rows, st, "C", "soft_deflection")

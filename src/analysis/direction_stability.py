@@ -12,7 +12,7 @@ import numpy as np
 
 from src.common.io import load_json, write_json
 
-COSINE_SIMILARITY = Path("results/refusal_direction/cosine_similarity_v2.json")
+COSINE_SIMILARITY = Path("results/refusal_direction/cosine_similarity_654.json")
 LEGACY_COSINE_SIMILARITY = Path("results/refusal_direction/cosine_similarity.json")
 
 

@@ -60,7 +60,7 @@ def test_default_tag_is_descriptive_and_filesystem_safe():
 def test_build_output_path_refuses_to_overwrite_existing_file_without_flag(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "results" / "raw").mkdir(parents=True)
-    (tmp_path / "results" / "raw" / "steering_v2_mytag.json").write_text("[]")
+    (tmp_path / "results" / "raw" / "steering_654_mytag.json").write_text("[]")
 
     with pytest.raises(FileExistsError, match="overwrite"):
         build_output_path("mytag", overwrite=False)
@@ -74,7 +74,7 @@ def test_build_output_path_creates_parent_dirs(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     path = build_output_path("newtag", overwrite=False)
     assert path.parent.exists()
-    assert path.name == "steering_v2_newtag.json"
+    assert path.name == "steering_654_newtag.json"
 
 
 def test_steer_direction_adds_scaled_direction():
@@ -93,7 +93,7 @@ def test_build_run_config_flags_layers_outside_causally_validated_range():
         direction_source=None,
     )
     cfg = build_run_config(args, layers=[14, 21, 26], alphas_by_layer={14: 1.0, 21: 2.0, 26: 3.0},
-                            out_path=__import__("pathlib").Path("results/raw/steering_v2_test.json"))
+                            out_path=__import__("pathlib").Path("results/raw/steering_654_test.json"))
     assert cfg["layers_outside_causally_validated_range"] == [14, 21]
     assert cfg["alpha_coefficient"] == 0.3
     assert cfg["generation"]["deterministic"] is True
@@ -108,5 +108,5 @@ def test_build_run_config_no_warning_when_fully_inside_validated_range():
         direction_source=None,
     )
     cfg = build_run_config(args, layers=[24, 25, 26], alphas_by_layer={24: 1.0, 25: 1.0, 26: 1.0},
-                            out_path=__import__("pathlib").Path("results/raw/steering_v2_test2.json"))
+                            out_path=__import__("pathlib").Path("results/raw/steering_654_test2.json"))
     assert cfg["layers_outside_causally_validated_range"] == []

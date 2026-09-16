@@ -290,7 +290,7 @@ def main():
     parser.add_argument("--responses", required=True,
                         help="A v2 responses file or a dir of them (flat rows).")
     parser.add_argument("--judged", default=None,
-                        help="behavioral_judges_v2 output JSON (for the targeted sample only).")
+                        help="behavioral_judges output JSON (for the targeted sample only).")
     parser.add_argument("--packet-out", required=True)
     parser.add_argument("--key-out", required=True,
                         help="Sealed key path. MUST be OUTSIDE the repo working tree.")

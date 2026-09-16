@@ -203,7 +203,7 @@ def test_stage_incomplete_while_behavioral_output_is_still_missing(
     assert stage_is_complete(ctx, item) is False
 
     write_json_lf(
-        ctx.paths.behavioral / "v2_raw_M3.json", [{"record_id": "r000"}]
+        ctx.paths.behavioral / "responses_654_M3.json", [{"record_id": "r000"}]
     )
     # The output file alone is still not enough - it also needs a binding
     # sidecar bound to this run's benchmark/split (see the binding tests
@@ -211,7 +211,7 @@ def test_stage_incomplete_while_behavioral_output_is_still_missing(
     assert stage_is_complete(ctx, item) is False
 
     write_json_lf(
-        ctx.paths.behavioral / "v2_raw_M3_binding.json",
+        ctx.paths.behavioral / "responses_654_M3_binding.json",
         {**ctx.bind(), "stage": "M3"},
     )
     assert stage_is_complete(ctx, item) is True
@@ -229,10 +229,10 @@ def test_stage_incomplete_when_behavioral_output_binding_is_stale(
     _write_bound_activations(ctx, "M3")
 
     write_json_lf(
-        ctx.paths.behavioral / "v2_raw_M3.json", [{"record_id": "r000"}]
+        ctx.paths.behavioral / "responses_654_M3.json", [{"record_id": "r000"}]
     )
     write_json_lf(
-        ctx.paths.behavioral / "v2_raw_M3_binding.json",
+        ctx.paths.behavioral / "responses_654_M3_binding.json",
         {
             "benchmark_sha256": "stale" * 16,
             "split_manifest_sha256": "stale" * 16,
@@ -256,7 +256,7 @@ def test_stage_incomplete_when_causal_output_binding_is_missing(tmp_path):
 
     ctx.paths.raw.mkdir(parents=True, exist_ok=True)
     write_json_lf(
-        ctx.paths.raw / "causal_ablation_v2_M3_L24-28.json",
+        ctx.paths.raw / "causal_ablation_654_M3_L24-28.json",
         [{"record_id": "r000"}],
     )
     # No binding sidecar at all - must not count as complete.
@@ -271,7 +271,7 @@ def test_stage_incomplete_when_causal_output_binding_is_missing(tmp_path):
     assert stage_is_complete(ctx, item) is False
 
     write_json_lf(
-        ctx.paths.raw / "causal_ablation_v2_M3_L24-28_binding.json",
+        ctx.paths.raw / "causal_ablation_654_M3_L24-28_binding.json",
         {**ctx.bind(), "stage": "M3"},
     )
     assert stage_is_complete(ctx, item) is True
@@ -322,14 +322,14 @@ def test_stage_incomplete_while_steering_output_is_still_missing(
 
     ctx.paths.raw.mkdir(parents=True, exist_ok=True)
     write_json_lf(
-        ctx.paths.raw / "steering_v2_M3_L24_tag.json", [{"record_id": "r000"}]
+        ctx.paths.raw / "steering_654_M3_L24_tag.json", [{"record_id": "r000"}]
     )
     # As with behavioral output, the result file alone is not enough - it
     # needs a matching binding sidecar too.
     assert stage_is_complete(ctx, item) is False
 
     write_json_lf(
-        ctx.paths.raw / "steering_v2_M3_L24_tag_binding.json",
+        ctx.paths.raw / "steering_654_M3_L24_tag_binding.json",
         {**ctx.bind(), "stage": "M3"},
     )
     assert stage_is_complete(ctx, item) is True
@@ -341,10 +341,10 @@ def test_stage_incomplete_when_steering_output_binding_is_stale(tmp_path):
 
     ctx.paths.raw.mkdir(parents=True, exist_ok=True)
     write_json_lf(
-        ctx.paths.raw / "steering_v2_M3_L24_tag.json", [{"record_id": "r000"}]
+        ctx.paths.raw / "steering_654_M3_L24_tag.json", [{"record_id": "r000"}]
     )
     write_json_lf(
-        ctx.paths.raw / "steering_v2_M3_L24_tag_binding.json",
+        ctx.paths.raw / "steering_654_M3_L24_tag_binding.json",
         {
             "benchmark_sha256": "stale" * 16,
             "split_manifest_sha256": "stale" * 16,
@@ -365,7 +365,7 @@ def test_stage_incomplete_when_steering_output_binding_is_stale(tmp_path):
 def test_steering_binding_sidecar_alone_does_not_count_as_output(
     tmp_path,
 ):
-    # steering_v2_*_binding.json is metadata about a steering file, not a
+    # steering_654_*_binding.json is metadata about a steering file, not a
     # result file; a resumed run must not mistake it for completed output.
     ctx = make_ctx(tmp_path)
     _write_bound_activations(ctx, "M3")
@@ -380,6 +380,6 @@ def test_steering_binding_sidecar_alone_does_not_count_as_output(
     }
     ctx.paths.raw.mkdir(parents=True, exist_ok=True)
     write_json_lf(
-        ctx.paths.raw / "steering_v2_M3_L24_binding.json", {"stage": "M3"}
+        ctx.paths.raw / "steering_654_M3_L24_binding.json", {"stage": "M3"}
     )
     assert stage_is_complete(ctx, item) is False

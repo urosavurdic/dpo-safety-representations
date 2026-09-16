@@ -5,7 +5,7 @@ and does not support.
 
 Numbers verified against `results/` JSONs. The causal endpoints (CF2 and
 below) are from the **2026-09-07 Colab run** — judge file
-`behavioral_judges_v2_20260907T043919Z.json`, which added the full-A/D and
+`behavioral_judges_20260907T043919Z.json`, which added the full-A/D and
 5-fold cross-fitted causal generations and re-scored them (see the
 "cross-fitted" session in CONTRIBUTING.md / the git log around `c5a16ec`). CF1 is unchanged from the 2026-09-05 run. CF3 was re-pinned on CPU
 (audit RED-2) and the geometry/factorial were recomputed on `_pooled`
@@ -137,7 +137,7 @@ power argument; this regex check neither helps nor hurts it.
 ### Duplicate-row verification (keep-first merge)
 
 The `_fullAD` run regenerated the 30 held-out A rows already in the frozen
-`causal_ablation_v2_{stage}_L24-28.json`, under identical
+`causal_ablation_654_{stage}_L24-28.json`, under identical
 `(record_id, stage, condition)` keys → 660 duplicate keys in the merged
 judged file, **123 with divergent response text** and 48 with divergent SR
 score (fp16 non-determinism across batch compositions; greedy decode).
@@ -164,7 +164,7 @@ cause (M3-vs-M3_direct also varies the full downstream trajectory).
 
 **RE-PINNED 2026-09-07 (audit RED-2).** The prior committed
 `direction_decodability_cf3.json` (M2 F1 0.893 → M3 0.878, cf3 −0.016) was
-**not reproducible** — `M2_v2_direction.npy` was never committed and no
+**not reproducible** — `M2_direction_654.npy` was never committed and no
 direction/activation combo in the repo reproduced it. Rebuilt on CPU from
 the fresh 654-row `_final.npy` activations via the `stage_direction`
 diff-in-means, both poolings:
@@ -185,7 +185,7 @@ Producer: the CPU harness in this session; `interpretability/direction_decodabil
 `analysis_plan.md` §4 fixes the canonical direction on the **final** prompt
 token. `v2_pipeline.stage_direction` / `stage_direction_crossfit` build the
 intervention direction from **`_pooled.npy` = mean of the last 5 tokens**
-(`POOL_WINDOW=5`). Proven: `M3_v2_direction.npy` == `unit(mean(pooled[A_est])
+(`POOL_WINDOW=5`). Proven: `M3_direction_654.npy` == `unit(mean(pooled[A_est])
 − mean(pooled[D_est]))` to cos 1.0000 every layer; cos with the final-token
 diff-in-means is only **0.76–0.87 at L24–28** (0.82–0.87 original chain,
 0.76–0.81 alt). **No number changes** — every causal result is a valid

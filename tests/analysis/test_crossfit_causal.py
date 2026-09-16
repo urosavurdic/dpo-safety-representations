@@ -99,10 +99,10 @@ def test_crossfit_conditions_stay_in_the_judge_confirmatory_scope():
 
 # --- the judge's file scan (regression: the _L24-28 anchor) --------------------
 @pytest.mark.parametrize("name", [
-    "raw/causal_ablation_v2_M3_L24-28.json",
-    "raw/causal_ablation_v2_M3_L24-28_fullAD.json",
-    "raw/causal_ablation_v2_M3_L24-28_xfit5.json",
-    "raw/causal_ablation_v2_M3_direct_alt_L24-28_fullAD.json",
+    "raw/causal_ablation_654_M3_L24-28.json",
+    "raw/causal_ablation_654_M3_L24-28_fullAD.json",
+    "raw/causal_ablation_654_M3_L24-28_xfit5.json",
+    "raw/causal_ablation_654_M3_direct_alt_L24-28_fullAD.json",
 ])
 def test_response_globs_match_every_tagged_causal_variant(name):
     assert any(fnmatch.fnmatch(name, pat) for pat in bj.RESPONSE_GLOBS), (
@@ -114,7 +114,7 @@ def test_response_globs_match_every_tagged_causal_variant(name):
 def test_response_globs_still_exclude_binding_sidecars_by_name():
     """The glob is deliberately broad; the loop's explicit endswith check is
     what keeps sidecars out. Both halves have to hold."""
-    sidecar = "raw/causal_ablation_v2_M3_L24-28_fullAD_binding.json"
+    sidecar = "raw/causal_ablation_654_M3_L24-28_fullAD_binding.json"
     assert any(fnmatch.fnmatch(sidecar, pat) for pat in bj.RESPONSE_GLOBS)
     assert sidecar.endswith("_binding.json")
 
@@ -123,18 +123,18 @@ def test_consolidated_manifest_picks_up_a_fullAD_file(tmp_path):
     """End to end through the real scanner, not just the pattern."""
     raw = tmp_path / "raw"
     raw.mkdir()
-    for stem in ("causal_ablation_v2_M3_L24-28",
-                 "causal_ablation_v2_M3_L24-28_fullAD",
-                 "causal_ablation_v2_M3_L24-28_xfit5"):
+    for stem in ("causal_ablation_654_M3_L24-28",
+                 "causal_ablation_654_M3_L24-28_fullAD",
+                 "causal_ablation_654_M3_L24-28_xfit5"):
         (raw / f"{stem}.json").write_text("[]", encoding="utf-8")
         (raw / f"{stem}_binding.json").write_text(
             '{"benchmark_sha256": "s", "split_manifest_sha256": "t"}', encoding="utf-8")
 
     manifest = bj.build_consolidated_from_results(tmp_path, tmp_path / "m.json")
     found = {e["response_file"].rsplit("/", 1)[-1] for e in manifest["entries"]}
-    assert found == {"causal_ablation_v2_M3_L24-28.json",
-                     "causal_ablation_v2_M3_L24-28_fullAD.json",
-                     "causal_ablation_v2_M3_L24-28_xfit5.json"}
+    assert found == {"causal_ablation_654_M3_L24-28.json",
+                     "causal_ablation_654_M3_L24-28_fullAD.json",
+                     "causal_ablation_654_M3_L24-28_xfit5.json"}
 
 
 # --- the CF2 cross-fitted block ------------------------------------------------

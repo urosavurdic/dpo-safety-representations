@@ -78,9 +78,9 @@ def test_baseline_fullAD_was_genuinely_out_of_scope():
 
 
 @pytest.mark.parametrize("name,stage", [
-    ("causal_ablation_v2_M3_L24-28_fullAD.json", "M3"),
-    ("causal_ablation_v2_M3_direct_L24-28_fullAD.json", "M3_direct"),
-    ("causal_ablation_v2_M3_direct_alt_L24-28_xfit5.json", "M3_direct_alt"),
+    ("causal_ablation_654_M3_L24-28_fullAD.json", "M3"),
+    ("causal_ablation_654_M3_direct_L24-28_fullAD.json", "M3_direct"),
+    ("causal_ablation_654_M3_direct_alt_L24-28_xfit5.json", "M3_direct_alt"),
 ])
 def test_stage_of(name, stage):
     from pathlib import Path
@@ -96,7 +96,7 @@ def _fullad_file(tmp_path, stage="M3"):
                          "stage": cond, "condition": cond, "response": f"r{i}"})
     raw = tmp_path / "raw"
     raw.mkdir(exist_ok=True)
-    p = raw / f"causal_ablation_v2_{stage}_L24-28_fullAD.json"
+    p = raw / f"causal_ablation_654_{stage}_L24-28_fullAD.json"
     p.write_text(json.dumps(rows), encoding="utf-8")
     return p
 

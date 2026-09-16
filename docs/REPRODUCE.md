@@ -28,7 +28,7 @@ python -m compileall -q src tests
 ```
 
 `python -m src.reproduce --list` shows `causal_stats` as **BLOCKED** pre-T4 —
-that is the intended state (it needs `results/raw/causal_ablation_v2_M3_L24-28.json`
+that is the intended state (it needs `results/raw/causal_ablation_654_M3_L24-28.json`
 from the T4 run).
 
 ## T4 (one notebook per session, 240–270 min target, hard 300, resumable)
@@ -75,7 +75,7 @@ python -m src.analysis.behavioral_judges --response-manifest results/manifests/c
 # S6 (nb 05 tail): judge pass — consumes ONLY the consolidated manifest
 python -m src.analysis.behavioral_judges \
   --response-manifest results/manifests/consolidated_<ts>.json \
-  --require-binding --reject-legacy --out-dir results/behavioral_judges_v2 --run-live
+  --require-binding --reject-legacy --out-dir results/behavioral_judges --run-live
 ```
 
 `v2_pipeline direction` will **silently no-op** if the six
@@ -92,17 +92,17 @@ python -m src.analysis.direction_decodability        # CF3 (secondary)
 
 # CF1 + CF2 continuous endpoints from the judge output (frozen paired bootstrap)
 python -m src.analysis.confirmatory_behavioral_endpoints \
-  --judged results/behavioral_judges_v2/behavioral_judges_v2_<ts>.json \
+  --judged results/behavioral_judges/behavioral_judges_<ts>.json \
   --benchmark data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl \
   --out results/summaries/confirmatory_endpoints.json
 
 # descriptive regex-category causal/steering summaries (complement CF2)
-python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_v2_M3_L24-28.json
-python -m src.analysis.mcnemar_causal_ablation  --file results/raw/causal_ablation_v2_M3_L24-28.json \
+python -m src.analysis.summarize_causal_ablation --file results/raw/causal_ablation_654_M3_L24-28.json
+python -m src.analysis.mcnemar_causal_ablation  --file results/raw/causal_ablation_654_M3_L24-28.json \
   --conditions M3_baseline M3_ablated_AD
-python -m src.analysis.bootstrap_causal_effect  --file results/raw/causal_ablation_v2_M3_L24-28.json \
+python -m src.analysis.bootstrap_causal_effect  --file results/raw/causal_ablation_654_M3_L24-28.json \
   --quadrant A --category refusal
-for f in results/raw/steering_v2_*_QABCD.json; do python -m src.analysis.summarize_steering --file "$f"; done
+for f in results/raw/steering_654_*_QABCD.json; do python -m src.analysis.summarize_steering --file "$f"; done
 
 # _pooled sensitivity (needs {stage}_final.npy AND {stage}_pooled.npy)
 python -m src.analysis.representation_robustness
@@ -116,12 +116,12 @@ python -m src.pipeline.frozen_run_pipeline extract --stage M3 \
 python -m src.analysis.matched_pair_representation
 
 # human audit
-python -m src.analysis.build_human_review_packet --responses results/behavioral_judges_v2/<judge>.json \
-  --judged results/behavioral_judges_v2/<judge>.json \
+python -m src.analysis.build_human_review_packet --responses results/behavioral_judges/<judge>.json \
+  --judged results/behavioral_judges/<judge>.json \
   --packet-out results/human_review/packet.json --key-out ../SEALED_KEY_outside_repo.json
 #   ... annotate ...
 python -m src.analysis.check_behavioral_agreement --sealed-key ../SEALED_KEY_outside_repo.json \
-  --annotations ../annotations.json --judged results/behavioral_judges_v2/<judge>.json
+  --annotations ../annotations.json --judged results/behavioral_judges/<judge>.json
 python -m src.analysis.behavioral_robustness --conclusions results/human_review/conclusions.json
 
 # cross-branch on regenerated data; rewrite Findings per §3 claim audit;

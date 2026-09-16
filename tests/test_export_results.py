@@ -15,7 +15,7 @@ from src.export_results import (
 
 
 def test_categorize_behavioral():
-    assert categorize(Path("behavioral_eval/summary_v2.json")) == "behavioral"
+    assert categorize(Path("behavioral_eval/refusal_rates_370era.json")) == "behavioral"
     assert categorize(Path("behavioral_eval/raw.json")) == "behavioral"
 
 
@@ -33,7 +33,7 @@ def test_categorize_causal_raw_and_summary():
 def test_categorize_steering_v1_and_v2():
     assert categorize(Path("raw/steering_raw_D.json")) == "steering"
     assert categorize(Path("raw/steering_raw_D_L21.json")) == "steering"
-    assert categorize(Path("raw/steering_v2_M3_L24_quadrant_a_projection_coef1_QAD.json")) == "steering"
+    assert categorize(Path("raw/steering_654_M3_L24_quadrant_a_projection_coef1_QAD.json")) == "steering"
 
 
 def test_categorize_robustness_alt_branch_causal_ablation():
@@ -89,7 +89,7 @@ def test_file_checksum_is_deterministic_and_content_sensitive(tmp_path):
 def test_collect_functions_against_a_fake_results_tree(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "results" / "behavioral_eval").mkdir(parents=True)
-    (tmp_path / "results" / "behavioral_eval" / "summary_v2.json").write_text("{}")
+    (tmp_path / "results" / "behavioral_eval" / "refusal_rates_370era.json").write_text("{}")
     (tmp_path / "results" / "refusal_direction").mkdir(parents=True)
     (tmp_path / "results" / "refusal_direction" / "M3_direction.npy").write_bytes(b"fake")
     (tmp_path / "results" / "refusal_direction" / "cosine_similarity.json").write_text("{}")
@@ -100,7 +100,7 @@ def test_collect_functions_against_a_fake_results_tree(tmp_path, monkeypatch):
     monkeypatch.setattr(er, "RESULTS_DIR", Path("results"))
 
     essential = collect_essential_files()
-    assert len(essential) == 2  # summary_v2.json + cosine_similarity.json
+    assert len(essential) == 2  # refusal_rates_370era.json + cosine_similarity.json
     categories = {c for _, _, c in essential}
     assert categories == {"behavioral", "refusal_direction"}
 
@@ -116,13 +116,13 @@ def test_collect_functions_against_a_fake_results_tree(tmp_path, monkeypatch):
 def test_build_manifest_totals_and_checksums(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "results" / "behavioral_eval").mkdir(parents=True)
-    f = tmp_path / "results" / "behavioral_eval" / "summary_v2.json"
+    f = tmp_path / "results" / "behavioral_eval" / "refusal_rates_370era.json"
     f.write_text('{"a": 1}')
 
     import src.export_results as er
     monkeypatch.setattr(er, "RESULTS_DIR", Path("results"))
 
-    essential = [(f, Path("behavioral_eval/summary_v2.json"), "behavioral")]
+    essential = [(f, Path("behavioral_eval/refusal_rates_370era.json"), "behavioral")]
     manifest = build_manifest(essential, [], [], Path("results_export"))
     assert manifest["total_files"] == 1
     assert manifest["total_size_bytes"] == f.stat().st_size

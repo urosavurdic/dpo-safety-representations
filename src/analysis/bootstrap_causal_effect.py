@@ -87,7 +87,7 @@ def bootstrap_effect_ci(pairs, n_bootstrap=N_BOOTSTRAP, seed=SEED, ci=0.95):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="results/raw/causal_ablation_v2_M3_L24-28.json")
+    parser.add_argument("--file", default="results/raw/causal_ablation_654_M3_L24-28.json")
     parser.add_argument("--quadrant", default="C")
     parser.add_argument("--category", default="soft_deflection")
     add_binding_cli_args(parser)

@@ -11,10 +11,10 @@ from src.analysis.build_finding4_report import (
 
 
 def _write_raw_and_meta(tmp_path, tag, stage, rows):
-    raw_path = tmp_path / f"steering_v2_{tag}.json"
+    raw_path = tmp_path / f"steering_654_{tag}.json"
     with open(raw_path, "w", encoding="utf-8") as f:
         json.dump(rows, f)
-    meta_path = tmp_path / f"steering_v2_{tag}_meta.json"
+    meta_path = tmp_path / f"steering_654_{tag}_meta.json"
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump({"stage": stage, "tag": tag}, f)
     return raw_path
@@ -42,9 +42,9 @@ def test_find_baseline_steered_condition_names_returns_none_when_no_pair():
 def test_load_stage_files_from_manifest(tmp_path):
     manifest = {
         "results": [
-            {"stage": "M3", "status": "run", "succeeded": True, "output_path": "results/raw/steering_v2_M3_x.json"},
+            {"stage": "M3", "status": "run", "succeeded": True, "output_path": "results/raw/steering_654_M3_x.json"},
             {"stage": "M1", "status": "blocked", "blockers": ["x"]},
-            {"stage": "M2", "status": "run", "succeeded": False, "output_path": "results/raw/steering_v2_M2_x.json"},
+            {"stage": "M2", "status": "run", "succeeded": False, "output_path": "results/raw/steering_654_M2_x.json"},
         ]
     }
     manifest_path = tmp_path / "manifest.json"
@@ -52,7 +52,7 @@ def test_load_stage_files_from_manifest(tmp_path):
         json.dump(manifest, f)
 
     stage_files = load_stage_files(manifest_path=str(manifest_path))
-    assert stage_files == {"M3": "results/raw/steering_v2_M3_x.json"}
+    assert stage_files == {"M3": "results/raw/steering_654_M3_x.json"}
 
 
 def test_load_stage_files_from_explicit_files_reads_sidecar(tmp_path):
@@ -62,7 +62,7 @@ def test_load_stage_files_from_explicit_files_reads_sidecar(tmp_path):
 
 
 def test_load_stage_files_raises_clear_error_without_sidecar(tmp_path):
-    raw_path = tmp_path / "steering_v2_orphan.json"
+    raw_path = tmp_path / "steering_654_orphan.json"
     raw_path.write_text("[]")
     import pytest
     with pytest.raises(FileNotFoundError, match="sidecar"):

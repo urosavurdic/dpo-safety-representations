@@ -167,7 +167,7 @@ def test_stage_behavior_restores_benchmark_order_and_record_id(
 
     assert vp.stage_behavior(ctx, "M3", model=None, tokenizer=object(), device="cpu")
 
-    output_path = ctx.paths.behavioral / "v2_raw_M3.json"
+    output_path = ctx.paths.behavioral / "responses_654_M3.json"
     output = load_json(output_path)
 
     assert [row["record_id"] for row in output] == [
@@ -191,7 +191,7 @@ def test_stage_behavior_survives_an_oom_shard(tmp_path, monkeypatch):
 
     assert vp.stage_behavior(ctx, "M3", model=None, tokenizer=object(), device="cpu")
 
-    output = load_json(ctx.paths.behavioral / "v2_raw_M3.json")
+    output = load_json(ctx.paths.behavioral / "responses_654_M3.json")
     assert [row["record_id"] for row in output] == [
         row["record_id"] for row in rows
     ]

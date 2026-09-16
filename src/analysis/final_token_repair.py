@@ -45,7 +45,7 @@ from src.analysis.control_directions import (
 # --- explicit, non-collidable pooling names -------------------------------- #
 # The value is the activation-array filename suffix. "final_token" is the
 # preregistered choice; "mean_last5" is the name for the CURRENT pooled
-# implementation. These names cannot be confused with the old ``_v2_direction``
+# implementation. These names cannot be confused with the old ``_direction_654``
 # files, which carry no pooling tag at all.
 POOLING_TO_SUFFIX = {"final_token": "final", "mean_last5": "pooled"}
 POOL_WINDOW_FOR = {"final_token": None, "mean_last5": 5}
@@ -276,7 +276,7 @@ def make_binding(
             "direction from _pooled (mean of last 5 tokens). analysis_plan.md 4 "
             "fixes the canonical direction on _final (final prompt token). This "
             "artifact is the preregistered final-token direction; it does NOT "
-            "overwrite results/refusal_direction/{stage}_v2_direction.npy (the "
+            "overwrite results/refusal_direction/{stage}_direction_654.npy (the "
             "pooled one, kept for the disclosed deviation)."
             if pooling == "final_token" else
             "mean_last5 (mean of the last 5 non-padding tokens) - the CURRENT "
@@ -360,7 +360,7 @@ def build_stage(
     )
 
     # comparison vs the committed pooled v2 direction, if present
-    pooled_v2 = Path("results/refusal_direction") / f"{stage}_v2_direction.npy"
+    pooled_v2 = Path("results/refusal_direction") / f"{stage}_direction_654.npy"
     vs_pooled = None
     if pooled_v2.exists():
         vp = np.load(pooled_v2)
@@ -387,7 +387,7 @@ def build_stage(
                 for l in control["ablation_control"]["per_layer"]
             },
         },
-        "vs_committed_pooled_v2_direction": vs_pooled,
+        "vs_committed_pooled_direction_654": vs_pooled,
     }
 
 
@@ -442,7 +442,7 @@ def recompute_cf3(
         "code_commit": code_commit(),
         "note": (
             "REPAIR of audit RED-2: the committed direction_decodability_cf3.json "
-            "could not be reproduced from the repo (no committed M2_v2_direction.npy). "
+            "could not be reproduced from the repo (no committed M2_direction_654.npy). "
             "This run uses the explicit final-token M2/M3 directions built by "
             "final_token_repair and is fully reproducible on CPU."
         ),

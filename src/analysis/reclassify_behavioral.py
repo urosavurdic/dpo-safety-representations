@@ -10,9 +10,9 @@ from pathlib import Path
 from src.common.refusal_classifier import classify_refusal, is_degenerate, is_soft_deflection
 from src.common.stats import rate_with_ci
 
-RESPONSES = Path("results/behavioral_eval/v2_raw.json")
+RESPONSES = Path("results/behavioral_eval/responses_654.json")
 LEGACY_RESPONSES = Path("results/behavioral_eval/raw.json")
-# Distinct output names. results/behavioral_eval/summary_v2.json is the
+# Distinct output names. results/behavioral_eval/refusal_rates_370era.json is the
 # committed PRE-FREEZE summary ("v2" there means the second classifier, not the
 # 654-row era) and must not be overwritten by a 654-row run.
 LABELLED_OUT = Path("results/behavioral_eval/reclassified_654.json")

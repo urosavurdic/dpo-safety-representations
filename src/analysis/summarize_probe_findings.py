@@ -29,7 +29,7 @@ HEADLINE_PROBE_LAYER = 28
 
 def _probe_path(stage: str) -> Path:
     """Probe results for `stage`, preferring the 654-row set over the pre-freeze one."""
-    current = Path(f"results/probes_v2/{stage}_probe_results.json")
+    current = Path(f"results/probes_654/{stage}_probe_results.json")
     return current if current.exists() else Path(f"results/probes/{stage}_probe_results.json")
 
 

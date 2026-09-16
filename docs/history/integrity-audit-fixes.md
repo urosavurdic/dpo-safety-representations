@@ -11,7 +11,7 @@ byte-for-byte.**
 
 **RED-1 — the causal direction is mean-pooled (last-5 tokens), not
 final-token.** `v2_pipeline.stage_direction` / `stage_direction_crossfit`
-build `{stage}_v2_direction.npy` from `_pooled.npy` (`POOL_WINDOW=5`), not
+build `{stage}_direction_654.npy` from `_pooled.npy` (`POOL_WINDOW=5`), not
 the `_final` the frozen `analysis_plan.md` §4 fixes. `cos(pooled, final)
 ≈ 0.76–0.87` at L24–28. Fix = **paper relabel** ("final-token" →
 "mean-pooled (last-5)" wherever it names the causal/intervention direction;
@@ -31,7 +31,7 @@ direction the geometry leans harder toward amplification (norm ×1.41 vs
 instead of staying flat/rising); d_H squared-norm share ~69% pooled vs
 ~82% final (and the pooled cross-term is +44, not −204).
 
-**RED-2 — CF3 not reproducible** (`M2_v2_direction.npy` never committed).
+**RED-2 — CF3 not reproducible** (`M2_direction_654.npy` never committed).
 Re-pinned on CPU from the fresh 654-row `_final` activations, both poolings:
 final-token cf3 = **+0.004 [−0.018, +0.027]**, mean-pooled +0.008
 [−0.013, +0.030] — **null under both**. Write-up §8 + abstract updated (was

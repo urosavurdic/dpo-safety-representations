@@ -27,7 +27,7 @@ artifacts/patches/*.patch
 results/crossbranch/deltas/*.npz
 results/crossbranch/deltas_*/*.npz
 results/crossbranch/raw/shards/
-# crossbranch judge outputs: same rule as results/behavioral_judges_v2 below --
+# crossbranch judge outputs: same rule as results/behavioral_judges below --
 # large, regenerable by re-running the two public judge models over the
 # committed judge_inputs/ responses.
 results/crossbranch/judges/*.json
@@ -39,7 +39,7 @@ results/raw/v2_causal_shards/
 results/raw/v2_steering_shards/
 # local scratch; never committed
 private/
-results/behavioral_judges_v2/*.json
+results/behavioral_judges/*.json
 
 # final-token repair: large Colab judged files (in the Drive archive; regenerable)
 results/final_token_repair/judges/*.json
@@ -80,7 +80,7 @@ results/summaries/causal_ablation_narrow_summary.json
 results/summaries/causal_ablation_wide_summary.json
 results/summaries/steering_D_summary.json
 
-# reclassified rows are regenerable from v2_raw.json plus the frozen classifier
+# reclassified rows are regenerable from responses_654.json plus the frozen classifier
 results/behavioral_eval/reclassified_654.json
 
 # build output

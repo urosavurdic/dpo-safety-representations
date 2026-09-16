@@ -27,7 +27,7 @@ class _FakeDecoderLayer(nn.Module):
         return (x,)
 
 
-def test_steer_direction_matches_eval_steering_v2_semantics():
+def test_steer_direction_matches_eval_steering_654_semantics():
     direction = torch.tensor([1.0, 0.0, 0.0])
     h = torch.tensor([[3.0, 5.0, -2.0]])
     out = steer_direction(h, direction, alpha=2.0)

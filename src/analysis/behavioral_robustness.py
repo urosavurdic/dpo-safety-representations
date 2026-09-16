@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--conclusions", required=True,
                         help="JSON list of {id, statement, support:{level:bool|null}}.")
-    parser.add_argument("--out", default="results/behavioral_judges_v2/robustness_retabulation.json")
+    parser.add_argument("--out", default="results/behavioral_judges/robustness_retabulation.json")
     args = parser.parse_args()
     conclusions = json.loads(Path(args.conclusions).read_text(encoding="utf-8"))
     out = retabulate(conclusions)

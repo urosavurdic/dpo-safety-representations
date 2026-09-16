@@ -8,7 +8,7 @@ real. What changed and what to know:
   Each quadrant-A `direction_estimation` prompt generated under a direction
   (and matched-random-control magnitude) estimated from the other K−1
   folds. Only A folds (D centroid keeps all 120). Writes
-  `causal_ablation_v2_{stage}_L24-28_xfit{K}.json`, conditions
+  `causal_ablation_654_{stage}_L24-28_xfit{K}.json`, conditions
   `{stage}_xfit_*`. Report "out-of-fold n=120", never "independent".
 - `src/analysis/relabel_causal_conditions.py` — repairs a real bug: the
   `--all-ad-sensitivity` path leaked the shard-unit name into the row
@@ -21,7 +21,7 @@ real. What changed and what to know:
 - `behavioral_judges --resume-from <judged.json>` — carry good scores
   forward per judge; key includes response text so a regenerated response
   is re-scored.
-- `behavioral_judges.RESPONSE_GLOBS` widened to `raw/causal_ablation_v2_*.json`
+- `behavioral_judges.RESPONSE_GLOBS` widened to `raw/causal_ablation_654_*.json`
   (was anchored to `_L24-28.json`, silently excluded every `_fullAD`/`_xfit`
   file).
 - `confirmatory_behavioral_endpoints`: `CF2_by_stage[*].cross_fitted` +
@@ -33,7 +33,7 @@ real. What changed and what to know:
   preregistered CF2 number (verified: 90 dup rows skipped, CF2 primary
   byte-identical at +0.113623).
 
-**Results (2026-09-07 judge file `behavioral_judges_v2_20260907T043919Z.json`,
+**Results (2026-09-07 judge file `behavioral_judges_20260907T043919Z.json`,
 gitignored; everything else committed under `results/`):**
 - CF1 (−0.4008) and CF2 held-out M3 (+0.1136) **unchanged** — anchors intact.
 - Cross-fitted out-of-fold n=120, ALL FOUR branches CI-excludes-0:

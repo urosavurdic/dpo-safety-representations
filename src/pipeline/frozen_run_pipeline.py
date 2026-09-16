@@ -198,7 +198,7 @@ class ArtifactPaths:
 
     @property
     def probes(self) -> Path:
-        return self.root / "probes_v2"
+        return self.root / "probes_654"
 
     @property
     def behavioral(self) -> Path:
@@ -245,7 +245,7 @@ class RunContext:
     #   "final_token" = the preregistered analysis_plan.md 4 choice (final
     #                   non-padding prompt token, from *_final.npy).
     # Default preserves existing behaviour byte-for-byte. "final_token" writes to
-    # a separate {stage}_v2_direction_final_token.npy namespace and tags every
+    # a separate {stage}_direction_654_final_token.npy namespace and tags every
     # causal output "_finaltoken" with "_ft_" condition names, so it can never
     # collide with or overwrite the pooled results.
     pooling: str = "mean_last5"
@@ -829,11 +829,11 @@ def stage_direction(ctx, stage) -> np.ndarray:
     pooling = getattr(ctx, "pooling", "mean_last5")
     suffix = "_final_token" if pooling == "final_token" else ""
     direction_path = (
-        ctx.paths.refusal_direction / f"{stage}_v2_direction{suffix}.npy"
+        ctx.paths.refusal_direction / f"{stage}_direction_654{suffix}.npy"
     )
     binding_path = (
         ctx.paths.refusal_direction
-        / f"{stage}_v2_direction{suffix}_binding.json"
+        / f"{stage}_direction_654{suffix}_binding.json"
     )
 
     if direction_path.exists() and not ctx.force:
@@ -909,9 +909,9 @@ def stage_behavior(ctx, stage, model, tokenizer, device) -> bool:
     condition = f"{stage}_behavior"
     unit_key = ShardStore.unit_key(stage, condition)
 
-    output_path = ctx.paths.behavioral / f"v2_raw_{stage}.json"
+    output_path = ctx.paths.behavioral / f"responses_654_{stage}.json"
     binding_path = (
-        ctx.paths.behavioral / f"v2_raw_{stage}_binding.json"
+        ctx.paths.behavioral / f"responses_654_{stage}_binding.json"
     )
 
     if output_path.exists() and not ctx.force:
@@ -1186,8 +1186,8 @@ def stage_causal(ctx, stage, model, tokenizer, device, direction, conditions=Non
     if pooling == "final_token":
         tag += "_finaltoken"
 
-    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
-    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
+    output_path = ctx.paths.raw / f"causal_ablation_654_{stage}_L24-28{tag}.json"
+    binding_path = ctx.paths.raw / f"causal_ablation_654_{stage}_L24-28{tag}_binding.json"
 
     def _full(cond):
         return (f"{stage}_{cprefix}baseline" if cond == "baseline"
@@ -1340,7 +1340,7 @@ def stage_direction_crossfit(ctx, stage, exclude_ids, *, fold=None, k=None):
     close to the full direction as the design allows.
 
     Deliberately does NOT write to the canonical
-    ``{stage}_v2_direction.npy`` - that file is the preregistered direction and
+    ``{stage}_direction_654.npy`` - that file is the preregistered direction and
     every other component reads it. Fold directions get their own filenames.
     """
     import numpy as np
@@ -1373,7 +1373,7 @@ def stage_direction_crossfit(ctx, stage, exclude_ids, *, fold=None, k=None):
         dsuffix = "_final_token" if pooling == "final_token" else ""
         save_array(
             ctx.paths.refusal_direction
-            / f"{stage}_v2_direction{dsuffix}_xfit{k}_fold{fold}.npy",
+            / f"{stage}_direction_654{dsuffix}_xfit{k}_fold{fold}.npy",
             direction,
         )
     return direction, int(keep_a.sum()), int(keep_d.sum())
@@ -1398,7 +1398,7 @@ def stage_causal_crossfit(ctx, stage, model, tokenizer, device, k,
     (K-2)/(K-1) of its rows), so the fold directions are correlated and the
     rows are not independent draws. It is a bias fix, not a power miracle.
 
-    Writes ``causal_ablation_v2_{stage}_L24-28_xfit{K}.json`` - a separate
+    Writes ``causal_ablation_654_{stage}_L24-28_xfit{K}.json`` - a separate
     file with separate shard units, so neither the frozen held-out CF2 file
     nor the _fullAD sensitivity file is touched. Conditions are named
     ``{stage}_xfit_{cond}`` so the cross-fitted rows can never collide with
@@ -1412,8 +1412,8 @@ def stage_causal_crossfit(ctx, stage, model, tokenizer, device, k,
     # final-token repair: distinct file + condition namespace ({stage}_ft_xfit_*)
     tag = f"_xfit{k}" + ("_finaltoken" if pooling == "final_token" else "")
     xinfix = "ft_xfit" if pooling == "final_token" else "xfit"
-    output_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}.json"
-    binding_path = ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28{tag}_binding.json"
+    output_path = ctx.paths.raw / f"causal_ablation_654_{stage}_L24-28{tag}.json"
+    binding_path = ctx.paths.raw / f"causal_ablation_654_{stage}_L24-28{tag}_binding.json"
 
     def _full(cond):
         return (f"{stage}_{xinfix}_baseline" if cond == "baseline"
@@ -1670,8 +1670,8 @@ def stage_steering(
     all_ok = True
     for coef in coefficients:
         this_tag = tag or steering_tag(stage, layers, alpha_source, coef, quadrants)
-        output_path = ctx.paths.raw / f"steering_v2_{this_tag}.json"
-        binding_path = ctx.paths.raw / f"steering_v2_{this_tag}_binding.json"
+        output_path = ctx.paths.raw / f"steering_654_{this_tag}.json"
+        binding_path = ctx.paths.raw / f"steering_654_{this_tag}_binding.json"
 
         want = {f"{this_tag}_baseline", f"{this_tag}_steered", f"{this_tag}_steered_random"}
         if output_path.exists() and not ctx.force:
@@ -1938,7 +1938,7 @@ def aggregate_directions(ctx) -> None:
     Only pairs where both stages are available are computed, so a partially
     trained alt branch produces a partial report rather than an error.
 
-    Discovery is over ALL_STAGES (every bound `{stage}_v2_direction.npy` on
+    Discovery is over ALL_STAGES (every bound `{stage}_direction_654.npy` on
     disk), not just whichever stages the calling command's own `--stages`
     happened to be invoked with. A T4 session budget means a full 9-stage
     run is normally assembled across several sessions/invocations - e.g.
@@ -1954,7 +1954,7 @@ def aggregate_directions(ctx) -> None:
     directions = {}
     for stage in ALL_STAGES:
         path = (
-            ctx.paths.refusal_direction / f"{stage}_v2_direction.npy"
+            ctx.paths.refusal_direction / f"{stage}_direction_654.npy"
         )
         if path.exists():
             directions[stage] = np.load(path)
@@ -2028,15 +2028,15 @@ def aggregate_directions(ctx) -> None:
         projections[stage] = by_quadrant
 
     write_json_lf(
-        ctx.paths.refusal_direction / "cosine_similarity_v2.json",
+        ctx.paths.refusal_direction / "cosine_similarity_654.json",
         cosine,
     )
     write_json_lf(
-        ctx.paths.refusal_direction / "quadrant_projections_v2.json",
+        ctx.paths.refusal_direction / "quadrant_projections_654.json",
         projections,
     )
     write_json_lf(
-        ctx.paths.refusal_direction / "v2_diagnostics_binding.json",
+        ctx.paths.refusal_direction / "diagnostics_654_binding.json",
         {
             **ctx.bind(),
             "stages": sorted(directions),
@@ -2168,23 +2168,23 @@ def compute_probes(ctx, stages) -> None:
 
 
 def merge_behavioral(ctx) -> None:
-    """Combine the per-stage behavioral files into one v2_raw.json.
+    """Combine the per-stage behavioral files into one responses_654.json.
 
     Per-stage files are the checkpoint unit; this combined view is what a
     reader consumes.
 
-    Discovery is over ALL_STAGES (every per-stage v2_raw_{stage}.json on
+    Discovery is over ALL_STAGES (every per-stage responses_654_{stage}.json on
     disk), not just whichever stages the calling session's own plan
     happened to cover - same reasoning as aggregate_directions above. This
     matters more here than there: since this function *overwrites*
-    v2_raw.json wholesale, scoping discovery to the caller's subset would
+    responses_654.json wholesale, scoping discovery to the caller's subset would
     not just omit a stage from the combined view, it would silently erase
     an already-merged stage from a prior session the moment a later,
     narrower-scoped session runs.
     """
     combined = {}
     for stage in ALL_STAGES:
-        path = ctx.paths.behavioral / f"v2_raw_{stage}.json"
+        path = ctx.paths.behavioral / f"responses_654_{stage}.json"
         if path.exists():
             combined[stage] = load_json(path)
 
@@ -2192,9 +2192,9 @@ def merge_behavioral(ctx) -> None:
         print("  behavioral merge: nothing to merge yet")
         return
 
-    write_json_lf(ctx.paths.behavioral / "v2_raw.json", combined)
+    write_json_lf(ctx.paths.behavioral / "responses_654.json", combined)
     write_json_lf(
-        ctx.paths.behavioral / "v2_binding.json",
+        ctx.paths.behavioral / "responses_654_binding.json",
         {
             **ctx.bind(),
             "stages": sorted(combined),
@@ -2203,7 +2203,7 @@ def merge_behavioral(ctx) -> None:
     )
     print(
         f"  behavioral merge: {sorted(combined)} -> "
-        f"{ctx.paths.behavioral / 'v2_raw.json'}"
+        f"{ctx.paths.behavioral / 'responses_654.json'}"
     )
 
 
@@ -2545,17 +2545,17 @@ def stage_is_complete(ctx, item) -> bool:
     if item["behavior"]:
         if not _output_is_bound(
             ctx,
-            ctx.paths.behavioral / f"v2_raw_{stage}.json",
-            ctx.paths.behavioral / f"v2_raw_{stage}_binding.json",
+            ctx.paths.behavioral / f"responses_654_{stage}.json",
+            ctx.paths.behavioral / f"responses_654_{stage}_binding.json",
         ):
             return False
 
     if item["causal"]:
         if not _output_is_bound(
             ctx,
-            ctx.paths.raw / f"causal_ablation_v2_{stage}_L24-28.json",
+            ctx.paths.raw / f"causal_ablation_654_{stage}_L24-28.json",
             ctx.paths.raw
-            / f"causal_ablation_v2_{stage}_L24-28_binding.json",
+            / f"causal_ablation_654_{stage}_L24-28_binding.json",
         ):
             return False
 
@@ -2574,7 +2574,7 @@ def stage_is_complete(ctx, item) -> bool:
             return False
         steering_outputs = [
             path
-            for path in ctx.paths.raw.glob(f"steering_v2_{stage}_L*.json")
+            for path in ctx.paths.raw.glob(f"steering_654_{stage}_L*.json")
             if "_binding" not in path.name
         ]
         if not steering_outputs:
@@ -2654,15 +2654,15 @@ def print_status(ctx) -> None:
         )
 
     behavioral = [
-        path.stem[len("v2_raw_"):]
-        for path in outputs(ctx.paths.behavioral, "v2_raw_*.json")
+        path.stem[len("responses_654_"):]
+        for path in outputs(ctx.paths.behavioral, "responses_654_*.json")
     ]
     print(f"behavioral complete: {behavioral}")
 
-    causal = outputs(ctx.paths.raw, "causal_ablation_v2_*.json")
+    causal = outputs(ctx.paths.raw, "causal_ablation_654_*.json")
     print(f"causal complete: {len(causal)} files")
 
-    steering = outputs(ctx.paths.raw, "steering_v2_*.json")
+    steering = outputs(ctx.paths.raw, "steering_654_*.json")
     print(f"steering complete: {len(steering)} files")
 
     norm_diag = outputs(ctx.paths.raw, "residual_norm_v2_*.json")
@@ -3127,7 +3127,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--all-ad-sensitivity", action="store_true",
         help="Predeclared full-A/D sensitivity analysis (analysis_plan.md §2): "
              "generate quadrants A and D in FULL (direction_estimation half "
-             "included), B/C skipped. Writes causal_ablation_v2_{stage}_L24-28"
+             "included), B/C skipped. Writes causal_ablation_654_{stage}_L24-28"
              "_fullAD.json; the frozen held-out CF2 file is untouched. This is a "
              "sensitivity artifact - the held-out-30 CF2 stays the anchor.",
     )
@@ -3137,7 +3137,7 @@ def build_parser() -> argparse.ArgumentParser:
              "ablation. Every quadrant-A direction_estimation row is generated "
              "under a direction estimated WITHOUT it, removing the ~1/n "
              "self-influence that makes the estimation half unusable at face "
-             "value. Writes causal_ablation_v2_{stage}_L24-28_xfit{K}.json with "
+             "value. Writes causal_ablation_654_{stage}_L24-28_xfit{K}.json with "
              "conditions named {stage}_xfit_*; the frozen held-out CF2 file and "
              "the _fullAD file are untouched. Report as an 'out-of-fold n=120 "
              "estimate', never 'independent n=120'. K=5 is the default choice.",
@@ -3149,7 +3149,7 @@ def build_parser() -> argparse.ArgumentParser:
              "last 5 non-padding tokens, *_pooled.npy). 'final_token' = the "
              "preregistered analysis_plan.md 4 choice (final non-padding prompt "
              "token, *_final.npy); writes a separate "
-             "{stage}_v2_direction_final_token.npy and tags outputs '_finaltoken' "
+             "{stage}_direction_654_final_token.npy and tags outputs '_finaltoken' "
              "with '_ft_' condition names so it cannot collide with pooled results.",
     )
     causal.add_argument(

@@ -52,9 +52,9 @@ Current output: all nine stages `ok`, `all present stages bound & consistent: Tr
 | `summaries/confirmatory_endpoints.json` | pooled CF1/CF2 | valid; used as the pooling-sensitivity comparison |
 | `final_token_repair/summaries/final_token_endpoints*.json` | final-token CF2 | the paper's primary intervention numbers |
 | `summaries/mcnemar_direction_specificity.json` | 4 branches | repo version is newer than the bundle's |
-| `probes_v2/` | 9 stages, 654-row, with bindings | imported 2026-09-10 (`probes/` is 370-era — do not use) |
-| `behavioral_eval/v2_raw_M*.json` | 9 stages | imported — **CF1 is now reproducible from raw generations** |
-| `raw/steering_v2_*.json` | 12 files | imported — steering no longer judge-file-only |
+| `probes_654/` | 9 stages, 654-row, with bindings | imported 2026-09-10 (`probes/` is 370-era — do not use) |
+| `behavioral_eval/responses_654_M*.json` | 9 stages | imported — **CF1 is now reproducible from raw generations** |
+| `raw/steering_654_*.json` | 12 files | imported — steering no longer judge-file-only |
 | `human_review/packet.json` | 160 blinded items | already built; only the annotation is outstanding |
 
 ## 2. Needs recomputing — infrastructure is ready, CPU only

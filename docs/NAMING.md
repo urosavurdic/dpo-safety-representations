@@ -6,25 +6,44 @@ suffix tells you what it seems to.
 
 ## "v2" does not imply a "v1"
 
-**There is no `v1` and there never was.** No `v1_pipeline.py`, no `data/frozen_v1/`,
-no `results/probes_v1/`. Searching for one is a dead end.
+**There is no `v1` and there never was.** No `v1_pipeline.py`, no
+`data/frozen_v1/`, no `probes_v1/`. Searching for one is a dead end.
 
-`v2` marks **the frozen 654-row benchmark era**. Its counterpart — the earlier,
-mutable 370-row evaluation set — is called `370era` or `legacy` everywhere it
-appears (`results/_legacy_370era/`, `PRE_FREEZE_ARTIFACT_BASENAMES`,
-`tests/fixtures/benchmark_370.jsonl`). The two eras are `370era` and `v2`, not
-`v1` and `v2`.
+`v2` meant **the frozen 654-row benchmark era**. Its counterpart — the earlier,
+mutable 370-row evaluation set — is called `370era` (`results/_legacy_370era/`,
+`PRE_FREEZE_ARTIFACT_BASENAMES`, `tests/fixtures/benchmark_370.jsonl`). The two
+eras are `370era` and `654`, never `v1` and `v2`.
 
-Confusingly, `v2` additionally marks two unrelated things:
+The label has been retired. Code, constants and result files now say `654` for
+the frozen era and `370era` for what came before:
 
-| Usage | Meaning | Does a "v1" exist? |
-|---|---|---|
-| `v2_pipeline.py`, `data/frozen_v2/`, `results/probes_v2/`, `causal_ablation_v2_*` | the frozen 654-row benchmark era | No — the counterpart is `370era` |
-| `eval_steering_v2.py`, `results/raw/steering_v2_*` | the second *steering implementation* (single-layer, calibrated coefficient) | Yes — `eval_steering.py` |
-| `results/behavioral_eval/summary_v2.json` | the second *refusal classifier* — and this file is **370-era data**, not 654-era | Yes, implicitly |
+| Was | Is |
+|---|---|
+| `v2_pipeline.py` | `src/pipeline/frozen_run_pipeline.py` |
+| `v2_binding_guard.py` | `src/pipeline/binding_guard.py` |
+| `validate_benchmark_v2.py` | `src/pipeline/validate_benchmark.py` |
+| `causal_ablation_v2_*` | `causal_ablation_654_*` |
+| `steering_v2_*` | `steering_654_*` |
+| `{stage}_v2_direction*.npy` | `{stage}_direction_654*.npy` |
+| `v2_raw*.json` | `responses_654*.json` |
+| `results/probes_v2/` | `results/probes_654/` |
+| `results/behavioral_judges_v2/` | `results/behavioral_judges/` |
+| `cosine_similarity_v2.json` | `cosine_similarity_654.json` |
+| **`summary_v2.json`** | **`refusal_rates_370era.json`** |
 
-So `v2` is three different axes wearing one label. When reading a filename, check
-which axis it is on before drawing a conclusion.
+That last row is the trap. Its `v2` meant the second *refusal classifier*, not
+the era, and the file holds **370-era** data (A=50, B=250, C=20, D=50 = 370
+rows). Renaming it to `_654` would have relabelled pre-freeze numbers as
+post-freeze ones. It was checked by row count before being renamed.
+
+### Two names that keep `v2` deliberately
+
+`data/frozen_v2/` and `src/v2_io.py` are **SHA-pinned by path string** in
+`PINNED_INPUT_HASHES`. Renaming either means re-pinning the very hashes that
+exist to prove nothing drifted, so both keep their names.
+
+`eval_steering_v2.py` also keeps its name: there its `v2` genuinely means the
+second steering implementation, and `eval_steering.py` (the first) is archived.
 
 ## `_final` and `_pooled` are pooling modes, not versions
 

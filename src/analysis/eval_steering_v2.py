@@ -123,7 +123,7 @@ def resolve_alphas(layers, stage, alpha_source, alpha_value, alpha_coefficient,
 
 
 def build_output_path(tag, overwrite):
-    out_path = Path(f"results/raw/steering_v2_{tag}.json")
+    out_path = Path(f"results/raw/steering_654_{tag}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists() and not overwrite:
         raise FileExistsError(

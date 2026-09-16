@@ -192,8 +192,8 @@ def main():
                 "benchmark_sha256": sha,
                 "split_manifest_sha256": split_manifest["split_manifest_sha256"],
             })
-    _write_json(FIX / "causal_ablation_v2_M3_L24-28.json", v2_rows)
-    _write_json(FIX / "causal_ablation_v2_M3_L24-28_binding.json", {
+    _write_json(FIX / "causal_ablation_654_M3_L24-28.json", v2_rows)
+    _write_json(FIX / "causal_ablation_654_M3_L24-28_binding.json", {
         "benchmark_path": "tests/fixtures/benchmark_654.jsonl",
         "benchmark_sha256": sha,
         "split_manifest_path": "tests/fixtures/benchmark_654.split_manifest.json",

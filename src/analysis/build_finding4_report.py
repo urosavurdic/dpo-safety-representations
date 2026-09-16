@@ -24,7 +24,7 @@ figure to compare against" rather than inventing a number to diff against.
 
 Usage (after a real run_full_steering.py pass has produced raw files):
     python -m src.analysis.build_finding4_report --manifest results/manifests/full_steering_<ts>.json
-    python -m src.analysis.build_finding4_report --files results/raw/steering_v2_M3_L24_..._QAD.json ...
+    python -m src.analysis.build_finding4_report --files results/raw/steering_654_M3_L24_..._QAD.json ...
 """
 import argparse
 import json
@@ -227,7 +227,7 @@ def main():
     parser.add_argument("--manifest", default=None,
                          help="Path to a run_full_steering.py manifest (results/manifests/full_steering_*.json)")
     parser.add_argument("--files", nargs="+", default=None,
-                         help="Explicit list of steering_v2_*.json raw result files "
+                         help="Explicit list of steering_654_*.json raw result files "
                               "(each needs its _meta.json sidecar alongside it)")
     parser.add_argument("--out", default="results/summaries/finding4_report.json")
     args = parser.parse_args()

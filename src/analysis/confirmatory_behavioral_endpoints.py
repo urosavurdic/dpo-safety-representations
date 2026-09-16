@@ -676,7 +676,7 @@ def build_report(judged_path, benchmark_path, condition_infix: str = "") -> dict
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--judged", required=True,
-                        help="results/behavioral_judges_v2/behavioral_judges_v2_<ts>.json")
+                        help="results/behavioral_judges/behavioral_judges_<ts>.json")
     parser.add_argument("--benchmark",
                         default="data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl")
     parser.add_argument("--out", default="results/summaries/confirmatory_endpoints.json")

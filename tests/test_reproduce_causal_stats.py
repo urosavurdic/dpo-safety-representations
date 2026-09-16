@@ -3,7 +3,7 @@
 History: causal_stats used to point at results/raw/causal_ablation_raw_wide.json
 (a pre-freeze / 370-era artifact keyed by `model_stage`, no benchmark/split
 binding). The frozen-v2 T4 run instead writes
-results/raw/causal_ablation_v2_M3_L24-28.json with a *_binding.json sidecar and
+results/raw/causal_ablation_654_M3_L24-28.json with a *_binding.json sidecar and
 per-row benchmark_sha256 / split_manifest_sha256. This module pins the new
 contract:
 
@@ -36,7 +36,7 @@ def test_causal_stats_commands_reference_one_consistent_v2_file():
     assert len(input_paths) == 1, f"causal_stats commands disagree on --file: {input_paths}"
     (only,) = input_paths
     assert only in COMPONENTS["causal_stats"]["requires"]
-    assert "causal_ablation_v2_" in only and "_L24-28" in only
+    assert "causal_ablation_654_" in only and "_L24-28" in only
     assert "causal_ablation_raw_" not in only, "must not point at a pre-freeze file"
 
 
@@ -63,7 +63,7 @@ def test_causal_stats_is_blocked_until_t4(monkeypatch, tmp_path):
 def test_v2_bound_fixture_passes_the_guard():
     bench_sha = json.loads((FIX / "benchmark_654.LATEST_BENCHMARK.json").read_text())["benchmark_sha256"]
     rows = load_guarded_raw(
-        FIX / "causal_ablation_v2_M3_L24-28.json", benchmark_sha256=bench_sha,
+        FIX / "causal_ablation_654_M3_L24-28.json", benchmark_sha256=bench_sha,
     )
     assert len(rows) == 6
     assert {r["stage"] for r in rows} == {"M3_baseline", "M3_ablated_AD", "M3_ablated_random"}

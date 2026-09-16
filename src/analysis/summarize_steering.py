@@ -47,7 +47,7 @@ def find_condition_pairs(rows):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True,
-                         help="Raw steering results file, e.g. results/raw/steering_v2_M3_L24_...json. "
+                         help="Raw steering results file, e.g. results/raw/steering_654_M3_L24_...json. "
                               "No default on purpose - always say explicitly which file you mean.")
     parser.add_argument("--out", default=None,
                          help="Output path. Defaults to results/summaries/<input filename>_summary.json "

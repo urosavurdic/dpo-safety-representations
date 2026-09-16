@@ -269,14 +269,14 @@ def main():  # pragma: no cover - [exec:T4], needs regenerated 654-row activatio
     m3 = np.load(act / "M3_final.npy")
 
     def _load_dir(stage):
-        for name in (f"{stage}_direction_final.npy", f"{stage}_v2_direction.npy",
+        for name in (f"{stage}_direction_final.npy", f"{stage}_direction_654.npy",
                      f"{stage}_direction.npy"):
             p = ddir / name
             if p.exists():
                 return np.load(p)
         raise FileNotFoundError(
             f"no direction array for {stage} in {ddir} "
-            f"(looked for *_direction_final / *_v2_direction / *_direction .npy)"
+            f"(looked for *_direction_final / *_direction_654 / *_direction .npy)"
         )
 
     directions = {"M2": _load_dir("M2"), "M3": _load_dir("M3")}

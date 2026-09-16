@@ -51,7 +51,7 @@ EXPORT_CATEGORIES = [
     ("causal", "summaries/causal_ablation*.json"),
     ("causal", "summaries/bootstrap_ci_causal_ablation*.json"),
     ("steering", "raw/steering_raw*.json"),
-    ("steering", "raw/steering_v2_*.json"),
+    ("steering", "raw/steering_654_*.json"),
     ("steering", "summaries/steering*.json"),
     ("interpretability", "interpretability/*.json"),
     ("refusal_direction", "refusal_direction/*.json"),

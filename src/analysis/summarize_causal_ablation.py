@@ -54,7 +54,7 @@ def _condition_order(rows):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="results/raw/causal_ablation_v2_M3_L24-28.json")
+    parser.add_argument("--file", default="results/raw/causal_ablation_654_M3_L24-28.json")
     add_binding_cli_args(parser)
     args = parser.parse_args()
     rows = load_guarded_raw(

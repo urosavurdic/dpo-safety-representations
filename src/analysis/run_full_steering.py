@@ -162,7 +162,7 @@ def default_tag(stage, layers, alpha_source, alpha_coefficient, quadrants):
 
 
 def output_path_for(tag):
-    return RAW_DIR / f"steering_v2_{tag}.json"
+    return RAW_DIR / f"steering_654_{tag}.json"
 
 
 def build_command(stage, layers, alpha_source, alpha_coefficient, quadrants, tag, force):
