@@ -1,3 +1,9 @@
+"""Rendering prompt/response pairs into the model's chat template.
+
+The base model has no chat template while every fine-tuned stage does, so the
+same literal template tokens are applied throughout. Otherwise a comparison
+across stages would measure surface form rather than the model.
+"""
 from typing import Dict
 
 

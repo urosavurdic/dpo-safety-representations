@@ -3,7 +3,7 @@ Component 3, corrected framing (PROJECT_CONTEXT.md decision #22).
 
 CV accuracy on the A-vs-B(subset) training contrast saturates near 1.0 at
 nearly every layer, for every stage - including untrained M0 (confirmed via
-src/diagnose_probe_layers.py). A linear probe latches onto dataset/style
+archive/diagnostics/diagnose_probe_layers.py). A linear probe latches onto dataset/style
 fingerprint almost immediately and stays near ceiling regardless of network
 depth - not a usable metric, retired as Component 3's headline result.
 

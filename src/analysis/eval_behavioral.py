@@ -1,6 +1,6 @@
 """
 Component 1: systematic behavioral evaluation across M0-M3, using the
-controlled_eval.jsonl set (370 prompts, quadrants A/B/C/D) built in Phase 1.
+controlled_eval.jsonl set (654 prompts, quadrants A/B/C/D).
 See module docstring context in PROJECT_CONTEXT.md for quadrant meanings.
 """
 import gc
@@ -110,12 +110,6 @@ def main():
 
     out_dir = Path("results/behavioral_eval")
     out_dir.mkdir(parents=True, exist_ok=True)
-    # NOTE: this used to point at results/behavioral_eval_raw.json (flat), but
-    # the actual committed M0-M3 data lives at results/behavioral_eval/raw.json
-    # (nested - same convention reclassify_behavioral.py already reads/writes).
-    # That mismatch meant this script could never find/resume the existing
-    # results and would have started a fresh M0-M3 run into the wrong path.
-    # Fixed to match the real, already-established convention.
     raw_path = out_dir / "raw.json"
     capability_path = out_dir / "capability.json"
     meta_path = out_dir / "_eval_set_metadata.json"  # per-stage freshness check, see eval_set_matches_saved_metadata

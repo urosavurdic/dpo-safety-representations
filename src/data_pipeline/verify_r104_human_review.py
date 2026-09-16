@@ -34,7 +34,7 @@ Does NOT:
   - modify `r104_human_review_blind.csv`, `c_review_queue.csv`, or the
     frozen benchmark;
   - build or regenerate the frozen benchmark (see
-    `src/finalize_benchmark.py` for that; this script only verifies);
+    `src/data_pipeline/finalize_benchmark.py` for that; this script only verifies);
   - touch anything about Arm-2 / C-source-authored.
 
 Run:

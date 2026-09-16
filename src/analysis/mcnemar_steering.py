@@ -1,38 +1,15 @@
-"""
-Paired McNemar exact test on a steering result file: does a category's rate
-genuinely shift between a baseline and a steered condition, matched by
-prompt (not just eyeballed via CI overlap)?
+"""Paired McNemar exact test on a steering result file.
 
-Previously hardcoded to literal condition names "M3_baseline"/"M3_steered"
-and defaulted --file to the single pre-eval_steering_v2 exploratory file
-steering_raw_D_L21.json -- the exact same bug class CONTRIBUTING.md documents as
-already found and fixed in summarize_steering.py, except this one was never
-actually fixed. Concretely: every eval_steering_v2.py run (any stage,
-config, or quadrant set) names its conditions "{tag}_baseline"/
-"{tag}_steered", e.g. "M3_L24_quadrant_a_projection_coef1_QAD_baseline" --
-never the literal string "M3_baseline". Filtering on that literal string
-against a real eval_steering_v2.py output file silently matched zero rows
-(0 paired, not an error), which is exactly the kind of "ran without
-erroring but was checking nothing" failure mode this project's testing
-convention is meant to catch -- caught here specifically because a fresh
-8-stage run (Next Steps item 1) would have hit this on every single stage,
-not just M3.
+Asks whether a category's rate genuinely shifts between a baseline and a
+steered condition, matched by prompt rather than judged by CI overlap.
 
-Fixed the same way summarize_steering.py was: derive condition pairs from
-the file's actual stage names (reuses summarize_steering.find_condition_pairs
-rather than reimplementing it) instead of a hardcoded literal, require
---file explicitly (no default to silently fall back to), and require
---quadrant explicitly too (mirrors bootstrap_causal_effect.py's convention --
-pooling quadrant A and D together under one refusal-rate test would
-conflate two prompts sets with very different baseline refusal rates and
-different intended questions, so there's no sane default to pick).
-
-Still handles the old, deprecated exploratory files (steering_raw_D.json,
-steering_raw_D_L21.json, kept as evidence per CONTRIBUTING.md's steering
-methodology history) correctly -- find_condition_pairs works off the
-"_baseline"/"_steered" suffix convention those files also happen to use
-(their stage names literally are "M3_baseline"/"M3_steered"), so nothing
-about this fix requires migrating them.
+--file and --quadrant are both required. Pooling quadrants A and D under one
+refusal-rate test would conflate prompt sets with different baseline rates and
+different questions, so there is no sane default to pick. Condition pairs are
+derived from the file's own names via summarize_steering.find_condition_pairs,
+which keys off the "_baseline"/"_steered" suffix convention -- real run files
+name conditions like "M3_L24_..._coef1_QAD_baseline", never a bare
+"M3_baseline".
 """
 import argparse
 from collections import defaultdict

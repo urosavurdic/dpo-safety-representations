@@ -1,20 +1,15 @@
-"""Deep-layer direction-stability difference: direct-DPO vs M2-mediated (WP-Stat).
+"""Deep-layer direction stability: direct-DPO versus safety-SFT-mediated.
 
-**Changed for the frozen plan (analysis_plan.md, §2 "Secondary", correction #13
-history):** the previous version paired the two stages by *bootstrap replicate
-index* and ran a Wilcoxon signed-rank test on those pairs. That "pairs two
-descriptive ranges" (README Open Question #1) and was walked back. This module
-now uses a **prompt-level joint bootstrap**: within each replicate the SAME
-resampled quadrant-A/D prompt positions are applied to BOTH stages of a branch
-pair, each stage's direction is re-estimated on that resample, its deep-layer
-stability (cosine vs that stage's own full-data direction) is computed, and the
-per-replicate difference ``direct - mediated`` yields a percentile CI. This
-isolates prompt-selection noise from a genuine between-stage difference, the
-same design as ``bootstrap_cross_branch_difference.py``.
+Uses a prompt-level joint bootstrap. Within each replicate the same resampled
+quadrant-A/D prompt positions are applied to both stages of a branch pair, each
+stage's direction is re-estimated on that resample, its deep-layer stability is
+computed as cosine against that stage's own full-data direction, and the
+per-replicate difference (direct minus mediated) yields a percentile CI.
 
-The old ``paired_stability_test`` (Wilcoxon) and ``deep_layer_mean_sims``
-(reads pre-aggregated ``raw_sims`` from an existing JSON) are retained, marked
-DEPRECATED, and are no longer used by ``main()``.
+Pairing this way isolates prompt-sampling noise, which is the quantity the
+comparison is about. Pairing by bootstrap replicate index instead would compare
+two descriptive ranges rather than a difference; that earlier approach was
+withdrawn. See docs/history/ for the correction.
 """
 from __future__ import annotations
 

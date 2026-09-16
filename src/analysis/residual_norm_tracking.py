@@ -1,48 +1,16 @@
-"""
-Diagnostic instrumentation for Next Steps item 4: track residual-stream
-norm growth layer-by-layer, generation-step-by-generation-step, to
-actually test (not just plausibly narrate) why multi-layer steering
-degenerately collapses almost totally (49/50 on quadrant D, layers 14-28
-simultaneously, see results/raw/steering_raw_D_MULTILAYER_14to28_DEPRECATED.json)
-while single-layer steering mostly doesn't (3/50 at layer 21, see
-results/raw/steering_raw_D_L21_exploratory_DEPRECATED.json).
+"""Instrumentation for residual-stream norm growth during steered generation.
 
-eval_steering_v2.py's own docstring already offers a plausible mechanism
-("each addition persists forward AND gets added to again at every
-subsequent steered layer, so total injected magnitude compounds with
-layer count") -- that's a hypothesis worth taking seriously (it's the
-starting point this module is built to test), not a measured fact. This
-module makes it measurable: does compounding actually push the residual
-norm outside the range later layers/LayerNorm were trained on, and if so,
-does correcting for it (without removing the steering direction itself)
-actually prevent the collapse?
+Records each decoder layer's last-token L2 norm at every generation step, so a
+steered run can be compared against an unsteered baseline layer by layer and
+step by step. compare_to_baseline and first_step_exceeding_p99 answer the
+question that distinguishes two mechanisms: is the run already out of range at
+the first token, or does magnitude accumulate over generation? Those have
+different fixes.
 
-Pulled the ACTUAL deprecated-run outputs (not summarized secondhand) to
-ground the hypothesis before instrumenting anything: the multi-layer
-collapse isn't token soup, it's the model getting stuck in a tight loop
-of refusal-flavored tokens ("unfortunately... unfortunately... WARNING
-WARNING"). That's consistent with (but doesn't by itself prove) a
-magnitude-driven mechanism: a large enough constant perturbation could
-plausibly dominate the residual stream's later-layer computation, but a
-distribution-collapse-under-greedy-decoding explanation (the perturbation
-biases the output distribution toward a small token set, and greedy
-decoding then loops on whichever of those tokens gets emitted first) is
-also consistent with the same observation and isn't mutually exclusive
-with the norm story. This module's baseline-vs-steered norm comparison is
-the actual test of the norm-specific part of that hypothesis; it doesn't
-by itself distinguish "norm left the trained range" from "greedy decoding
-looped for output-distribution reasons unrelated to norm" -- both should
-be checked against the collected data (see
-eval_residual_norm_diagnostic.py's docstring for what a clean result would
-look like either way).
-
-No torch import at THIS module's top level is avoided here (unlike
-run_full_steering.py/build_finding4_report.py) because tensor operations
-are the whole point -- this module DOES require torch, same tier as
-eval_steering_v2.py/eval_causal_ablation.py. Tests use tiny CPU tensors
-and fake nn.Module decoder stacks (same pattern
-tests/analysis/test_eval_causal_ablation.py already uses for
-get_decoder_layers/register_ablation_hooks), not the real model.
+Also provides norm-preserving and norm-clipping steering hooks, so the
+magnitude hypothesis can be tested by intervention rather than argued from
+correlation -- if rescaling to the pre-steering norm restores coherent output,
+magnitude is the mechanism rather than the direction's mere presence.
 """
 import torch
 

@@ -67,7 +67,25 @@ committed results.
 
 **Docstrings describe current behaviour.** One line of history at the end if it
 is load-bearing, otherwise link to `docs/history/`. Not a paragraph, not at the
-top.
+top. A docstring that opens by explaining a bug that was fixed is a docstring
+the reader has to wade through before learning what the module does.
+
+**The long docstrings that remain are deliberate.** A handful of modules carry
+docstrings well over any sensible length ceiling — `cf_joint_geometry.py`,
+`c_b_paired_delta_analysis.py`, `analyze_3d_h.py`, the R104 packet builders.
+Those are not narration: they record a locked analysis contract, naming every
+input path, population role, seed and sign convention, and stating explicitly
+where the module made a decision the contract left open. Trimming them would
+delete the record that makes those analyses auditable. `src/cue_scoring.py` is
+additionally byte-pinned and cannot be edited at all.
+
+**Paths named in prose are checked.** `tests/test_referenced_paths_exist.py`
+asserts that every `src/`, `tests/`, `docs/` or `archive/` path mentioned in a
+source docstring or comment actually exists, and
+`tests/test_documented_commands_resolve.py` does the same for every
+`python -m src.X`. Both exist because these references are invisible to the
+import graph, so renames silently rot them — and several had, including into
+published result JSON.
 
 **Naming.** Read [docs/NAMING.md](docs/NAMING.md) before renaming anything. It
 explains why half the repo says `v2` when there is no `v1`, and why `_final` and

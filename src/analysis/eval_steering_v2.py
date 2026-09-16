@@ -1,46 +1,16 @@
-"""
-Component 5b, v2: a clean, redoable, fully-configurable version of steering.
+"""Steering by activation addition, configurable per run.
 
-Preserves eval_steering.py exactly as-is (its results, e.g.
-results/raw/steering_raw_D.json / steering_raw_D_L21.json, are NOT deleted
-or touched) -- this is a separate, independently-runnable implementation
-that fixes two design issues the original diagnosis (see PROJECT_CONTEXT.md
-/ HANDOFF.md steering notes) identified from the EXISTING results, not new
-runs:
+Adds a scaled refusal direction at a chosen layer during generation and records
+what the model produces, to test sufficiency as the counterpart to ablation's
+necessity.
 
-1. The old default single-layer test (L21) sits outside the layer range
-   (24-28) causal ablation found FULLY sufficient to explain quadrant A's
-   refusal suppression -- testing sufficiency at a layer ablation didn't
-   validate as load-bearing was never a fair test. This version's default
-   single layer is 24 (the start of that validated range), configurable
-   via --layers.
-2. The old multi-layer run (14-28) calibrated each layer's alpha to that
-   layer's OWN natural activation scale, then applied all 15 simultaneously
-   -- on a residual stream, each addition persists forward AND gets added
-   to again at every subsequent steered layer, so total injected magnitude
-   compounds with layer count rather than staying at any single layer's
-   natural scale. This is the most likely mechanism for the old 98%
-   degenerate-output result. --alpha-coefficient (default 1.0, matches old
-   behavior for a single layer) lets you scale down the per-layer magnitude
-   specifically to counteract this when steering multiple layers at once.
-
-Necessary vs. sufficient: causal ablation already showed the direction is
-NECESSARY for refusal (removing it collapses refusal). This experiment
-tests SUFFICIENCY (does adding it alone induce refusal) -- the two together
-are what "sufficient and necessary" means in the mechanistic-interp sense.
-
-Also (unlike the original, which only ever ran quadrant D) supports
-quadrant A as a side-effect check in the same run: does steering perturb
-already-correct harmful-prompt behavior, or is any effect selective to the
-ambiguous/benign case as a genuine over-refusal story would predict?
-
-Statistical analysis is NOT reimplemented here. This produces raw rows in
-the SAME schema eval_causal_ablation.py/eval_behavioral.py already use
-({prompt, quadrant, source, stage, response}) with condition names
-{tag}_baseline / {tag}_steered -- point the already-generalized
-summarize_causal_ablation.py --stage, mcnemar_causal_ablation.py
---conditions --quadrant --category, and bootstrap_causal_effect.py at the
-output file directly, exactly as printed at the end of a run.
+Two defaults are deliberate. The single layer is 24, the start of the 24-28
+band causal ablation found sufficient to explain quadrant A's refusal
+suppression -- testing sufficiency at a layer ablation never validated as
+load-bearing would not be a fair test. And steering applies to one layer rather
+than a band: each addition persists forward and is added to again at every
+subsequent steered layer, so injected magnitude compounds with layer count.
+src/analysis/eval_residual_norm_diagnostic.py measures that directly.
 """
 import argparse
 import gc

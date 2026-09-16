@@ -1,3 +1,8 @@
+"""Trainer callbacks.
+
+Prints resume state at train start so a restarted Colab session shows plainly
+whether it picked up a checkpoint or began from scratch.
+"""
 from pathlib import Path
 
 import torch

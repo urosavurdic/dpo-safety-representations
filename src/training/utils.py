@@ -1,3 +1,8 @@
+"""Config loading and run provenance for training.
+
+Loads a stage's YAML and records what produced a run, so a checkpoint can be
+traced back to the exact config and commit behind it.
+"""
 from pathlib import Path
 import shutil
 import subprocess

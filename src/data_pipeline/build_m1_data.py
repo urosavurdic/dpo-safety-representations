@@ -1,7 +1,7 @@
 """
 Build M1 (or M1_alt)'s SFT-Helpful training data, explicitly excluding the
 prompts reserved for quadrant D of the controlled eval set (see
-src/build_eval_set.py). This is what keeps quadrant D genuinely held out -
+src/data_pipeline/build_eval_set.py). This is what keeps quadrant D genuinely held out -
 true regardless of which source dataset M1/M1_alt is built from, since
 quadrant D's prompts are the reserved set, not something specific to Alpaca.
 """

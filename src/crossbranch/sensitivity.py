@@ -1,6 +1,6 @@
 """Sensitivity check: does the Stage-1 gate survive a known classifier gap?
 
-The frozen classifier (src/analysis/eval_refusal_classifier.py,
+The frozen classifier (src/common/refusal_classifier.py,
 NEVER modified here) requires the literal phrase "it is [hedge] to" to
 detect soft deflection. Manual audit of 29 quadrant-C responses found two
 confirmed, recurring phrasing variants it misses -- not new hedge concepts,

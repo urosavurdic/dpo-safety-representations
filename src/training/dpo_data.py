@@ -1,3 +1,8 @@
+"""Loading preference pairs and shaping them for TRL.
+
+Reads prompt/chosen/rejected rows and formats them into the conversational
+structure DPOTrainer expects.
+"""
 from datasets import load_dataset
 
 

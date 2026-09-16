@@ -1,51 +1,13 @@
-"""
-Orchestrates eval_steering_v2.py across the DPO-trained stages, quadrants
-A+D, held-out-behavioral split -- the "8-stage steering notebook"
-referenced in CONTRIBUTING.md/README's Next Steps item 1. That "8-stage" framing
-is now superseded: `notebooks/colab_unified_analysis.ipynb` (tracked in
-git -- an earlier version of this docstring wrongly claimed otherwise,
-should have just run `git ls-files` instead of trusting an out-of-date
-CONTRIBUTING.md prose claim) settled on running causal ablation/steering against
-only the 4 stages that actually have DPO training to test
-(`STAGES_FOR_CAUSAL` in that notebook's Component 5/5b) -- M1/M2/M1_alt/
-M2_alt are SFT-only, there's no DPO effect for steering the refusal
-direction to causally test on them. DEFAULT_STAGES below mirrors that
-notebook's STAGES_FOR_CAUSAL constant by hand (no shared import -- see the
-module-level import-surface note below); `--stages` still accepts any of
-the 8 non-M0 stages if you deliberately want one of the SFT-only ones
-anyway.
+"""Orchestrate steering runs across the DPO-trained stages.
 
-Deliberately has NO torch/transformers/peft import at module level (unlike
-eval_steering_v2.py itself) -- this file only shells out to
-`python -m src.analysis.eval_steering_v2` as a subprocess per stage, so it
-stays importable/testable in a torch-less CPU sandbox (matches the
-project's "Testing status" convention in CONTRIBUTING.md: CPU-pure logic should
-be collectible even without the real ML stack installed). The tiny
-eval-set loading/validation logic below is deliberately duplicated rather
-than imported from eval_extract_activations.py / eval_steering_v2.py, for
-the same reason those two already duplicate load_controlled_eval() from
-each other instead of sharing it across a torch-importing module boundary.
+Covers quadrants A+D on the held-out behavioural split. DEFAULT_STAGES lists
+only the four stages that received DPO: M1/M2 and their alt counterparts are
+SFT-only, so there is no preference-optimization effect for steering the
+refusal direction to test on them.
 
-Preconditions this checks BEFORE spending any GPU time (does not run
-anything if these fail -- see README/CONTRIBUTING.md Next Steps item 1's "the
-expensive GPU steering pass happens once, not twice" concern):
-  1. Every quadrant-A/D row in the live controlled_eval.jsonl has a "split"
-     key assigned (proves assign_direction_split has actually run over the
-     CURRENT eval set, not a stale pre-split copy).
-  2. For each stage being run, results/activations/{stage}_metadata.json
-     exists and matches the live eval set exactly (same equality check
-     eval_extract_activations.py's own resumability logic uses) -- catches
-     "you rebuilt the eval set but forgot to re-extract activations for
-     this stage" before wasting a GPU steering run on a stale direction.
-  3. results/refusal_direction/{stage}_direction.npy exists (built from
-     those same activations via `python -m src.reproduce direction` /
-     `eval_refusal_direction.py`).
-
-Usage:
-    python -m src.analysis.run_full_steering --dry-run          # plan only
-    python -m src.analysis.run_full_steering                    # real run, DEFAULT_STAGES
-    python -m src.analysis.run_full_steering --stages M3 M3_alt # subset
-    python -m src.analysis.run_full_steering --force             # rerun stages whose output already exists
+Mirrors the stage list in notebooks/colab_unified_analysis.ipynb by hand rather
+than importing it, to keep this module free of a torch import -- see the
+import-surface note below.
 """
 import argparse
 import json

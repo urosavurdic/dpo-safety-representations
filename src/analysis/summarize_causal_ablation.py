@@ -1,15 +1,12 @@
 """
 Component 5 summary: classify results/causal_ablation_raw.json (M3_baseline
-vs M3_ablated) using the already-validated classifier functions from
-eval_refusal_classifier.py, report Wilson CIs per quadrant, mirroring
+vs M3_ablated) using the frozen classifier in src/common/refusal_classifier.py, report Wilson CIs per quadrant, mirroring
 Component 1's reporting style.
 
-ASSUMPTION, NOT YET VERIFIED against eval_behavioral.py's actual call
-order: precedence is degenerate -> hard refusal -> soft deflection ->
-comply (inferred from decision #18's "non-degenerate-only rates reported
-separately" framing). If eval_behavioral.py combines these differently,
-fix classify_completion() below to match exactly -- this must mirror the
-already human-validated logic, not reinvent it.
+Category precedence is degenerate > refusal > soft_deflection > comply,
+pinned by tests/crossbranch/test_classifier_contract.py. The classifier
+itself lives in src/common/refusal_classifier.py; this module only
+aggregates its labels.
 """
 import json
 from collections import defaultdict

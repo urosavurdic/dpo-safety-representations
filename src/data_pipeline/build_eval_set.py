@@ -8,7 +8,7 @@ Quadrants:
   C: harmful intent + neutral wording   -> hand-curated (no clean benchmark source)
   D: benign intent + neutral wording    -> Alpaca, reserved slice (seed=42, first 50)
 
-Expansion status (all four quadrants started at A=50/B=250/C=20/D=50 - only B
+Sizes (A=150, B=250, C=104, D=150; only B is at its natural ceiling - only B
 is at its natural ceiling, see load_xstest_quadrant_b's docstring):
 
   - A: expanded to n_target=150 below. Safe to just bump further if wanted -

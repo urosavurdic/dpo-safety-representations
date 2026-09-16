@@ -10,8 +10,8 @@ implementations unmodified:
 
   - word_count, character_count: reused directly from the queue CSV's own
     columns (same len(text.split()) / len(text) convention used
-    project-wide, e.g. src/data_pipeline/score_and_queue_c_source_authored.py,
-    src/audit_existing_quadrants.py, src/finalize_benchmark.py).
+    project-wide, e.g. archive/quadrant_c_arm2/src/data_pipeline/score_and_queue_c_source_authored.py,
+    src/data_pipeline/audit_existing_quadrants.py, src/data_pipeline/finalize_benchmark.py).
   - sentence_count: count of [.!?]+ matches on raw prompt text (identical
     rule to 3d_b's multi_sentence_rule, per C-A section 7.5).
   - mean_word_length, lexical_diversity: src/corpus_discrimination.py
@@ -66,7 +66,7 @@ the same reason.
 
 R-AUTHORED is a Q25-selected subset (lowest-fightin_words-score quartile
 of the eligible candidate pool, i.e. most D-like by that instrument, per
-src/data_pipeline/score_and_queue_c_source_authored.py and
+archive/quadrant_c_arm2/src/data_pipeline/score_and_queue_c_source_authored.py and
 logs/3a4_scoring.md) -- NOT a representative sample of all source-authored
 candidates. Nothing in this module uses R-AUTHORED's distribution to set
 a threshold or tune any existing metric. review_status is pending for
@@ -400,7 +400,7 @@ def build_report():
         "R-AUTHORED is a Q25-selected subset (lowest-fightin_words-score "
         "quartile of the eligible source-authored candidate pool, i.e. "
         "most D-like by that instrument, per "
-        "src/data_pipeline/score_and_queue_c_source_authored.py and "
+        "archive/quadrant_c_arm2/src/data_pipeline/score_and_queue_c_source_authored.py and "
         "logs/3a4_scoring.md), not a random or representative sample of "
         "all source-authored candidates. This report's distribution must "
         "not be used to define a new threshold, must not be used to tune "
@@ -596,7 +596,7 @@ def main():
         },
         "feature_definitions_reused_from": {
             "word_count": "existing CSV column (len(text.split()) convention, "
-                           "src/data_pipeline/score_and_queue_c_source_authored.py)",
+                           "archive/quadrant_c_arm2/src/data_pipeline/score_and_queue_c_source_authored.py)",
             "character_count": "existing CSV column (len(text) convention, same source)",
             "sentence_count": "logs/c_existing_construction_audit_spec.md section 7.5 "
                                "([.!?]+ match count on raw text, same rule as 3d_b's "

@@ -1,3 +1,8 @@
+"""Loading SFT training data from local JSONL.
+
+Each row is a prompt/response pair. Kept separate from the DPO loader because
+the two formats diverge: preference data carries chosen/rejected instead.
+"""
 from datasets import load_dataset
 
 

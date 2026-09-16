@@ -1,17 +1,12 @@
-"""
-Component 3: linear probes (H2/H3).
+"""Linear probes on the refusal contrast.
 
-Revised design: originally trained on quadrant A (unsafe) vs quadrant D
-(safe) - found M0 (zero safety training) hit perfect 100% CV accuracy,
-implausible as genuine safety understanding. Real cause: A and D differ in
-topic/genre as well as safety (HarmBench's direct harm requests vs
-Alpaca's generic writing/translation tasks) - a probe on this contrast
-can't distinguish "learned safety" from "learned topic classification."
-
-Fix: train on quadrant A vs a subset of quadrant B (XSTest - designed to
-be topically/lexically adjacent to unsafe content while being safe). This
-holds surface style roughly constant, isolating safety specifically. The
-untrained remainder of B is a genuine held-out over-triggering check.
+Trains quadrant A (harmful) against a subset of quadrant B (benign, but
+topically and lexically adjacent to harmful content), rather than A against D.
+A-versus-D confounds safety with topic and genre: the base model, with no
+safety training at all, reaches perfect cross-validated accuracy on it, which a
+probe can achieve by classifying subject matter alone. Holding surface style
+roughly constant isolates the safety contrast. The untrained remainder of B is
+then a genuine held-out over-triggering check.
 """
 import argparse
 import json

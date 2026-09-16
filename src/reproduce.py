@@ -2,7 +2,7 @@
 Single local entry point for reproducing the CPU-feasible parts of the
 analysis pipeline.
 
-Training (all 8 stages) and the GPU-generation components (behavioral eval,
+Training (the eight trained stages) and the GPU-generation components (behavioral eval,
 activation extraction, causal ablation, steering) need a GPU and are NOT run
 by this script - see colab_unified_training.ipynb / colab_unified_analysis.ipynb
 for those. Everything below operates on artifacts those GPU steps already
@@ -92,7 +92,7 @@ COMPONENTS = {
 }
 
 GPU_ONLY_COMPONENTS = {
-    "training": "colab_unified_training.ipynb (all 8 stages)",
+    "training": "colab_unified_training.ipynb (the 8 trained stages; M0 is the untrained base)",
     "behavioral_generation": "src.analysis.eval_behavioral (colab_unified_analysis.ipynb Component 1)",
     "activation_extraction": "src.analysis.eval_extract_activations (colab_unified_analysis.ipynb Component 2)",
     "causal_ablation_generation": "python -m src.pipeline.frozen_run_pipeline run (canonical, frozen-v2-bound; "
@@ -100,7 +100,7 @@ GPU_ONLY_COMPONENTS = {
                                    "The old standalone src.analysis.eval_causal_ablation is deprecated "
                                    "and now refuses to run without --allow-legacy.",
     "steering_generation": "src.analysis.eval_steering_v2 (colab_unified_analysis.ipynb Component 5b) -- "
-                            "or src.analysis.run_full_steering to loop it across all 8 stages at once",
+                            "or src.analysis.run_full_steering to loop it across the 8 trained stages at once",
     "residual_norm_diagnostic": "src.analysis.eval_residual_norm_diagnostic (Next Steps item 4 -- "
                                  "collapsing vs non-collapsing residual-stream norm tracking; "
                                  "src.analysis.plot_residual_norms to visualize the output, CPU-only)",

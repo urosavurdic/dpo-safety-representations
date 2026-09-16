@@ -1,3 +1,10 @@
+"""Loading a training stage's model, tokenizer and adapter chain.
+
+STAGE_ADAPTER_CHAINS is the contract: it records, per stage, which adapters are
+merged and in what order. Getting that order wrong silently produces a model
+that is not the stage it claims to be, so the chain is declared here once rather
+than reconstructed at each call site.
+"""
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, PeftModel

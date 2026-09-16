@@ -7,8 +7,9 @@ pin the exact commit, install deps) then code cells that shell out to
 `src.pipeline.frozen_run_pipeline` / the WP scripts. No analysis logic lives in a
 notebook. Each full-session notebook targets 240-270 min wall clock, hard
 boundary 300 (analysis_plan.md §7). Every T4 session = its own fresh Colab VM,
-so every notebook re-runs the setup preamble. Notebooks are not git-tracked
-(repo convention) - this generator is the source of truth.
+so every notebook re-runs the setup preamble. Notebooks ARE git-tracked. This generator emits the
+numbered session notebooks; the later hand-edited ones are maintained
+directly, so it is the source of truth only for the ones it writes.
 """
 import json
 from pathlib import Path

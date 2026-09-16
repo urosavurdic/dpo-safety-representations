@@ -1,5 +1,5 @@
 """
-Turns a real, completed 8-stage eval_steering_v2.py run (see
+Turns a real, completed steering run over the eight trained stages (see
 run_full_steering.py) into (a) fresh Wilson-CI stats per stage/quadrant/
 category, reusing the already-validated classify_completion/rate_with_ci
 pipeline exactly as summarize_causal_ablation.py does, and (b) an explicit

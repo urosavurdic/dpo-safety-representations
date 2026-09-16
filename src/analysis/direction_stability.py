@@ -33,10 +33,9 @@ def analyze_direction_stability(
     vs_M0/adjacent only contain whichever stages actually had activations
     extracted when eval_refusal_direction.py last ran -- a partial run (e.g.
     only M0's activations exist) writes only {"M0": [...]} , no M1/M2/M3 keys
-    at all. This used to hardcode ["M0","M1","M2","M3"] and crash with
-    KeyError on the first missing stage; now it only compares whichever of
-    the canonical M0->M1->M2->M3 chain is actually present, and writes a
-    reduced report (noting what's missing) rather than crashing the whole
+    at all. Compares whichever of the canonical M0->M1->M2->M3 chain is actually
+    present, writing a reduced report noting what is missing rather than
+    failing the whole
     `src.reproduce direction` pipeline over one partial upstream run.
     """
     cosine_sim_path = str(cosine_sim_path or default_cosine_sim_path())

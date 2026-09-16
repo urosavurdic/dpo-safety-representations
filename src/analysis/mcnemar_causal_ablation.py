@@ -1,6 +1,6 @@
 """
 Component 5 refinement: paired McNemar's test on causal_ablation_raw.json.
-The 370 prompts are the SAME across M3_baseline/M3_ablated (paired design),
+The prompts are the SAME across M3_baseline/M3_ablated (paired design),
 so per-prompt comparison is the correct test, not two independent Wilson
 CIs. Reuses classify_completion() from summarize_causal_ablation.py --
 does not reimplement classification.

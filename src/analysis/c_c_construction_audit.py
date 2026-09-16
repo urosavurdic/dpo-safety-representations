@@ -265,7 +265,7 @@ def load_secondary_abcd_distributions() -> Dict:
             "differ from every quadrant, and instructs execution only, so "
             "no such test is newly defined here. What follows is "
             "descriptive-only, reusing numbers already computed and "
-            "committed by `src/audit_existing_quadrants.py` (A/B/D) and "
+            "committed by `src/data_pipeline/audit_existing_quadrants.py` (A/B/D) and "
             "`src/diagnostics/quadrant_composition_check.py` (all four "
             "quadrants' lexical-risk-lexicon hit rate), plus a direct "
             "read of quadrant C's own category/source fields from the "
@@ -279,7 +279,7 @@ def load_secondary_abcd_distributions() -> Dict:
             "A": audit_quadrants["quadrant_audits"]["A"],
             "B": audit_quadrants["quadrant_audits"]["B"],
             "D": audit_quadrants["quadrant_audits"]["D"],
-            "C_note": "quadrant C is out of scope for src/audit_existing_quadrants.py (A/B/D only); C's word/char length distribution is instead available from C-B's own descriptive stats (candidate side) and from quadrant_composition_report.json below.",
+            "C_note": "quadrant C is out of scope for src/data_pipeline/audit_existing_quadrants.py (A/B/D only); C's word/char length distribution is instead available from C-B's own descriptive stats (candidate side) and from quadrant_composition_report.json below.",
         },
         "per_quadrant_lexical_risk_lexicon_hit_rate": quadrant_composition["stats"],
         "quadrant_composition_report_predictions": quadrant_composition["predictions"],
@@ -344,7 +344,7 @@ def load_r_authored_summary() -> Dict:
         "treated_as": "unlabeled external distributional evidence only (C-A section 8.6 tier 7); review_status is pending 52/52, per C-A section 3 -- no construct claim of any kind is made about this population",
         "not_tuned_on_this": "no C-B or C-C feature definition, threshold, or inclusion rule was adjusted based on these numbers",
         "comparability_caveats": [
-            "word_count here is len(text.split()) (src/data_pipeline/score_and_queue_c_source_authored.py); R104's word_count_source/word_count_candidate columns in data/review/c_review_queue.csv were not verified to use the identical tokenization rule -- treat any numeric gap as approximate, not a controlled contrast.",
+            "word_count here is len(text.split()) (archive/quadrant_c_arm2/src/data_pipeline/score_and_queue_c_source_authored.py); R104's word_count_source/word_count_candidate columns in data/review/c_review_queue.csv were not verified to use the identical tokenization rule -- treat any numeric gap as approximate, not a controlled contrast.",
             "fightin_words_score_normalized/fw_z_score here were fit against H=quadrant A union quadrant B vs D=quadrant D (logs/3a4_scoring.md); R104's fightin_words feature in the C-B contract above was fit LOSO with StrongREJECT held out of H (C-B IMPLEMENTATION DECISION 1). These are two different fitted references -- the two fightin_words-family numbers are not on a directly comparable scale and must not be differenced against each other.",
             "the R-AUTHORED queue was explicitly rank-selected (Q25 = lowest-fightin_words-score quartile, i.e. most D-like) by the 3A4 scoring pipeline, not randomly sampled -- so this population's own fightin_words/fw_z_score distribution is a product of the selection rule, not an independent observation about the source-authored candidate pool as a whole. Comparing it to R104 without accounting for this selection would conflate a sampling artifact with a construction property.",
         ],

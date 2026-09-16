@@ -1,20 +1,9 @@
-"""
-Summarize a steering raw-results file (eval_steering_v2.py's output).
+"""Summarize a steering raw-results file.
 
-Previously hardcoded to CONDITIONS = ["M3_baseline", "M3_steered"] and
-defaulted --file to the single, now-superseded results/raw/steering_raw_D.json
-(a pre-eval_steering_v2 exploratory run - see CONTRIBUTING.md's steering methodology
-history). That combination meant re-running steering for ANY stage or config
-and then running this script with no --file argument would silently summarize
-the OLD file instead of the new one - no error, just a wrong-looking summary
-that happened to still "work" because both files use the same {prompt,
-quadrant, source, stage, response} row shape. This is exactly what produced
-a misleading result once already.
-
-Fixed by requiring --file explicitly (no default to silently fall back to)
-and deriving both the baseline/steered condition pairs AND the output
-filename from the actual contents of that file, instead of a hardcoded
-stage name.
+--file is required, and both the condition pairs and the output filename are
+derived from the file's own contents rather than assumed. Steering files across
+stages and configs share a row shape, so a wrong file produces a plausible
+summary instead of an error.
 """
 import argparse
 import json
