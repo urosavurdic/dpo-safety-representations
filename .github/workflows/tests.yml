@@ -23,7 +23,25 @@ jobs:
           pip install -e .
 
       - name: Test
-        run: python -m pytest tests/ -q
+        run: |
+          set -o pipefail
+          python -m pytest tests/ -q -rf --tb=short 2>&1 | tee pytest.log
+
+      - name: Surface failures publicly
+        # Run logs need a signed-in session; annotations and the job summary do
+        # not. Without this a failure is a bare "exit code 1" to anyone who
+        # cannot open the log.
+        if: always()
+        run: |
+          {
+            echo '## pytest'
+            echo '```'
+            tail -40 pytest.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          grep -E '^(FAILED|ERROR)' pytest.log | while read -r line; do
+            echo "::error::$line"
+          done || true
 
       - name: Import from outside the repo root
         # pythonpath=["."] would mask a broken package declaration, so this
