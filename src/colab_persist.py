@@ -152,9 +152,12 @@ def bind(
 
     hf_home = None
     if persist_hf_cache:
+        # Resolve the SOURCE cache before repointing HF_HOME at the destination.
+        # Reading it afterwards returns d_hf itself, which makes the guard below
+        # always false and silently disables seeding entirely.
+        src = _hf_source_cache()
         hf_home = str(d_hf)
         os.environ["HF_HOME"] = hf_home
-        src = _hf_source_cache()
         # one-time: seed the Drive cache from a session that already has weights
         if src.exists() and src.resolve() != d_hf.resolve() and not any(d_hf.iterdir()):
             shutil.copytree(src, d_hf, dirs_exist_ok=True)

@@ -166,3 +166,42 @@ def test_persist_hf_cache_auto_enables_when_drive_has_room(tmp_path, monkeypatch
     info = cp.bind(str(drive), require_mount=False)
     assert info["persist_hf_cache"] is True
     assert (drive / "hf_cache").exists()
+
+
+# --- HF-cache seeding order -------------------------------------------------
+# The seeding guard compares the source cache against the destination. Reading
+# the source AFTER repointing HF_HOME returns the destination itself, making the
+# guard always false and disabling seeding entirely. That regression is invisible
+# on any platform where the symlink-based test skips, so this covers it without
+# needing symlink privileges.
+
+
+def test_hf_cache_is_seeded_from_the_original_home(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    import src.colab_persist as cp
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    drive = tmp_path / "drive"
+    drive.mkdir()
+    source = tmp_path / "hf"
+    (source / "hub").mkdir(parents=True)
+    (source / "hub" / "model.bin").write_bytes(b"weights")
+
+    monkeypatch.setenv("HF_HOME", str(source))
+    monkeypatch.chdir(repo)
+    monkeypatch.setattr(
+        Path,
+        "symlink_to",
+        lambda self, target, target_is_directory=False: self.mkdir(
+            parents=True, exist_ok=True
+        ),
+    )
+
+    cp.bind(str(drive), persist_hf_cache=True, require_mount=False)
+
+    seeded = drive / "hf_cache" / "hub" / "model.bin"
+    assert seeded.exists(), "HF cache was not seeded from the original HF_HOME"
+    assert seeded.read_bytes() == b"weights"
+    assert os.environ["HF_HOME"] == str(drive / "hf_cache")

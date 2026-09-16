@@ -20,22 +20,51 @@ from src.training.model import load_tokenizer, load_model, create_lora_config
 from src.training.dpo_data import load_dpo_dataset, format_dpo_example
 
 
+
+def _build_supported(config_cls, kwargs: dict):
+    """Construct ``config_cls`` with only the keyword arguments it accepts.
+
+    TRL removes DPOConfig fields between releases. Passing a removed field is a
+    TypeError that makes the whole repo unrunnable on a newer TRL; dropping it
+    quietly would change training without recording it. So unsupported keys are
+    dropped AND reported, loudly enough to notice before a GPU session.
+    """
+    import inspect
+    import warnings
+
+    params = inspect.signature(config_cls.__init__).parameters
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        return config_cls(**kwargs)
+
+    accepted = {k: v for k, v in kwargs.items() if k in params}
+    dropped = sorted(set(kwargs) - set(accepted))
+    if dropped:
+        warnings.warn(
+            f"{config_cls.__name__} in the installed TRL does not accept "
+            f"{dropped}; these were dropped. Training will run WITHOUT them. "
+            "Check the release notes for replacements before trusting a run.",
+            UserWarning,
+            stacklevel=2,
+        )
+    return config_cls(**accepted)
+
+
 def build_dpo_config(cfg: dict, output_dir) -> DPOConfig:
     """
     Build the DPOConfig for a run from the loaded YAML config. Extracted out
     of main() so it can be unit-tested without a network, model, or GPU.
 
-    This exact mapping is what broke twice in a row against real TRL/
-    transformers upgrades: `max_prompt_length` was removed from DPOConfig,
-    and DPOConfig defaults `bf16=True` whenever `fp16` isn't also passed
-    explicitly (see PROJECT_CONTEXT.md experiment log). A test that actually
-    constructs this object from configs/m3_dpo.yaml and
-    configs/m3_gpu_dryrun.yaml catches that whole class of breakage in under
-    a second, before a Colab GPU session is ever spent on it.
+    This mapping has broken repeatedly against TRL/transformers upgrades:
+    `max_prompt_length` was removed from DPOConfig, `warmup_ratio` was
+    removed later, and DPOConfig defaults `bf16=True` whenever `fp16` is not
+    also passed explicitly. Rather than pinning TRL, unsupported keys are
+    dropped and reported: a hard crash makes the repo unusable on any newer
+    TRL, but silently dropping a training hyperparameter would change the run
+    without saying so. Dropped keys raise a UserWarning naming each one.
     """
     report_to = ["wandb"] if cfg.get("wandb", {}).get("project") else []
 
-    return DPOConfig(
+    return _build_supported(DPOConfig, dict(
         output_dir=str(output_dir),
         beta=cfg["dpo"]["beta"],
         loss_type=cfg["dpo"]["loss_type"],
@@ -56,7 +85,7 @@ def build_dpo_config(cfg: dict, output_dir) -> DPOConfig:
         report_to=report_to,
         run_name=cfg.get("wandb", {}).get("run_name"),
         seed=cfg["seed"],
-    )
+    ))
 
 
 def main():
