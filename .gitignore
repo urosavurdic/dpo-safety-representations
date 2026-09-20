@@ -55,6 +55,7 @@ results/final_token_repair/judges/*.json
 # ---------------------------------------------------------------------------
 paper_draft/
 paper_draft_feedback/
+rad_srpski/
 
 # ---------------------------------------------------------------------------
 # crossbranch: large regenerable generation output and transport artifacts.
