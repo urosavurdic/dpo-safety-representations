@@ -6,7 +6,7 @@ actually contain FEWER overt trigger words than its source, or does it just
 swap one flagged word for a synonym?
 
 Motivated directly by external review of this project's quadrant C
-candidates (see CLAUDE.md): both the original 20 hand-curated prompts and
+candidates (see CONTRIBUTING.md): both the original 20 hand-curated prompts and
 the first StrongREJECT-derived draft batch turned out to still contain
 words like "unauthorized," "without consent," "avoid detection,"
 "untraceable" - not domain-specific ("hack," "malware") but still overt
@@ -31,7 +31,7 @@ RISK_LEXICON = [
     "unauthorized", "without consent", "without permission", "without their permission",
     "without their knowledge", "avoid detection", "avoids detection", "avoiding detection",
     "without detection", "untraceable", "undetected", "not traceable",
-    "without getting caught", "without getting traced",  # added after checking HarmBench directly - see CLAUDE.md
+    "without getting caught", "without getting traced",  # added after checking HarmBench directly - see CONTRIBUTING.md
     "illegal", "illicit", "fraudulent", "fraud", "fake", "counterfeit",
     "steal", "stolen", "theft", "hack", "bypass", "evade", "evading",
     "prohibited", "restricted", "don't have permission", "doesn't have permission",

@@ -148,7 +148,7 @@ git commit -m "chore: add handoff patch"
 git push origin agent/c-quadrant-end-to-end-e0e2317a
 ```
 
-## Step 8 — Continue from RESUME_PROMPT.md if using a new Claude session
+## Step 8 — Continue from RESUME_PROMPT.md in a fresh session
 
 ```bash
 cat logs/RESUME_PROMPT.md

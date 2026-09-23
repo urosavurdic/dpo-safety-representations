@@ -279,7 +279,7 @@ those three is satisfied by this document alone.
 | `logs/3d_b_lexical_outlierness_pilot.json` (source of `formatting_diagnostic_config`) | `95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5` |
 | `src/corpus_discrimination.py` (tokenizer, Fightin' Words, `load_quadrant_texts`) | `1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc` |
 | `src/cue_scoring.py` (existing CUE score, reused as descriptive-only feature) | `ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d` |
-| `src/diagnostics/score_lexical_risk_cues.py` (existing fixed lexical-risk lexicon — not reproduced here; see §9) | `5fda0d1856814b0582c07cc50fb2a42acb3275601ccb0b17e6a602d32545b89a` |
+| `src/diagnostics/score_lexical_risk_cues.py` (existing fixed lexical-risk lexicon — not reproduced here; see §9) | `64ba7eeb1797354a08814d86f5037f514c2a6ecae7af014c178a2a00617633c0` |
 | `src/v2_io.py` (`resolve_benchmark` strict hash-bound loader) | `34ca0e74ac669061a6e0f9fd1758c87c034cbeebb3f4a5af7783aebdea524e72` |
 
 C-B must load the benchmark only via `src/v2_io.py::resolve_benchmark`

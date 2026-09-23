@@ -15,7 +15,7 @@ Kept only for historical/manual use. main() refuses to run without an explicit
 
 Component 5: causal ablation check (H4). Multi-layer scope, hidden_states
 layers 24-28 (decoder blocks 23-27, 0-indexed) -- ABLATE_LAYERS = range(24, 29).
-The historical 14-28 window is diagnostic only (see CLAUDE.md).
+The historical 14-28 window is diagnostic only (see CONTRIBUTING.md).
 
 Ablation: at each target layer's output (every token position), project
 out the component along that layer's M3 diff-in-means direction (from

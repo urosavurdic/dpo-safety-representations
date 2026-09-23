@@ -35,9 +35,10 @@ verbatim. Each item starts from a published StrongREJECT prompt and is reworded
 to remove wrongdoing-signalling vocabulary while preserving the underlying
 request. Every item retains its `source_prompt`, so the rewording is auditable,
 and the paired comparison against the unmodified source is the evidence that the
-rewording did what it claims. Drafting was AI-assisted and human-reviewed; that
-provenance is recorded per item rather than obscured, because the validity
-argument depends on it.
+rewording did what it claims. Each candidate was drafted against the source
+prompt and then reviewed by hand before promotion, and every item records its
+`review_status` and `review_notes`, because the validity argument depends on
+that trail being inspectable rather than asserted.
 
 ## Training corpora
 

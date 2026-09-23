@@ -51,7 +51,7 @@ between C-A and this task):
 | `logs/3d_b_lexical_outlierness_pilot.json` (source of `formatting_diagnostic_config`) | `95b0b7771244f0c162627eb1aaeb92986b4e7ec9de737f4f38edaefec53ebce5` | match |
 | `src/corpus_discrimination.py` (tokenizer, `FightinWords`, `load_quadrant_texts`) | `1ca62c4f7c1f88398c2d22c60bc1f2f6be27be678b68e9675a8800bdb41a9bcc` | match |
 | `src/cue_scoring.py` (source of `FROZEN_CUE_CONFIG` TF-IDF parameters — parameters reused, fitted model **not** reused, §4.2) | `ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d` | match |
-| `src/diagnostics/score_lexical_risk_cues.py` (`score_prompt()`, reused unmodified; lexicon not reproduced here) | `5fda0d1856814b0582c07cc50fb2a42acb3275601ccb0b17e6a602d32545b89a` | match |
+| `src/diagnostics/score_lexical_risk_cues.py` (`score_prompt()`, reused unmodified; lexicon not reproduced here) | `64ba7eeb1797354a08814d86f5037f514c2a6ecae7af014c178a2a00617633c0` | match |
 
 C-F-B must load the benchmark only via `src/v2_io.py::resolve_benchmark`
 (never by opening `data/frozen_v2/*.jsonl` by filename), fail closed if any

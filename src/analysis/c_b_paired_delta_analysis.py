@@ -143,7 +143,7 @@ PINNED_INPUT_HASHES = {
     "src/cue_scoring.py":
         "ea0aa39faee7f8358121cee460be3c3f45d840c555beaba8ee534da2033b7d1d",
     "src/diagnostics/score_lexical_risk_cues.py":
-        "5fda0d1856814b0582c07cc50fb2a42acb3275601ccb0b17e6a602d32545b89a",
+        "64ba7eeb1797354a08814d86f5037f514c2a6ecae7af014c178a2a00617633c0",
     "src/v2_io.py":
         "34ca0e74ac669061a6e0f9fd1758c87c034cbeebb3f4a5af7783aebdea524e72",
 }

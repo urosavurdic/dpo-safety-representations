@@ -461,7 +461,7 @@ overhead, safety margin. Target each notebook at **240–270 min**; **hard bound
 | WP6 | WP-Ctrl (`control_directions.py`: `r`, γ, `d_AB`) | WP16 | WP-Report (agreement + robustness) |
 | WP7 | WP-Causal (`stage_causal` conditions) | WP17 | WP-Leak (C-vs-A / C-vs-`sft_helpful`) |
 | WP8 | WP-Steer (`stage_steering` random + α list) | WP18 | WP-Doc (`docs/EXPERIMENT.md`) |
-| WP9 | WP-Geom (projection trajectory, subspace §4) | WP19 | WP-Sign (`results/README.md`, `CLAUDE.md`, `REPRODUCE.md`) |
+| WP9 | WP-Geom (projection trajectory, subspace §4) | WP19 | WP-Sign (`results/README.md`, `CONTRIBUTING.md`, `REPRODUCE.md`) |
 | WP10 | WP-Decode (CF3 §4.4) | WP20 | WP-NB (notebooks 00–05 + 04b) |
 
 **Out of scope (Tier-3/Tier-4 — NOT implemented in this pass):** SAEs; activation
