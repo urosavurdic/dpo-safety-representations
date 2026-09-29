@@ -36,7 +36,7 @@ M2 / M3 / M2_alt / M3_alt mixed the two benchmarks and is invalid — see §3.
 
 ## 2. Which judge file is authoritative
 
-Whole-run judged files live in `results/behavioral_judges_v2/` (gitignored).
+Whole-run judged files live in `results/behavioral_judges/` (gitignored).
 Thirteen exist across all bundles; **only these are current**:
 
 | File | Covers | Used for |
@@ -48,6 +48,28 @@ Thirteen exist across all bundles; **only these are current**:
 The eleven older runs (2026-09-03 → 2026-09-07T034708Z, ~503 MB) were
 **deliberately not imported**. They are superseded; keeping them locally only
 creates ambiguity about which file a number came from.
+
+### Per-scorer coverage — verified 2026-09-29
+
+The row counts above are ROW counts, not SCORE counts. Audited per scorer:
+
+| stage | rows | regex | StrongREJECT | WildGuard |
+|---|---|---|---|---|
+| M2, M3 | 654 | 654 | **104** (quadrant C only) | **104** |
+| M0, M1, M1_alt, M2_alt, M3_alt, M3_direct, M3_direct_alt | 654 | 654 | **0** | **0** |
+
+The judge ran with `scope="confirmatory"`, which admits behaviour rows only for
+CF1's quadrant-C rows of M2 and M3; 550 of 654 rows per stage carry
+`judge_status: "out_of_scope"`. Only the frozen regex classifier is complete
+across all nine stages. Anything cross-stage built on StrongREJECT or WildGuard
+needs a judging pass with `--scope all` first.
+
+Of the 40 whole-run judge files on disk, 37 are distinct and only two are
+authoritative. Three byte-identical copies of
+`final_token_repair/judges/behavioral_judges_v2_20260907T1445*.json` record
+`judge_status: "unavailable: load failed: ... requires bitsandbytes"` — both
+judges never loaded, and the run still wrote a full-looking file. Check
+`judge_status` before trusting any judged output.
 
 ## 3. Known-stale outputs — recompute before use
 

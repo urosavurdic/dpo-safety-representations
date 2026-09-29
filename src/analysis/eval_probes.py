@@ -177,7 +177,10 @@ def main():
             continue
         if result_path.exists():
             print(f"\n=== {stage}: existing probe result is STALE (predates the current eval set) -- re-running ===")
-        if not activations_available(stage):
+        # run_for_stage loads the _final arrays, so the gate must check
+        # _final too. Checking _pooled here meant a checkout holding only
+        # _final silently skipped every stage.
+        if not activations_available(stage, pooling="final"):
             print(f"\n=== {stage}: SKIPPED, activations not yet extracted ===")
             continue
         print(f"\n=== {stage} ===")

@@ -56,7 +56,7 @@ POS_QUADRANT = "A"
 NEG_QUADRANT = "D"
 
 
-def activations_available(stage, act_dir=None):
+def activations_available(stage, act_dir=None, pooling="pooled"):
     """Whether stage's activations have actually been extracted yet - the
     alt branch trains and pushes independently across sessions (Drive-space
     constrained), so at any given time some of STAGES may not be ready.
@@ -65,16 +65,27 @@ def activations_available(stage, act_dir=None):
     that generate activations from the model in the first place) - this
     just reads whatever eval_extract_activations.py already produced."""
     act_dir = act_dir or ACT_DIR
-    return (act_dir / f"{stage}_pooled.npy").exists() and (act_dir / f"{stage}_metadata.json").exists()
+    suffix = "pooled" if pooling == "pooled" else "final"
+    return (act_dir / f"{stage}_{suffix}.npy").exists() and (act_dir / f"{stage}_metadata.json").exists()
 
 
-def load_stage(stage):
-    pooled = np.load(ACT_DIR / f"{stage}_pooled.npy")  # (n_prompts, n_layers, hidden_dim)
-    with open(ACT_DIR / f"{stage}_metadata.json", encoding="utf-8") as f:
+def load_stage(stage, pooling="pooled", act_dir=None):
+    """Activations, quadrants and splits for one stage.
+
+    ``pooling`` defaults to ``"pooled"`` because the three stability scripts
+    that import this (bootstrap_branch_direction_difference, bottleneck_layer,
+    paired_deep_layer_stability_test) were written against the mean-last-5
+    arrays; changing the default would silently change their published numbers.
+    Callers wanting the preregistered final-token arrays pass ``"final"``.
+    """
+    act_dir = act_dir or ACT_DIR
+    suffix = "pooled" if pooling == "pooled" else "final"
+    arr = np.load(act_dir / f"{stage}_{suffix}.npy")  # (n_prompts, n_layers, hidden_dim)
+    with open(act_dir / f"{stage}_metadata.json", encoding="utf-8") as f:
         meta = json.load(f)
     quadrants = np.array([row["quadrant"] for row in meta])
     splits = np.array([row.get("split") or "" for row in meta])
-    return pooled, quadrants, splits
+    return arr, quadrants, splits
 
 
 def filter_to_direction_estimation_split(pooled, quadrants, splits):

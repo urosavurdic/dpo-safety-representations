@@ -575,12 +575,50 @@ def carry_forward_scores(records: list, previous_records: list) -> dict:
     return carried
 
 
+class JudgeUnavailableError(RuntimeError):
+    """A judge model failed to load and fail_closed is on."""
+
+
+class CoverageContractError(RuntimeError):
+    """Scoring finished without filling every declared cell."""
+
+
+def check_coverage(records, contract) -> list[str]:
+    """Which declared cells are still unscored.
+
+    ``contract`` maps a scorer name to an iterable of ``(condition, quadrant)``
+    pairs that MUST end up scored; ``quadrant=None`` means every quadrant of
+    that condition. Returns human-readable descriptions of the gaps, empty when
+    the contract is satisfied.
+    """
+    unmet = []
+    for scorer, cells in contract.items():
+        for cell in cells:
+            condition, quadrant = (cell if isinstance(cell, (list, tuple))
+                                   else (cell, None))
+            rows = [r for r in records
+                    if r.get("condition") == condition
+                    and (quadrant is None or r.get("quadrant") == quadrant)]
+            if not rows:
+                unmet.append(f"{scorer}: {condition}"
+                             f"{'/' + quadrant if quadrant else ''} -> no rows at all")
+                continue
+            scored = sum(1 for r in rows
+                         if (r.get(scorer) or {}).get("judge_status") == "scored")
+            if scored < len(rows):
+                unmet.append(f"{scorer}: {condition}"
+                             f"{'/' + quadrant if quadrant else ''} -> "
+                             f"{scored}/{len(rows)} scored")
+    return unmet
+
+
 def run_judges(manifest_path, out_dir=JUDGE_OUTPUT_DIR, *, run_live=False,
                require_binding=True, reject_legacy=True,
                strongreject_model=DEFAULT_STRONGREJECT_MODEL,
                wildguard_model=DEFAULT_WILDGUARD_MODEL,
                load_4bit=True, allow_download=False, scope="confirmatory",
-               resume_from=None, skip_wildguard=False) -> Path:
+               resume_from=None, skip_wildguard=False,
+               fail_closed=True, coverage_contract=None) -> Path:
     """Score every response with regex (always), then - if ``run_live`` - with
     StrongREJECT and WildGuard **one model at a time** (load, score all rows,
     unload) so peak VRAM is one 7B model, which fits a free-tier T4 (and 4-bit
@@ -664,6 +702,32 @@ def run_judges(manifest_path, out_dir=JUDGE_OUTPUT_DIR, *, run_live=False,
                 for rec in pending:
                     rec[key]["judge_status"] = "model_unavailable"
 
+    # --- WP-2: fail closed -------------------------------------------------
+    # A load failure used to leave judge_status recording the error while the
+    # run still wrote a complete-looking file and exited 0. Three orphaned
+    # 15 MB files came from exactly that. Refuse to write instead.
+    failed = {k: v for k, v in judge_status.items()
+              if isinstance(v, str) and v.startswith("unavailable")}
+    if failed and fail_closed:
+        raise JudgeUnavailableError(
+            "refusing to write output: "
+            + "; ".join(f"{k}: {v}" for k, v in sorted(failed.items()))
+            + ". Every pending row would carry judge_status='model_unavailable' "
+            "and the file would look complete. Run "
+            "notebooks/04b_judge_preflight.ipynb first, or pass "
+            "fail_closed=False to keep the old behaviour deliberately."
+        )
+
+    # --- WP-2: coverage contract ------------------------------------------
+    if coverage_contract:
+        unmet = check_coverage(records, coverage_contract)
+        if unmet:
+            raise CoverageContractError(
+                f"{len(unmet)} declared cell(s) unfilled after scoring:\n  "
+                + "\n  ".join(unmet[:20])
+                + ("\n  ..." if len(unmet) > 20 else "")
+            )
+
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -727,7 +791,15 @@ def main():
                              "(CF1/CF2/cross-fit/2x2/circularity/full_A_sensitivity) "
                              "reads WildGuard for causal rows; skipping it removes the "
                              "7B model's load and its ~1-3 s/row generation.")
+    parser.add_argument("--no-fail-closed", action="store_true",
+                        help="write output even if a judge model failed to load. "
+                             "Off by default: a failed load used to produce a "
+                             "complete-looking file and exit 0.")
     args = parser.parse_args()
+
+    if args.no_fail_closed:
+        print("WARNING: --no-fail-closed is set. A judge that fails to load will "
+              "still write a complete-looking output file.")
 
     if args.build_consolidated:
         build_consolidated_manifest(
@@ -750,6 +822,7 @@ def main():
         strongreject_model=args.strongreject_model, wildguard_model=args.wildguard_model,
         load_4bit=not args.no_4bit, allow_download=args.allow_download, scope=args.scope,
         resume_from=args.resume_from, skip_wildguard=args.skip_wildguard,
+        fail_closed=not args.no_fail_closed,
     )
     print(f"wrote {out}")
 

@@ -1,0 +1,29 @@
+{
+  "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+  "produced_utc": "2026-09-29T12:28:10Z",
+  "pooling": "final_token",
+  "inputs": {
+    "judge_file": "results\\behavioral_judges\\behavioral_judges_v2_20260907T043919Z.json",
+    "activations::M0": "results\\activations\\M0_final.npy",
+    "activations::M1": "results\\activations\\M1_final.npy",
+    "activations::M2": "results\\activations\\M2_final.npy",
+    "activations::M3": "results\\activations\\M3_final.npy",
+    "activations::M3_direct": "results\\activations\\M3_direct_final.npy",
+    "activations::M1_alt": "results\\activations\\M1_alt_final.npy",
+    "activations::M2_alt": "results\\activations\\M2_alt_final.npy",
+    "activations::M3_alt": "results\\activations\\M3_alt_final.npy",
+    "activations::M3_direct_alt": "results\\activations\\M3_direct_alt_final.npy"
+  },
+  "sha256": {
+    "judge_file": "5158a4272cf8507a9fb8571633a36510599f0502776f64ed5d10d8f8c50ad220",
+    "activations::M0": "8bbe2a7b63ffdc9e0c8f6b74320485eec01480ea44a0bc209b7a5b0dc078cc8c",
+    "activations::M1": "487d3d6116594b5fc2f6e26aacbe18616c54bf981f9854b16d454856f3e5cdc9",
+    "activations::M2": "778d4c6e8aa995f9c46af8f62e2425eba5867a79759472dbc6705e9262897702",
+    "activations::M3": "f006c9bd09833e89f994ee8b5c31aab16e95f0fa72aa2e4166a2ac38ef7b120b",
+    "activations::M3_direct": "814e90a5e781ff278ec0132ee88c06440db44a0c3afadd3d73ffad567be243e2",
+    "activations::M1_alt": "307c736ffa5462ca0c02745f96c71db7bb7bb679d54d9257373c0afe1f4fe7cf",
+    "activations::M2_alt": "912d0c9e3da30a7fabc26263303494466420e093d8557e0cc7983c2c94afdf37",
+    "activations::M3_alt": "d9f9e4c49f464cf5423cbf34dcc2bb300efab1796a6e64016a2ea3eee456cb5c",
+    "activations::M3_direct_alt": "5e4427538d3a5a4bc1ceef172038812db41de3c621ccae53c3a931c56b42ae1b"
+  }
+}

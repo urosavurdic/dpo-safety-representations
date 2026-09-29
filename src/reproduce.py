@@ -89,6 +89,26 @@ COMPONENTS = {
             "python -m src.analysis.bootstrap_causal_effect --file results/raw/causal_ablation_654_M3_L24-28.json --quadrant A --category refusal",
         ],
     },
+    "stage_comparison": {
+        "description": (
+            "Stage-vs-stage comparison across all nine checkpoints: behavioural "
+            "matrix, the objective x corpus 2x2, and depth attribution. "
+            "EXPLORATORY - outside the frozen analysis plan, like crossbranch."
+        ),
+        "requires": [
+            "results/activations",
+            "results/behavioral_judges/behavioral_judges_v2_20260907T043919Z.json",
+        ],
+        "produces": [
+            "results/stagecmp/stage_comparison_final_token.json",
+            "results/stagecmp/stage_comparison_mean_last5.json",
+        ],
+        "commands": [
+            "python -m src.stagecmp.cli all --pooling final_token",
+            "python -m src.stagecmp.cli all --pooling mean_last5",
+            "python -m src.stagecmp.report --pooling final_token",
+        ],
+    },
 }
 
 GPU_ONLY_COMPONENTS = {
