@@ -236,7 +236,19 @@ class LazyModelJudge:
             except Exception:
                 pass
 
-        kwargs = {"torch_dtype": torch.float16, "device_map": "auto"}
+        # transformers renamed this kwarg: `torch_dtype` through 4.x,
+        # `dtype` from 5.0 where the old name was removed. Colab ships 5.x, so
+        # hardcoding either one breaks half the environments. src/training/
+        # model.py already moved to `dtype`; this was the last caller left on
+        # the old name, and it is only reached on a real GPU load, which is why
+        # no test caught it.
+        import transformers as _tf
+        try:
+            _major = int(_tf.__version__.split(".")[0])
+        except (AttributeError, ValueError):
+            _major = 4
+        _dtype_kw = "dtype" if _major >= 5 else "torch_dtype"
+        kwargs = {_dtype_kw: torch.float16, "device_map": "auto"}
         if self.load_4bit:
             try:
                 from transformers import BitsAndBytesConfig

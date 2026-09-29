@@ -81,3 +81,24 @@ def test_run_judges_defaults_to_failing_closed():
     params = inspect.signature(run_judges).parameters
     assert params["fail_closed"].default is True
     assert params["coverage_contract"].default is None
+
+
+# --- transformers 5 compatibility ------------------------------------------- #
+
+def test_dtype_kwarg_is_chosen_by_transformers_major_version():
+    """transformers renamed `torch_dtype` -> `dtype` at 5.0 and removed the old
+    name. Colab ships 5.x. This was the last caller in src/ still on the old
+    kwarg, and it is only reached on a real GPU load, so nothing caught it until
+    a judge preflight failed in a live session."""
+    import re
+    from pathlib import Path
+
+    src = Path("src/analysis/behavioral_judges.py").read_text(encoding="utf-8")
+    assert '_dtype_kw = "dtype" if _major >= 5 else "torch_dtype"' in src
+    # no bare torch_dtype= call sites remain anywhere in src/
+    offenders = []
+    for path in Path("src").rglob("*.py"):
+        for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if re.search(r'"torch_dtype":\s', line) or re.search(r"\btorch_dtype=", line):
+                offenders.append(f"{path}:{i}")
+    assert not offenders, f"unguarded torch_dtype call sites: {offenders}"
