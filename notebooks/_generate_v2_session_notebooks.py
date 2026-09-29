@@ -189,8 +189,7 @@ NOTEBOOKS = {
            "session, not the 240-270 min window."),
         *setup_preamble(1),
         md("## 5. Load StrongREJECT fine-tuned Gemma-2B"),
-        code("from src.analysis.behavioral_judges import (
-    LazyModelJudge, parse_strongreject_output, DEFAULT_STRONGREJECT_MODEL)\n"
+        code("from src.analysis.behavioral_judges import LazyModelJudge, parse_strongreject_output\n"
              "sr = LazyModelJudge('strong_reject', DEFAULT_STRONGREJECT_MODEL); print(sr.try_load())"),
         md("## 6. Load WildGuard"),
         code("wg = LazyModelJudge('wildguard', 'allenai/wildguard'); print(wg.try_load())"),
