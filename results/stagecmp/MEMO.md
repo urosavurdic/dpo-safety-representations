@@ -16,24 +16,30 @@ Withhold rate = refusal or soft deflection, frozen regex classifier, paired boot
 
 | quadrant | OBJ (DPO − safety SFT) | corpus | interaction |
 |---|---|---|---|
-| A | +0.297 [+0.237, +0.357] * | +0.103 [+0.043, +0.163] * | +0.180 [+0.073, +0.280] * |
-| B | +0.176 [+0.130, +0.222] * | +0.008 [-0.024, +0.038] | +0.024 [-0.036, +0.084] |
-| C | +0.125 [+0.077, +0.173] * | +0.096 [+0.053, +0.144] * | +0.173 [+0.067, +0.279] * |
-| D | +0.187 [+0.137, +0.237] * | +0.027 [-0.013, +0.067] | +0.027 [-0.053, +0.107] |
+| A | +0.829 [+0.775, +0.879] * | -0.023 [-0.081, +0.034] | -0.074 [-0.134, -0.013] * |
+| A *(regex)* | +0.297 [+0.237, +0.357] * | +0.103 [+0.043, +0.163] * | +0.180 [+0.073, +0.280] * |
+| B | +0.316 [+0.266, +0.368] * | -0.064 [-0.098, -0.030] * | -0.144 [-0.212, -0.076] * |
+| B *(regex)* | +0.176 [+0.130, +0.222] * | +0.008 [-0.024, +0.038] | +0.024 [-0.036, +0.084] |
+| C | +0.894 [+0.846, +0.938] * | -0.058 [-0.111, -0.010] * | -0.019 [-0.087, +0.048] |
+| C *(regex)* | +0.125 [+0.077, +0.173] * | +0.096 [+0.053, +0.144] * | +0.173 [+0.067, +0.279] * |
+| D | +0.147 [+0.093, +0.203] * | -0.027 [-0.067, +0.013] | -0.027 [-0.093, +0.040] |
+| D *(regex)* | +0.187 [+0.137, +0.237] * | +0.027 [-0.013, +0.067] | +0.027 [-0.053, +0.107] |
 
 **The asymmetry is the finding.** On the benign quadrants (B, D) the corpus and interaction terms both span zero: the over-refusal cost is a property of the objective, not of the corpus. On the harmful quadrants (A, C) both exclude zero: the benefit is corpus-contingent. What you pay is reliable; what you get is not.
 
 
-## 2. Selectivity — DPO buys refusal, not discrimination
+## 2. Selectivity — DPO does discriminate, and the regex said otherwise
 
 | arm | A − D (overt axis) | C − B (reduced-cue axis) |
 |---|---|---|
-| safety SFT, Alpaca | +0.007 | -0.010 |
-| safety SFT, Dolly | +0.007 | -0.023 |
-| DPO, Alpaca | +0.193 * | +0.014 |
-| DPO, Dolly | +0.040 | -0.149 * |
+| safety SFT, Alpaca | +0.047 | +0.012 |
+| safety SFT, Dolly | +0.020 | +0.068 * |
+| DPO, Alpaca | +0.706 * | +0.653 * |
+| DPO, Dolly | +0.726 * | +0.584 * |
 
-On the axis where wording no longer betrays intent (C vs B), **no arm gains selectivity**, and the Dolly DPO arm is significantly *anti*-selective. The extra refusal DPO buys is not discrimination.
+Both DPO arms gain large, significant selectivity on **both** axes, including C vs B where wording no longer betrays intent. Both safety-SFT arms sit near zero.
+
+**CORRECTION.** An earlier version of this memo, computed on the frozen regex classifier, reported that no arm gained selectivity on the C-vs-B axis and that the Dolly DPO arm was significantly *anti*-selective at −0.149. Under the validated judge that same arm is **+0.584 and strongly selective**. "DPO buys refusal, not discrimination" was an artifact of an instrument that misses untemplated refusals, not a finding. It is withdrawn.
 
 
 ## 3. Representation — safety SFT barely moves it

@@ -33,7 +33,8 @@ def _layer(rep, key, layer, fn):
 
 
 def render() -> str:
-    beh = json.loads((OUT / "stage_comparison_final_token.json").read_text(encoding="utf-8"))
+    beh = json.loads((OUT / "stage_comparison_wg_refusal.json").read_text(encoding="utf-8"))
+    beh_rx = json.loads((OUT / "stage_comparison_final_token.json").read_text(encoding="utf-8"))
     rep = json.loads((OUT / "representational_final_token.json").read_text(encoding="utf-8"))
     repp = json.loads((OUT / "representational_mean_last5.json").read_text(encoding="utf-8"))
     agree = json.loads((OUT / "regex_judge_agreement.json").read_text(encoding="utf-8"))
@@ -60,14 +61,16 @@ def render() -> str:
     add("|---|---|---|---|")
     for q in "ABCD":
         c = beh["contrasts_2x2"]["by_quadrant"][q]
+        r = beh_rx["contrasts_2x2"]["by_quadrant"][q]
         add(f"| {q} | {_ci(c['OBJ'])} | {_ci(c['CORP'])} | {_ci(c['INT'])} |")
+        add(f"| {q} *(regex)* | {_ci(r['OBJ'])} | {_ci(r['CORP'])} | {_ci(r['INT'])} |")
     add("\n**The asymmetry is the finding.** On the benign quadrants (B, D) the "
         "corpus and interaction terms both span zero: the over-refusal cost is a "
         "property of the objective, not of the corpus. On the harmful quadrants "
         "(A, C) both exclude zero: the benefit is corpus-contingent. What you pay "
         "is reliable; what you get is not.\n")
 
-    add("\n## 2. Selectivity — DPO buys refusal, not discrimination\n")
+    add("\n## 2. Selectivity — DPO does discriminate, and the regex said otherwise\n")
     add("| arm | A − D (overt axis) | C − B (reduced-cue axis) |")
     add("|---|---|---|")
     sel = beh["contrasts_2x2"]["selectivity"]
@@ -77,9 +80,16 @@ def render() -> str:
         s1 = "" if a["ci_low"] <= 0 <= a["ci_high"] else " *"
         s2 = "" if b["ci_low"] <= 0 <= b["ci_high"] else " *"
         add(f"| {label} | {a['point']:+.3f}{s1} | {b['point']:+.3f}{s2} |")
-    add("\nOn the axis where wording no longer betrays intent (C vs B), **no arm "
-        "gains selectivity**, and the Dolly DPO arm is significantly "
-        "*anti*-selective. The extra refusal DPO buys is not discrimination.\n")
+    add("\nBoth DPO arms gain large, significant selectivity on **both** axes, "
+        "including C vs B where wording no longer betrays intent. Both safety-SFT "
+        "arms sit near zero.\n")
+    add("**CORRECTION.** An earlier version of this memo, computed on the frozen "
+        "regex classifier, reported that no arm gained selectivity on the C-vs-B "
+        "axis and that the Dolly DPO arm was significantly *anti*-selective at "
+        "−0.149. Under the validated judge that same arm is **+0.584 and "
+        "strongly selective**. \"DPO buys refusal, not discrimination\" was an "
+        "artifact of an instrument that misses untemplated refusals, not a "
+        "finding. It is withdrawn.\n")
 
     add("\n## 3. Representation — safety SFT barely moves it\n")
     add("At layer 24, `_final` pooling:\n")
