@@ -46,7 +46,8 @@ def main() -> int:
     logs.mkdir(parents=True, exist_ok=True)
     procs = []
     for gpu in range(min(n_gpus, 2)):
-        env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu), PYTHONUNBUFFERED="1")
+        env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu), PYTHONUNBUFFERED="1",
+                   PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True")
         cmd = [sys.executable, "-m", "src.seedrep.worker", "--bank", args.bank,
                "--gpu", str(gpu), "--n-gpus", str(min(n_gpus, 2)),
                "--priorities", *args.priorities]

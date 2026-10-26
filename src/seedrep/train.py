@@ -248,25 +248,34 @@ def train(run_id: str, cfg: dict, bank, scratch_root: Path, *, dose_steps=(), re
         trainer = SFTTrainer(model=model, args=args, train_dataset=dataset,
                              processing_class=tokenizer, callbacks=[ResumeCallback(), *cbs])
 
-    if resume_path:
-        log(f"  [{run_id}] resuming from {Path(resume_path).name}")
-    trainer.train(resume_from_checkpoint=resume_path)
-    state = trainer.state
-    if stopper.stopped and state.global_step < state.max_steps:
-        log(f"  [{run_id}] stopped at step {state.global_step} for the session deadline")
-        return {"status": "deadline", "step": state.global_step}
+    try:
+        if resume_path:
+            log(f"  [{run_id}] resuming from {Path(resume_path).name}")
+        trainer.train(resume_from_checkpoint=resume_path)
+        state = trainer.state
+        if stopper.stopped and state.global_step < state.max_steps:
+            log(f"  [{run_id}] stopped at step {state.global_step} for the session deadline")
+            return {"status": "deadline", "step": state.global_step}
 
-    if final_dir.exists():
-        shutil.rmtree(final_dir)
-    trainer.save_model(str(final_dir))
-    tokenizer.save_pretrained(str(final_dir))
-    (final_dir / "train_log.json").write_text(json.dumps(state.log_history, indent=1),
-                                              encoding="utf-8")
-    (final_dir / "config_used.json").write_text(json.dumps(cfg, indent=1), encoding="utf-8")
-    shas = bank.put_dir(final_dir, f"adapters/{run_id}/final", f"{run_id}: final adapter")
-    leftovers = bank.list(f"resume/{run_id}/")
-    if leftovers:
-        bank.delete(leftovers, f"{run_id}: training finished, drop resume checkpoint")
-    shutil.rmtree(resume_dir, ignore_errors=True)     # ~0.9 GB of optimizer state
-    return {"status": "done", "steps": state.global_step, "sha256": shas,
-            "resumed_from": Path(resume_path).name if resume_path else None}
+        if final_dir.exists():
+            shutil.rmtree(final_dir)
+        trainer.save_model(str(final_dir))
+        tokenizer.save_pretrained(str(final_dir))
+        (final_dir / "train_log.json").write_text(json.dumps(state.log_history, indent=1),
+                                                  encoding="utf-8")
+        (final_dir / "config_used.json").write_text(json.dumps(cfg, indent=1), encoding="utf-8")
+        shas = bank.put_dir(final_dir, f"adapters/{run_id}/final", f"{run_id}: final adapter")
+        leftovers = bank.list(f"resume/{run_id}/")
+        if leftovers:
+            bank.delete(leftovers, f"{run_id}: training finished, drop resume checkpoint")
+        shutil.rmtree(resume_dir, ignore_errors=True)     # ~0.9 GB of optimizer state
+        return {"status": "done", "steps": state.global_step, "sha256": shas,
+                "resumed_from": Path(resume_path).name if resume_path else None}
+    finally:
+        # give the GPU back whatever happened, so the next job starts clean
+        import gc
+
+        del trainer, model
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()

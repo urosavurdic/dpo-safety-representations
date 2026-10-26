@@ -126,6 +126,23 @@ class Context:
         for b in list(self._start):
             models.free(self._start.pop(b))
 
+    def release_gpu(self):
+        """Unload everything this worker keeps on the GPU between jobs."""
+        import gc
+
+        self.drop_start()
+        if self._judges is not None:
+            self._judges.unload()
+            self._judges = None
+        gc.collect()
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
+
     @property
     def judges(self):
         if self._judges is None:
@@ -236,7 +253,9 @@ def _parity(mine: np.ndarray, stored: np.ndarray) -> dict:
 def do_train(job: Job, ctx: Context) -> dict:
     p = job.params
     cfg = recipe_config(p["recipe"], p["branch"], p["seed"], ctx.s.train_overrides)
-    ctx.drop_start()                   # training needs the GPU memory
+    # training needs the whole GPU: the judges (~7 GB in 4-bit) and the cached
+    # start model are unloaded first; both reload on demand afterwards
+    ctx.release_gpu()
     out = train(p["run_id"], cfg, ctx.bank, ctx.paths.scratch,
                 dose_steps=p["dose_steps"], resume_every=_resume_every(p["recipe"], ctx),
                 deadline=ctx.deadline, log=ctx.log)

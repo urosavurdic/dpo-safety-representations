@@ -104,7 +104,12 @@ def build_jobs(priorities=("P1", "P2", "P3", "P4"), sft_dose=SFT_DOSE, dpo_dose=
         gpu0 += _orig_jobs("dolly", 0, "P3", ref.id)
         for seed in seeds:
             gpu0 += _run_jobs("sft", "dolly", seed, 0, "P3", sft_dose, ref.id)
-            gpu1 += _run_jobs("dpo", "dolly", seed, 1, "P3", dpo_dose, ref.id)
+        # DPO runs are the longest: one per GPU, so neither GPU idles while the
+        # other works through both
+        for seed in seeds:
+            gpu = 0 if seed == seeds[0] else 1
+            queue = gpu0 if gpu == 0 else gpu1
+            queue += _run_jobs("dpo", "dolly", seed, gpu, "P3", dpo_dose, ref.id)
     if "P4" in priorities:
         gpu1 += _run_jobs("sft_aol", "alpaca", 1, 1, "P4", sft_dose,
                           "ref__alpaca" if "P1" in priorities else None)
