@@ -152,10 +152,18 @@ def _callbacks(run_id, bank, scratch, dose_steps, deadline, margin_seconds, log,
 def train(run_id: str, cfg: dict, bank, scratch_root: Path, *, dose_steps=(), resume_every=50,
           deadline=None, margin_seconds=900, log=print) -> dict:
     """Train (or resume) one run. Returns ``{"status": "done"|"deadline", ...}``."""
+    import torch
     from transformers import set_seed
 
     from src.training.callbacks import ResumeCallback, latest_checkpoint
     from src.training.model import create_lora_config, load_tokenizer
+
+    if torch.cuda.device_count() > 1:
+        # the Trainer would wrap the model in DataParallel: per-device batch x
+        # GPUs changes the recipe's effective batch (and breaks on merged LoRA)
+        raise RuntimeError(
+            f"training sees {torch.cuda.device_count()} GPUs; run it with exactly one "
+            "visible (CUDA_VISIBLE_DEVICES=<n>), as src.seedrep.launch does per worker")
 
     scratch = Path(scratch_root) / run_id
     resume_dir, final_dir = scratch / "resume", scratch / "final"
@@ -259,5 +267,6 @@ def train(run_id: str, cfg: dict, bank, scratch_root: Path, *, dose_steps=(), re
     leftovers = bank.list(f"resume/{run_id}/")
     if leftovers:
         bank.delete(leftovers, f"{run_id}: training finished, drop resume checkpoint")
+    shutil.rmtree(resume_dir, ignore_errors=True)     # ~0.9 GB of optimizer state
     return {"status": "done", "steps": state.global_step, "sha256": shas,
             "resumed_from": Path(resume_path).name if resume_path else None}

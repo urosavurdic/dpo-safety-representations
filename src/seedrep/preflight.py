@@ -17,9 +17,15 @@ gate for everything else.
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import tempfile
 from pathlib import Path
+
+# One GPU, like each worker. With two visible, the Trainer wraps the model in
+# DataParallel, which crashes on a merged LoRA model and would double the
+# effective batch. Must be set before torch is imported.
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0")
 
 
 def check_env() -> dict:

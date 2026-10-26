@@ -41,7 +41,10 @@ browser.
 
 CONFIG = '''# ---- the only cell you edit ---------------------------------------------
 BANK = "hf://urosavurdic/dpo-seedrep-bank"   # private HF dataset repo, created if missing
-PRIORITIES = ["P1", "P2"]   # P1 seeds (branch 1) + behaviour; P2 injection; P3 branch-2 seeds; P4 response-only SFT
+# P1 seeds (branch 1) + behaviour; P2 injection; P3 branch-2 seeds; P4 response-only SFT.
+# Queue all four: workers take them in this order and stop cleanly at the deadline;
+# the next session continues where this one stopped.
+PRIORITIES = ["P1", "P2", "P3", "P4"]
 RUN_PREFLIGHT = True        # the first time on a new platform or image
 REPO_URL = "https://github.com/urosavurdic/dpo-safety-representations.git"
 PINNED_COMMIT = "__PINNED_COMMIT__"
@@ -50,7 +53,7 @@ assert re.fullmatch(r"[0-9a-f]{40}", PINNED_COMMIT), "PINNED_COMMIT must be a fu
 ON_KAGGLE = bool(os.environ.get("KAGGLE_KERNEL_RUN_TYPE")) or os.path.exists("/kaggle/working")
 ON_COLAB = not ON_KAGGLE and os.path.exists("/content")
 # stop cleanly before the platform kills the session (Kaggle 12 h; Colab varies)
-DEADLINE_MINUTES = 660 if ON_KAGGLE else 300
+DEADLINE_MINUTES = 630 if ON_KAGGLE else 300
 print("platform:", "kaggle" if ON_KAGGLE else "colab" if ON_COLAB else "local")'''
 
 CLONE = '''# ---- code at a pinned commit ---------------------------------------------

@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform as _platform
 import time
 import traceback
@@ -142,12 +143,28 @@ class Context:
             raise FileNotFoundError(f"not in bank: {remote}")
         return local
 
+    def _adapter_copies(self, remote: str) -> list[Path]:
+        """Where an ``adapters/<run>/<name>`` directory may sit on this disk: the
+        trainer's own output (same machine) first, then a fetched copy."""
+        _, run_id, name = remote.split("/")
+        own = self.paths.scratch / run_id / ("final" if name == "final" else f"dose/{name}")
+        return [own, self.paths.scratch / "fetched" / remote]
+
     def fetch_dir(self, remote: str) -> Path:
-        local = self.paths.scratch / "fetched" / remote
-        if not (local / "adapter_model.safetensors").exists():
-            if not self.bank.get_dir(remote, local):
-                raise FileNotFoundError(f"not in bank: {remote}/")
+        for path in self._adapter_copies(remote):
+            if (path / "adapter_model.safetensors").exists():
+                return path
+        local = self._adapter_copies(remote)[-1]
+        if not self.bank.get_dir(remote, local):
+            raise FileNotFoundError(f"not in bank: {remote}/")
         return local
+
+    def discard_dir(self, remote: str) -> None:
+        """Free local disk once an adapter is banked and no later job needs it."""
+        import shutil
+
+        for path in self._adapter_copies(remote):
+            shutil.rmtree(path, ignore_errors=True)
 
 
 def _save_npz(path: Path, **arrays) -> Path:
@@ -260,6 +277,8 @@ def do_measure(job: Job, ctx: Context) -> dict:
     ctx.bank.put({f"measure/{p['run_id']}/{name}.npz": npz,
                   f"measure/{p['run_id']}/{name}.json": meta_path},
                  f"measure {p['run_id']} {name}")
+    if not final:                      # banked; nothing else reads a dose adapter
+        ctx.discard_dir(f"adapters/{p['run_id']}/{name}")
     return {"sha256": {"npz": _sha(npz)}, **meta}
 
 
@@ -327,6 +346,9 @@ def do_gen(job: Job, ctx: Context) -> dict:
                                deadline=ctx.deadline, log=ctx.log)
     finally:
         models.free(model)
+    # the endpoint was measured and diagnosed before generation in the queue;
+    # if a later session needs it again, fetch_dir pulls it from the bank
+    ctx.discard_dir(f"adapters/{p['run_id']}/final")
     return {"n_rows": len(out)}
 
 
@@ -451,6 +473,11 @@ def main() -> int:
     ap.add_argument("--deadline-minutes", type=float, default=None)
     ap.add_argument("--only", nargs="*", default=None, help="run only these job ids")
     args = ap.parse_args()
+    if args.gpu is not None:
+        if args.n_gpus is None:
+            ap.error("--gpu needs --n-gpus (how many workers share the queue)")
+        # see only this GPU, before anything touches CUDA (launch.py sets it too)
+        os.environ.setdefault("CUDA_VISIBLE_DEVICES", str(args.gpu))
 
     from src.seedrep.bank import open_bank
 
