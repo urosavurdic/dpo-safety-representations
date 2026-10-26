@@ -413,36 +413,72 @@ HANDLERS = {"ref": do_ref, "orig": do_orig, "train": do_train, "measure": do_mea
 
 # ------------------------------------------------------------------- loop --
 
+#: short jobs whose outputs and done marker go up as one commit (bank.deferred)
+ONE_COMMIT_KINDS = {"ref", "orig", "measure", "diag", "chosen_rows"}
+
+
+def _blocked(todo: list[Job], failed: dict) -> set[str]:
+    """Jobs that cannot run this session because something they need failed."""
+    dead = set(failed)
+    grew = True
+    while grew:
+        grew = False
+        for j in todo:
+            if j.id not in dead and any(d in dead for d in j.deps):
+                dead.add(j.id)
+                grew = True
+    return dead
+
+
 def run(bank, queue: list[Job], settings: Settings, *, deadline_minutes: float | None,
-        wait_seconds: float = 60.0, log=print) -> dict:
+        wait_seconds: float = 60.0, max_wait_minutes: float = 40.0, log=print) -> dict:
+    import contextlib
+
     deadline = Deadline(deadline_minutes)
     ctx = Context(bank, settings, deadline, log)
     all_ids = {j.id for j in queue}
     failed, ran = {}, []
+    waited = 0.0
     while True:
         bank.refresh()                 # see the other worker's markers
         done = {j.id for j in queue if bank.is_done(j.id)}
-        todo = [j for j in queue if j.id not in done and j.id not in failed]
+        todo = [j for j in queue if j.id not in done]
+        dead = _blocked(todo, failed)
+        todo = [j for j in todo if j.id not in dead]
         if not todo:
+            if dead:
+                log(f"worker: stopping; {len(dead)} job(s) failed or blocked by a failure "
+                    "(they rerun next session)")
             break
         runnable = [j for j in todo if all(bank.is_done(d) for d in j.deps)]
         if not runnable:
-            foreign = [d for j in todo for d in j.deps if d not in all_ids]
-            if not foreign or deadline.would_exceed(wait_seconds):
-                log(f"worker: nothing runnable; {len(todo)} left "
-                    f"({'waiting on nothing' if not foreign else 'deadline'})")
+            pending = sorted({d for j in todo for d in j.deps
+                              if d not in all_ids and not bank.is_done(d)})
+            if not pending:
+                log(f"worker: nothing runnable; {len(todo)} left")
                 break
-            log(f"worker: waiting for {sorted(set(foreign))[:3]} from the other worker")
+            if waited >= max_wait_minutes * 60 or deadline.would_exceed(wait_seconds):
+                log(f"worker: stopped waiting for {pending[:3]} after {waited / 60:.0f} min")
+                break
+            log(f"worker: waiting for {pending[:3]} from the other worker")
             time.sleep(wait_seconds)
+            waited += wait_seconds
             continue
+        waited = 0.0
         job = runnable[0]
         if deadline.would_exceed(job.minutes * 60):
             log(f"worker: {job.id} (~{job.minutes:.0f} min) would pass the deadline; stopping")
             break
         log(f"worker: start {job.id}")
         started = time.monotonic()
+        batch = bank.deferred() if job.kind in ONE_COMMIT_KINDS else contextlib.nullcontext()
         try:
-            out = HANDLERS[job.kind](job, ctx)
+            with batch:
+                out = HANDLERS[job.kind](job, ctx)
+                record = {"status": STATUS_EXPLORATORY, "job": job.id, "kind": job.kind,
+                          "params": job.params, "elapsed_s": round(time.monotonic() - started, 1),
+                          "env": env_info(), "result": out}
+                bank.mark_done(job.id, record, ctx.paths.work / "markers")
         except InjectedFault:
             raise
         except DeadlineReached as exc:
@@ -452,10 +488,6 @@ def run(bank, queue: list[Job], settings: Settings, *, deadline_minutes: float |
             failed[job.id] = f"{type(exc).__name__}: {exc}"
             log(f"worker: {job.id} FAILED -- {failed[job.id]}\n{traceback.format_exc()}")
             continue
-        record = {"status": STATUS_EXPLORATORY, "job": job.id, "kind": job.kind,
-                  "params": job.params, "elapsed_s": round(time.monotonic() - started, 1),
-                  "env": env_info(), "result": out}
-        bank.mark_done(job.id, record, ctx.paths.work / "markers")
         ran.append(job.id)
         log(f"worker: done {job.id} in {record['elapsed_s']:.0f}s")
     if ctx._judges is not None:

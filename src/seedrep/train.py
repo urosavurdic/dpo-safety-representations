@@ -131,9 +131,9 @@ def _callbacks(run_id, bank, scratch, dose_steps, deadline, margin_seconds, log,
             ckpt = Path(ckpt)
             prefix = f"resume/{run_id}"
             old = [f for f in bank.list(prefix + "/") if not f.startswith(f"{prefix}/{ckpt.name}/")]
-            bank.put_dir(ckpt, f"{prefix}/{ckpt.name}", f"{run_id}: resume checkpoint {ckpt.name}")
-            if old:
-                bank.delete(old, f"{run_id}: drop older resume checkpoint")
+            # one commit: the new checkpoint in, the previous one out
+            bank.put_dir(ckpt, f"{prefix}/{ckpt.name}", f"{run_id}: resume checkpoint {ckpt.name}",
+                         delete=old)
             log(f"  [{run_id}] banked resume checkpoint {ckpt.name}")
 
     class FaultAndDeadline(TrainerCallback):

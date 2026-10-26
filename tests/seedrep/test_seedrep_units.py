@@ -74,3 +74,59 @@ def test_single_gpu_queue_respects_dependency_order():
 def test_dose_schedules_exclude_the_final_step():
     # the endpoint is measured from the fp32 final adapter, not a dose copy
     assert max(jobs.SFT_DOSE) < 250 and max(jobs.DPO_DOSE) < 125
+
+
+def test_deferred_puts_become_one_commit_with_the_marker(tmp_path):
+    bank = LocalBank(tmp_path / "bank")
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.write_text("1", encoding="utf-8")
+    b.write_text("2", encoding="utf-8")
+    with bank.deferred():
+        bank.put({"m/a": a}, "a")
+        bank.put({"m/b": b}, "b")
+        bank.mark_done("job", {"ok": 1}, tmp_path / "tmp")
+        assert not bank.exists("m/a"), "nothing lands before the job succeeds"
+    assert bank.commits == 1
+    assert bank.exists("m/a") and bank.exists("m/b") and bank.is_done("job")
+
+
+def test_failed_deferred_job_leaves_no_trace(tmp_path):
+    bank = LocalBank(tmp_path / "bank")
+    a = tmp_path / "a"
+    a.write_text("1", encoding="utf-8")
+    with pytest.raises(RuntimeError):
+        with bank.deferred():
+            bank.put({"m/a": a}, "a")
+            raise RuntimeError("job failed")
+    assert bank.commits == 0 and not bank.exists("m/a")
+
+
+def test_upload_and_delete_share_one_commit(tmp_path):
+    bank = LocalBank(tmp_path / "bank")
+    a = tmp_path / "a"
+    a.write_text("1", encoding="utf-8")
+    bank.put({"resume/r/checkpoint-2/x": a}, "old")
+    bank.put({"resume/r/checkpoint-4/x": a}, "new", delete=["resume/r/checkpoint-2/x"])
+    assert bank.commits == 2
+    assert bank.list("resume/r/") == ["resume/r/checkpoint-4/x"]
+
+
+def test_rate_limit_wait_reads_the_hub_message():
+    from src.seedrep.bank import rate_limit_wait
+
+    hour = Exception("429 Too Many Requests ... You can retry this action in about 1 hour.")
+    mins = Exception("429 Too Many Requests ... You can retry this action in 44 minutes.")
+    assert rate_limit_wait(hour) == 3660
+    assert rate_limit_wait(mins) == 44 * 60 + 60
+    assert rate_limit_wait(Exception("500 server error")) is None
+
+
+def test_failures_block_their_dependents_transitively():
+    from src.seedrep.jobs import Job
+    from src.seedrep.worker import _blocked
+
+    train = Job("train", "train", 0, "P1")
+    gen = Job("gen", "gen", 0, "P1", ("train",))
+    judge = Job("judge", "judge", 0, "P1", ("gen",))
+    other = Job("other", "train", 0, "P1")
+    assert _blocked([train, gen, judge, other], {"train": "x"}) == {"train", "gen", "judge"}

@@ -51,7 +51,7 @@ def _atomic_json(path: Path, obj) -> None:
 
 
 def generate(model, tokenizer, rows, device, *, unit: str, label: str, condition: str,
-             shas, bank, work: Path, scratch: Path, batch: int = 8, bank_every: int = 10,
+             shas, bank, work: Path, scratch: Path, batch: int = 8, bank_every: int = 20,
              injector=None, deadline=None, shard_seconds: float = 30.0, log=print) -> list[dict]:
     """All rows' responses in input order; resumes from banked shards."""
     from src.crossbranch.worker import generation_batch_with_injector
