@@ -1,0 +1,8 @@
+{
+ "data/processed/sft_safety.jsonl": "e879a3413f6ea1ed977c377523fe2b7750766d0f255f2196202359faea74bdd2",
+ "data/processed/dpo_pairs.jsonl": "b441c7fc9e592ff1e402f6ddbe9ed7483016ce9bd3cfd8afc4678e594ba3239b",
+ "data/processed/pku_heldout_pairs.jsonl": "d33362a1204bb557bcbf771856474c8b21b92679c1a1f27e73dd1c79220b1871",
+ "data/seedrep/inject_vectors.json": "253fe3a43e1691184969511a0500fde99a7a080a4f071e947081a0965c642b7d",
+ "data/seedrep/inject_vectors.npz": "88cfb31b1a0d81e6a425208334006a80bf46f39edab63367a6da11be3852f8e9",
+ "data/seedrep/parity_fixture.npz": "a8e774c676974d06004ef4db3e4b13979db76e6b3745f5eb048ff3edc7b5f09e"
+}

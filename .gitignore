@@ -50,7 +50,7 @@ results/final_token_repair/judges/*.json
 .pytest_cache/
 
 # ---------------------------------------------------------------------------
-# Unpublished write-up drafts. Kept local until published.
+# Local notes and drafts; not part of the project.
 # ---------------------------------------------------------------------------
 paper_draft/
 paper_draft_feedback/
@@ -90,3 +90,9 @@ results/behavioral_eval/reclassified_654.json
 *.egg-info/
 build/
 dist/
+
+# seed-replication local cache (first-token log-probs, dry runs)
+.seedrep_cache/
+
+# human labelling working files (the blind sheet; its key lives in private/)
+results/human_review/benign_check_sheet.html
