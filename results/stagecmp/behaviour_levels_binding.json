@@ -1,0 +1,10 @@
+{
+  "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+  "produced_utc": "2026-10-25T02:51:59Z",
+  "sha256": {
+    "results\\behavioral_judges\\behavioral_judges_20260930T001320Z.json": "a37858b91e9b6f2096bca2e46104acd893da8d7efb93d2ecca9d547f680418d4",
+    "results\\final_token_repair\\summaries\\final_token_endpoints.json": "adac90eadce6d87a0f160d46b47840c64af7ae9eb371382c71cfd6870c605067",
+    "data\\processed\\sft_safety.jsonl": "e879a3413f6ea1ed977c377523fe2b7750766d0f255f2196202359faea74bdd2",
+    "data\\processed\\dpo_pairs.jsonl": "b441c7fc9e592ff1e402f6ddbe9ed7483016ce9bd3cfd8afc4678e594ba3239b"
+  }
+}
