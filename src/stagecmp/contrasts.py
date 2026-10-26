@@ -28,7 +28,14 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.common.stats import BOOTSTRAP_B, BOOTSTRAP_SEED, paired_bootstrap_ci
+from src.common.stats import (
+    BOOTSTRAP_B,
+    BOOTSTRAP_SEED,
+    bootstrap_nonlinear_contrast,
+    paired_bootstrap_ci,
+)
+
+__all__ = ["bootstrap_nonlinear_contrast"]   # re-exported; defined in common.stats
 from src.stagecmp import STATUS_EXPLORATORY
 from src.stagecmp.behav_metrics import per_prompt, quadrant_of
 from src.stagecmp.loaders import JUDGE_DEFAULT

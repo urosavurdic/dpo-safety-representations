@@ -45,6 +45,33 @@ def full_matrix(act_dir, directions_dir, pooling, layers=MATRIX_LAYERS) -> dict:
     return out
 
 
+def _merge_cis(args, t0) -> int:
+    """Add ``ratio_cis`` to each headline pair in the artifact already on disk."""
+    import json
+
+    from src.stagecmp.pairs import HEADLINE_PAIRS, pair_key
+    from src.stagecmp.repr_metrics import CI_LAYERS, ratio_confidence_intervals
+
+    target = OUT_DIR / f"representational_{args.pooling}.json"
+    if not target.exists():
+        raise SystemExit(f"{target} does not exist; run without --ci-only first")
+    payload = json.loads(target.read_text(encoding="utf-8"))
+
+    for pre, post in HEADLINE_PAIRS:
+        key = pair_key(pre, post)
+        if key not in payload.get("headline_pairs", {}):
+            print(f"   skip {key}: not in the artifact")
+            continue
+        payload["headline_pairs"][key]["ratio_cis"] = ratio_confidence_intervals(
+            pre, post, args.act_dir, args.pooling)
+        print(f"   {key}  ({time.time() - t0:.0f}s)")
+
+    payload["ci_layers"] = list(CI_LAYERS)
+    write_json_lf(target, payload)
+    print(f"\nmerged ratio CIs into {target}   ({time.time() - t0:.0f}s)")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--pooling", default="final_token",
@@ -52,10 +79,20 @@ def main() -> int:
     ap.add_argument("--act-dir", default=str(ACT_DIR))
     ap.add_argument("--directions-dir", default=str(DIRECTIONS_DIR))
     ap.add_argument("--skip-matrix", action="store_true")
+    ap.add_argument(
+        "--ci-only", action="store_true",
+        help="merge ratio bootstrap CIs into the EXISTING artifact instead of "
+             "recomputing the point estimates. The point estimates are "
+             "deterministic and already on disk, and recomputing the full-depth "
+             "subspace geometry to add four intervals per pair wastes hours.",
+    )
     args = ap.parse_args()
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
+
+    if args.ci_only:
+        return _merge_cis(args, t0)
 
     print(f"[{args.pooling}] saturation check ...")
     sat = saturation_check(args.act_dir, args.directions_dir, args.pooling)

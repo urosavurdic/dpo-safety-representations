@@ -9,8 +9,8 @@ line chart, not bars. Two panels, one axis each - never a dual y-axis.
 colour carries only the OBJECTIVE (2 hues) and linestyle carries the CORPUS
 (solid Alpaca, dashed Dolly). That is a composite encoding: it halves the hue
 count and, more importantly, makes colour non-load-bearing, so the figure
-survives the greyscale printing an IEEE proceedings may apply. Hues are slots 1
-and 2 of the reference categorical theme, in fixed order.
+survives greyscale reproduction. Hues are slots 1 and 2 of the reference
+categorical theme, in fixed order.
 
 **Validation.** `scripts/validate_palette.js` could not be run here - node is not
 installed on this machine. Rather than eyeball it, the design avoids depending on

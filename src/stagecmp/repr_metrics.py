@@ -41,12 +41,22 @@ from src.analysis.subspace_geometry import (
 )
 from src.common.activations import l2_normalize
 from src.common.quadrants import QUADRANTS
+from src.common.stats import (
+    BOOTSTRAP_B,
+    BOOTSTRAP_SEED,
+    bootstrap_nonlinear_contrast,
+)
 from src.stagecmp import STATUS_EXPLORATORY
 from src.stagecmp.loaders import load_stage_arrays, stage_direction
 from src.stagecmp.pairs import HEADLINE_PAIRS, pair_key
 
 DIRECTION_SPLIT = "direction_estimation"
 R_PRIMARY = 5
+#: layers carrying bootstrap intervals. Fixed in advance and deliberately
+#: small: this is the grid the 36-pair matrix already uses, so it is not
+#: chosen from the results, and four intervals per pair does not invite the
+#: multiplicity misreading that 29 would.
+CI_LAYERS = (16, 20, 24, 28)
 #: pairs spanning the expected range, for the saturation pre-check
 SATURATION_PAIRS = (
     ("M0", "M1"),            # instruction tuning: expected large
@@ -172,6 +182,89 @@ def pair_report(
     }
 
 
+def ratio_confidence_intervals(
+    pre: str,
+    post: str,
+    act_dir,
+    pooling: str = "final_token",
+    layers=CI_LAYERS,
+    b: int = BOOTSTRAP_B,
+    seed: int = BOOTSTRAP_SEED,
+) -> dict:
+    """Bootstrap intervals for the SCALE-FREE quantities, at ``CI_LAYERS``.
+
+    Three ratios, each immune to the objection that a difference between two
+    transitions is really a difference in how much the transition moved
+    anything at all:
+
+    * ``contrast_norm_ratio`` -- ||c_post|| / ||c_pre||, on the A/D
+      direction-estimation rows, exactly as ``pair_report`` computes it.
+    * ``drift_ratio_A_over_D`` and ``drift_ratio_C_over_B`` -- mean per-prompt
+      displacement on one quadrant over another. A transition that moves every
+      prompt equally scores 1.0 whatever its magnitude, so these separate
+      anisotropic movement from a large isotropic one.
+
+    Row indices are resampled, not values, so the pre and post checkpoints are
+    always read on the same resampled prompts -- see
+    ``contrasts.bootstrap_nonlinear_contrast``.
+    """
+    a_pre, meta = load_stage_arrays(pre, pooling, act_dir)
+    a_post, _ = load_stage_arrays(post, pooling, act_dir)
+    if a_pre.shape != a_post.shape:
+        raise ValueError(f"{pre}/{post} shape mismatch: {a_pre.shape} vs {a_post.shape}")
+    quads, a_mask, d_mask = _masks(meta)
+    a_est, d_est = np.flatnonzero(a_mask), np.flatnonzero(d_mask)
+
+    # The grid is fixed for the real 29-layer stack; toy fixtures are shallower,
+    # so drop layers that do not exist rather than indexing past the end.
+    n_layers = a_pre.shape[1]
+    layers = [int(l) for l in layers if 0 <= int(l) < n_layers]
+
+    out = {}
+    for l in layers:
+        xp, xq = a_pre[:, l], a_post[:, l]
+        drift = np.linalg.norm(a_post[:, l] - a_pre[:, l], axis=1)
+
+        def contrast_ratio(g, xp=xp, xq=xq):
+            pre_norm = float(np.linalg.norm(xp[g[0]].mean(0) - xp[g[1]].mean(0)))
+            if pre_norm <= 1e-12:
+                return float("nan")
+            return float(np.linalg.norm(xq[g[0]].mean(0) - xq[g[1]].mean(0)) / pre_norm)
+
+        cells = {
+            "contrast_norm_ratio": bootstrap_nonlinear_contrast(
+                [a_est, d_est], contrast_ratio, b=b, seed=seed),
+        }
+        for name, (q_num, q_den) in (("drift_ratio_A_over_D", ("A", "D")),
+                                     ("drift_ratio_C_over_B", ("C", "B"))):
+            def drift_ratio(g, drift=drift):
+                den = float(drift[g[1]].mean())
+                if den <= 1e-12:
+                    return float("nan")
+                return float(drift[g[0]].mean() / den)
+
+            cells[name] = bootstrap_nonlinear_contrast(
+                [np.flatnonzero(quads == q_num), np.flatnonzero(quads == q_den)],
+                drift_ratio, b=b, seed=seed)
+        out[str(int(l))] = cells
+
+    return {
+        "status": STATUS_EXPLORATORY,
+        "pre": pre,
+        "post": post,
+        "pooling": pooling,
+        "layers": [int(l) for l in layers],
+        "by_layer": out,
+        "reading": (
+            "These are RATIOS, so a transition that moves everything equally "
+            "scores 1.0 regardless of magnitude. That is the point: it "
+            "separates 'the harmful/benign structure changed' from 'this "
+            "transition simply moved the model further'. Intervals are "
+            "percentile, from a shared resample of the two row groups."
+        ),
+    }
+
+
 def saturation_check(
     act_dir,
     directions_dir,
@@ -237,13 +330,26 @@ def headline_pairs(
     directions_dir,
     pooling: str = "final_token",
     pairs=HEADLINE_PAIRS,
+    with_ci: bool = True,
+    b: int = BOOTSTRAP_B,
+    seed: int = BOOTSTRAP_SEED,
 ) -> dict:
-    """Full-depth report for the eight pre-named pairs."""
+    """Full-depth report for the eight pre-named pairs.
+
+    Point estimates at every layer; bootstrap intervals for the scale-free
+    ratios at ``CI_LAYERS`` only. The ratios are what any cross-transition
+    comparison has to rest on, so they are the quantities that get intervals.
+    """
+    out = {}
+    for pre, post in pairs:
+        rep = pair_report(pre, post, act_dir, directions_dir, pooling)
+        if with_ci:
+            rep["ratio_cis"] = ratio_confidence_intervals(
+                pre, post, act_dir, pooling, b=b, seed=seed)
+        out[pair_key(pre, post)] = rep
     return {
         "status": STATUS_EXPLORATORY,
         "pooling": pooling,
-        "pairs": {
-            pair_key(pre, post): pair_report(pre, post, act_dir, directions_dir, pooling)
-            for pre, post in pairs
-        },
+        "ci_layers": list(CI_LAYERS) if with_ci else None,
+        "pairs": out,
     }

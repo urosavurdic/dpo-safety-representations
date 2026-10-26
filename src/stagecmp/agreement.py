@@ -23,8 +23,8 @@ Direction conventions, which matter for reading the signs:
 Decision rule, fixed before running (analysis_plan.md discipline):
 ``kappa >= 0.60`` on refusal means the regex matrix stands on its own and the
 full judging pass is confirmatory rather than load-bearing. Below that, every
-cross-stage behavioural claim must be restated under a real judge before it is
-submitted.
+cross-stage behavioural claim must be restated under a validated judge before
+it is reported.
 """
 from __future__ import annotations
 
@@ -156,7 +156,7 @@ def report(stages=DUAL_SCORED_STAGES, judge_path=JUDGE_DEFAULT) -> dict:
                 "kappa >= 0.60 on refusal: the regex-only cross-stage matrix "
                 "stands on its own and the full judging pass is confirmatory. "
                 "Below: every cross-stage behavioural claim must be restated "
-                "under a real judge before submission."
+                "under a validated judge before it is reported."
             ),
         },
         "regex_vs_wildguard": {
@@ -190,8 +190,8 @@ def report(stages=DUAL_SCORED_STAGES, judge_path=JUDGE_DEFAULT) -> dict:
         "PASS: regex-only cross-stage numbers stand; the judging pass is "
         "confirmatory." if out["verdict"]["passes"] else
         "FAIL: the regex-only cross-stage numbers must be restated under "
-        "StrongREJECT and WildGuard before submission. The judging pass moves "
-        "ahead of the paper."
+        "StrongREJECT and WildGuard before they are reported. The judging "
+        "pass is load-bearing, not confirmatory."
     )
     return out
 

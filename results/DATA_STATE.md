@@ -2,7 +2,7 @@
 
 **Read this before auditing anything under `results/`.** It exists because a
 previous audit concluded "only 4 of 9 checkpoints have fresh activations" and
-built a paper limitation around it — when the other five were sitting unpacked
+built a stated limitation around it — when the other five were sitting unpacked
 in a Google-Drive bundle. The local checkout was stale, not the experiment.
 
 Last reconciled: **2026-09-10**, against
@@ -42,7 +42,7 @@ Thirteen exist across all bundles; **only these are current**:
 | File | Covers | Used for |
 |---|---|---|
 | `behavioral_judges_v2_20260907T043919Z.json` (30,798 rec) | all 9 behavioural stages + pooled causal + steering | CF1, steering, behavioural trajectory |
-| `final_token_repair/judges/behavioral_judges_v2_20260908T060458Z.json` (10,008 rec) | final-token causal, SR + WG | **CF2 and everything in the paper's intervention section** |
+| `final_token_repair/judges/behavioral_judges_v2_20260908T060458Z.json` (10,008 rec) | final-token causal, SR + WG | **CF2 and the whole intervention analysis** |
 | `final_token_repair/judges/behavioral_judges_v2_20260908T001504Z.json` | final-token causal, SR only | the `_strongreject_only` summaries |
 
 The eleven older runs (2026-09-03 → 2026-09-07T034708Z, ~503 MB) were

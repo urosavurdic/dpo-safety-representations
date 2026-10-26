@@ -1,0 +1,10 @@
+{
+  "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+  "produced_utc": "2026-09-30T13:24:41Z",
+  "inputs": {
+    "judge_file": "results\\behavioral_judges\\behavioral_judges_20260930T001320Z.json"
+  },
+  "sha256": {
+    "judge_file": "a37858b91e9b6f2096bca2e46104acd893da8d7efb93d2ecca9d547f680418d4"
+  }
+}

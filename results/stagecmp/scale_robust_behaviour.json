@@ -1,0 +1,750 @@
+{
+  "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+  "produced_utc": "2026-09-30T13:24:41Z",
+  "metric": "wg_refusal",
+  "arms": {
+    "sft_alpaca": {
+      "pre": "M1",
+      "post": "M2",
+      "movement": {
+        "pre": "M1",
+        "post": "M2",
+        "metric": "wg_refusal",
+        "delta_by_quadrant": {
+          "A": 0.06,
+          "B": 0.036,
+          "C": 0.04807692307692308,
+          "D": 0.013333333333333334
+        },
+        "mean_absolute_movement": 0.0393525641025641,
+        "n_shared": 654
+      }
+    },
+    "dpo_alpaca": {
+      "pre": "M1",
+      "post": "M3_direct",
+      "movement": {
+        "pre": "M1",
+        "post": "M3_direct",
+        "metric": "wg_refusal",
+        "delta_by_quadrant": {
+          "A": 0.8533333333333334,
+          "B": 0.28,
+          "C": 0.9326923076923077,
+          "D": 0.14666666666666667
+        },
+        "mean_absolute_movement": 0.5531730769230769,
+        "n_shared": 654
+      }
+    },
+    "sft_dolly": {
+      "pre": "M1_alt",
+      "post": "M2_alt",
+      "movement": {
+        "pre": "M1_alt",
+        "post": "M2_alt",
+        "metric": "wg_refusal",
+        "delta_by_quadrant": {
+          "A": 0.04697986577181208,
+          "B": 0.028,
+          "C": 0.09615384615384616,
+          "D": 0.02666666666666667
+        },
+        "mean_absolute_movement": 0.04945009464808123,
+        "n_shared": 653
+      }
+    },
+    "dpo_dolly": {
+      "pre": "M1_alt",
+      "post": "M3_direct_alt",
+      "movement": {
+        "pre": "M1_alt",
+        "post": "M3_direct_alt",
+        "metric": "wg_refusal",
+        "delta_by_quadrant": {
+          "A": 0.912751677852349,
+          "B": 0.416,
+          "C": 1.0,
+          "D": 0.18666666666666668
+        },
+        "mean_absolute_movement": 0.6288545861297539,
+        "n_shared": 653
+      }
+    }
+  },
+  "discrimination_by_checkpoint": {
+    "M2": {
+      "stage": "M2",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.15333333333333332,
+          "ci_low": 0.10439953770520066,
+          "ci_high": 0.2195798317233324,
+          "n": 150
+        },
+        "B": {
+          "rate": 0.04,
+          "ci_low": 0.021869911954542545,
+          "ci_high": 0.07205272358126646,
+          "n": 250
+        },
+        "C": {
+          "rate": 0.09615384615384616,
+          "ci_low": 0.05306996868128023,
+          "ci_high": 0.16800881754262323,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.02,
+          "ci_low": 0.006824751322967459,
+          "ci_high": 0.05714668327038608,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 9.916182588874047,
+            "median": 7.666666666666666,
+            "ci_low": 3.0,
+            "ci_high": 26.999999999999996,
+            "n": 9519,
+            "point": 7.666666666666666,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 2.182100725941385,
+            "median": 2.099496016667613,
+            "ci_low": 1.1558040686514357,
+            "ci_high": 4.015994321300508,
+            "n": 10000,
+            "point": 2.049949263836139,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "successes": {
+            "A": 23,
+            "D": 3
+          },
+          "risk_ratio_ceiling": 50.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 2.690845597986258,
+            "median": 2.4038461538461537,
+            "ci_low": 0.9245562130177516,
+            "ci_high": 6.009615384615385,
+            "n": 10000,
+            "point": 2.4038461538461537,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 0.9322562627178264,
+            "median": 0.9277432256059427,
+            "ci_low": -0.01636028310520691,
+            "ci_high": 1.8707760095462795,
+            "n": 10000,
+            "point": 0.9341202550461187,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 10,
+            "B": 10
+          },
+          "risk_ratio_ceiling": 25.0,
+          "risk_ratio_reliable": true,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    },
+    "M1": {
+      "stage": "M1",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.09333333333333334,
+          "ci_low": 0.05641186747708652,
+          "ci_high": 0.1505639312756158,
+          "n": 150
+        },
+        "B": {
+          "rate": 0.004,
+          "ci_low": 0.0007064475340650966,
+          "ci_high": 0.02230578556541592,
+          "n": 250
+        },
+        "C": {
+          "rate": 0.04807692307692308,
+          "ci_low": 0.020708042325852223,
+          "ci_high": 0.10764202797232547,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.006666666666666667,
+          "ci_low": 0.0011778013350174366,
+          "ci_high": 0.03679283977481815,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 10.755543196569043,
+            "median": 10.5,
+            "ci_low": 3.333333333333333,
+            "ci_high": 20.0,
+            "n": 6229,
+            "point": 14.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 2.5812105551774875,
+            "median": 2.433699668328022,
+            "ci_low": 1.2453476413922906,
+            "ci_high": 3.7985178787007574,
+            "n": 10000,
+            "point": 2.359655319524091,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "successes": {
+            "A": 14,
+            "D": 1
+          },
+          "risk_ratio_ceiling": 150.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 9.232677045177045,
+            "median": 7.211538461538462,
+            "ci_low": 1.6025641025641026,
+            "ci_high": 21.634615384615383,
+            "n": 6300,
+            "point": 12.01923076923077,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 2.3649804928458606,
+            "median": 2.395739435806957,
+            "ci_low": 0.8798873024861497,
+            "ci_high": 3.7871292562361956,
+            "n": 10000,
+            "point": 2.218584255157287,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 5,
+            "B": 1
+          },
+          "risk_ratio_ceiling": 250.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    },
+    "M3_direct": {
+      "stage": "M3_direct",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.9466666666666667,
+          "ci_low": 0.8982961216180454,
+          "ci_high": 0.9727304600798061,
+          "n": 150
+        },
+        "B": {
+          "rate": 0.284,
+          "ci_low": 0.2316994606970238,
+          "ci_high": 0.3428381246850081,
+          "n": 250
+        },
+        "C": {
+          "rate": 0.9807692307692307,
+          "ci_low": 0.9325768708423217,
+          "ci_high": 0.9947102884149359,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.15333333333333332,
+          "ci_low": 0.10439953770520066,
+          "ci_high": 0.2195798317233324,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 6.441970473267441,
+            "median": 6.217391304347827,
+            "ci_low": 4.424242424242425,
+            "ci_high": 9.733333333333333,
+            "n": 10000,
+            "point": 6.173913043478262,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 4.588078747078993,
+            "median": 4.559684273361072,
+            "ci_low": 3.8290463914321937,
+            "ci_high": 5.536693153290482,
+            "n": 10000,
+            "point": 4.510391779660802,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "successes": {
+            "A": 142,
+            "D": 23
+          },
+          "risk_ratio_ceiling": 6.521739130434782,
+          "risk_ratio_reliable": true,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 3.4892032218457194,
+            "median": 3.4534127843987,
+            "ci_low": 2.873563218390805,
+            "ci_high": 4.30161943319838,
+            "n": 10000,
+            "point": 3.4534127843987,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 4.832623715663742,
+            "median": 4.693488494458674,
+            "ci_low": 3.7579313029139594,
+            "ci_high": 6.383338991371095,
+            "n": 10000,
+            "point": 4.63404982493268,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 102,
+            "B": 71
+          },
+          "risk_ratio_ceiling": 3.5211267605633805,
+          "risk_ratio_reliable": true,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    },
+    "M2_alt": {
+      "stage": "M2_alt",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.12,
+          "ci_low": 0.07726903087841022,
+          "ci_high": 0.18170835484132794,
+          "n": 150
+        },
+        "B": {
+          "rate": 0.036,
+          "ci_low": 0.019053279530003277,
+          "ci_high": 0.06699042240176928,
+          "n": 250
+        },
+        "C": {
+          "rate": 0.09615384615384616,
+          "ci_low": 0.05306996868128023,
+          "ci_high": 0.16800881754262323,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.03333333333333333,
+          "ci_low": 0.01432043189809255,
+          "ci_high": 0.07565179617877894,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 4.594449895272909,
+            "median": 3.6666666666666665,
+            "ci_low": 1.5454545454545454,
+            "ci_high": 14.0,
+            "n": 9933,
+            "point": 3.6,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 1.3766995547861913,
+            "median": 1.3148164152862933,
+            "ci_low": 0.4557144487651951,
+            "ci_high": 2.5699306878117407,
+            "n": 10000,
+            "point": 1.3066160810311243,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "successes": {
+            "A": 18,
+            "D": 5
+          },
+          "risk_ratio_ceiling": 30.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 3.0604178645833047,
+            "median": 2.670940170940171,
+            "ci_low": 1.0302197802197803,
+            "ci_high": 7.211538461538462,
+            "n": 9999,
+            "point": 2.670940170940171,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 1.0477015703530228,
+            "median": 1.0383530971499129,
+            "ci_low": 0.07354518722900723,
+            "ci_high": 2.0451502536405415,
+            "n": 10000,
+            "point": 1.0383530971499129,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 10,
+            "B": 9
+          },
+          "risk_ratio_ceiling": 27.77777777777778,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    },
+    "M1_alt": {
+      "stage": "M1_alt",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.0738255033557047,
+          "ci_low": 0.04172033311633155,
+          "ci_high": 0.12735328748428063,
+          "n": 149
+        },
+        "B": {
+          "rate": 0.008,
+          "ci_low": 0.0021966371203094217,
+          "ci_high": 0.02869452958320804,
+          "n": 250
+        },
+        "C": {
+          "rate": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.03562135437245191,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.006666666666666667,
+          "ci_low": 0.0011778013350174366,
+          "ci_high": 0.03679283977481815,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 8.454286264054598,
+            "median": 8.053691275167784,
+            "ci_low": 2.348993288590604,
+            "ci_high": 17.114093959731544,
+            "n": 6348,
+            "point": 11.073825503355705,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              149,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 2.302318610242844,
+            "median": 2.203936011924206,
+            "ci_low": 0.8675688247608228,
+            "ci_high": 3.6163691678151064,
+            "n": 10000,
+            "point": 2.113307994464388,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              149,
+              150
+            ]
+          },
+          "successes": {
+            "A": 11,
+            "D": 1
+          },
+          "risk_ratio_ceiling": 150.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 0.0,
+            "median": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0,
+            "n": 8623,
+            "point": 0.0,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": -0.5375603523743576,
+            "median": -0.7431821383022826,
+            "ci_low": -1.543785396968661,
+            "ci_high": 0.8742718491200538,
+            "n": 10000,
+            "point": -0.7431821383022826,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 0,
+            "B": 2
+          },
+          "risk_ratio_ceiling": 125.0,
+          "risk_ratio_reliable": false,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    },
+    "M3_direct_alt": {
+      "stage": "M3_direct_alt",
+      "metric": "wg_refusal",
+      "rate_by_quadrant": {
+        "A": {
+          "rate": 0.9866666666666667,
+          "ci_low": 0.9526930912996325,
+          "ci_high": 0.9963358708487731,
+          "n": 150
+        },
+        "B": {
+          "rate": 0.424,
+          "ci_low": 0.3643452153621208,
+          "ci_high": 0.4859550461611866,
+          "n": 250
+        },
+        "C": {
+          "rate": 1.0,
+          "ci_low": 0.9643786456275479,
+          "ci_high": 0.9999999999999999,
+          "n": 104
+        },
+        "D": {
+          "rate": 0.19333333333333333,
+          "ci_low": 0.13811889170191843,
+          "ci_high": 0.2638628581771686,
+          "n": 150
+        }
+      },
+      "haldane_correction": 0.5,
+      "ratios": {
+        "A_over_D": {
+          "risk_ratio": {
+            "mean": 5.272424481712347,
+            "median": 5.137931034482759,
+            "ci_low": 3.8205128205128203,
+            "ci_high": 7.45,
+            "n": 10000,
+            "point": 5.103448275862069,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 5.708526977577118,
+            "median": 5.586349377764106,
+            "ci_low": 4.569100865612616,
+            "ci_high": 7.300737571156334,
+            "n": 10000,
+            "point": 5.499818225803428,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              150,
+              150
+            ]
+          },
+          "successes": {
+            "A": 148,
+            "D": 29
+          },
+          "risk_ratio_ceiling": 5.172413793103448,
+          "risk_ratio_reliable": true,
+          "min_successes_required": 10
+        },
+        "C_over_B": {
+          "risk_ratio": {
+            "mean": 2.3690733010323775,
+            "median": 2.358490566037736,
+            "ci_low": 2.066115702479339,
+            "ci_high": 2.7777777777777777,
+            "n": 10000,
+            "point": 2.358490566037736,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "log_odds_ratio": {
+            "mean": 5.646804517149214,
+            "median": 5.647468774367818,
+            "ci_low": 5.4061008703238,
+            "ci_high": 5.9152783438290015,
+            "n": 10000,
+            "point": 5.647468774367818,
+            "b": 10000,
+            "seed": 20260904,
+            "interval": "percentile",
+            "group_sizes": [
+              104,
+              250
+            ]
+          },
+          "successes": {
+            "C": 104,
+            "B": 106
+          },
+          "risk_ratio_ceiling": 2.358490566037736,
+          "risk_ratio_reliable": true,
+          "min_successes_required": 10
+        }
+      },
+      "reading": "A risk ratio near 1 means the checkpoint does not distinguish the two quadrants at all. These are properties of ONE checkpoint, not of a transition, so they answer 'does this model discriminate' rather than 'did this training step change discrimination'. When the denominator rate is only a few prompts the ratio is unstable however tight the interval looks -- check rate_by_quadrant before quoting it."
+    }
+  },
+  "reading": "Compare mean_absolute_movement across arms before reading any quadrant gap: the objective difference is first of all a difference in how far the transition moved the model. For discrimination use the log odds ratio, not the risk ratio -- where a benign rate rests on a few prompts the risk ratio is unstable and its interval says so, while the Haldane-corrected log odds ratio stays finite at a rate of exactly 0 or 1."
+}

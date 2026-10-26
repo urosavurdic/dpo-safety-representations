@@ -1427,7 +1427,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M1",
+        "post": "M2",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 0.9857666448950767,
+              "median": 0.9858109951019287,
+              "ci_low": 0.9729448109865189,
+              "ci_high": 0.9986785769462585,
+              "n": 10000,
+              "point": 0.9847067594528198,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 0.9930139614999294,
+              "median": 0.9929699599742889,
+              "ci_low": 0.9712603822350502,
+              "ci_high": 1.0149236083030702,
+              "n": 10000,
+              "point": 0.9929603338241577,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0675414167642594,
+              "median": 1.0675662755966187,
+              "ci_low": 1.0461514830589294,
+              "ci_high": 1.0887295752763748,
+              "n": 10000,
+              "point": 1.0674153566360474,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 0.9899050681471825,
+              "median": 0.9898948073387146,
+              "ci_low": 0.9733783408999443,
+              "ci_high": 1.0064871609210968,
+              "n": 10000,
+              "point": 0.989190936088562,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.0172487216114998,
+              "median": 1.0173599123954773,
+              "ci_low": 0.9861935243010521,
+              "ci_high": 1.0478060066699981,
+              "n": 10000,
+              "point": 1.0171289443969727,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0762971067547797,
+              "median": 1.076283037662506,
+              "ci_low": 1.0450944244861602,
+              "ci_high": 1.1065788447856904,
+              "n": 10000,
+              "point": 1.076136827468872,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 0.9918492384791374,
+              "median": 0.9918122589588165,
+              "ci_low": 0.9738110110163689,
+              "ci_high": 1.0101925283670425,
+              "n": 10000,
+              "point": 0.9922242760658264,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.069271276396513,
+              "median": 1.0692843794822693,
+              "ci_low": 1.0250352889299392,
+              "ci_high": 1.1138491094112397,
+              "n": 10000,
+              "point": 1.0689043998718262,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0525538335740565,
+              "median": 1.0524420142173767,
+              "ci_low": 1.014575406908989,
+              "ci_high": 1.0915450394153594,
+              "n": 10000,
+              "point": 1.052177906036377,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 0.9457084400177002,
+              "median": 0.9458878338336945,
+              "ci_low": 0.9274699658155441,
+              "ci_high": 0.9637538477778435,
+              "n": 10000,
+              "point": 0.9471194744110107,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.04746954703331,
+              "median": 1.0475354194641113,
+              "ci_low": 1.0118060678243637,
+              "ci_high": 1.0838125407695771,
+              "n": 10000,
+              "point": 1.047143816947937,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.120112265622616,
+              "median": 1.1201911568641663,
+              "ci_low": 1.0856830835342408,
+              "ci_high": 1.154662936925888,
+              "n": 10000,
+              "point": 1.1198279857635498,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M1__to__M3_direct": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -2712,7 +2916,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M1",
+        "post": "M3_direct",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.3127566430449487,
+              "median": 1.3125874996185303,
+              "ci_low": 1.2322400718927384,
+              "ci_high": 1.3976201623678206,
+              "n": 10000,
+              "point": 1.321456789970398,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.449888997721672,
+              "median": 1.4496345520019531,
+              "ci_low": 1.3953265488147737,
+              "ci_high": 1.5049794554710387,
+              "n": 10000,
+              "point": 1.4493778944015503,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2690171974301339,
+              "median": 1.2689786553382874,
+              "ci_low": 1.234951651096344,
+              "ci_high": 1.3035977244377135,
+              "n": 10000,
+              "point": 1.268778920173645,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.7575265537977218,
+              "median": 1.7556593418121338,
+              "ci_low": 1.622449091076851,
+              "ci_high": 1.9005474001169205,
+              "n": 10000,
+              "point": 1.7778019905090332,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.53894226051569,
+              "median": 1.5373538136482239,
+              "ci_low": 1.4459407180547714,
+              "ci_high": 1.638848915696144,
+              "n": 10000,
+              "point": 1.5369867086410522,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.172277274632454,
+              "median": 1.1720799803733826,
+              "ci_low": 1.1417910933494568,
+              "ci_high": 1.2036307364702226,
+              "n": 10000,
+              "point": 1.1722972393035889,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.504948768901825,
+              "median": 1.5040380954742432,
+              "ci_low": 1.4193316966295242,
+              "ci_high": 1.595748460292816,
+              "n": 10000,
+              "point": 1.5401591062545776,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.4263687103390694,
+              "median": 1.4244417548179626,
+              "ci_low": 1.331502839922905,
+              "ci_high": 1.5299548298120498,
+              "n": 10000,
+              "point": 1.4242799282073975,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2015843339681624,
+              "median": 1.201288104057312,
+              "ci_low": 1.1683235466480255,
+              "ci_high": 1.235804408788681,
+              "n": 10000,
+              "point": 1.2016063928604126,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.5963059477210044,
+              "median": 1.59526127576828,
+              "ci_low": 1.5076693087816238,
+              "ci_high": 1.6888183176517486,
+              "n": 10000,
+              "point": 1.6271495819091797,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.3780322410464287,
+              "median": 1.3771575093269348,
+              "ci_low": 1.2935458093881607,
+              "ci_high": 1.4678175687789916,
+              "n": 10000,
+              "point": 1.3766436576843262,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.264456309235096,
+              "median": 1.264327049255371,
+              "ci_low": 1.225890761613846,
+              "ci_high": 1.3053710520267487,
+              "n": 10000,
+              "point": 1.2644394636154175,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M1_alt__to__M2_alt": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -3997,7 +4405,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M1_alt",
+        "post": "M2_alt",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.0948343940854073,
+              "median": 1.0948520302772522,
+              "ci_low": 1.0765945702791213,
+              "ci_high": 1.113220363855362,
+              "n": 10000,
+              "point": 1.0937292575836182,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.0138724505841732,
+              "median": 1.0137755870819092,
+              "ci_low": 0.9982071250677109,
+              "ci_high": 1.0298481673002242,
+              "n": 10000,
+              "point": 1.0137907266616821,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.006971654242277,
+              "median": 1.0069091320037842,
+              "ci_low": 0.9980474218726159,
+              "ci_high": 1.016270849108696,
+              "n": 10000,
+              "point": 1.0069386959075928,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.0409133436322213,
+              "median": 1.0409343242645264,
+              "ci_low": 1.0205629467964172,
+              "ci_high": 1.0615885078907012,
+              "n": 10000,
+              "point": 1.0397320985794067,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.0613442353844642,
+              "median": 1.0611735582351685,
+              "ci_low": 1.0335162788629533,
+              "ci_high": 1.0902519941329956,
+              "n": 10000,
+              "point": 1.0611813068389893,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0738865233421326,
+              "median": 1.0738067030906677,
+              "ci_low": 1.0565488368272782,
+              "ci_high": 1.0917408525943757,
+              "n": 10000,
+              "point": 1.0738025903701782,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.000937441766262,
+              "median": 1.0008711218833923,
+              "ci_low": 0.9793102324008942,
+              "ci_high": 1.0235713124275208,
+              "n": 10000,
+              "point": 0.9996716976165771,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.023673918801546,
+              "median": 1.023669719696045,
+              "ci_low": 0.9845954105257988,
+              "ci_high": 1.062947016954422,
+              "n": 10000,
+              "point": 1.0231883525848389,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0875885491609574,
+              "median": 1.087619960308075,
+              "ci_low": 1.0606942415237426,
+              "ci_high": 1.1141939014196396,
+              "n": 10000,
+              "point": 1.0874024629592896,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.0675966581106187,
+              "median": 1.0679948925971985,
+              "ci_low": 1.032960757613182,
+              "ci_high": 1.100844183564186,
+              "n": 10000,
+              "point": 1.0656368732452393,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.0931519451141358,
+              "median": 1.092997133731842,
+              "ci_low": 1.0548290699720382,
+              "ci_high": 1.131878960132599,
+              "n": 10000,
+              "point": 1.092795491218567,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1952579544782638,
+              "median": 1.1951773166656494,
+              "ci_low": 1.1685901194810868,
+              "ci_high": 1.2221106618642807,
+              "n": 10000,
+              "point": 1.1952005624771118,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M1_alt__to__M3_direct_alt": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -5282,7 +5894,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M1_alt",
+        "post": "M3_direct_alt",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.6282539526700974,
+              "median": 1.6270692944526672,
+              "ci_low": 1.5112058818340302,
+              "ci_high": 1.7506610214710234,
+              "n": 10000,
+              "point": 1.6430981159210205,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.7190528326511383,
+              "median": 1.718540072441101,
+              "ci_low": 1.6460209310054779,
+              "ci_high": 1.795407697558403,
+              "n": 10000,
+              "point": 1.7182244062423706,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.3798142845392227,
+              "median": 1.3798074126243591,
+              "ci_low": 1.3327343553304671,
+              "ci_high": 1.4271314084529876,
+              "n": 10000,
+              "point": 1.3792632818222046,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.7906237905979157,
+              "median": 1.7890539765357971,
+              "ci_low": 1.6745611757040024,
+              "ci_high": 1.917827409505844,
+              "n": 10000,
+              "point": 1.8109130859375,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.5063295620322228,
+              "median": 1.5053103566169739,
+              "ci_low": 1.4257270455360413,
+              "ci_high": 1.5943152219057082,
+              "n": 10000,
+              "point": 1.5048495531082153,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1971218972802162,
+              "median": 1.1969443559646606,
+              "ci_low": 1.1697733521461486,
+              "ci_high": 1.2258573651313782,
+              "n": 10000,
+              "point": 1.1970386505126953,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.5679844727277756,
+              "median": 1.5677427053451538,
+              "ci_low": 1.4826538771390916,
+              "ci_high": 1.6552463650703428,
+              "n": 10000,
+              "point": 1.6032477617263794,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.4201855135917663,
+              "median": 1.419327974319458,
+              "ci_low": 1.34305320084095,
+              "ci_high": 1.5051664113998413,
+              "n": 10000,
+              "point": 1.418580174446106,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.187662679708004,
+              "median": 1.187412440776825,
+              "ci_low": 1.1579565942287444,
+              "ci_high": 1.217524179816246,
+              "n": 10000,
+              "point": 1.1874747276306152,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.6450692106962204,
+              "median": 1.6451168656349182,
+              "ci_low": 1.5278166472911834,
+              "ci_high": 1.762844842672348,
+              "n": 10000,
+              "point": 1.673101544380188,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.435944505214691,
+              "median": 1.4348278045654297,
+              "ci_low": 1.3587556302547454,
+              "ci_high": 1.518282637000084,
+              "n": 10000,
+              "point": 1.4345440864562988,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2537055696487427,
+              "median": 1.2534353733062744,
+              "ci_low": 1.2178515493869781,
+              "ci_high": 1.2903068512678146,
+              "n": 10000,
+              "point": 1.2535480260849,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M2__to__M3": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -6567,7 +7383,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M2",
+        "post": "M3",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.030676974618435,
+              "median": 1.0305905938148499,
+              "ci_low": 1.0224897354841231,
+              "ci_high": 1.0396841764450073,
+              "n": 10000,
+              "point": 1.029711127281189,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.093976462137699,
+              "median": 1.0939269065856934,
+              "ci_low": 1.0761171489953996,
+              "ci_high": 1.1121154993772506,
+              "n": 10000,
+              "point": 1.0937163829803467,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1034709863185883,
+              "median": 1.1035227179527283,
+              "ci_low": 1.0870374411344528,
+              "ci_high": 1.1202348351478577,
+              "n": 10000,
+              "point": 1.1033565998077393,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.2088025691866875,
+              "median": 1.2080997228622437,
+              "ci_low": 1.1617008984088897,
+              "ci_high": 1.2610367000102995,
+              "n": 10000,
+              "point": 1.2124578952789307,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.5636414826989173,
+              "median": 1.5634437799453735,
+              "ci_low": 1.4907464861869812,
+              "ci_high": 1.6380036622285843,
+              "n": 10000,
+              "point": 1.5630128383636475,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.4010469363570213,
+              "median": 1.4006717205047607,
+              "ci_low": 1.3381376624107362,
+              "ci_high": 1.4658031821250916,
+              "n": 10000,
+              "point": 1.400749683380127,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.1391496790647506,
+              "median": 1.1389161944389343,
+              "ci_low": 1.1012285947799683,
+              "ci_high": 1.179895994067192,
+              "n": 10000,
+              "point": 1.1468572616577148,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.630401848733425,
+              "median": 1.6302728652954102,
+              "ci_low": 1.547360759973526,
+              "ci_high": 1.7127610594034195,
+              "n": 10000,
+              "point": 1.6294691562652588,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.4908128934025764,
+              "median": 1.4902986884117126,
+              "ci_low": 1.425474587082863,
+              "ci_high": 1.557928004860878,
+              "n": 10000,
+              "point": 1.490647792816162,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.4796081883311272,
+              "median": 1.4791275262832642,
+              "ci_low": 1.4186777144670486,
+              "ci_high": 1.5453290283679961,
+              "n": 10000,
+              "point": 1.4868202209472656,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.4572509624123573,
+              "median": 1.4569739699363708,
+              "ci_low": 1.3932646811008453,
+              "ci_high": 1.5234334588050842,
+              "n": 10000,
+              "point": 1.4564810991287231,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.3261203179001808,
+              "median": 1.3257794380187988,
+              "ci_low": 1.2794395178556441,
+              "ci_high": 1.3728310853242873,
+              "n": 10000,
+              "point": 1.326025366783142,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M2_alt__to__M3_alt": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -7852,7 +8872,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M2_alt",
+        "post": "M3_alt",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.0229083136737347,
+              "median": 1.0229092836380005,
+              "ci_low": 1.011113277077675,
+              "ci_high": 1.0347542017698288,
+              "n": 10000,
+              "point": 1.0216017961502075,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.1367861905574799,
+              "median": 1.1367182731628418,
+              "ci_low": 1.1128471940755844,
+              "ci_high": 1.1609225690364837,
+              "n": 10000,
+              "point": 1.136517882347107,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1048759655833245,
+              "median": 1.1048595309257507,
+              "ci_low": 1.0892548590898514,
+              "ci_high": 1.120553195476532,
+              "n": 10000,
+              "point": 1.1047409772872925,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.259365285050869,
+              "median": 1.2581561207771301,
+              "ci_low": 1.1950455158948898,
+              "ci_high": 1.3310987651348114,
+              "n": 10000,
+              "point": 1.2628551721572876,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.7205513091802598,
+              "median": 1.7204235196113586,
+              "ci_low": 1.6190529137849807,
+              "ci_high": 1.8247412204742433,
+              "n": 10000,
+              "point": 1.7195582389831543,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.164641011095047,
+              "median": 1.1641694903373718,
+              "ci_low": 1.1094082444906235,
+              "ci_high": 1.2207796335220338,
+              "n": 10000,
+              "point": 1.1643283367156982,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.1567418847084046,
+              "median": 1.1561964750289917,
+              "ci_low": 1.1107743412256241,
+              "ci_high": 1.207348531484604,
+              "n": 10000,
+              "point": 1.163826584815979,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.6446620949864388,
+              "median": 1.6449206471443176,
+              "ci_low": 1.5489360094070435,
+              "ci_high": 1.740183299779892,
+              "n": 10000,
+              "point": 1.6433659791946411,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2167172529339791,
+              "median": 1.2166704535484314,
+              "ci_low": 1.1661548018455505,
+              "ci_high": 1.2693487852811813,
+              "n": 10000,
+              "point": 1.2165076732635498,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.4893634457945824,
+              "median": 1.4883224964141846,
+              "ci_low": 1.4212599456310273,
+              "ci_high": 1.5630224823951722,
+              "n": 10000,
+              "point": 1.4949511289596558,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.4868373328328133,
+              "median": 1.4867314100265503,
+              "ci_low": 1.4169003784656524,
+              "ci_high": 1.5593096971511842,
+              "n": 10000,
+              "point": 1.486033320426941,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2328365887999535,
+              "median": 1.232415795326233,
+              "ci_low": 1.1899599730968475,
+              "ci_high": 1.2759992361068726,
+              "n": 10000,
+              "point": 1.2327505350112915,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M3__to__M3_direct": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -9137,7 +10361,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M3",
+        "post": "M3_direct",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.2921077592611312,
+              "median": 1.2913129925727844,
+              "ci_low": 1.213514393568039,
+              "ci_high": 1.3749171435832976,
+              "n": 10000,
+              "point": 1.3032587766647339,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.3417045509815215,
+              "median": 1.3416661024093628,
+              "ci_low": 1.2976174175739288,
+              "ci_high": 1.387273335456848,
+              "n": 10000,
+              "point": 1.3413501977920532,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2062875502467156,
+              "median": 1.20619535446167,
+              "ci_low": 1.1764553934335709,
+              "ci_high": 1.23632855117321,
+              "n": 10000,
+              "point": 1.2060985565185547,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.4686315128803253,
+              "median": 1.4675664901733398,
+              "ci_low": 1.3837753146886826,
+              "ci_high": 1.5599581956863404,
+              "n": 10000,
+              "point": 1.4823017120361328,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.3497944462180138,
+              "median": 1.348850131034851,
+              "ci_low": 1.2730015009641646,
+              "ci_high": 1.4285581290721894,
+              "n": 10000,
+              "point": 1.3484784364700317,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0819889893889427,
+              "median": 1.0820021629333496,
+              "ci_low": 1.0486251592636109,
+              "ci_high": 1.1151141405105591,
+              "n": 10000,
+              "point": 1.08199942111969,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.3320338275313377,
+              "median": 1.331553339958191,
+              "ci_low": 1.2693626046180726,
+              "ci_high": 1.3991055756807327,
+              "n": 10000,
+              "point": 1.3534629344940186,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.2118964978337288,
+              "median": 1.2107442021369934,
+              "ci_low": 1.1374925792217254,
+              "ci_high": 1.2913484930992127,
+              "n": 10000,
+              "point": 1.2103519439697266,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.054363328832388,
+              "median": 1.0541375279426575,
+              "ci_low": 1.022682574391365,
+              "ci_high": 1.085943654179573,
+              "n": 10000,
+              "point": 1.0542610883712769,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.140913854789734,
+              "median": 1.1405833959579468,
+              "ci_low": 1.0937169998884202,
+              "ci_high": 1.1908597111701964,
+              "n": 10000,
+              "point": 1.155484914779663,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.26546791793108,
+              "median": 1.264687716960907,
+              "ci_low": 1.1866291612386703,
+              "ci_high": 1.3499254494905473,
+              "n": 10000,
+              "point": 1.2639092206954956,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1381573435902597,
+              "median": 1.1378161311149597,
+              "ci_low": 1.1014773041009902,
+              "ci_high": 1.175885558128357,
+              "n": 10000,
+              "point": 1.1380454301834106,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     },
     "M3_alt__to__M3_direct_alt": {
       "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
@@ -10422,7 +11850,211 @@
           }
         }
       ],
-      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead."
+      "reading": "rho_AD_perp is ASYMMETRIC: it is measured against the PRE stage's own subspace, so swapping pre and post gives a different number. Raw drift grows with depth and is not comparable across layers; read relative_drift or the selectivity gaps instead.",
+      "direction_cosine_is_pooling_independent": "resolve_direction_path() takes no pooling argument and returns {stage}_direction_654.npy, the MEAN-POOLED direction, because the final-token directions exist for only 4 of the 9 stages. So direction_cosine is identical under both pooling settings and is NOT matched to the activations analysed here. Every other quantity in this report is computed from the activations directly and does honour the pooling. To make direction_cosine pooling-matched, generate final-token directions for the remaining five stages first (CPU, no model load).",
+      "ratio_cis": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "pre": "M3_alt",
+        "post": "M3_direct_alt",
+        "pooling": "final_token",
+        "layers": [
+          16,
+          20,
+          24,
+          28
+        ],
+        "by_layer": {
+          "16": {
+            "contrast_norm_ratio": {
+              "mean": 1.4540028502821922,
+              "median": 1.4525997042655945,
+              "ci_low": 1.3498887151479722,
+              "ci_high": 1.563129335641861,
+              "n": 10000,
+              "point": 1.4705235958099365,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.4079399412155151,
+              "median": 1.4074234366416931,
+              "ci_low": 1.3598424196243286,
+              "ci_high": 1.4581967532634734,
+              "n": 10000,
+              "point": 1.4075193405151367,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.2527942141890527,
+              "median": 1.252698302268982,
+              "ci_low": 1.2201447993516923,
+              "ci_high": 1.286223354935646,
+              "n": 10000,
+              "point": 1.2524641752243042,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "20": {
+            "contrast_norm_ratio": {
+              "mean": 1.366338263988495,
+              "median": 1.3655405640602112,
+              "ci_low": 1.2877980321645737,
+              "ci_high": 1.4477908909320831,
+              "n": 10000,
+              "point": 1.3791853189468384,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.231824234008789,
+              "median": 1.2313117384910583,
+              "ci_low": 1.173687407374382,
+              "ci_high": 1.294105651974678,
+              "n": 10000,
+              "point": 1.2310359477996826,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.079484693479538,
+              "median": 1.0791615843772888,
+              "ci_low": 1.0512208998203278,
+              "ci_high": 1.1087411254644395,
+              "n": 10000,
+              "point": 1.0794646739959717,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "24": {
+            "contrast_norm_ratio": {
+              "mean": 1.3546528303146361,
+              "median": 1.3542597889900208,
+              "ci_low": 1.2792109727859498,
+              "ci_high": 1.4310235381126404,
+              "n": 10000,
+              "point": 1.3780182600021362,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.1279026136279107,
+              "median": 1.1272452473640442,
+              "ci_low": 1.0691760748624801,
+              "ci_high": 1.19003484249115,
+              "n": 10000,
+              "point": 1.126875638961792,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.0735403367877006,
+              "median": 1.0734295845031738,
+              "ci_low": 1.0470992237329484,
+              "ci_high": 1.1002343118190765,
+              "n": 10000,
+              "point": 1.0734041929244995,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          },
+          "28": {
+            "contrast_norm_ratio": {
+              "mean": 1.0346946493148803,
+              "median": 1.0343536734580994,
+              "ci_low": 0.9839805752038956,
+              "ci_high": 1.0873198360204697,
+              "n": 10000,
+              "point": 1.050234079360962,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                120,
+                120
+              ]
+            },
+            "drift_ratio_A_over_D": {
+              "mean": 1.1454738022565842,
+              "median": 1.1450490355491638,
+              "ci_low": 1.090086394548416,
+              "ci_high": 1.202094927430153,
+              "n": 10000,
+              "point": 1.144614815711975,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                150,
+                150
+              ]
+            },
+            "drift_ratio_C_over_B": {
+              "mean": 1.1193788826942443,
+              "median": 1.1191285252571106,
+              "ci_low": 1.0920046478509904,
+              "ci_high": 1.147231474518776,
+              "n": 10000,
+              "point": 1.1192867755889893,
+              "b": 10000,
+              "seed": 20260904,
+              "interval": "percentile",
+              "group_sizes": [
+                104,
+                250
+              ]
+            }
+          }
+        },
+        "reading": "These are RATIOS, so a transition that moves everything equally scores 1.0 regardless of magnitude. That is the point: it separates 'the harmful/benign structure changed' from 'this transition simply moved the model further'. Intervals are percentile, from a shared resample of the two row groups."
+      }
     }
   },
   "full_matrix": {
@@ -11656,6 +13288,5 @@
     20,
     24,
     28
-  ],
-  "caveat_direction_cosine": "direction_cosine is pooling-INDEPENDENT: the loader returns the mean-pooled {stage}_direction_654.npy for both settings, because final-token directions exist for only 4 of 9 stages. Every other metric here is computed from the activations and does honour pooling."
+  ]
 }

@@ -1,0 +1,381 @@
+{
+  "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+  "produced_utc": "2026-09-30T13:24:30Z",
+  "metric": "sr_score",
+  "scorer": "strong_reject",
+  "sign_convention": "sr_score rises with harmful assistance. OBJ < 0 means DPO reduced harmful assistance MORE than safety SFT. The wg_refusal artifact measures refusal and therefore carries the opposite sign.",
+  "contrasts_2x2": {
+    "by_quadrant": {
+      "A": {
+        "OBJ": {
+          "n_effective": 150,
+          "point": -0.4303836001226404,
+          "mean": -0.43020547407290544,
+          "ci_low": -0.47238960168582833,
+          "ci_high": -0.38972770050139327,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "CORP": {
+          "n_effective": 150,
+          "point": -0.009263300600268328,
+          "mean": -0.009291311325088779,
+          "ci_low": -0.05445959133022632,
+          "ci_high": 0.03551807693136476,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "INT": {
+          "n_effective": 150,
+          "point": 0.0373553579857356,
+          "mean": 0.03759133456352685,
+          "ci_low": 0.004223454600332302,
+          "ci_high": 0.07197360077642084,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "arms": {
+          "sft_alpaca": {
+            "pre": "M1",
+            "post": "M2",
+            "objective": "safety_sft",
+            "corpus": "alpaca",
+            "theta": -0.08486199384570606,
+            "ci_low": -0.12507210934608423,
+            "ci_high": -0.047807039556157935
+          },
+          "dpo_alpaca": {
+            "pre": "M1",
+            "post": "M3_direct",
+            "objective": "dpo",
+            "corpus": "alpaca",
+            "theta": -0.49656791497547864,
+            "ci_low": -0.5431896750562581,
+            "ci_high": -0.4498636615727955
+          },
+          "sft_dolly": {
+            "pre": "M1_alt",
+            "post": "M2_alt",
+            "objective": "safety_sft",
+            "corpus": "dolly",
+            "theta": -0.05692101425256993,
+            "ci_low": -0.10139623947167503,
+            "ci_high": -0.012792442200556328
+          },
+          "dpo_dolly": {
+            "pre": "M1_alt",
+            "post": "M3_direct_alt",
+            "objective": "dpo",
+            "corpus": "dolly",
+            "theta": -0.5059822933680781,
+            "ci_low": -0.5510260416923378,
+            "ci_high": -0.46077030674420966
+          }
+        },
+        "n_effective": 150
+      },
+      "B": {
+        "OBJ": {
+          "n_effective": 250,
+          "point": -0.20738366665424837,
+          "mean": -0.2072645489635027,
+          "ci_low": -0.23191874639866708,
+          "ci_high": -0.18178363367408149,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "CORP": {
+          "n_effective": 250,
+          "point": -0.011846301187732024,
+          "mean": -0.01188479196111373,
+          "ci_low": -0.036137859213234695,
+          "ci_high": 0.012069540310181757,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "INT": {
+          "n_effective": 250,
+          "point": 0.1474362178014708,
+          "mean": 0.14744601739769997,
+          "ci_low": 0.1134333783230144,
+          "ci_high": 0.18247605724456115,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "arms": {
+          "sft_alpaca": {
+            "pre": "M1",
+            "post": "M2",
+            "objective": "safety_sft",
+            "corpus": "alpaca",
+            "theta": -0.0968726667285955,
+            "ci_low": -0.1220318325807857,
+            "ci_high": -0.07261495587153259
+          },
+          "dpo_alpaca": {
+            "pre": "M1",
+            "post": "M3_direct",
+            "objective": "dpo",
+            "corpus": "alpaca",
+            "theta": -0.23053822448210848,
+            "ci_low": -0.2589369840217336,
+            "ci_high": -0.20264483312970807
+          },
+          "sft_dolly": {
+            "pre": "M1_alt",
+            "post": "M2_alt",
+            "objective": "safety_sft",
+            "corpus": "dolly",
+            "theta": -0.011308256640128092,
+            "ci_low": -0.031155261156128107,
+            "ci_high": 0.008434593801152001
+          },
+          "dpo_dolly": {
+            "pre": "M1_alt",
+            "post": "M3_direct_alt",
+            "objective": "dpo",
+            "corpus": "dolly",
+            "theta": -0.29241003219511186,
+            "ci_low": -0.3190692234049777,
+            "ci_high": -0.26515431968484515
+          }
+        },
+        "n_effective": 250
+      },
+      "C": {
+        "OBJ": {
+          "n_effective": 104,
+          "point": -0.5253167871755977,
+          "mean": -0.5252179778857833,
+          "ci_low": -0.5699650432715294,
+          "ci_high": -0.48105677680285425,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "CORP": {
+          "n_effective": 104,
+          "point": -0.010492394187622267,
+          "mean": -0.010820241775307408,
+          "ci_low": -0.06078825473748522,
+          "ci_high": 0.04016659579319642,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "INT": {
+          "n_effective": 104,
+          "point": 0.07335241592136299,
+          "mean": 0.07372082760088779,
+          "ci_low": 0.02377051423008234,
+          "ci_high": 0.12379144619934986,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "arms": {
+          "sft_alpaca": {
+            "pre": "M1",
+            "post": "M2",
+            "objective": "safety_sft",
+            "corpus": "alpaca",
+            "theta": -0.13143667401786494,
+            "ci_low": -0.18012545865017274,
+            "ci_high": -0.0844567070685501
+          },
+          "dpo_alpaca": {
+            "pre": "M1",
+            "post": "M3_direct",
+            "objective": "dpo",
+            "corpus": "alpaca",
+            "theta": -0.6200772532327812,
+            "ci_low": -0.6695252735380302,
+            "ci_high": -0.5674011780549685
+          },
+          "sft_dolly": {
+            "pre": "M1_alt",
+            "post": "M2_alt",
+            "objective": "safety_sft",
+            "corpus": "dolly",
+            "theta": -0.08426807186956117,
+            "ci_low": -0.1343895243783436,
+            "ci_high": -0.035992217720202196
+          },
+          "dpo_dolly": {
+            "pre": "M1_alt",
+            "post": "M3_direct_alt",
+            "objective": "dpo",
+            "corpus": "dolly",
+            "theta": -0.6462610670058404,
+            "ci_low": -0.6834078842863076,
+            "ci_high": -0.6084064107874103
+          }
+        },
+        "n_effective": 104
+      },
+      "D": {
+        "OBJ": {
+          "n_effective": 150,
+          "point": -0.03268044670082418,
+          "mean": -0.03250779908154468,
+          "ci_low": -0.05368026835994676,
+          "ci_high": -0.01160619300002456,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "CORP": {
+          "n_effective": 150,
+          "point": 0.01799855857132267,
+          "mean": 0.017944923819492108,
+          "ci_low": -0.00729178845090602,
+          "ci_high": 0.0434839381758367,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "INT": {
+          "n_effective": 150,
+          "point": 0.079415070822209,
+          "mean": 0.07909275977507972,
+          "ci_low": 0.04629319916150856,
+          "ci_high": 0.11234884524335377,
+          "b": 10000,
+          "seed": 20260904,
+          "interval": "percentile"
+        },
+        "arms": {
+          "sft_alpaca": {
+            "pre": "M1",
+            "post": "M2",
+            "objective": "safety_sft",
+            "corpus": "alpaca",
+            "theta": -0.030328609021034937,
+            "ci_low": -0.05089457434836185,
+            "ci_high": -0.009264774992628493
+          },
+          "dpo_alpaca": {
+            "pre": "M1",
+            "post": "M3_direct",
+            "objective": "dpo",
+            "corpus": "alpaca",
+            "theta": -0.023301520310754616,
+            "ci_low": -0.047155475544413086,
+            "ci_high": -0.000942815759011285
+          },
+          "sft_dolly": {
+            "pre": "M1_alt",
+            "post": "M2_alt",
+            "objective": "safety_sft",
+            "corpus": "dolly",
+            "theta": -0.00861963218125311,
+            "ci_low": -0.029863846730561812,
+            "ci_high": 0.012259930123723273
+          },
+          "dpo_dolly": {
+            "pre": "M1_alt",
+            "post": "M3_direct_alt",
+            "objective": "dpo",
+            "corpus": "dolly",
+            "theta": -0.08100761429318179,
+            "ci_low": -0.11025857351325884,
+            "ci_high": -0.05152444704747389
+          }
+        },
+        "n_effective": 150
+      }
+    },
+    "selectivity": {
+      "A_minus_D": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "metric": "sr_score",
+        "definition": "mean Delta over A minus mean Delta over D",
+        "n_harm": 150,
+        "n_benign": 150,
+        "bootstrap": {
+          "seed": 20260904,
+          "b": 10000,
+          "interval": "percentile",
+          "note": "two-group shared resample, one rng across arms"
+        },
+        "caveat": "Objective-and-recipe contrast at matched initialisation and matched source corpus. M1->M2 and M1->M3_direct share the start checkpoint and the PKU-SafeRLHF material but differ in training signal (DPO consumes chosen AND rejected responses, SFT only the chosen one), in epochs (2 vs 1) and in learning rate (2e-4 vs 5e-5). Not an isolation of the DPO objective. n=2 corpora, one instantiation each: intervals on the corpus and interaction terms are over PROMPTS, not over corpora.",
+        "arms": {
+          "sft_alpaca": {
+            "point": -0.05453338482467112,
+            "ci_low": -0.09913402792826075,
+            "ci_high": -0.010611842315869454
+          },
+          "dpo_alpaca": {
+            "point": -0.47326639466472403,
+            "ci_low": -0.5253993542234598,
+            "ci_high": -0.4201597870187417
+          },
+          "sft_dolly": {
+            "point": -0.04830138207131682,
+            "ci_low": -0.09787771300419738,
+            "ci_high": 0.0007441342431045911
+          },
+          "dpo_dolly": {
+            "point": -0.4249746790748963,
+            "ci_low": -0.47943330810952745,
+            "ci_high": -0.37038734075133073
+          }
+        },
+        "OBJ_selectivity": {
+          "point": -0.39770315342181617,
+          "ci_low": -0.44517844046676763,
+          "ci_high": -0.35017612168049306
+        },
+        "reading": "Positive arm selectivity means the transition raised withholding on harmful prompts more than on benign ones. A transition can have a large OBJ on both quadrants and near-zero selectivity, which would mean it raised refusal indiscriminately."
+      },
+      "C_minus_B": {
+        "status": "EXPLORATORY - not preregistered (analysis_plan.md frozen: CF1/CF2 confirmatory, CF3 predeclared secondary)",
+        "metric": "sr_score",
+        "definition": "mean Delta over C minus mean Delta over B",
+        "n_harm": 104,
+        "n_benign": 250,
+        "bootstrap": {
+          "seed": 20260904,
+          "b": 10000,
+          "interval": "percentile",
+          "note": "two-group shared resample, one rng across arms"
+        },
+        "caveat": "Objective-and-recipe contrast at matched initialisation and matched source corpus. M1->M2 and M1->M3_direct share the start checkpoint and the PKU-SafeRLHF material but differ in training signal (DPO consumes chosen AND rejected responses, SFT only the chosen one), in epochs (2 vs 1) and in learning rate (2e-4 vs 5e-5). Not an isolation of the DPO objective. n=2 corpora, one instantiation each: intervals on the corpus and interaction terms are over PROMPTS, not over corpora.",
+        "arms": {
+          "sft_alpaca": {
+            "point": -0.034564007289269436,
+            "ci_low": -0.09042079266678103,
+            "ci_high": 0.019466351817330512
+          },
+          "dpo_alpaca": {
+            "point": -0.3895390287506727,
+            "ci_low": -0.44774224583465977,
+            "ci_high": -0.3314174971191814
+          },
+          "sft_dolly": {
+            "point": -0.07295981522943308,
+            "ci_low": -0.12777512424685628,
+            "ci_high": -0.021146819544630782
+          },
+          "dpo_dolly": {
+            "point": -0.35385103481072855,
+            "ci_low": -0.399252422254355,
+            "ci_high": -0.307962044513226
+          }
+        },
+        "OBJ_selectivity": {
+          "point": -0.31793312052134937,
+          "ci_low": -0.36805540543057214,
+          "ci_high": -0.2673119832916857
+        },
+        "reading": "Positive arm selectivity means the transition raised withholding on harmful prompts more than on benign ones. A transition can have a large OBJ on both quadrants and near-zero selectivity, which would mean it raised refusal indiscriminately."
+      }
+    }
+  }
+}

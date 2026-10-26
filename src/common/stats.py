@@ -96,3 +96,63 @@ def joint_resample_indices(group_index_arrays, seed: int = BOOTSTRAP_SEED, rng=N
         parts.append(sampled)
         labels.append(np.full(len(sampled), label))
     return np.concatenate(parts), np.concatenate(labels)
+
+
+def bootstrap_nonlinear_contrast(
+    group_index_arrays,
+    statistic,
+    *,
+    b: int = BOOTSTRAP_B,
+    seed: int = BOOTSTRAP_SEED,
+    confidence: float = 0.95,
+) -> dict:
+    """Percentile bootstrap for a statistic that is NOT linear in per-prompt values.
+
+    ``factorial_2x2`` can use ``paired_bootstrap_ci`` because OBJ/CORP/INT are
+    linear in the four per-prompt difference columns, so each prompt has a
+    single scalar contribution and resampling that vector IS the shared-resample
+    bootstrap. A **ratio** -- contrast-norm ratio, drift A/D, CKA -- does not
+    collapse that way: the numerator and denominator are computed from different
+    row groups, so the groups have to be resampled and the statistic recomputed
+    on the resample.
+
+    ``group_index_arrays`` is a list of 1-D row-index arrays (e.g.
+    ``[A_idx, D_idx]``). Every replicate draws all groups from **one shared
+    rng**, via ``common.stats.joint_resample_indices`` -- the pattern
+    ``subspace_geometry.bootstrap_rho_ad_perp`` already uses -- so the draws are
+    joint rather than independent and the whole stream is reproducible from one
+    seed. ``statistic`` receives the resampled index arrays in the same order
+    and returns one float; return ``nan`` for a degenerate resample and it is
+    dropped from the interval rather than poisoning it.
+
+    Because the pre and post checkpoints are evaluated on the identical rows in
+    the identical order, passing row indices (not values) is what preserves the
+    pairing across checkpoints: the same resampled prompts are used on both
+    sides of the ratio.
+    """
+    groups = [np.asarray(g, dtype=int) for g in group_index_arrays]
+    empty = {
+        "point": None, "mean": None, "median": None, "ci_low": None,
+        "ci_high": None, "n": 0, "b": b, "seed": seed,
+        "interval": BOOTSTRAP_INTERVAL,
+        "group_sizes": [int(g.size) for g in groups],
+    }
+    if any(g.size == 0 for g in groups):
+        return empty
+
+    point = statistic(groups)
+    rng = np.random.default_rng(seed)
+    reps = np.empty(b, dtype=float)
+    for i in range(b):
+        idx, labels = joint_resample_indices(groups, rng=rng)
+        reps[i] = statistic([idx[labels == k] for k in range(len(groups))])
+
+    out = percentile_ci(reps, confidence)
+    out.update({
+        "point": float(point) if point is not None and np.isfinite(point) else None,
+        "b": b,
+        "seed": seed,
+        "interval": BOOTSTRAP_INTERVAL,
+        "group_sizes": [int(g.size) for g in groups],
+    })
+    return out
