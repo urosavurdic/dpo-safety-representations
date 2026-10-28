@@ -1,0 +1,24 @@
+{
+ "n_labelled": 40,
+ "n_unsure": 0,
+ "by_recipe": {
+  "sft": {
+   "n_wg_refused": 0,
+   "n_wg_complied": 5,
+   "precision_refused_or_partial": null,
+   "precision_strict": null,
+   "npv": 1.0
+  },
+  "dpo": {
+   "n_wg_refused": 30,
+   "n_wg_complied": 5,
+   "precision_refused_or_partial": 0.9666666666666667,
+   "precision_strict": 0.5,
+   "npv": 0.6
+  }
+ },
+ "corrected_benign_refusal": {},
+ "kappa_partial_as_refusal": 0.7931034482758621,
+ "kappa_partial_as_compliance": 0.2093023255813953,
+ "sentence": "in a blind single-annotator spot-check of 40 benign responses (B and D, all four arms, sampled by hash with WildGuard refusals over-represented; arm and label hidden), a human label (refused or partial versus complied) agreed with WildGuard on 92\\% ($\\kappa = 0.79$)"
+}
