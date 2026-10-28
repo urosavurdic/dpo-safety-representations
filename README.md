@@ -1,183 +1,195 @@
-# Preserved but path-dependent
+# Safety SFT preserves, DPO redirects
 
-**Preference optimization does not build a model's safety representation. It
-inherits one, leans on it harder, and how hard depends on the road taken to get
-there.**
+**From the same instruction-tuned start and the same 4,000 PKU-SafeRLHF safety
+pairs, supervised fine-tuning on the safer responses keeps a small model's
+internal harmful–benign contrast almost unchanged. DPO on the full pairs
+redirects it: from layer 20 of 28 on, most of the contrast points in a direction
+the start's contrast did not.** Qwen2.5-1.5B, two instruction-tuned starts,
+three training runs per arm.
 
-That is the claim this repository tests, and the evidence below is organised
-around it.
+The *harmful–benign contrast* is the difference between the model's mean
+activation on harmful prompts and on benign prompts at one layer. Its length
+says how strongly the two groups differ inside the model; its direction says in
+what way. It describes a representation, not safety itself.
 
 ---
 
-## The claim, in three parts
+## Results
 
-**1. The mechanism is inherited, not created.** A single linear direction
-separating harmful from benign prompts is already present after plain
-instruction tuning. Across the chain its orientation barely moves — adjacent
-cosine similarity is 0.65 for the first step, then 0.96 and 0.93. DPO arrives to
-find the direction already there.
+### 1. SFT keeps the contrast, DPO turns it
 
-**2. What DPO adds is magnitude, not structure.** The harmful–benign contrast
-grows substantially through preference optimization (norm ×1.15 at layer 24,
-×1.49 at layer 28). But residualize that contrast away and test the remaining
-space for linearly decodable harm *category*, and the result is null:
-**+0.004 [−0.018, +0.027]**. Geometrically the update has a large component
-orthogonal to the prior subspace; informationally, that component carries
-nothing recoverable. Bigger, not richer.
+Each fine-tuned model's contrast is split into a part along the start's contrast
+and a part orthogonal to it, both in units of the start contrast's length.
+Layer 24, final prompt token, range over three training runs per arm:
 
-**3. The mechanism's causal weight is path-dependent.** Ablating the direction
-and comparing against a magnitude-matched random control, on cross-fitted
-out-of-fold estimates (n=120 per branch):
-
-| Branch | effect | 95% CI |
-|---|---|---|
-| M3 — safety-SFT then DPO, Alpaca | +0.154 | [+0.105, +0.203] |
-| M3_alt — safety-SFT then DPO, Dolly | +0.044 | [+0.005, +0.085] |
-| M3_direct — DPO straight from M1, Alpaca | +0.025 | [+0.013, +0.039] |
-| M3_direct_alt — DPO straight from M1, Dolly | +0.012 | [+0.003, +0.023] |
-
-Every CI excludes zero — the direction is load-bearing in all four — but the
-magnitude spans roughly thirteen-fold. The corpus × training-history
-interaction is **+0.097 [+0.040, +0.150]**: changing the instruction-tuning
-corpus moves the effect by +0.013 within the direct-DPO pair but +0.110 within
-the safety-SFT-mediated pair. *Post hoc, one seed per cell, not
-multiplicity-corrected.*
-
-## The consequence: ambiguous prompts drift
-
-If preference optimization sharpens an existing axis rather than learning a new
-distinction, prompts sitting between the poles should be dragged toward the
-harmful end. They are. Measuring where reduced-cue harmful prompts sit between
-benign (0) and overtly harmful (1) along each stage's own direction, layer 24:
-
-| M0 | M1 | M2 | M3 | M3_direct |
+| start | recipe | length ratio | cosine to start | orthogonal part |
 |---|---|---|---|---|
-| +0.33 | +0.72 | +0.65 | +0.90 | **+1.04** |
+| Alpaca | safety SFT | 0.98–0.99 | 0.97 | 0.23–0.24 |
+| Alpaca | DPO | 1.38–1.54 | 0.53–0.59 | 1.16–1.30 |
+| Dolly | safety SFT | 0.99–1.01 | 0.92 | 0.38–0.40 |
+| Dolly | DPO | 1.50–1.60 | 0.38–0.41 | 1.39–1.46 |
 
-Two jumps — instruction tuning, then DPO — with a slight retreat during
-safety-SFT. Direct DPO overshoots: those prompts end up *past* the overtly
-harmful cluster. This is over-refusal pressure visible as geometry, rather than
-inferred from behaviour.
+- The two recipes' ranges of cosine and orthogonal part never overlap, at any of
+  the four analysed layers (16, 20, 24, 28) and under both poolings (final token,
+  mean of the last five tokens).
+- From layer 20 on, every DPO run's orthogonal part is larger than its along
+  part. In the original runs the direction measured before DPO carries only
+  11–48% of the squared post-DPO contrast.
+- DPO's change in the contrast is 4.5–5.8× the 95th percentile of a
+  label-permutation null, against 2.7–3.6× for SFT: DPO moves harmful and benign
+  prompts differently, not just further.
+- SFT with the loss on the response only matches ordinary SFT on every measure
+  (orthogonal part 0.20 at layer 24).
+
+### 2. The larger update did less
+
+| start | recipe | weight change ‖ΔW‖ | first-token KL | activation drift (L24) | CKA to start (L24) |
+|---|---|---|---|---|---|
+| Alpaca | safety SFT | 18.75 | 0.32 | 0.19 | 0.97 |
+| Alpaca | DPO | 2.82 | 3.99 | 0.52 | 0.71 |
+| Dolly | safety SFT | 18.94 | 0.73 | 0.28 | 0.94 |
+| Dolly | DPO | 2.85 | 2.85 | 0.56 | 0.70 |
+
+SFT's merged weight change is 6.6–6.7× DPO's, about what its four-times learning
+rate and two epochs imply. In activations and outputs the order reverses.
+
+**Matched dose.** Checkpoints saved during the reruns compare the recipes at
+equal movement. In the Dolly branch, DPO after 20 of its 125 steps had moved the
+activations (drift 0.26 against 0.27–0.28) and the first-token output
+distribution (KL 0.62–0.64 against 0.67–0.73) about as far as the complete SFT
+runs, and its orthogonal part was already more than twice SFT's (0.85–0.88
+against 0.38–0.40). SFT set its orthogonal part by its first checkpoint and kept
+it while its weight change grew more than fivefold.
+
+### 3. Behaviour: SFT changes little, DPO overshoots
+
+WildGuard rates (%) on the 654-prompt benchmark, original runs:
+
+| start | model | refuses A | refuses B | refuses C | refuses D | harmful answer A | harmful answer C |
+|---|---|---|---|---|---|---|---|
+| Alpaca | start | 9 | 0 | 5 | 1 | 83 | 75 |
+| | safety SFT | 15 | 4 | 10 | 2 | 73 | 70 |
+| | DPO | 95 | 28 | 98 | 15 | 1 | 0 |
+| Dolly | start | 7 | 1 | 0 | 1 | 81 | 86 |
+| | safety SFT | 12 | 4 | 10 | 3 | 77 | 67 |
+| | DPO | 99 | 42 | 100 | 19 | 1 | 0 |
+
+DPO almost removes harmful answers but refuses many benign prompts that merely
+sound alarming (B): 24–53% across the six DPO runs. The recipe difference (DPO
+minus SFT) excludes zero in every quadrant, the benign ones included.
+
+SFT's small effect concerns these data, not SFT in general: WildGuard reads 43%
+of the SFT targets (the "safer" responses) as refusals and 27% as harmful, so
+imitation saw a mixed signal.
+
+**Human check.** One annotator, blind to model and label, judged 40
+hash-sampled benign answers by XSTest's scheme. Of 30 that WildGuard read as DPO
+refusals, 29 were full or partial refusals (95% CI 83–99%); of 10 it read as
+compliant, 2 were refusals. WildGuard's refusal labels hold here but may miss
+some.
+
+### 4. Knowing is not refusing
+
+The starts already separate the groups (held-out d′ 3.6–3.7; AUROC 0.90–0.91
+for reworded harmful against alarming benign prompts), yet give harmful answers
+to 75–86% of harmful prompts. A larger contrast is not better separation
+either: d′ is 3.6–3.7 after SFT and 4.2–4.9 after DPO, not a reliable rise.
+
+### 5. Does the redirected part act?
+
+An exploratory test added a fixed vector to each start's layer-24 activation at
+the final prompt token, on the reworded harmful prompts (C). A push along DPO's
+orthogonal direction, as large as DPO's own average push on harmful prompts, cut
+harmful answers by 14–17 points; the same push along the start direction cut
+them by 2–4, a random one by 1.
+
+Removing each direct-DPO model's own direction (layers 24–28, cross-fitted)
+raised StrongREJECT harm scores by only 0.009–0.020 over a random control,
+against 0.105–0.119 for DPO after safety SFT. So the direction can move
+behaviour, but is not shown to carry DPO's: refusal may also live elsewhere, or
+the models may sit far from the boundary.
+
+### 6. What drives the contrast
+
+- **No training overlap.** No benchmark prompt has an exact or near-duplicate
+  (character n-gram TF-IDF cosine ≥ 0.9) in any training file.
+- **Source.** With only OpenAssistant prompts as benign, a source neither start
+  saw, the orthogonal part moves by at most 0.17.
+- **Style.** For reworded harmful minus alarming benign prompts, whose surface
+  cues point the other way, and for XSTest's unsafe minus safe minimal pairs
+  (one source, one format), DPO's orthogonal part is 0.89–1.77 against
+  0.31–0.65 for SFT. The recipe difference excludes zero at every layer after
+  Bonferroni adjustment.
+
+### 7. The full chain: DPO after safety SFT
+
+In the four-stage chain (base → instruction tuning → safety SFT → DPO), DPO
+after safety SFT changes the weights as much as direct DPO but moves the
+contrast mostly along the old direction (cosine 0.85–0.89 at layer 24), so
+redirection depends on where DPO starts. The chain was run on a preregistered
+analysis plan ([docs/audit/analysis_plan.md](docs/audit/analysis_plan.md)). Its
+confirmatory endpoints: DPO after safety SFT lowers StrongREJECT harm on the
+reworded harmful prompts by 0.40 [0.34, 0.46], and ablating that model's
+direction raises it by +0.11 [+0.03, +0.21] over a magnitude-matched random
+control (held-out, n=30). Those and the branch comparisons are in
+[docs/FINDINGS.md](docs/FINDINGS.md).
+
+---
 
 ## How it was measured
 
-A four-stage chain on Qwen2.5-1.5B, with two controls that separate the two
-factors in the claim:
-
-| Stage | What it is |
+| Checkpoint | What it is |
 |---|---|
-| M0 | base model |
-| M1 | SFT on a helpful corpus (Alpaca) |
-| M2 | SFT on safety data (PKU-SafeRLHF) |
-| M3 | DPO from M2, matched pairs from the same data |
-| M3_direct | DPO straight from M1 — isolates *training history* |
-| `*_alt` | the chain again with Dolly as M1's corpus — isolates *corpus* |
+| M0 | Qwen2.5-1.5B base |
+| M1 / M1_alt | the instruction-tuned starts: SFT on 6,000 Alpaca / Dolly prompts |
+| M2 / M2_alt | safety SFT from the start on the chosen responses of 4,000 PKU-SafeRLHF pairs (2 epochs, lr 2e-4) |
+| M3_direct / M3_direct_alt | DPO from the start on the same 4,000 pairs (1 epoch, lr 5e-5, β 0.1) |
+| M3 / M3_alt | DPO after safety SFT |
 
-M2 and M3 draw on the same prompts, which removes the training-data
-distribution as a confound between them. It does not isolate "the DPO
-objective" from everything else that differs between an SFT and a preference run.
+LoRA r=64 throughout. The safety-SFT and direct-DPO arms were trained twice more
+under new seeds, saving intermediate checkpoints for the dose curves, plus one
+safety-SFT run with the loss on the response only.
 
-Evaluation is a fixed 654-prompt benchmark crossing intent against surface form:
+**Contrast.** Mean activation on 120 overt harmful prompts (A) minus 120 plain
+benign prompts (D), at the final prompt token (and the mean of the last five as a
+second pooling), layers 16, 20, 24 and 28. Length ratio, cosine and the
+along/orthogonal split are measured against the start's contrast; intervals come
+from a joint prompt bootstrap, Bonferroni-adjusted over the four layers.
+
+**Behaviour.** A fixed 654-prompt benchmark crossing intent against surface
+form, labelled by WildGuard and StrongREJECT. WildGuard recovers the
+benchmark's intent labels at κ 0.95.
 
 | | overt wording | plain / reduced-cue wording |
 |---|---|---|
 | **harmful intent** | A (150, HarmBench) | C (104, StrongREJECT, reworded) |
 | **benign intent** | B (250, XSTest) | D (150, Alpaca/Dolly/OASST1) |
 
-Quadrant C is the load-bearing cell: genuinely harmful requests with the
-wrongdoing vocabulary removed. Quadrant B is its mirror — benign requests that
-merely sound alarming.
+## Limitations
 
-## Where the claim is weakest
+- One model at one scale (1.5B), one safety dataset, three runs per arm, LoRA
+  throughout.
+- Objective and recipe differ together: DPO also sees the rejected response, and
+  the two schedules differ. The comparison is matched in start and data, not in
+  everything.
+- The contrast is a difference between prompt groups, not a pure safety feature.
+  The controls reduce but cannot exclude source and style effects, and the
+  contrast mixes harmfulness and refusal signals.
+- Behaviour labels come from automated judges, with 40 answers checked by hand.
+  DPO's over-refusal varies from run to run.
+- Quadrant C's prompts were authored: each is a reworded published prompt with
+  its source kept, so the rewording is auditable, but it bundles cue removal with
+  changes in length and register.
+- The SFT-against-DPO comparison is exploratory, outside the preregistered plan.
 
-- **The direction is not purely about safety.** Benign-but-alarming quadrant-B
-  prompts sit about a third of the way toward the harmful pole at every stage.
-  The contrast carries topic, register and wording structure too. Read "refusal
-  direction" with that qualification.
-- **The geometry is mixed, and is reported that way.** Most of the M2→M3 update
-  is orthogonal to the prior top-5 subspace. On its own that would suggest new
-  structure; the null in part 2 is what rules that reading out. Both results are
-  stated, not only the convenient one.
-- **The intervention direction is mean-pooled over the last five tokens**, not
-  the final token the preregistration fixes. Cosine between the two is 0.76–0.87
-  at the intervention layers. No number changes — every causal result is a valid
-  analysis of the mean-pooled contrast — but the label was wrong and is
-  corrected throughout. Carried as a recorded deviation.
-- **One earlier claim was withdrawn.** A reported dataset-sensitive bottleneck
-  gap did not survive bootstrapping and was mostly argmax noise. It is kept
-  visible rather than quietly dropped.
-- One model, one scale (1.5B). LoRA r=64 throughout — the subspace check bounds
-  that confound (90–94% of the direction's norm lies outside the rank-64
-  subspace) without removing it. Refusal labels come from a frozen regex
-  classifier plus two LLM judges; still a proxy.
-- Quadrant C's prompts were authored, not sampled. Each is a reworded published
-  prompt with its source retained, so the rewording is auditable — but it bundles
-  cue removal with incidental changes in length and register, so it is not a
-  single clean factor.
-
-Per-number provenance, including what each result does and does not support, is
-in [docs/FINDINGS.md](docs/FINDINGS.md).
-
-## A separate, exploratory study
-
-`src/crossbranch/` and `results/crossbranch/` hold a distinct experiment: taking
-the activation delta a DPO step induces in one branch and injecting it into
-another, to ask whether the change is branch-specific or transferable.
-
-**It sits outside the preregistration** in `docs/audit/analysis_plan.md` and its
-numbers are exploratory. They are not folded into anything above.
-
-## Reproducing
-
-Trained adapters live on HuggingFace under `urosavurdic/qwen2.5-1.5b-*`; no
-weights are committed here. Every committed result carries a `*_binding.json`
-sidecar recording the benchmark hash it was computed against.
+## Reproduce
 
 ```bash
-git clone https://github.com/urosavurdic/dpo-safety-representations
-cd dpo-safety-representations
-pip install -r requirements.txt && pip install -e .
-python -m pytest -q
-
-python -m src.reproduce --list          # what exists, what is missing
-python -m src.reproduce --components all
+python -m src.stagecmp.run_geometry                  # along/orthogonal split, update size, separability
+python -m src.stagecmp.contrast_controls --xstest-csv PATH
+python -m src.seedrep.analyze --bank hf://USER/seedrep-bank   # reruns, dose curves, injection
 ```
 
-GPU work — training, generation, interventions — runs from `notebooks/`.
-Conventions and the traps that actually bite are in
-[CONTRIBUTING.md](CONTRIBUTING.md). Naming, including why `654` and `370era`
-mark the two benchmark eras, is in [docs/NAMING.md](docs/NAMING.md).
-
-## Data and content warning
-
-Committed result files contain **real model completions to harmful prompts**,
-including non-refusals. They are committed because the claims are about refusal
-rates under intervention, and those are not checkable without the generations.
-
-Evaluation and training data derive from HarmBench, XSTest, StrongREJECT,
-PKU-SafeRLHF, Alpaca and Dolly, each under its own terms. The processed training
-files inherit third-party personal data from the upstream instruction corpora.
-What is and is not scrubbed is documented in [docs/DATA.md](docs/DATA.md).
-
-## Layout
-
-```
-src/common/        shared helpers        src/training/    SFT and DPO
-src/data_pipeline/ benchmark building    src/analysis/    endpoints, geometry
-src/pipeline/      benchmark-bound runs  src/crossbranch/ the exploratory study
-src/diagnostics/   leakage checks        docs/audit/      frozen analysis plan
-results/           every committed number + binding sidecars
-archive/           retired code, kept for provenance
-```
-
-## How to cite
-
-```bibtex
-@misc{dpo_safety_representations,
-  title  = {Preserved but Path-Dependent: the Refusal Direction Across a DPO Training Chain},
-  author = {Uros Savurdic},
-  year   = {2026},
-  howpublished = {\url{https://github.com/urosavurdic/dpo-safety-representations}},
-  note   = {Independent research project, not peer-reviewed}
-}
-```
+Results land in [results/stagecmp/](results/stagecmp/), each with a sidecar
+recording the sha256 of every input. The chain's command sequence is in
+[docs/REPRODUCE.md](docs/REPRODUCE.md).
