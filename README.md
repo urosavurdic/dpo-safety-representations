@@ -1,6 +1,6 @@
 # Safety SFT preserves, DPO redirects
 
-**Paper:** *Matched Starts, Different Recipes: Chosen-Response SFT and Direct DPO Change a Pre-Existing Benchmark-Defined Activation Contrast*, accepted at TELFOR 2026.
+**Paper:** *Safety SFT Preserves, DPO Redirects: The Harmful–Benign Contrast of a Small LLM*, accepted at TELFOR 2026.
 
 **From the same instruction-tuned start and the same 4,000 PKU-SafeRLHF safety
 pairs, supervised fine-tuning on the safer responses keeps a small model's
