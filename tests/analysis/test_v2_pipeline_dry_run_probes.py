@@ -1,6 +1,5 @@
 """
-Regression test for logs/release_gap_audit.md item 6 / section 5-adjacent
-finding: `--dry-run --regenerate --with-probes` used to produce byte-
+Regression test: `--dry-run --regenerate --with-probes` used to produce byte-
 identical output to the same command without `--with-probes`, because
 `main_run()` returned right after `describe_plan()` -- before ever
 reaching the post-loop `if args.with_probes: compute_probes(...)` branch.
@@ -32,8 +31,7 @@ def test_with_probes_changes_dry_run_output():
     without = _run_dry()
     with_probes = _run_dry("--with-probes")
     assert without != with_probes, (
-        "--with-probes must be visible in --dry-run output "
-        "(see logs/release_gap_audit.md item 6)"
+        "--with-probes must be visible in --dry-run output"
     )
 
 

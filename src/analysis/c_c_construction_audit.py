@@ -153,7 +153,7 @@ def run_locked_c_b_contract() -> Dict:
     #     not exact versions, and no lock file exists anywhere in this
     #     repository, so a later `pip install -r requirements.txt`
     #     legitimately resolves to newer compatible releases. Verified
-    #     by inspection (see logs/task1_cpu_hardening_report.md): with
+    #     by inspection: with
     #     numpy 2.4.4->2.5.2, pandas 3.0.2->3.0.5, scikit-learn
     #     1.8.0->1.9.0, scipy 1.17.1->1.18.1, every field of `analysis`
     #     other than software_versions itself -- including every

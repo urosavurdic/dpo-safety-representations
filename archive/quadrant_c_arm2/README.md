@@ -1,4 +1,4 @@
-# Quadrant C — Arm-2 (`c_source_authored`) Archive
+# Quadrant C, Arm-2 (`c_source_authored`) Archive
 
 ## Status
 
@@ -41,8 +41,8 @@ changed as a result of the relocation. No other behavior was changed.
 ## What was intentionally left in place
 
 The following remain in their original locations because they are shared,
-load-bearing for active tooling, or out of scope for this archival pass —
-this directory does not represent a complete excision of every Arm-2 trace,
+load-bearing for active tooling, or out of scope for this archival pass.
+This directory does not represent a complete excision of every Arm-2 trace,
 only the retirement of Arm-2 from the active release execution path:
 
 - `src/data_pipeline/build_c_source_authored_candidates.py`

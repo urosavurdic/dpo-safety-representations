@@ -1,4 +1,4 @@
-# results/stagecmp/ — stage-vs-stage comparison
+# results/stagecmp/: stage-vs-stage comparison
 
 **EXPLORATORY.** Outside the frozen preregistration in
 `docs/audit/analysis_plan.md`, in exactly the way `results/crossbranch/` is. Do
@@ -19,21 +19,21 @@ python -m src.stagecmp.report --pooling final_token
 |---|---|
 | `stage_comparison_final_token.json` | the whole comparison under the **preregistered** final-prompt-token pooling |
 | `stage_comparison_mean_last5.json` | the same under mean-last-5 pooling |
-| `stage_comparison_*_binding.json` | sha256 of every input read — the nine activation files and the judge file |
+| `stage_comparison_*_binding.json` | sha256 of every input read (the nine activation files and the judge file) |
 | `FINDINGS_stagecmp_*.md` | generated prose summary; never hand-edited, regenerate instead |
 
 ## What is inside
 
-- **`behavioural`** — four-way label distribution and withhold / refusal /
+- **`behavioural`**: four-way label distribution and withhold / refusal /
   degenerate rates with Wilson CIs, per stage and quadrant.
-- **`pairwise`** — all 36 unordered stage pairs: four-way total variation with
+- **`pairwise`**: all 36 unordered stage pairs: four-way total variation with
   its distributions and per-prompt agreement, and exact-binomial McNemar.
   Bootstrap CIs on paired differences are computed for the **eight pre-named
   headline pairs only**; 36 pairs × 4 quadrants of intervals per metric would
   invite misreading.
-- **`contrasts_2x2`** — the objective × corpus factorial (OBJ / CORP / INT) and
+- **`contrasts_2x2`**: the objective × corpus factorial (OBJ / CORP / INT) and
   the selectivity contrasts, with the paired bootstrap.
-- **`depth_attribution`** — per-layer write of the A−D contrast onto each
+- **`depth_attribution`**: per-layer write of the A−D contrast onto each
   stage's direction, `write[l] = (h_l − h_{l−1}) · d_l`, and its cumulative
   curve.
 
@@ -49,7 +49,7 @@ python -m src.stagecmp.report --pooling final_token
    differ only in `depth_attribution`. That is expected, not a bug.
 
 3. **Peak layer is not reported.** The per-layer write curve is multi-peaked
-   and its argmax is unstable across stages — the same failure mode that retired
+   and its argmax is unstable across stages, the same failure mode that retired
    the earlier bottleneck-gap claim (`docs/FINDINGS.md`). Read the cumulative
    curve and the A−D gap instead.
 

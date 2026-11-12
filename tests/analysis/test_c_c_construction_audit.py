@@ -49,8 +49,8 @@ def test_run_locked_c_b_contract_is_reproducible():
         # against the exact numpy/scipy/pandas/scikit-learn versions
         # pinned in requirements-lock.txt -- the same versions recorded in
         # the committed artifact's own software_versions field. Confirmed
-        # by direct investigation (logs/task1_cpu_hardening_report.md,
-        # c_b_repro_diff.txt): with a drifted environment (different
+        # by direct investigation (archive/colab_migration/c_b_repro_diff.txt):
+        # with a drifted environment (different
         # numpy/pandas/scikit-learn patch versions and/or a different
         # OS/compiler/BLAS backend), every structural/statistical field --
         # population counts, hashes, pass/fail decisions -- still matches

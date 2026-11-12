@@ -26,7 +26,7 @@ would have made published data unreproducible from `src/`, so they stay:
 
 | Module | Produces |
 |---|---|
-| `src/data_pipeline/lexical_outlierness_pilot.py` | `logs/3d_b_lexical_outlierness_pilot.json`, which is **SHA-pinned** in two `PINNED_INPUT_HASHES` tables. It was proposed for archival as "superseded by `lexical_outlierness.py`", but that module has no `main()` and no entry point — it is the library, and the pilot is the runner that imports it. |
+| `src/data_pipeline/lexical_outlierness_pilot.py` | `logs/3d_b_lexical_outlierness_pilot.json`, which is **SHA-pinned** in two `PINNED_INPUT_HASHES` tables. It was proposed for archival as "superseded by `lexical_outlierness.py`", but that module has no `main()` and no entry point; it is the library, and the pilot is the runner that imports it. |
 | `src/data_pipeline/build_c2_ahb.py` | `data/quadrant_c_pipeline/secondary_c2_stylistic.jsonl` (tracked) |
 | `src/interpretability/lora_subspace_check.py` | `results/interpretability/lora_subspace_check.json` (tracked), and it has a live test |
 | `src/analysis/r_authored_distribution.py` | `results/c_construction_audit/r_authored_distribution.json` (tracked) |

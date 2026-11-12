@@ -1,4 +1,4 @@
-# Final-token repair — reproduction package
+# Final-token repair: reproduction package
 
 Repairs audit **RED-1**: the committed causal pipeline built the A–D
 difference-in-means direction from `*_pooled.npy` (mean of the last 5 non-padding
@@ -48,7 +48,7 @@ python -m pytest tests/analysis/test_final_token_repair.py -q
 ```
 
 `final_token_repair` and `final_token_summaries` are **CPU-only, torch-free**.
-CF3 is a `LogisticRegression` probe — no GPU, no judge model.
+CF3 is a `LogisticRegression` probe, with no GPU and no judge model.
 
 **Requires** `results/activations/{M2,M3,M2_alt,M3_alt}_{final,pooled}.npy` +
 `_metadata.json` (654-row). M3_direct / M3_direct_alt need their 654-row
@@ -58,7 +58,7 @@ CF3 is a `LogisticRegression` probe — no GPU, no judge model.
 ### B. One consolidated Colab GPU session
 
 Run `notebooks/08_final_token_repair.ipynb` end to end (Runtime → Run all).
-Pinned to commit — see the first cell. Produces the final-token held-out CF2,
+Pinned to a commit (see the first cell). Produces the final-token held-out CF2,
 5-fold cross-fit, optional full-A/D, and StrongREJECT + WildGuard scores, then
 `final_token_endpoints.json` (`confirmatory_behavioral_endpoints.py
 --condition-infix ft_`). Archives everything new to Drive with a SHA256 manifest.

@@ -9,7 +9,7 @@ per-replicate difference (direct minus mediated) yields a percentile CI.
 Pairing this way isolates prompt-sampling noise, which is the quantity the
 comparison is about. Pairing by bootstrap replicate index instead would compare
 two descriptive ranges rather than a difference; that earlier approach was
-withdrawn. See docs/history/ for the correction.
+withdrawn.
 """
 from __future__ import annotations
 

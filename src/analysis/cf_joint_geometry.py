@@ -1071,7 +1071,7 @@ def optional_embeddings_check(run_embeddings: bool) -> dict:
         "status": "not_run",
         "reason": "network access to the Hugging Face Hub is unavailable in "
         "this sandbox; the model cannot be downloaded (same constraint "
-        "already logged in C-A section 2 / logs/agent_state.json)",
+        "already logged in C-A section 2)",
         "model": "sentence-transformers/all-MiniLM-L6-v2",
     }
 

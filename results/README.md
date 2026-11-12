@@ -1,4 +1,4 @@
-# results/ layout — 654 (frozen) vs 370era (pre-freeze)
+# results/ layout: 654 (frozen) vs 370era (pre-freeze)
 
 The T4 rerun writes a **new, benchmark-bound** family of artifacts alongside the
 historical 370-prompt ones. Nothing here is moved or deleted (`git mv` happens
@@ -25,7 +25,7 @@ the frozen-v2 path.
 | `results/behavioral_judges_v2/agreement_report.json` | `check_behavioral_agreement.py` | human-audit agreement + §5.4 aggregation |
 | `logs/c_vs_a_leakage.json` | `check_c_vs_a_leakage.py` | C-vs-A / C-vs-training near-dup + CF3 category compat |
 
-## legacy (370-prompt, pre-freeze) — kept for the paper trail, NOT current
+## legacy (370-prompt, pre-freeze): kept for the paper trail, NOT current
 
 `results/behavioral_eval/raw.json`, `results/behavioral_eval/summary_v2.json`,
 `results/raw/causal_ablation_raw_{narrow,wide}.json`,
@@ -76,7 +76,7 @@ Two keys are easy to misread, and one is an outright collision:
 | `rate` | a **refusal** rate |
 | `dtv` | delta total-variation distance against a reference label distribution |
 | `raw_sims` | per-replicate bootstrap cosine similarities |
-| `cv_accuracy_mean` | 5-fold probe accuracy; saturates near 1.0 — never select a layer by it |
+| `cv_accuracy_mean` | 5-fold probe accuracy; saturates near 1.0, so never select a layer by it |
 | **`b`** | **bootstrap replicate count** in the bootstrap-CI files, but the **McNemar discordant-cell count** in `mcnemar_direction_specificity.json`. Same letter, sibling directories, unrelated quantities. |
 
 ## Legacy artifacts
