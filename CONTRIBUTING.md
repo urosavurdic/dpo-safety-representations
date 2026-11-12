@@ -1,7 +1,6 @@
 # Working on this repo
 
-Conventions, commands, and the things that will bite you. For *why* the project
-looks the way it does, see [docs/history/](docs/history/). For what the results
+Conventions, commands, and the things that will bite you. For what the results
 are, see [README.md](README.md) and [docs/FINDINGS.md](docs/FINDINGS.md).
 
 ## Layout
@@ -66,7 +65,7 @@ condition-name prefixes, bootstrap seeds and `N_BOOTSTRAP` values are baked into
 committed results.
 
 **Docstrings describe current behaviour.** One line of history at the end if it
-is load-bearing, otherwise link to `docs/history/`. Not a paragraph, not at the
+is load-bearing. Not a paragraph, not at the
 top. A docstring that opens by explaining a bug that was fixed is a docstring
 the reader has to wade through before learning what the module does.
 
@@ -98,7 +97,7 @@ even a docstring. `src/v2_io.py`, `src/cue_scoring.py`,
 `src/corpus_discrimination.py`, `src/diagnostics/score_lexical_risk_cues.py`.
 The full list, including pinned data paths, is in `docs/NAMING.md`.
 
-**Two live pipeline inputs hide in `logs/`** among 65 dated audit dumps:
+**Two live pipeline inputs live in `logs/`** next to the analysis specs and reports:
 `logs/direction_split_manifest.json` and `logs/benchmark_gate_config.json`. Do
 not tidy `logs/` without accounting for them.
 

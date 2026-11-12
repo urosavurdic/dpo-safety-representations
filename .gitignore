@@ -96,3 +96,37 @@ dist/
 
 # human labelling working files (the blind sheet; its key lives in private/)
 results/human_review/benign_check_sheet.html
+
+# Working notes and process logs: kept locally, not published.
+/logs/3a0_souece_plan.json
+/logs/3a0_source_plan.md
+/logs/3a1_source_inventory.json
+/logs/3a1_source_inventory.md
+/logs/3a1a_source_inventory.json
+/logs/3a1b_reconciliation.json
+/logs/3a1b_reconciliation.md
+/logs/3a1b_source_inventory.json
+/logs/3a2_source_acquisition.json
+/logs/3a2_source_acquisition.md
+/logs/3a3_validation.json
+/logs/3a3_validation.md
+/logs/3a4_scoring.json
+/logs/3d_c_length_dependence_audit.md
+/logs/3e1_external_cue_resource_audit.json
+/logs/3e1_external_cue_resource_audit.md
+/logs/3f_a_common_cue_axis_design.md
+/logs/3f_b_benchmark_comparison_and_decision.md
+/logs/benchmark_validation_report.md
+/logs/c_existing_construction_decision.md
+/logs/cue_reference_audit.json
+/logs/cue_scorers_implementation.json
+/logs/cue_scorers_implementation.md
+/logs/emergency_integrity_audit.md
+/logs/queue_scoring_summary.json
+/logs/reconciliation_report.json
+/logs/reconciliation_report.md
+/logs/researcher_runbook_colab.md
+/logs/researcher_runbook_local.md
+/logs/release_gap_audit.md
+/logs/task1_cpu_hardening_report.md
+/docs/history/
