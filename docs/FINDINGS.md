@@ -4,20 +4,20 @@ The evidence ledger: every reported number, where it came from, and what it does
 and does not support.
 
 Numbers verified against `results/` JSONs. The causal endpoints (CF2 and
-below) are from the **2026-09-07 Colab run** — judge file
+below) are from the **2026-09-07 Colab run**: judge file
 `behavioral_judges_20260907T043919Z.json`, which added the full-A/D and
 5-fold cross-fitted causal generations and re-scored them (see the
 "cross-fitted" session in CONTRIBUTING.md / the git log around `c5a16ec`). CF1 is unchanged from the 2026-09-05 run. CF3 was re-pinned on CPU
 (audit RED-2) and the geometry/factorial were recomputed on `_pooled`
-(audit RED-1 optional, done) — see those sections. Every claim here has a
-file behind it — no 370-era numbers.
+(audit RED-1 optional, done): see those sections. Every claim here has a
+file behind it, no 370-era numbers.
 
 ## Confirmatory endpoints
 
 | Endpoint | Estimate | 95% CI | n | source |
 |---|---|---|---|---|
 | CF1 (C, M2→M3, continuous SR) | −0.4008 | [−0.4603, −0.3396] | 104 | `summaries/confirmatory_endpoints.json` |
-| **CF2 (M3, held-out A, SR_AD − SR_random) — PREREGISTERED ANCHOR** | +0.1136 | [+0.0279, +0.2064] | 30 | same |
+| **CF2 (M3, held-out A, SR_AD − SR_random): PREREGISTERED ANCHOR** | +0.1136 | [+0.0279, +0.2064] | 30 | same |
 | CF2 secondary M3_direct (held-out) | +0.0247 | [−0.0072, +0.0642] | 30 | same |
 | CF2 secondary M3_alt (held-out) | +0.0391 | [−0.0268, +0.1154] | 30 | same |
 | CF2 secondary M3_direct_alt (held-out) | +0.0185 | [−0.0009, +0.0419] | 30 | same |
@@ -26,7 +26,7 @@ file behind it — no 370-era numbers.
 The held-out-30 M3 number is the **only preregistered confirmatory causal
 test**. Everything below is post-hoc sensitivity.
 
-### Cross-fitted out-of-fold estimate (POST HOC — 5-fold, n=120/branch)
+### Cross-fitted out-of-fold estimate (POST HOC: 5-fold, n=120/branch)
 
 Each quadrant-A `direction_estimation` prompt generated under a direction
 (and matched-random-control magnitude) estimated from the other 4 folds.
@@ -45,7 +45,7 @@ overlap by 3/4).
 "detected in / not detected in" framing: the effect is positive in every
 branch; its **magnitude** is path-dependent (~13× M3 vs M3_direct_alt).
 
-### Circularity bias — estimation_split minus cross_fitted, SAME 120 rows, paired
+### Circularity bias: estimation_split minus cross_fitted, SAME 120 rows, paired
 
 | Branch | est_split | cross_fit | bias (est − xf) | 95% CI | detectable? |
 |---|---|---|---|---|---|
@@ -59,7 +59,7 @@ detectable → `full_A_sensitivity` can be read close to face value. This is
 the measurement the "circularity" critique asked for (paired, same rows),
 NOT a held-out-n30-vs-estimation-n120 comparison (different populations).
 
-## Cross-fitted branch contrasts (POST HOC — the properly-powered path-dependence test)
+## Cross-fitted branch contrasts (POST HOC: the properly-powered path-dependence test)
 
 Paired bootstrap on the **cross-fitted per-prompt effects**; folds are
 deterministic on the shared prompt set so all contrasts are prompt-paired.
@@ -79,11 +79,11 @@ The interaction is the substantive result: corpus moves the cross-fitted
 effect by only +0.013 within the direct-DPO pair but +0.110 within the
 mediated pair. Within Dolly, mediated-vs-direct (M3_alt vs M3_direct_alt)
 spans zero → the mediation effect is carried almost entirely by the Alpaca
-branch. **Post hoc, single seed per cell — see Limitations.**
+branch. **Post hoc, single seed per cell, see Limitations.**
 
-## Branch-interaction bootstrap (EXPLORATORY — held-out n=30, SUPERSEDED by the above)
+## Branch-interaction bootstrap (EXPLORATORY: held-out n=30, SUPERSEDED by the above)
 
-`Δ_M3 − Δ_branch` on the 30 held-out A prompts. **Unstable at n=30** — two
+`Δ_M3 − Δ_branch` on the 30 held-out A prompts. **Unstable at n=30**: two
 of three CIs moved across the zero boundary between the 2026-09-05 and
 2026-09-07 judge runs (which barely touched held-out rows). Kept only as
 corroboration; lead with the n=120 cross-fitted contrasts.
@@ -94,12 +94,12 @@ corroboration; lead with the n=120 cross-fitted contrasts.
 | M3 vs M3_direct | +0.089 [−0.015, +0.196] | +0.100 [+0.004, +0.205] |
 | M3 vs M3_direct_alt | +0.095 [+0.007, +0.192] | +0.088 [−0.003, +0.188] |
 
-## AD-vs-random McNemar, quadrant C soft_deflection (n=104) — the correct direction-specificity test
+## AD-vs-random McNemar, quadrant C soft_deflection (n=104): the correct direction-specificity test
 
 `--conditions {stage}_ablated_AD {stage}_ablated_random --quadrant C --category soft_deflection`
 
 Authoritative counts (re-run 2026-09-07 against the frozen held-out files,
-which the re-judge did **not** touch — regex classifier, not judge scores).
+which the re-judge did **not** touch: regex classifier, not judge scores).
 `b` = discordant where AD-ablation flagged `soft_deflection` and random did
 not; `c` = the reverse. Full JSON + binding: `results/summaries/mcnemar_direction_specificity.json`
 (producer `src/analysis/mcnemar_direction_specificity.py`, p = two-sided
@@ -112,7 +112,7 @@ exact binomial; the old unattributable 8.9e-7 is replaced).
 | M3_direct | 3 / 8 | 0.2266 | no (11 discordant, underpowered) |
 | M3_direct_alt | 7 / 7 | **1.0000** | no (14 discordant, split evenly → random-equivalent) |
 
-### n=150 quadrant A/D McNemar (SENSITIVITY — category `refusal`, coarse flag)
+### n=150 quadrant A/D McNemar (SENSITIVITY: category `refusal`, coarse flag)
 
 `_fullAD` files. Noisier than the continuous endpoint; label "sensitivity".
 
@@ -123,7 +123,7 @@ exact binomial; the old unattributable 8.9e-7 is replaced).
 
 Quadrant A: M3 clean, M3_alt marginal, M3_direct null; **M3_direct_alt's
 p=0.024 rests on 39 discordant pairs of a binary flag flipping both ways
-under both ablations** — classifier instability on the least-stable branch,
+under both ablations**: classifier instability on the least-stable branch,
 not a clean directional effect (its continuous cross-fitted effect is the
 smallest at +0.012). Quadrant D: **no over-refusal side effect anywhere**
 (all p ≥ 0.125). The continuous full-A + cross-fitted estimates carry the
@@ -149,22 +149,22 @@ preregistered number is provably reading the frozen generation.
 **Synthesis (updated after the cross-fitted run):** the quadrant-C McNemar
 reaches significance for the two branches with the *largest* cross-fitted
 effects (M3, M3_alt) and not for the two smallest (M3_direct,
-M3_direct_alt) — this tracks the magnitude ordering, it is NOT a
+M3_direct_alt): this tracks the magnitude ordering, it is NOT a
 categorical presence/absence split. A coarse categorical test on quadrant
 C has little power against effects as small as +0.025 (M3_direct) or
 +0.012 (M3_direct_alt). M3_direct_alt's p=1.00 rests on 7/0 discordant
-pairs — too few to detect an effect that size, not evidence of absence.
+pairs: too few to detect an effect that size, not evidence of absence.
 The direction-specific effect is present in all four branches
 (cross-fitted CIs all exclude 0); what is path-dependent is its
 **magnitude**. Safety-SFT-mediated paths show larger effects than
 direct-DPO paths, but the design does not isolate safety-SFT as the sole
 cause (M3-vs-M3_direct also varies the full downstream trajectory).
 
-## CF3 — orthogonal benchmark-category decodability (H1 test)
+## CF3: orthogonal benchmark-category decodability (H1 test)
 
 **RE-PINNED 2026-09-07 (audit RED-2).** The prior committed
 `direction_decodability_cf3.json` (M2 F1 0.893 → M3 0.878, cf3 −0.016) was
-**not reproducible** — `M2_direction_654.npy` was never committed and no
+**not reproducible**: `M2_direction_654.npy` was never committed and no
 direction/activation combo in the repo reproduced it. Rebuilt on CPU from
 the fresh 654-row `_final.npy` activations via the `stage_direction`
 diff-in-means, both poolings:
@@ -175,12 +175,12 @@ diff-in-means, both poolings:
 | mean-pooled last-5 (causal core) | 0.886 | 0.894 | +0.008 | [−0.013, +0.030] | yes |
 
 layer 28, n=254 (A 150 + C 104), 4 categories, B=10000, seed 20260904.
-**NULL under both** — no evidence DPO adds linearly-decodable structure
+**NULL under both**: no evidence DPO adds linearly-decodable structure
 orthogonal to the A–D contrast. Point estimate is essentially zero (very
 slightly positive), NOT "slightly negative" as the old artifact had it.
 Producer: the CPU harness in this session; `interpretability/direction_decodability_cf3.json`.
 
-## Direction pooling — DISCLOSED DEVIATION (audit RED-1)
+## Direction pooling: DISCLOSED DEVIATION (audit RED-1)
 
 `analysis_plan.md` §4 fixes the canonical direction on the **final** prompt
 token. `v2_pipeline.stage_direction` / `stage_direction_crossfit` build the
@@ -188,8 +188,8 @@ intervention direction from **`_pooled.npy` = mean of the last 5 tokens**
 (`POOL_WINDOW=5`). Proven: `M3_direction_654.npy` == `unit(mean(pooled[A_est])
 − mean(pooled[D_est]))` to cos 1.0000 every layer; cos with the final-token
 diff-in-means is only **0.76–0.87 at L24–28** (0.82–0.87 original chain,
-0.76–0.81 alt). **No number changes** — every causal result is a valid
-analysis of the mean-pooled contrast — but the write-up's "final-token" label
+0.76–0.81 alt). **No number changes**: every causal result is a valid
+analysis of the mean-pooled contrast, but the write-up's "final-token" label
 was wrong and is corrected throughout; deviations-table row added. Geometry
 (`subspace_geometry.py`) and factorial (`factorial_direction_audit.py`) use
 `_final.npy` → those describe the final-token direction, cos ~0.86 with the
@@ -220,11 +220,11 @@ qualitative story holds under both poolings; the numbers that move:
 **Both poolings:** d_AD aligns more with d_H than d_S and more so after
 M2->M3; d_H carries most of the held-out separation; large orthogonal
 update; CF3 null. **Difference:** on the mean-pooled direction (the causal
-one) the geometry leans harder toward amplification — norm grows more, PR
+one) the geometry leans harder toward amplification: norm grows more, PR
 and effective rank *contract* M2->M3 rather than staying flat / rising. §4
 and §9 of the paper now report both.
 
-**Final-token vs mean-pooled — decision doc: `docs/finaltoken_decision.md`.**
+**Final-token vs mean-pooled, decision doc: `docs/finaltoken_decision.md`.**
 Final-token is the field-standard + preregistered choice. Already final-token
 (no rerun): z_C trajectory / Fig 1 (`projection_trajectory.py` loads
 `_final.npy`; committed M3 z_C@L24 0.897 reproduces), factorial, geometry,
@@ -237,24 +237,24 @@ adjacent cosines (committed 0.930 M2→M3 layer-mean; **final-token 0.947 /
 d=4.19.
 
 
-## McNemar — committed producer added (audit P14)
+## McNemar: committed producer added (audit P14)
 
 `mcnemar_direction_specificity.json` had no producer/binding (uncommitted
 Colab bundle). New producer `src/analysis/mcnemar_direction_specificity.py`
 regenerates every cell from the committed raw causal files with the in-repo
 regex classifier, p = two-sided exact binomial on discordant pairs. b/c
 counts **all match the paper**; M3 quad-C p is now **3.7e-9** (exact
-binomial) not the old unattributable 8.9e-7 — still `<10⁻⁶`, no paper
+binomial) not the old unattributable 8.9e-7: still `<10⁻⁶`, no paper
 change. Binding pins raw-file sha256 + classifier commit.
 
-## Subspace geometry (H1/H2) — MIXED, report all four §4 outcomes
+## Subspace geometry (H1/H2): MIXED, report all four §4 outcomes
 
 r=5 primary, layers 24–28 (`interpretability/subspace_geometry.json`):
 
-- **Amplification (H2):** `contrast_norm` M2→M3 grows — L24: 36.2 → 41.5
+- **Amplification (H2):** `contrast_norm` M2→M3 grows, L24: 36.2 → 41.5
   (×1.15); L28: 37.2 → 55.3 (×1.49). Participation ratio ~flat (L24:
   33.6 → 33.8).
-- **Orthogonal update (H1):** `ρ_AD_perp` = 0.80–0.97 at L20–27 — most of
+- **Orthogonal update (H1):** `ρ_AD_perp` = 0.80–0.97 at L20–27, most of
   the M2→M3 update to the contrast is orthogonal to M2's top-5 A/D
   subspace. Principal angles M2↔M3 mean 20–26°, max to 63°. Effective rank
   rises slightly (77 → 79 at L24).
@@ -263,7 +263,7 @@ r=5 primary, layers 24–28 (`interpretability/subspace_geometry.json`):
   amplification; the "extra" is not recoverable richer structure. Report as
   a **mixture** per analysis_plan.md §4, not a headline.
 
-## Projection-magnitude trajectory (§4.5) — z_C, a clean figure
+## Projection-magnitude trajectory (§4.5): z_C, a clean figure
 
 z_C = C's position between D (=0) and overt-harmful A (=1) along each
 stage's own direction, L24 (`refusal_direction/projection_trajectory.json`):
@@ -272,17 +272,17 @@ stage's own direction, L24 (`refusal_direction/projection_trajectory.json`):
 |---|---|---|---|---|---|---|---|---|---|
 | z_C@L24 | +0.33 | +0.72 | +0.65 | +0.90 | +1.04 | +0.70 | +0.61 | +0.80 | +0.95 |
 
-C moves toward the overt-harmful cluster in two jumps — instruction-tuning
-(M0→M1) and DPO (M2→M3) — with a slight retreat during safety-SFT. Direct-DPO
+C moves toward the overt-harmful cluster in two jumps, instruction-tuning
+(M0→M1) and DPO (M2→M3): with a slight retreat during safety-SFT. Direct-DPO
 overshoots (M3_direct z_C > 1: C past A). This is the project's founding
 Hypothesis B in one figure.
 
 **A–D gap** `ad_gap@L24`: M0 22.2 → M1 37.0 → M2 36.7 → M3 41.8 (+14% for
 DPO; instruction-tuning did the bulk). M3_direct 56.3, M3_direct_alt 58.8
-(direct-DPO widens it ~53% over M2 — Finding 3).
+(direct-DPO widens it ~53% over M2, Finding 3).
 
 **z_B caveat:** z_B@L24 ≈ +0.27–0.42 across all stages (stable). Benign-but-
-alarming prompts sit ~⅓ of the way toward the harmful side along d — the
+alarming prompts sit ~⅓ of the way toward the harmful side along d, the
 A–D contrast carries topic/style/wording structure, not only safety.
 State this.
 
@@ -295,14 +295,14 @@ State this.
 | F3: deep-layer stability (direct − mediated) | +0.015, Wilcoxon p≈0 | **+0.009 [+0.005, +0.016]** pooled, 100% reps | holds; method upgraded to joint bootstrap |
 | Bottleneck layer (M3, A-vs-D) | 16, 99% mode | **16, mode 99.2%, CI [16,16]**, d=4.55 | holds exactly |
 | LoRA subspace | "90%+ outside rank-64" | 90–94% outside; but L21/28 in-subspace fraction 0.10 vs random 0.04 | holds with nuance |
-| F3: "7-layer harm-vs-surface gap" | claimed | argmax noise (correctly labelled `_EXPLORATORY` in the file) | **walked back — keep visible** |
+| F3: "7-layer harm-vs-surface gap" | claimed | argmax noise (correctly labelled `_EXPLORATORY` in the file) | **walked back, keep visible** |
 
 ## Corrections to earlier write-ups
 
-1. Abstract cosine "0.875–0.919" — true per-pair layer-means are **0.870
+1. Abstract cosine "0.875–0.919", true per-pair layer-means are **0.870
    (M3_direct) – 0.910 (M2)**; bootstrap CI envelope reaches 0.916. Paper
    table uses the real values.
-2. ~~`full_A_sensitivity` unavailable~~ — RESOLVED by the 2026-09-07 run;
+2. ~~`full_A_sensitivity` unavailable~~, RESOLVED by the 2026-09-07 run;
    real n=150 numbers in the CF2 table above, plus the n=120 cross-fitted
    estimate and the paired circularity bias. Limitations now says "the
    preregistered anchor is n=30; everything larger is sensitivity", not

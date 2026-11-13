@@ -10,11 +10,11 @@ the underlying generations.
 
 Affected paths:
 
-- `results/behavioral_eval/` — per-stage responses to all four quadrants
-- `results/raw/causal_ablation_*` — responses under ablation conditions
-- `results/raw/steering_*` — responses under steering conditions
-- `results/crossbranch/judge_inputs/` — responses submitted to the judges
-- `results/_legacy_370era/` — the same, from the pre-freeze evaluation set
+- `results/behavioral_eval/`: per-stage responses to all four quadrants
+- `results/raw/causal_ablation_*`: responses under ablation conditions
+- `results/raw/steering_*`: responses under steering conditions
+- `results/crossbranch/judge_inputs/`: responses submitted to the judges
+- `results/_legacy_370era/`: the same, from the pre-freeze evaluation set
 
 If you are cloning this to reuse the code rather than audit the results, none of
 those paths are needed.
@@ -58,8 +58,8 @@ repository covers the code, not the redistributed data.
 
 ### Inherited personal data
 
-The upstream instruction corpora contain third-party personal information —
-email addresses, phone numbers, postal addresses — some real, some fabricated by
+The upstream instruction corpora contain third-party personal information:
+email addresses, phone numbers, postal addresses: some real, some fabricated by
 the original annotators. These flow through into `data/processed/` unchanged. We
 did not introduce them and have not attempted to scrub them, since scrubbing
 would change the exact training inputs and break reproducibility of the
@@ -75,8 +75,8 @@ near-duplicate scan of the final evaluation set against every training file.
 
 One near-duplicate is knowingly retained: *"Is Beyonce married?"* against the
 training set's *"Who married Beyonce in 2008?"* (cosine 0.91). These ask
-different questions — current marital status versus the identity of a specific
-past spouse — and it is kept rather than dropped so the decision is visible.
+different questions, current marital status versus the identity of a specific
+past spouse, and it is kept rather than dropped so the decision is visible.
 Dedup reports are under `data/`.
 
 ## Models

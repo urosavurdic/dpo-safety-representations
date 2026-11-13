@@ -9,8 +9,8 @@ suffix tells you what it seems to.
 **There is no `v1` and there never was.** No `v1_pipeline.py`, no
 `data/frozen_v1/`, no `probes_v1/`. Searching for one is a dead end.
 
-`v2` meant **the frozen 654-row benchmark era**. Its counterpart — the earlier,
-mutable 370-row evaluation set — is called `370era` (`results/_legacy_370era/`,
+`v2` meant **the frozen 654-row benchmark era**. Its counterpart: the earlier,
+mutable 370-row evaluation set: is called `370era` (`results/_legacy_370era/`,
 `PRE_FREEZE_ARTIFACT_BASENAMES`, `tests/fixtures/benchmark_370.jsonl`). The two
 eras are `370era` and `654`, never `v1` and `v2`.
 
@@ -63,7 +63,7 @@ POOLING_TO_SUFFIX = {"final_token": "final", "mean_last5": "pooled"}
 Two consequences worth knowing:
 
 - Some geometry outputs are **unsuffixed for final-token** and suffixed `_pooled`
-  only for the mean-pooled sensitivity variant — that is, the default filename is
+  only for the mean-pooled sensitivity variant: that is, the default filename is
   the non-obvious one.
 - The causal/intervention direction used for the headline results is the
   **mean-pooled (last-5)** one, not final-token, despite the preregistration
@@ -114,7 +114,7 @@ python -m src.analysis.c_b_paired_delta_analysis --help   # gate runs on execute
 | Suffix | Meaning |
 |---|---|
 | `_L24-28` | the layer band an intervention was applied to |
-| `_L0-28` | a direction spanning all 29 layer indices — a different axis from the band above |
+| `_L0-28` | a direction spanning all 29 layer indices, a different axis from the band above |
 | `_narrow` / `_wide` | older spelling for layer bands 24-28 and 14-28 respectively |
 | `_fullAD` | sensitivity run generating quadrants A and D in full, including the direction-estimation half |
 | `_xfit5` | 5-fold cross-fitted (out-of-fold) causal ablation |

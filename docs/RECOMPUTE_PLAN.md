@@ -9,21 +9,21 @@ Written 2026-09-10, after reconciling the repo against
 ## 0. Correction to the 2026-09-10 audit
 
 My earlier audit (`paper_draft/AUDIT.md` §3) listed seven analysis outputs as
-"mixed-benchmark contaminated — invalid for cross-stage claims". **That verdict
+"mixed-benchmark contaminated, invalid for cross-stage claims". **That verdict
 was wrong. All three files I tested reproduce from the fresh activations.**
 
 `results/refusal_direction/projection_trajectory.json` **reproduces
 byte-identically** when re-run against the freshly imported 654-row `_final`
 activations across all nine stages. It was computed on the Colab machine, where
 all nine stages were already fresh. I inferred staleness from my *local*
-inability to reproduce it — the local checkout had 370-row copies — and stated
+inability to reproduce it (the local checkout had 370-row copies) and stated
 that inference as a property of the file. It isn't.
 
 Same for `results/interpretability/factorial_direction_audit.json`: re-running it
 on nine stages left the four pre-existing stages **numerically identical** and
 only added the five that were missing. And
 `results/interpretability/bootstrap_cross_branch_difference.json` re-runs to
-7 significant figures — the sole diff is a float last-digit
+7 significant figures, the sole diff is a float last-digit
 (`0.0443504304` → `0.0443504266`), i.e. BLAS summation order, not data.
 
 What survives from that section is a narrower and still-real point: several
@@ -41,7 +41,7 @@ Current output: all nine stages `ok`, `all present stages bound & consistent: Tr
 
 ---
 
-## 1. Already computed and valid — no rerun needed
+## 1. Already computed and valid: no rerun needed
 
 | Artifact | Coverage | Status |
 |---|---|---|
@@ -52,12 +52,12 @@ Current output: all nine stages `ok`, `all present stages bound & consistent: Tr
 | `summaries/confirmatory_endpoints.json` | pooled CF1/CF2 | valid; used as the pooling-sensitivity comparison |
 | `final_token_repair/summaries/final_token_endpoints*.json` | final-token CF2 | the paper's primary intervention numbers |
 | `summaries/mcnemar_direction_specificity.json` | 4 branches | repo version is newer than the bundle's |
-| `probes_654/` | 9 stages, 654-row, with bindings | imported 2026-09-10 (`probes/` is 370-era — do not use) |
-| `behavioral_eval/responses_654_M*.json` | 9 stages | imported — **CF1 is now reproducible from raw generations** |
-| `raw/steering_654_*.json` | 12 files | imported — steering no longer judge-file-only |
+| `probes_654/` | 9 stages, 654-row, with bindings | imported 2026-09-10 (`probes/` is 370-era, do not use) |
+| `behavioral_eval/responses_654_M*.json` | 9 stages | imported, **CF1 is now reproducible from raw generations** |
+| `raw/steering_654_*.json` | 12 files | imported, steering no longer judge-file-only |
 | `human_review/packet.json` | 160 blinded items | already built; only the annotation is outstanding |
 
-## 2. Needs recomputing — infrastructure is ready, CPU only
+## 2. Needs recomputing: infrastructure is ready, CPU only
 
 | What | Why | Command |
 |---|---|---|
@@ -65,7 +65,7 @@ Current output: all nine stages `ok`, `all present stages bound & consistent: Tr
 | CF3 decodability | re-pin on the imported activations | `python -m src.analysis.direction_decodability` |
 | Cross-branch bootstrap / stability / bottleneck | these load `_pooled`; re-running confirms them on the imported set | `python -m src.analysis.bootstrap_direction_stability`<br>`python -m src.analysis.bottleneck_layer`<br>`python -m src.analysis.bootstrap_branch_direction_difference`<br>`python -m src.analysis.paired_deep_layer_stability_test` |
 
-None of the four in the last row feed the current paper — they support README
+None of the four in the last row feed the current paper, they support README
 Findings 2 and 3, which the paper does not use. Run them only if you want those
 findings back.
 
@@ -75,9 +75,9 @@ findings back.
 |---|---|---|
 | `src/analysis/subspace_geometry.py` | **hardcodes the M2→M3 pair**; has `--pooling` and `--layers` but no stage arguments | add `--pre`/`--post` (≈10 lines) to get the direct path (M1→M3_direct, M1_alt→M3_direct_alt) |
 | `src/analysis/direction_decodability.py` | hardcodes M2/M3 | add stage arguments if CF3 is wanted on other pairs |
-| `src/analysis/eval_refusal_direction.py::load_stage` | hardcodes `_pooled.npy`; four `src/analysis/*` scripts route through it | add a `pooling` parameter and thread it through — the same edit already applied to `factorial_direction_audit.py`, `subspace_geometry.py` and `direction_source_robustness.py` in the 2026-09-08 session |
+| `src/analysis/eval_refusal_direction.py::load_stage` | hardcodes `_pooled.npy`; four `src/analysis/*` scripts route through it | add a `pooling` parameter and thread it through, the same edit already applied to `factorial_direction_audit.py`, `subspace_geometry.py` and `direction_source_robustness.py` in the 2026-09-08 session |
 
-## 4. What the paper actually needs
+## 4. What the paper needs
 
 The paper's geometry does **not** come from the `src/analysis/*` scripts.
 It comes from `paper_draft/make_evidence.py`, which reads the committed direction
@@ -91,13 +91,13 @@ FRESH = ["M2", "M3", "M2_alt", "M3_alt"]
 With all nine now available this can cover the whole design, which turns two
 stated limitations into results:
 
-- **§4.3 becomes two-sided** — the contrast-norm growth and `z_C` shift can be
+- **§4.3 becomes two-sided**: the contrast-norm growth and `z_C` shift can be
   computed for the direct path (M1→M3_direct, M1_alt→M3_direct_alt), not just the
   mediated one;
 - **Figure 1b gains real bootstrap CIs** on every pairwise cosine, including the
   direct branches, replacing point estimates plus a fold-based noise floor.
 
-That edit is to my own code and is not something you need to run blind — see the
+That edit is to my own code and is not something you need to run blind, see the
 handover note at the end.
 
 ## 5. New result already visible from the 9-stage factorial
@@ -113,7 +113,7 @@ does not yet say. At layer 24:
 | **M3_direct_alt** (direct, Dolly) | **0.941** | **58.6** |
 
 The direct-DPO branches have a **larger and more harmfulness-aligned** A–D
-contrast than the mediated ones — and their behaviour depends on it six to eleven
+contrast than the mediated ones, and their behaviour depends on it six to eleven
 times *less*. This independently corroborates the `a_AD_rms` control already in
 the paper (49.9 / 39.7 vs 36.3 / 32.2 at L24) and strengthens the argument: the
 direct-path null is not "a weak or noisy direction", it is a bigger, cleaner

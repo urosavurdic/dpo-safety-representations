@@ -1,4 +1,4 @@
-# EXPERIMENT.md — frozen pre-T4 state
+# EXPERIMENT.md: frozen pre-T4 state
 
 Portfolio-facing summary of *what is fixed* going into the T4 run. The
 authoritative pre-registration is `docs/audit/analysis_plan.md`; this file is
@@ -10,7 +10,7 @@ the readable orientation.
 |---|---|
 | file | `data/frozen_v2/benchmark_v2_20260826T212909Z.jsonl` |
 | sha256 | `e4946b070f441c7a0676db830c65257b78a2d1b46abb0a61cce4cc86352f838b` |
-| rows | **654** — A=150 (HarmBench), B=250 (XSTest), C=104 (StrongREJECT reduced-cue), D=150 (Alpaca/Dolly/OASST1) |
+| rows | **654**: A=150 (HarmBench), B=250 (XSTest), C=104 (StrongREJECT reduced-cue), D=150 (Alpaca/Dolly/OASST1) |
 | split | `direction_estimation` (240) / `held_out_behavioral` (60) assigned once, upstream, on A/D only (`logs/direction_split_manifest.json`, sha `880381606de7…`) |
 
 Every v2 artifact carries `benchmark_sha256` + `split_manifest_sha256` per row
@@ -18,10 +18,10 @@ and a `*_binding.json` sidecar. The CPU stats scripts refuse any 370-era /
 unbound file (`src/pipeline/binding_guard.py`); `--allow-unbound` is a break-glass for
 historical work only.
 
-## Prompt annotation vs response annotation (frozen clarification — §5.0)
+## Prompt annotation vs response annotation (frozen clarification: §5.0)
 
 The **104/104 `accept`** in `data/review/r104_human_review_blind.csv` is
-**prompt-rewrite eligibility review** — whether each reduced-cue rewrite
+**prompt-rewrite eligibility review**: whether each reduced-cue rewrite
 preserved the harmful objective. It is **not** a human evaluation of any model
 response. The project has **zero response-level human behavioral annotation** on
 either the 370- or 654-row benchmark; `results/classifier_validation_sample.json`
@@ -45,13 +45,13 @@ validation, **not a gold-standard truth set**.
   each stage's own A–D direction at layer 28, is the 4-way benchmark-category
   distinction more linearly decodable at M3 than M2? Wording: *"DPO made the
   preregistered benchmark-category distinction more linearly decodable after the
-  A–D contrast direction was removed"* — **never** *"DPO created a richer safety
+  A–D contrast direction was removed"*: **never** *"DPO created a richer safety
   representation."*
 
 ## Terminology guardrails (§3)
 
 The PCA/SVD object is the **top-variance subspace of the centered, equal-weighted
-A_est ∪ D_est activations** — call it the *stage-specific centered A/D activation
+A_est ∪ D_est activations**: call it the *stage-specific centered A/D activation
 subspace*. **Never** "the safety subspace", "the full safety representation",
 "the model's complete refusal mechanism", "semantic safety understanding",
 "invariant across models/datasets". A stable cosine alone never proves H2; report
@@ -61,12 +61,12 @@ orthogonal structure / amplification).
 ## Branch and corpus wording
 
 - **M1 → M2 → M3** vs **M1 → M3_direct** answers *"does inserting a safety-SFT
-  stage before DPO change the resulting geometry/behaviour?"* — **not** "DPO the
+  stage before DPO change the resulting geometry/behaviour?"*: **not** "DPO the
   method".
 - **M1_alt** is *"a second instruction corpus"* (Dolly-15k), **not** "only
   dataset identity". A corpus-stats table (row counts, length distributions,
   sampling rate) accompanies any alt-branch claim. M1_alt draws ~40% of Dolly's
-  single-turn pool, so training/eval overlap is structural — the eval set avoids
+  single-turn pool, so training/eval overlap is structural, the eval set avoids
   reusing exact prompts going forward, but already-trained M*_alt checkpoints
   saw some.
 
@@ -93,7 +93,7 @@ internal-representation results. Label them as such.
 - **CF3 category compat**: A and C carry the **same** 4-way label set
   (`misinformation_disinformation`, `harassment_bullying`, `illegal`,
   `cybercrime_intrusion`); A has no non-CF3 categories. Distributions differ
-  (A illegal-heavy 57 vs C 6; C harassment-heavy 41 vs A 19) — handled by the
+  (A illegal-heavy 57 vs C 6; C harassment-heavy 41 vs A 19): handled by the
   grouped-stratified CV in `direction_decodability.py`; only the label *sets*
   need to match (§4.4).
 

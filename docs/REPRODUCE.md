@@ -1,10 +1,10 @@
-# REPRODUCE.md — pre-T4 / T4 / post-T4 command sequence (frozen)
+# REPRODUCE.md: pre-T4 / T4 / post-T4 command sequence (frozen)
 
 Mirrors `docs/audit/analysis_plan.md` §9. The pre-T4 steps are CPU-only and run
 now; the T4 steps need a GPU + local model weights; the post-T4 steps are CPU +
 ~½ day of human annotation.
 
-## PRE-T4 (CPU / code / tests / docs — done in the WP1–WP20 pass)
+## PRE-T4 (CPU / code / tests / docs: done in the WP1–WP20 pass)
 
 ```bash
 # frozen plan + fixtures
@@ -27,13 +27,13 @@ python -m pytest \
 python -m compileall -q src tests
 ```
 
-`python -m src.reproduce --list` shows `causal_stats` as **BLOCKED** pre-T4 —
+`python -m src.reproduce --list` shows `causal_stats` as **BLOCKED** pre-T4:
 that is the intended state (it needs `results/raw/causal_ablation_654_M3_L24-28.json`
 from the T4 run).
 
 ## T4 (one notebook per session, 240–270 min target, hard 300, resumable)
 
-Do **not** schedule a notebook merely because a point estimate is < 300 min —
+Do **not** schedule a notebook merely because a point estimate is < 300 min:
 use `v2_pipeline calibrate` / the 04b preflight cell. Notebooks 00–05 + 04b are
 thin shells over `v2_pipeline` + the scripts below.
 
@@ -72,14 +72,14 @@ python -m src.analysis.behavioral_judges --response-manifest results/manifests/c
   --build-consolidated results/manifests/<s2>.json results/manifests/<s4>.json results/manifests/<s5>.json \
   --benchmark-sha256 <BENCH_SHA> --split-manifest-sha256 <SPLIT_SHA>
 
-# S6 (nb 05 tail): judge pass — consumes ONLY the consolidated manifest
+# S6 (nb 05 tail): judge pass: consumes ONLY the consolidated manifest
 python -m src.analysis.behavioral_judges \
   --response-manifest results/manifests/consolidated_<ts>.json \
   --require-binding --reject-legacy --out-dir results/behavioral_judges --run-live
 ```
 
 `v2_pipeline direction` will **silently no-op** if the six
-`results/refusal_direction/*.json` from the old 370-prompt run still exist —
+`results/refusal_direction/*.json` from the old 370-prompt run still exist:
 pass `--force` after re-extraction (or delete the stale files first).
 
 ## POST-T4 (CPU + ~½ day human)
@@ -125,5 +125,5 @@ python -m src.analysis.check_behavioral_agreement --sealed-key ../SEALED_KEY_out
 python -m src.analysis.behavioral_robustness --conclusions results/human_review/conclusions.json
 
 # cross-branch on regenerated data; rewrite Findings per §3 claim audit;
-# repo restructure (git mv) — ONLY NOW.
+# repo restructure (git mv): ONLY NOW.
 ```
